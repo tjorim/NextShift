@@ -1,0 +1,41 @@
+{
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "serviceworker": true
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "script"
+  },
+  "globals": {
+    "dayjs": "readonly",
+    "dayjs_plugin_weekOfYear": "readonly",
+    "dayjs_plugin_timezone": "readonly",
+    "dayjs_plugin_utc": "readonly",
+    "dayjs_plugin_isSameOrBefore": "readonly",
+    "dayjs_plugin_isSameOrAfter": "readonly",
+    "dayjs_plugin_localizedFormat": "readonly",
+    "bootstrap": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "prefer-const": "error",
+    "no-var": "error",
+    "eqeqeq": "error",
+    "curly": "error",
+    "brace-style": ["error", "1tbs"],
+    "indent": ["error", 4],
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "never"],
+    "no-trailing-spaces": "error",
+    "eol-last": "error"
+  }
+}

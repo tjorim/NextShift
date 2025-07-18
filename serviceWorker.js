@@ -57,8 +57,8 @@ self.addEventListener('activate', function(event) {
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', function(event) {
     // Skip non-HTTP(S) requests (chrome-extension, etc.)
-    if (event.request.url.startsWith('chrome-extension://') || 
-        event.request.url.startsWith('moz-extension://') || 
+    if (event.request.url.startsWith('chrome-extension://') ||
+        event.request.url.startsWith('moz-extension://') ||
         event.request.url.startsWith('safari-extension://') ||
         (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://'))) {
         return;
@@ -72,17 +72,17 @@ self.addEventListener('fetch', function(event) {
                     console.log('Service Worker: Serving from cache', event.request.url);
                     return response;
                 }
-                
+
                 console.log('Service Worker: Fetching from network', event.request.url);
                 return fetch(event.request).then(function(response) {
                     // Check if we received a valid response
                     if (!response || response.status !== 200 || response.type !== 'basic') {
                         return response;
                     }
-                    
+
                     // Clone the response as it can only be consumed once
                     const responseToCache = response.clone();
-                    
+
                     // Add successful responses to cache (with error handling)
                     caches.open(CACHE_NAME)
                         .then(function(cache) {
@@ -91,28 +91,28 @@ self.addEventListener('fetch', function(event) {
                         .catch(function(error) {
                             console.log('Service Worker: Cache put failed', error);
                         });
-                    
+
                     return response;
                 }).catch(function(error) {
                     console.log('Service Worker: Fetch failed', error);
-                    
+
                     // Return a fallback response for HTML requests when offline
-                    if (event.request.headers.get('accept') && 
+                    if (event.request.headers.get('accept') &&
                         event.request.headers.get('accept').includes('text/html')) {
                         return caches.match('/index.html');
                     }
-                    
+
                     throw error;
                 });
             }
-        )
+            )
     );
 });
 
 // Background sync for future features
 self.addEventListener('sync', function(event) {
     console.log('Service Worker: Background sync', event.tag);
-    
+
     if (event.tag === 'shift-data-sync') {
         event.waitUntil(
             // Future: sync shift data or user preferences
@@ -124,7 +124,7 @@ self.addEventListener('sync', function(event) {
 // Push notifications for future features
 self.addEventListener('push', function(event) {
     console.log('Service Worker: Push received');
-    
+
     const options = {
         body: event.data ? event.data.text() : 'NextShift notification',
         icon: '/assets/icons/icon-192.png',
@@ -147,7 +147,7 @@ self.addEventListener('push', function(event) {
             }
         ]
     };
-    
+
     event.waitUntil(
         self.registration.showNotification('NextShift', options)
     );
@@ -156,9 +156,9 @@ self.addEventListener('push', function(event) {
 // Handle notification clicks
 self.addEventListener('notificationclick', function(event) {
     console.log('Service Worker: Notification clicked', event.action);
-    
+
     event.notification.close();
-    
+
     if (event.action === 'view') {
         event.waitUntil(
             clients.openWindow('/')
@@ -169,15 +169,15 @@ self.addEventListener('notificationclick', function(event) {
 // Message handling for communication with main app
 self.addEventListener('message', function(event) {
     console.log('Service Worker: Message received', event.data);
-    
+
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
-    
+
     if (event.data && event.data.type === 'GET_VERSION') {
-        event.ports[0].postMessage({ 
+        event.ports[0].postMessage({
             version: CACHE_NAME,
-            appVersion: APP_VERSION 
+            appVersion: APP_VERSION
         });
     }
 });

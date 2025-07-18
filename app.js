@@ -61,7 +61,7 @@ function initializeElements() {
 function initializeApp() {
     // Check if user has selected a team
     userTeam = localStorage.getItem('userTeam');
-    
+
     if (!userTeam) {
         elements.teamModal.show();
     } else {
@@ -69,19 +69,19 @@ function initializeApp() {
         updateCompareTeamOptions();
         updateAllViews();
     }
-    
+
     // Update version displays
     updateVersionDisplays();
-    
+
     // Register service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('serviceWorker.js')
-            .then(registration => {
+            .then(_registration => {
                 console.log('ServiceWorker registered');
                 // Get service worker version
                 getServiceWorkerVersion();
             })
-            .catch(error => console.log('ServiceWorker registration failed:', error));
+            .catch(_error => console.log('ServiceWorker registration failed'));
     }
 }
 
@@ -93,38 +93,38 @@ function setupEventListeners() {
             selectTeam(team);
         });
     });
-    
+
     // Change team button
     elements.changeTeamBtn.addEventListener('click', function() {
         elements.teamModal.show();
     });
-    
+
     // Navigation buttons
     elements.todayBtn.addEventListener('click', function() {
         currentViewDate = dayjs();
         updateAllViews();
     });
-    
+
     elements.prevBtn.addEventListener('click', function() {
         currentViewDate = currentViewDate.subtract(7, 'day');
         updateScheduleView();
     });
-    
+
     elements.currentBtn.addEventListener('click', function() {
         currentViewDate = dayjs();
         updateScheduleView();
     });
-    
+
     elements.nextBtn.addEventListener('click', function() {
         currentViewDate = currentViewDate.add(7, 'day');
         updateScheduleView();
     });
-    
+
     // Compare team selection
     elements.compareTeam.addEventListener('change', function() {
         updateTransferView();
     });
-    
+
     // Tab switching
     document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
         tab.addEventListener('shown.bs.tab', function(event) {
@@ -136,7 +136,7 @@ function setupEventListeners() {
             }
         });
     });
-    
+
     // Online/offline detection
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
@@ -166,7 +166,7 @@ function updateCompareTeamOptions() {
 function getCurrentShiftDay() {
     const now = dayjs();
     const currentHour = now.hour();
-    
+
     if (currentHour < 7) {
         // Before 07:00: we're in a night shift that started yesterday
         return now.subtract(1, 'day');
@@ -190,11 +190,12 @@ function getWeekRange(date) {
     };
 }
 
-function isWithinDateRange(date, startDate, endDate) {
-    const checkDate = dayjs(date);
-    return checkDate.isSameOrAfter(dayjs(startDate)) && 
-           checkDate.isSameOrBefore(dayjs(endDate));
-}
+// Utility function for future use
+// function isWithinDateRange(date, startDate, endDate) {
+//     const checkDate = dayjs(date);
+//     return checkDate.isSameOrAfter(dayjs(startDate)) &&
+//            checkDate.isSameOrBefore(dayjs(endDate));
+// }
 
 function isSameDay(date1, date2) {
     return dayjs(date1).isSame(dayjs(date2), 'day');
@@ -204,21 +205,27 @@ function isSameDay(date1, date2) {
 function calculateShift(date, teamNumber) {
     const targetDate = dayjs(date).startOf('day');
     const referenceDate = dayjs(CONFIG.REFERENCE_DATE).startOf('day');
-    
+
     // Calculate days since reference
     const daysSinceReference = targetDate.diff(referenceDate, 'day');
-    
+
     // Calculate team offset (each team starts 2 days later)
     const teamOffset = (teamNumber - CONFIG.REFERENCE_TEAM) * 2;
-    
+
     // Calculate position in 10-day cycle
     const adjustedDays = daysSinceReference - teamOffset;
     const cyclePosition = ((adjustedDays % CONFIG.SHIFT_CYCLE_DAYS) + CONFIG.SHIFT_CYCLE_DAYS) % CONFIG.SHIFT_CYCLE_DAYS;
-    
+
     // Determine shift based on cycle position
-    if (cyclePosition < 2) return SHIFTS.MORNING;
-    if (cyclePosition < 4) return SHIFTS.EVENING;
-    if (cyclePosition < 6) return SHIFTS.NIGHT;
+    if (cyclePosition < 2) {
+        return SHIFTS.MORNING;
+    }
+    if (cyclePosition < 4) {
+        return SHIFTS.EVENING;
+    }
+    if (cyclePosition < 6) {
+        return SHIFTS.NIGHT;
+    }
     return SHIFTS.OFF;
 }
 
@@ -233,20 +240,20 @@ function formatDateCode(date) {
 function getShiftCode(date, teamNumber) {
     const shift = calculateShift(date, teamNumber);
     const dateCode = formatDateCode(date);
-    
+
     // For night shifts, use previous day's date code
     if (shift === SHIFTS.NIGHT) {
         const prevDay = dayjs(date).subtract(1, 'day');
         const prevDateCode = formatDateCode(prevDay);
         return `${prevDateCode}${shift.code}`;
     }
-    
+
     return `${dateCode}${shift.code}`;
 }
 
 function getNextShift(fromDate, teamNumber) {
     let checkDate = dayjs(fromDate).add(1, 'day');
-    
+
     for (let i = 0; i < CONFIG.SHIFT_CYCLE_DAYS; i++) {
         const shift = calculateShift(checkDate, teamNumber);
         if (shift !== SHIFTS.OFF) {
@@ -258,23 +265,23 @@ function getNextShift(fromDate, teamNumber) {
         }
         checkDate = checkDate.add(1, 'day');
     }
-    
+
     return null;
 }
 
 function getTransferDays(myTeam, otherTeam, fromDate, daysToCheck = 14) {
     const transfers = [];
-    
+
     for (let i = 0; i < daysToCheck; i++) {
         const checkDate = dayjs(fromDate).add(i, 'day');
         const myShift = calculateShift(checkDate, myTeam);
         const otherShift = calculateShift(checkDate, otherTeam);
-        
+
         // Check if both teams are working and shifts are consecutive
         if (myShift !== SHIFTS.OFF && otherShift !== SHIFTS.OFF) {
             const myShiftOrder = getShiftOrder(myShift);
             const otherShiftOrder = getShiftOrder(otherShift);
-            
+
             // Transfer if shifts are consecutive (e.g., Morning -> Evening, Evening -> Night, Night -> Morning)
             if ((myShiftOrder + 1) % 3 === otherShiftOrder || (otherShiftOrder + 1) % 3 === myShiftOrder) {
                 transfers.push({
@@ -288,14 +295,20 @@ function getTransferDays(myTeam, otherTeam, fromDate, daysToCheck = 14) {
             }
         }
     }
-    
+
     return transfers;
 }
 
 function getShiftOrder(shift) {
-    if (shift === SHIFTS.MORNING) return 0;
-    if (shift === SHIFTS.EVENING) return 1;
-    if (shift === SHIFTS.NIGHT) return 2;
+    if (shift === SHIFTS.MORNING) {
+        return 0;
+    }
+    if (shift === SHIFTS.EVENING) {
+        return 1;
+    }
+    if (shift === SHIFTS.NIGHT) {
+        return 2;
+    }
     return -1;
 }
 
@@ -317,18 +330,18 @@ function updateCurrentStatus() {
     const dateCode = formatDateCode(currentShiftDay);
     const myShift = calculateShift(currentShiftDay, userTeam);
     const nextShift = getNextShift(currentShiftDay, userTeam);
-    
+
     // Display the current shift day (may be different from calendar day for night shifts)
-    const displayText = isCurrentShiftDay(now) && now.hour() < 7 ? 
+    const displayText = isCurrentShiftDay(now) && now.hour() < 7 ?
         `${currentShiftDay.format('dddd, MMMM D, YYYY')} (Night shift from ${now.subtract(1, 'day').format('MMM D')})` :
         `${now.format('dddd, MMMM D, YYYY')}`;
-    
+
     elements.currentDate.textContent = `${displayText} (${dateCode})`;
-    
+
     // My team shift status with enhanced timing info
     const currentHour = now.hour();
     let timingInfo = myShift.hours;
-    
+
     if (myShift !== SHIFTS.OFF) {
         if (myShift === SHIFTS.NIGHT && currentHour < 7) {
             timingInfo = `${myShift.hours} (ends at 07:00)`;
@@ -340,7 +353,7 @@ function updateCurrentStatus() {
             timingInfo = `${myShift.hours} (starts at 23:00)`;
         }
     }
-    
+
     const shiftHtml = `
         <div class="d-flex align-items-center">
             <span class="badge shift-${myShift.name.toLowerCase()} me-2 shift-code">${myShift.code}</span>
@@ -351,7 +364,7 @@ function updateCurrentStatus() {
         </div>
     `;
     elements.myTeamShift.innerHTML = shiftHtml;
-    
+
     // Next shift
     if (nextShift) {
         elements.nextShift.innerHTML = `
@@ -366,13 +379,13 @@ function updateCurrentStatus() {
 function updateTodayView() {
     const currentShiftDay = getCurrentShiftDay();
     const shiftsHtml = [];
-    
+
     for (let team = 1; team <= CONFIG.TEAMS_COUNT; team++) {
         const shift = calculateShift(currentShiftDay, team);
         const code = getShiftCode(currentShiftDay, team);
         const isMyTeam = team === userTeam;
         const isCurrentTeamDay = isCurrentShiftDay(currentShiftDay) && team === userTeam;
-        
+
         shiftsHtml.push(`
             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
                 <div class="card h-100 ${isMyTeam ? 'my-team' : ''} ${isCurrentTeamDay ? 'border-success border-2' : ''}">
@@ -389,45 +402,45 @@ function updateTodayView() {
             </div>
         `);
     }
-    
+
     elements.todayShifts.innerHTML = shiftsHtml.join('');
 }
 
 function updateScheduleView() {
     const weekRange = getWeekRange(currentViewDate);
     const days = [];
-    
+
     // Generate 7 days starting from Monday using the new utility
     for (let i = 0; i < 7; i++) {
         days.push(weekRange.start.add(i, 'day'));
     }
-    
+
     const currentShiftDay = getCurrentShiftDay();
-    
+
     let tableHtml = `
         <table class="table table-bordered schedule-table">
             <thead>
                 <tr>
                     <th class="team-header">Team</th>
                     ${days.map(day => {
-                        const isToday = isSameDay(day, currentShiftDay);
-                        return `<th class="${isToday ? 'bg-light border-success' : ''}">${day.format('ddd')}<br><small>${day.format('M/D')}</small>${isToday ? '<br><span class="badge badge-sm bg-success">Today</span>' : ''}</th>`;
-                    }).join('')}
+        const isToday = isSameDay(day, currentShiftDay);
+        return `<th class="${isToday ? 'bg-light border-success' : ''}">${day.format('ddd')}<br><small>${day.format('M/D')}</small>${isToday ? '<br><span class="badge badge-sm bg-success">Today</span>' : ''}</th>`;
+    }).join('')}
                 </tr>
             </thead>
             <tbody>
     `;
-    
+
     for (let team = 1; team <= CONFIG.TEAMS_COUNT; team++) {
         const isMyTeam = team === userTeam;
         tableHtml += `<tr ${isMyTeam ? 'class="table-primary"' : ''}>`;
         tableHtml += `<td class="team-header">Team ${team}</td>`;
-        
+
         days.forEach(day => {
             const shift = calculateShift(day, team);
             const isToday = isSameDay(day, currentShiftDay);
             const isCurrentTeamToday = isToday && team === userTeam;
-            
+
             tableHtml += `
                 <td class="${isToday ? 'bg-light' : ''} ${isCurrentTeamToday ? 'border-success border-2' : ''}">
                     <span class="badge shift-${shift.name.toLowerCase()} shift-code">${shift.code}</span>
@@ -436,22 +449,24 @@ function updateScheduleView() {
                 </td>
             `;
         });
-        
+
         tableHtml += '</tr>';
     }
-    
+
     tableHtml += '</tbody></table>';
-    
+
     elements.scheduleView.innerHTML = tableHtml;
 }
 
 function updateTransferView() {
     const compareTeam = parseInt(elements.compareTeam.value);
-    if (!compareTeam || compareTeam === userTeam) return;
-    
+    if (!compareTeam || compareTeam === userTeam) {
+        return;
+    }
+
     const currentShiftDay = getCurrentShiftDay();
     const transfers = getTransferDays(userTeam, compareTeam, currentShiftDay);
-    
+
     if (transfers.length === 0) {
         elements.transferInfo.innerHTML = `
             <div class="alert alert-info">
@@ -460,19 +475,19 @@ function updateTransferView() {
         `;
         return;
     }
-    
+
     let transferHtml = `
         <div class="alert alert-info">
             <strong>Transfers between Team ${userTeam} and Team ${compareTeam}:</strong>
         </div>
         <div class="row g-3">
     `;
-    
+
     transfers.forEach(transfer => {
         const typeClass = transfer.type === 'handover' ? 'success' : 'warning';
         const typeText = transfer.type === 'handover' ? 'You hand over to' : 'You take over from';
         const isToday = isSameDay(transfer.date, currentShiftDay);
-        
+
         transferHtml += `
             <div class="col-12 col-md-6">
                 <div class="card border-${typeClass} ${isToday ? 'border-3 bg-light' : ''}">
@@ -497,7 +512,7 @@ function updateTransferView() {
             </div>
         `;
     });
-    
+
     transferHtml += '</div>';
     elements.transferInfo.innerHTML = transferHtml;
 }
@@ -518,7 +533,9 @@ function updateOnlineStatus() {
 function updateVersionDisplays() {
     const versionElements = document.querySelectorAll('#appVersion, #aboutVersion');
     versionElements.forEach(el => {
-        if (el) el.textContent = `v${CONFIG.VERSION}`;
+        if (el) {
+            el.textContent = `v${CONFIG.VERSION}`;
+        }
     });
 }
 
@@ -531,9 +548,9 @@ function getServiceWorkerVersion() {
                 swVersionEl.textContent = event.data.version;
             }
         };
-        
+
         navigator.serviceWorker.controller.postMessage(
-            { type: 'GET_VERSION' }, 
+            { type: 'GET_VERSION' },
             [channel.port2]
         );
     }
