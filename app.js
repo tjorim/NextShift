@@ -20,6 +20,9 @@ const SHIFTS = {
 dayjs.extend(dayjs_plugin_weekOfYear);
 dayjs.extend(dayjs_plugin_timezone);
 dayjs.extend(dayjs_plugin_utc);
+dayjs.extend(dayjs_plugin_isSameOrBefore);
+dayjs.extend(dayjs_plugin_isSameOrAfter);
+dayjs.extend(dayjs_plugin_localizedFormat);
 
 // App state
 let userTeam = null;
@@ -159,6 +162,44 @@ function updateCompareTeamOptions() {
     }
 }
 
+// Enhanced datetime utilities
+function getCurrentShiftDay() {
+    const now = dayjs();
+    const currentHour = now.hour();
+    
+    if (currentHour < 7) {
+        // Before 07:00: we're in a night shift that started yesterday
+        return now.subtract(1, 'day');
+    } else {
+        // 07:00 and after: we're in a shift that starts today
+        return now;
+    }
+}
+
+function isCurrentShiftDay(date) {
+    const currentShiftDay = getCurrentShiftDay();
+    return dayjs(date).isSame(currentShiftDay, 'day');
+}
+
+function getWeekRange(date) {
+    const startOfWeek = dayjs(date).startOf('week').add(1, 'day'); // Monday start
+    const endOfWeek = startOfWeek.add(6, 'day');
+    return {
+        start: startOfWeek,
+        end: endOfWeek
+    };
+}
+
+function isWithinDateRange(date, startDate, endDate) {
+    const checkDate = dayjs(date);
+    return checkDate.isSameOrAfter(dayjs(startDate)) && 
+           checkDate.isSameOrBefore(dayjs(endDate));
+}
+
+function isSameDay(date1, date2) {
+    return dayjs(date1).isSame(dayjs(date2), 'day');
+}
+
 // Core shift calculation functions
 function calculateShift(date, teamNumber) {
     const targetDate = dayjs(date).startOf('day');
@@ -272,19 +313,40 @@ function updateAllViews() {
 
 function updateCurrentStatus() {
     const now = dayjs();
-    const dateCode = formatDateCode(now);
-    const myShift = calculateShift(now, userTeam);
-    const nextShift = getNextShift(now, userTeam);
+    const currentShiftDay = getCurrentShiftDay();
+    const dateCode = formatDateCode(currentShiftDay);
+    const myShift = calculateShift(currentShiftDay, userTeam);
+    const nextShift = getNextShift(currentShiftDay, userTeam);
     
-    elements.currentDate.textContent = `${now.format('dddd, MMMM D, YYYY')} (${dateCode})`;
+    // Display the current shift day (may be different from calendar day for night shifts)
+    const displayText = isCurrentShiftDay(now) && now.hour() < 7 ? 
+        `${currentShiftDay.format('dddd, MMMM D, YYYY')} (Night shift from ${now.subtract(1, 'day').format('MMM D')})` :
+        `${now.format('dddd, MMMM D, YYYY')}`;
     
-    // My team shift status
+    elements.currentDate.textContent = `${displayText} (${dateCode})`;
+    
+    // My team shift status with enhanced timing info
+    const currentHour = now.hour();
+    let timingInfo = myShift.hours;
+    
+    if (myShift !== SHIFTS.OFF) {
+        if (myShift === SHIFTS.NIGHT && currentHour < 7) {
+            timingInfo = `${myShift.hours} (ends at 07:00)`;
+        } else if (myShift === SHIFTS.MORNING && currentHour < 7) {
+            timingInfo = `${myShift.hours} (starts at 07:00)`;
+        } else if (myShift === SHIFTS.EVENING && currentHour < 15) {
+            timingInfo = `${myShift.hours} (starts at 15:00)`;
+        } else if (myShift === SHIFTS.NIGHT && currentHour < 23) {
+            timingInfo = `${myShift.hours} (starts at 23:00)`;
+        }
+    }
+    
     const shiftHtml = `
         <div class="d-flex align-items-center">
             <span class="badge shift-${myShift.name.toLowerCase()} me-2 shift-code">${myShift.code}</span>
             <div>
                 <div class="fw-bold">Team ${userTeam} - ${myShift.name}</div>
-                <small class="text-muted">${myShift.hours}</small>
+                <small class="text-muted">${timingInfo}</small>
             </div>
         </div>
     `;
@@ -302,19 +364,23 @@ function updateCurrentStatus() {
 }
 
 function updateTodayView() {
-    const today = dayjs();
+    const currentShiftDay = getCurrentShiftDay();
     const shiftsHtml = [];
     
     for (let team = 1; team <= CONFIG.TEAMS_COUNT; team++) {
-        const shift = calculateShift(today, team);
-        const code = getShiftCode(today, team);
+        const shift = calculateShift(currentShiftDay, team);
+        const code = getShiftCode(currentShiftDay, team);
         const isMyTeam = team === userTeam;
+        const isCurrentTeamDay = isCurrentShiftDay(currentShiftDay) && team === userTeam;
         
         shiftsHtml.push(`
             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                <div class="card h-100 ${isMyTeam ? 'my-team' : ''}">
+                <div class="card h-100 ${isMyTeam ? 'my-team' : ''} ${isCurrentTeamDay ? 'border-success border-2' : ''}">
                     <div class="card-body text-center">
-                        <h6 class="card-title">Team ${team}</h6>
+                        <h6 class="card-title">
+                            Team ${team}
+                            ${isCurrentTeamDay ? '<span class="badge bg-success ms-1">Active</span>' : ''}
+                        </h6>
                         <span class="badge shift-${shift.name.toLowerCase()} shift-code mb-2">${code}</span>
                         <div class="small text-muted">${shift.name}</div>
                         <div class="small text-muted">${shift.hours}</div>
@@ -328,20 +394,25 @@ function updateTodayView() {
 }
 
 function updateScheduleView() {
-    const startOfWeek = currentViewDate.startOf('week').add(1, 'day'); // Start from Monday
+    const weekRange = getWeekRange(currentViewDate);
     const days = [];
     
-    // Generate 7 days starting from Monday
+    // Generate 7 days starting from Monday using the new utility
     for (let i = 0; i < 7; i++) {
-        days.push(startOfWeek.add(i, 'day'));
+        days.push(weekRange.start.add(i, 'day'));
     }
+    
+    const currentShiftDay = getCurrentShiftDay();
     
     let tableHtml = `
         <table class="table table-bordered schedule-table">
             <thead>
                 <tr>
                     <th class="team-header">Team</th>
-                    ${days.map(day => `<th>${day.format('ddd')}<br><small>${day.format('M/D')}</small></th>`).join('')}
+                    ${days.map(day => {
+                        const isToday = isSameDay(day, currentShiftDay);
+                        return `<th class="${isToday ? 'bg-light border-success' : ''}">${day.format('ddd')}<br><small>${day.format('M/D')}</small>${isToday ? '<br><span class="badge badge-sm bg-success">Today</span>' : ''}</th>`;
+                    }).join('')}
                 </tr>
             </thead>
             <tbody>
@@ -354,11 +425,14 @@ function updateScheduleView() {
         
         days.forEach(day => {
             const shift = calculateShift(day, team);
-            const code = getShiftCode(day, team);
+            const isToday = isSameDay(day, currentShiftDay);
+            const isCurrentTeamToday = isToday && team === userTeam;
+            
             tableHtml += `
-                <td>
+                <td class="${isToday ? 'bg-light' : ''} ${isCurrentTeamToday ? 'border-success border-2' : ''}">
                     <span class="badge shift-${shift.name.toLowerCase()} shift-code">${shift.code}</span>
                     <br><small>${shift.name}</small>
+                    ${isCurrentTeamToday ? '<br><span class="badge badge-sm bg-success">Active</span>' : ''}
                 </td>
             `;
         });
@@ -375,7 +449,8 @@ function updateTransferView() {
     const compareTeam = parseInt(elements.compareTeam.value);
     if (!compareTeam || compareTeam === userTeam) return;
     
-    const transfers = getTransferDays(userTeam, compareTeam, dayjs());
+    const currentShiftDay = getCurrentShiftDay();
+    const transfers = getTransferDays(userTeam, compareTeam, currentShiftDay);
     
     if (transfers.length === 0) {
         elements.transferInfo.innerHTML = `
@@ -396,20 +471,25 @@ function updateTransferView() {
     transfers.forEach(transfer => {
         const typeClass = transfer.type === 'handover' ? 'success' : 'warning';
         const typeText = transfer.type === 'handover' ? 'You hand over to' : 'You take over from';
+        const isToday = isSameDay(transfer.date, currentShiftDay);
         
         transferHtml += `
             <div class="col-12 col-md-6">
-                <div class="card border-${typeClass}">
+                <div class="card border-${typeClass} ${isToday ? 'border-3 bg-light' : ''}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title">${transfer.date.format('ddd, MMM D')}</h6>
+                                <h6 class="card-title">
+                                    ${transfer.date.format('ddd, MMM D')}
+                                    ${isToday ? '<span class="badge bg-success ms-1">Today</span>' : ''}
+                                </h6>
                                 <p class="card-text small mb-1">${typeText} Team ${compareTeam}</p>
                                 <div class="d-flex gap-2">
                                     <span class="badge shift-${transfer.myShift.name.toLowerCase()}">${transfer.myCode}</span>
                                     <span class="text-muted">→</span>
                                     <span class="badge shift-${transfer.otherShift.name.toLowerCase()}">${transfer.otherCode}</span>
                                 </div>
+                                ${isToday ? '<small class="text-success fw-bold">Active transfer day</small>' : ''}
                             </div>
                         </div>
                     </div>
