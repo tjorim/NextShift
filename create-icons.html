@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NextShift Icon Generator</title>
+</head>
+<body>
+    <h2>NextShift Icons</h2>
+    <p>Right-click and save the icons below:</p>
+    
+    <!-- 192x192 Icon -->
+    <h3>192x192 Icon</h3>
+    <canvas id="icon192" width="192" height="192" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    
+    <!-- 512x512 Icon -->
+    <h3>512x512 Icon</h3>
+    <canvas id="icon512" width="512" height="512" style="border: 1px solid #ccc;"></canvas>
+    
+    <script>
+        function createIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#0d6efd';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Add rounded corners
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.1);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // White circle background
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size * 0.35, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Clock face
+            ctx.strokeStyle = '#0d6efd';
+            ctx.lineWidth = size * 0.02;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size * 0.3, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Clock hands
+            const centerX = size/2;
+            const centerY = size/2;
+            
+            // Hour hand (pointing to 7 for morning shift)
+            ctx.strokeStyle = '#0d6efd';
+            ctx.lineWidth = size * 0.025;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX - size * 0.15, centerY + size * 0.1);
+            ctx.stroke();
+            
+            // Minute hand (pointing to 12)
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX, centerY - size * 0.2);
+            ctx.stroke();
+            
+            // Center dot
+            ctx.fillStyle = '#0d6efd';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size * 0.02, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add text "NS" for NextShift
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.15}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('NS', centerX, centerY + size * 0.45);
+        }
+        
+        // Create both icons
+        createIcon('icon192', 192);
+        createIcon('icon512', 512);
+        
+        // Add download links
+        setTimeout(() => {
+            const canvas192 = document.getElementById('icon192');
+            const canvas512 = document.getElementById('icon512');
+            
+            canvas192.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'icon-192.png';
+                link.textContent = 'Download 192x192 PNG';
+                link.style.display = 'block';
+                link.style.marginTop = '10px';
+                canvas192.parentNode.insertBefore(link, canvas192.nextSibling);
+            });
+            
+            canvas512.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'icon-512.png';
+                link.textContent = 'Download 512x512 PNG';
+                link.style.display = 'block';
+                link.style.marginTop = '10px';
+                canvas512.parentNode.insertBefore(link, canvas512.nextSibling);
+            });
+        }, 100);
+    </script>
+</body>
+</html>

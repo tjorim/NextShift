@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextShift - Team Shift Tracker</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="description" content="Team Shift Tracker for 5-team volcontinu schedule">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Day.js -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/weekOfYear.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/timezone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/utc.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="row bg-primary text-white py-3 mb-4">
+            <div class="col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">NextShift</h1>
+                    <div id="connectionStatus" class="badge bg-success">Online</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Team Selection Modal -->
+        <div class="modal fade" id="teamModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select Your Team</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please select which team you belong to:</p>
+                        <div class="row g-2">
+                            <div class="col-12 col-sm-6 col-md-4" data-team="1">
+                                <button class="btn btn-outline-primary w-100 team-btn" data-team="1">Team 1</button>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4" data-team="2">
+                                <button class="btn btn-outline-primary w-100 team-btn" data-team="2">Team 2</button>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4" data-team="3">
+                                <button class="btn btn-outline-primary w-100 team-btn" data-team="3">Team 3</button>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4" data-team="4">
+                                <button class="btn btn-outline-primary w-100 team-btn" data-team="4">Team 4</button>
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4" data-team="5">
+                                <button class="btn btn-outline-primary w-100 team-btn" data-team="5">Team 5</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="row">
+            <!-- Current Status -->
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">Current Status</h5>
+                            <button class="btn btn-sm btn-outline-secondary" id="changeTeamBtn">Change Team</button>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="currentDate" class="h6 text-muted"></div>
+                                <div id="myTeamShift" class="mb-3"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="nextShift" class="text-muted"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="col-12 mb-4">
+                <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="today-tab" data-bs-toggle="tab" data-bs-target="#today" type="button" role="tab">Today</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button" role="tab">Schedule</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="transfer-tab" data-bs-toggle="tab" data-bs-target="#transfer" type="button" role="tab">Transfers</button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="col-12">
+                <div class="tab-content" id="mainTabContent">
+                    <!-- Today Tab -->
+                    <div class="tab-pane fade show active" id="today" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">All Teams Today</h6>
+                                        <button class="btn btn-sm btn-outline-primary" id="todayBtn">Today</button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="todayShifts" class="row g-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedule Tab -->
+                    <div class="tab-pane fade" id="schedule" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Schedule Overview</h6>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-secondary" id="prevBtn">Previous</button>
+                                    <button class="btn btn-sm btn-outline-primary" id="currentBtn">Current</button>
+                                    <button class="btn btn-sm btn-outline-secondary" id="nextBtn">Next</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="scheduleView" class="table-responsive"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transfer Tab -->
+                    <div class="tab-pane fade" id="transfer" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Team Transfers</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="compareTeam" class="form-label">Compare with Team:</label>
+                                        <select class="form-select" id="compareTeam">
+                                            <option value="1">Team 1</option>
+                                            <option value="2">Team 2</option>
+                                            <option value="3">Team 3</option>
+                                            <option value="4">Team 4</option>
+                                            <option value="5">Team 5</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="transferInfo"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- App JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
