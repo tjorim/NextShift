@@ -28,8 +28,14 @@
         <header class="row bg-primary text-white py-3 mb-4">
             <div class="col">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h1 class="h3 mb-0">NextShift</h1>
-                    <div id="connectionStatus" class="badge bg-success">Online</div>
+                    <div>
+                        <h1 class="h3 mb-0">NextShift</h1>
+                        <small class="text-white-50" id="appVersion">v3.0.0</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div id="connectionStatus" class="badge bg-success">Online</div>
+                        <button class="btn btn-sm btn-outline-light" id="aboutBtn" data-bs-toggle="modal" data-bs-target="#aboutModal">?</button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -166,6 +172,41 @@
                 </div>
             </div>
         </main>
+
+        <!-- About Modal -->
+        <div class="modal fade" id="aboutModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">About NextShift</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-3">
+                            <h6>NextShift - Team Shift Tracker</h6>
+                            <p class="text-muted mb-1">Version <span id="aboutVersion">3.0.0</span></p>
+                            <p class="text-muted small">Service Worker <span id="swVersion">Loading...</span></p>
+                        </div>
+                        <hr>
+                        <p class="small mb-2"><strong>Features:</strong></p>
+                        <ul class="small">
+                            <li>5-team volcontinu shift tracking</li>
+                            <li>Offline PWA functionality</li>
+                            <li>Transfer/handover detection</li>
+                            <li>Weeknumber.weekday date format</li>
+                        </ul>
+                        <hr>
+                        <p class="text-muted small mb-0">
+                            Licensed under Apache 2.0<br>
+                            Built with vanilla JavaScript & Bootstrap 5
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS -->

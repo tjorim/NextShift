@@ -1,6 +1,7 @@
 // NextShift v3 - Team Shift Tracker
 // Configuration
 const CONFIG = {
+    VERSION: '3.0.0',
     REFERENCE_DATE: new Date('2025-01-06'), // Configure this during setup
     REFERENCE_TEAM: 1, // Configure this during setup
     SHIFT_CYCLE_DAYS: 10,
@@ -66,11 +67,18 @@ function initializeApp() {
         updateAllViews();
     }
     
+    // Update version displays
+    updateVersionDisplays();
+    
     // Register service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('serviceWorker.js')
-            .then(registration => console.log('ServiceWorker registered'))
-            .catch(error => console.log('ServiceWorker registration failed'));
+            .then(registration => {
+                console.log('ServiceWorker registered');
+                // Get service worker version
+                getServiceWorkerVersion();
+            })
+            .catch(error => console.log('ServiceWorker registration failed:', error));
     }
 }
 
@@ -424,6 +432,31 @@ function updateOnlineStatus() {
     const isOnline = navigator.onLine;
     elements.connectionStatus.textContent = isOnline ? 'Online' : 'Offline';
     elements.connectionStatus.className = `badge ${isOnline ? 'bg-success' : 'bg-danger'}`;
+}
+
+// Version management functions
+function updateVersionDisplays() {
+    const versionElements = document.querySelectorAll('#appVersion, #aboutVersion');
+    versionElements.forEach(el => {
+        if (el) el.textContent = `v${CONFIG.VERSION}`;
+    });
+}
+
+function getServiceWorkerVersion() {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = function(event) {
+            const swVersionEl = document.getElementById('swVersion');
+            if (swVersionEl && event.data && event.data.version) {
+                swVersionEl.textContent = event.data.version;
+            }
+        };
+        
+        navigator.serviceWorker.controller.postMessage(
+            { type: 'GET_VERSION' }, 
+            [channel.port2]
+        );
+    }
 }
 
 // Auto-refresh every minute to keep current time accurate

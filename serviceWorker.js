@@ -1,5 +1,6 @@
 // NextShift Service Worker
-const CACHE_NAME = 'nextshift-v1';
+const CACHE_NAME = 'nextshift-v3.0.0';
+const APP_VERSION = '3.0.0';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -55,6 +56,14 @@ self.addEventListener('activate', function(event) {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', function(event) {
+    // Skip non-HTTP(S) requests (chrome-extension, etc.)
+    if (event.request.url.startsWith('chrome-extension://') || 
+        event.request.url.startsWith('moz-extension://') || 
+        event.request.url.startsWith('safari-extension://') ||
+        (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://'))) {
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then(function(response) {
@@ -74,10 +83,13 @@ self.addEventListener('fetch', function(event) {
                     // Clone the response as it can only be consumed once
                     const responseToCache = response.clone();
                     
-                    // Add successful responses to cache
+                    // Add successful responses to cache (with error handling)
                     caches.open(CACHE_NAME)
                         .then(function(cache) {
-                            cache.put(event.request, responseToCache);
+                            return cache.put(event.request, responseToCache);
+                        })
+                        .catch(function(error) {
+                            console.log('Service Worker: Cache put failed', error);
                         });
                     
                     return response;
@@ -85,7 +97,8 @@ self.addEventListener('fetch', function(event) {
                     console.log('Service Worker: Fetch failed', error);
                     
                     // Return a fallback response for HTML requests when offline
-                    if (event.request.headers.get('accept').includes('text/html')) {
+                    if (event.request.headers.get('accept') && 
+                        event.request.headers.get('accept').includes('text/html')) {
                         return caches.match('/index.html');
                     }
                     
@@ -162,6 +175,9 @@ self.addEventListener('message', function(event) {
     }
     
     if (event.data && event.data.type === 'GET_VERSION') {
-        event.ports[0].postMessage({ version: CACHE_NAME });
+        event.ports[0].postMessage({ 
+            version: CACHE_NAME,
+            appVersion: APP_VERSION 
+        });
     }
 });
