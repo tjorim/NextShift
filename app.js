@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
     checkOnlineStatus();
 });
 
+/**
+ * Initializes and caches references to key DOM elements used throughout the application.
+ */
 function initializeElements() {
     elements = {
         teamModal: new bootstrap.Modal(document.getElementById('teamModal')),
@@ -58,6 +61,9 @@ function initializeElements() {
     };
 }
 
+/**
+ * Initializes the application state, loads the user's team selection, updates UI views, displays version information, and registers the service worker if supported.
+ */
 function initializeApp() {
     // Check if user has selected a team
     userTeam = localStorage.getItem('userTeam');
@@ -85,6 +91,11 @@ function initializeApp() {
     }
 }
 
+/**
+ * Sets up all event listeners for user interactions and UI updates.
+ *
+ * Handles team selection, navigation controls, compare team changes, tab switches, and online/offline status updates to ensure the application responds dynamically to user actions and connectivity changes.
+ */
 function setupEventListeners() {
     // Team selection
     document.querySelectorAll('.team-btn').forEach(btn => {
@@ -142,6 +153,10 @@ function setupEventListeners() {
     window.addEventListener('offline', updateOnlineStatus);
 }
 
+/**
+ * Sets the user's team selection, updates local storage, hides the team selection modal, and refreshes related UI views.
+ * @param {number} team - The team number selected by the user.
+ */
 function selectTeam(team) {
     userTeam = team;
     localStorage.setItem('userTeam', team.toString());
@@ -150,6 +165,9 @@ function selectTeam(team) {
     updateAllViews();
 }
 
+/**
+ * Populates the compare team dropdown with all teams except the user's selected team.
+ */
 function updateCompareTeamOptions() {
     elements.compareTeam.innerHTML = '';
     for (let i = 1; i <= CONFIG.TEAMS_COUNT; i++) {
@@ -162,7 +180,12 @@ function updateCompareTeamOptions() {
     }
 }
 
-// Enhanced datetime utilities
+/**
+ * Returns the current shift day, adjusting for night shifts that span midnight.
+ *
+ * If the current time is before 07:00, the shift day is considered to be the previous calendar day; otherwise, it is today.
+ * @return {dayjs.Dayjs} The dayjs object representing the current shift day.
+ */
 function getCurrentShiftDay() {
     const now = dayjs();
     const currentHour = now.hour();
@@ -176,11 +199,21 @@ function getCurrentShiftDay() {
     }
 }
 
+/**
+ * Determines if the given date matches the current shift day, accounting for night shifts spanning midnight.
+ * @param {string|Date|dayjs.Dayjs} date - The date to check.
+ * @return {boolean} True if the date is the current shift day; otherwise, false.
+ */
 function isCurrentShiftDay(date) {
     const currentShiftDay = getCurrentShiftDay();
     return dayjs(date).isSame(currentShiftDay, 'day');
 }
 
+/**
+ * Returns the start and end dates of the week containing the given date, with the week starting on Monday.
+ * @param {dayjs.ConfigType} date - The date for which to determine the week range.
+ * @return {{start: dayjs.Dayjs, end: dayjs.Dayjs}} An object with `start` as the Monday and `end` as the Sunday of the week.
+ */
 function getWeekRange(date) {
     const startOfWeek = dayjs(date).startOf('week').add(1, 'day'); // Monday start
     const endOfWeek = startOfWeek.add(6, 'day');
@@ -195,13 +228,23 @@ function getWeekRange(date) {
 //     const checkDate = dayjs(date);
 //     return checkDate.isSameOrAfter(dayjs(startDate)) &&
 //            checkDate.isSameOrBefore(dayjs(endDate));
-// }
+/**
+ * Determines whether two dates fall on the same calendar day.
+ * @param {string|Date|dayjs.Dayjs} date1 - The first date to compare.
+ * @param {string|Date|dayjs.Dayjs} date2 - The second date to compare.
+ * @return {boolean} True if both dates are on the same day; otherwise, false.
+ */
 
 function isSameDay(date1, date2) {
     return dayjs(date1).isSame(dayjs(date2), 'day');
 }
 
-// Core shift calculation functions
+/**
+ * Determines the shift assigned to a specific team on a given date based on the configured shift cycle and team offset.
+ * @param {string|Date|dayjs.Dayjs} date - The date for which to calculate the shift.
+ * @param {number} teamNumber - The team number to calculate the shift for.
+ * @return {Object} The shift object (MORNING, EVENING, NIGHT, or OFF) assigned to the team on the specified date.
+ */
 function calculateShift(date, teamNumber) {
     const targetDate = dayjs(date).startOf('day');
     const referenceDate = dayjs(CONFIG.REFERENCE_DATE).startOf('day');
@@ -229,6 +272,11 @@ function calculateShift(date, teamNumber) {
     return SHIFTS.OFF;
 }
 
+/**
+ * Formats a date as a compact code combining two-digit year, ISO week number, and day of week (Monday=1 to Sunday=7).
+ * @param {string|Date|dayjs.Dayjs} date - The date to format.
+ * @return {string} The formatted date code in the format 'YYWW.D', e.g., '2415.3' for Wednesday of week 15 in 2024.
+ */
 function formatDateCode(date) {
     const d = dayjs(date);
     const year = d.year().toString().slice(-2);
@@ -237,6 +285,12 @@ function formatDateCode(date) {
     return `${year}${week}.${day}`;
 }
 
+/**
+ * Returns the shift code for a given date and team, adjusting for night shifts to use the previous day's date code.
+ * @param {dayjs.Dayjs|string|Date} date - The date for which to generate the shift code.
+ * @param {number} teamNumber - The team number.
+ * @return {string} The shift code in the format YYWW.DX, where X is the shift code.
+ */
 function getShiftCode(date, teamNumber) {
     const shift = calculateShift(date, teamNumber);
     const dateCode = formatDateCode(date);
@@ -251,6 +305,12 @@ function getShiftCode(date, teamNumber) {
     return `${dateCode}${shift.code}`;
 }
 
+/**
+ * Finds the next non-off shift for a given team after a specified date.
+ * @param {dayjs.Dayjs|string|Date} fromDate - The date after which to search for the next shift.
+ * @param {number} teamNumber - The team number to check shifts for.
+ * @return {{date: dayjs.Dayjs, shift: Object, code: string} | null} The next shift's date, shift object, and shift code, or null if none found within the cycle.
+ */
 function getNextShift(fromDate, teamNumber) {
     let checkDate = dayjs(fromDate).add(1, 'day');
 
@@ -269,6 +329,17 @@ function getNextShift(fromDate, teamNumber) {
     return null;
 }
 
+/**
+ * Finds upcoming days where two teams have consecutive working shifts, indicating a handover or takeover opportunity.
+ *
+ * Checks each day in the specified range to identify when both teams are working and their shifts are consecutive (e.g., Morning followed by Evening, Evening followed by Night, Night followed by Morning).
+ *
+ * @param {number} myTeam - The user's team number.
+ * @param {number} otherTeam - The comparison team number.
+ * @param {dayjs.Dayjs|string|Date} fromDate - The start date for the search.
+ * @param {number} [daysToCheck=14] - The number of days to check from the start date.
+ * @return {Array<Object>} An array of transfer objects, each containing the date, both teams' shifts and codes, and the transfer type ('handover' or 'takeover').
+ */
 function getTransferDays(myTeam, otherTeam, fromDate, daysToCheck = 14) {
     const transfers = [];
 
@@ -299,6 +370,11 @@ function getTransferDays(myTeam, otherTeam, fromDate, daysToCheck = 14) {
     return transfers;
 }
 
+/**
+ * Returns the numeric order of a shift type for sequencing purposes.
+ * @param {Object} shift - The shift object to evaluate.
+ * @return {number} The order of the shift: 0 for Morning, 1 for Evening, 2 for Night, or -1 if not a recognized shift.
+ */
 function getShiftOrder(shift) {
     if (shift === SHIFTS.MORNING) {
         return 0;
@@ -312,7 +388,9 @@ function getShiftOrder(shift) {
     return -1;
 }
 
-// UI Update functions
+/**
+ * Updates all main UI views, including current status, today's shifts, and, if their tabs are active, the weekly schedule and transfer views.
+ */
 function updateAllViews() {
     updateCurrentStatus();
     updateTodayView();
@@ -324,6 +402,9 @@ function updateAllViews() {
     }
 }
 
+/**
+ * Updates the current shift status display, showing the current shift day, the user's team shift with timing details, and the next upcoming shift.
+ */
 function updateCurrentStatus() {
     const now = dayjs();
     const currentShiftDay = getCurrentShiftDay();
@@ -376,6 +457,9 @@ function updateCurrentStatus() {
     }
 }
 
+/**
+ * Updates the UI to display today's shifts for all teams, highlighting the user's team and indicating if it is currently active.
+ */
 function updateTodayView() {
     const currentShiftDay = getCurrentShiftDay();
     const shiftsHtml = [];
@@ -406,6 +490,11 @@ function updateTodayView() {
     elements.todayShifts.innerHTML = shiftsHtml.join('');
 }
 
+/**
+ * Updates the weekly schedule table view, displaying each team's shifts for the current week.
+ *
+ * Highlights the user's team and the current shift day, and marks the active shift for the user's team. The schedule covers a Monday-to-Sunday week based on the selected view date.
+ */
 function updateScheduleView() {
     const weekRange = getWeekRange(currentViewDate);
     const days = [];
@@ -458,6 +547,11 @@ function updateScheduleView() {
     elements.scheduleView.innerHTML = tableHtml;
 }
 
+/**
+ * Updates the transfer view to display upcoming transfer days between the user's team and the selected comparison team.
+ *
+ * Shows a list of days within the next 14 days where the user's team and the compared team have consecutive shifts, indicating handover or takeover opportunities. Highlights the current day if it is a transfer day. If no transfers are found, displays an informational message.
+ */
 function updateTransferView() {
     const compareTeam = parseInt(elements.compareTeam.value);
     if (!compareTeam || compareTeam === userTeam) {
@@ -517,19 +611,27 @@ function updateTransferView() {
     elements.transferInfo.innerHTML = transferHtml;
 }
 
+/**
+ * Starts periodic checks of the application's online status, updating the status indicator every 30 seconds.
+ */
 function checkOnlineStatus() {
     updateOnlineStatus();
     // Check every 30 seconds
     setInterval(updateOnlineStatus, 30000);
 }
 
+/**
+ * Updates the connection status badge to reflect the current online or offline state.
+ */
 function updateOnlineStatus() {
     const isOnline = navigator.onLine;
     elements.connectionStatus.textContent = isOnline ? 'Online' : 'Offline';
     elements.connectionStatus.className = `badge ${isOnline ? 'bg-success' : 'bg-danger'}`;
 }
 
-// Version management functions
+/**
+ * Updates all version display elements in the UI with the current application version.
+ */
 function updateVersionDisplays() {
     const versionElements = document.querySelectorAll('#appVersion, #aboutVersion');
     versionElements.forEach(el => {
@@ -539,6 +641,9 @@ function updateVersionDisplays() {
     });
 }
 
+/**
+ * Requests the version of the active service worker and updates the corresponding UI element with the version information if available.
+ */
 function getServiceWorkerVersion() {
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         const channel = new MessageChannel();
