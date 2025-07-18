@@ -8,6 +8,10 @@ jobs:
   validate-changes:
     name: Validate PR Changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     
     steps:
       - name: Checkout
