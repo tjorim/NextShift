@@ -5,15 +5,39 @@ const CONFIG = {
     REFERENCE_DATE: new Date('2025-01-06'), // Configure this during setup
     REFERENCE_TEAM: 1, // Configure this during setup
     SHIFT_CYCLE_DAYS: 10,
-    TEAMS_COUNT: 5
+    TEAMS_COUNT: 5,
 };
 
 // Shift definitions
 const SHIFTS = {
-    MORNING: { code: 'M', name: 'Morning', hours: '07:00-15:00', start: 7, end: 15 },
-    EVENING: { code: 'E', name: 'Evening', hours: '15:00-23:00', start: 15, end: 23 },
-    NIGHT: { code: 'N', name: 'Night', hours: '23:00-07:00', start: 23, end: 7 },
-    OFF: { code: 'O', name: 'Off', hours: 'Not working', start: null, end: null }
+    MORNING: {
+        code: 'M',
+        name: 'Morning',
+        hours: '07:00-15:00',
+        start: 7,
+        end: 15,
+    },
+    EVENING: {
+        code: 'E',
+        name: 'Evening',
+        hours: '15:00-23:00',
+        start: 15,
+        end: 23,
+    },
+    NIGHT: {
+        code: 'N',
+        name: 'Night',
+        hours: '23:00-07:00',
+        start: 23,
+        end: 7,
+    },
+    OFF: {
+        code: 'O',
+        name: 'Off',
+        hours: 'Not working',
+        start: null,
+        end: null,
+    },
 };
 
 // Initialize day.js plugins
@@ -32,7 +56,7 @@ let currentViewDate = dayjs();
 let elements = {};
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     initializeElements();
     initializeApp();
     setupEventListeners();
@@ -62,7 +86,7 @@ function initializeElements() {
         todayBtn: document.getElementById('todayBtn'),
         prevBtn: document.getElementById('prevBtn'),
         currentBtn: document.getElementById('currentBtn'),
-        nextBtn: document.getElementById('nextBtn')
+        nextBtn: document.getElementById('nextBtn'),
     };
 }
 
@@ -86,13 +110,16 @@ function initializeApp() {
 
     // Register service worker
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('serviceWorker.js')
+        navigator.serviceWorker
+            .register('serviceWorker.js')
             .then(() => {
                 console.log('ServiceWorker registered');
                 // Get service worker version
                 getServiceWorkerVersion();
             })
-            .catch(error => console.error('ServiceWorker registration failed:', error));
+            .catch((error) =>
+                console.error('ServiceWorker registration failed:', error),
+            );
     }
 }
 
@@ -103,46 +130,46 @@ function initializeApp() {
  */
 function setupEventListeners() {
     // Team selection
-    document.querySelectorAll('.team-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+    document.querySelectorAll('.team-btn').forEach((btn) => {
+        btn.addEventListener('click', function () {
             const team = parseInt(this.dataset.team);
             selectTeam(team);
         });
     });
 
     // Change team button
-    elements.changeTeamBtn.addEventListener('click', function() {
+    elements.changeTeamBtn.addEventListener('click', () => {
         elements.teamModal.show();
     });
 
     // Navigation buttons
-    elements.todayBtn.addEventListener('click', function() {
+    elements.todayBtn.addEventListener('click', () => {
         currentViewDate = dayjs();
         updateAllViews();
     });
 
-    elements.prevBtn.addEventListener('click', function() {
+    elements.prevBtn.addEventListener('click', () => {
         currentViewDate = currentViewDate.subtract(7, 'day');
         updateScheduleView();
     });
 
-    elements.currentBtn.addEventListener('click', function() {
+    elements.currentBtn.addEventListener('click', () => {
         currentViewDate = dayjs();
         updateScheduleView();
     });
 
-    elements.nextBtn.addEventListener('click', function() {
+    elements.nextBtn.addEventListener('click', () => {
         currentViewDate = currentViewDate.add(7, 'day');
         updateScheduleView();
     });
 
     // Compare team selection
-    elements.compareTeam.addEventListener('change', function() {
+    elements.compareTeam.addEventListener('change', () => {
         updateTransferView();
     });
 
     // Transfer date range selection
-    elements.transferRange.addEventListener('change', function() {
+    elements.transferRange.addEventListener('change', function () {
         const isCustom = this.value === 'custom';
         elements.customDateRange.classList.toggle('d-none', !isCustom);
 
@@ -162,8 +189,8 @@ function setupEventListeners() {
     elements.endDate.addEventListener('change', updateTransferView);
 
     // Tab switching
-    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function(event) {
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tab) => {
+        tab.addEventListener('shown.bs.tab', (event) => {
             const target = event.target.getAttribute('data-bs-target');
             if (target === '#schedule') {
                 updateScheduleView();
@@ -244,7 +271,7 @@ function getWeekRange(date) {
     const endOfWeek = startOfWeek.add(6, 'day');
     return {
         start: startOfWeek,
-        end: endOfWeek
+        end: endOfWeek,
     };
 }
 
@@ -257,8 +284,10 @@ function getWeekRange(date) {
  */
 function isWithinDateRange(date, startDate, endDate) {
     const checkDate = dayjs(date);
-    return checkDate.isSameOrAfter(dayjs(startDate)) &&
-           checkDate.isSameOrBefore(dayjs(endDate));
+    return (
+        checkDate.isSameOrAfter(dayjs(startDate)) &&
+        checkDate.isSameOrBefore(dayjs(endDate))
+    );
 }
 /**
  * Determines whether two dates fall on the same calendar day.
@@ -289,7 +318,9 @@ function calculateShift(date, teamNumber) {
 
     // Calculate position in 10-day cycle
     const adjustedDays = daysSinceReference - teamOffset;
-    const cyclePosition = ((adjustedDays % CONFIG.SHIFT_CYCLE_DAYS) + CONFIG.SHIFT_CYCLE_DAYS) % CONFIG.SHIFT_CYCLE_DAYS;
+    const cyclePosition =
+        ((adjustedDays % CONFIG.SHIFT_CYCLE_DAYS) + CONFIG.SHIFT_CYCLE_DAYS) %
+        CONFIG.SHIFT_CYCLE_DAYS;
 
     // Determine shift based on cycle position
     if (cyclePosition < 2) {
@@ -352,7 +383,7 @@ function getNextShift(fromDate, teamNumber) {
             return {
                 date: checkDate,
                 shift: shift,
-                code: getShiftCode(checkDate, teamNumber)
+                code: getShiftCode(checkDate, teamNumber),
             };
         }
         checkDate = checkDate.add(1, 'day');
@@ -380,7 +411,12 @@ function getNextShift(fromDate, teamNumber) {
  * @param {number|string|Date|dayjs.Dayjs} daysToCheckOrEndDate - Either number of days to check or end date.
  * @return {Array} Array of transfer objects with date, shift info, and transfer type.
  */
-function getTransferDays(myTeam, otherTeam, fromDate, daysToCheckOrEndDate = 14) {
+function getTransferDays(
+    myTeam,
+    otherTeam,
+    fromDate,
+    daysToCheckOrEndDate = 14,
+) {
     const transfers = [];
     let endDate;
 
@@ -403,14 +439,20 @@ function getTransferDays(myTeam, otherTeam, fromDate, daysToCheckOrEndDate = 14)
             const otherShiftOrder = getShiftOrder(otherShift);
 
             // Transfer if shifts are consecutive (e.g., Morning -> Evening, Evening -> Night, Night -> Morning)
-            if ((myShiftOrder + 1) % 3 === otherShiftOrder || (otherShiftOrder + 1) % 3 === myShiftOrder) {
+            if (
+                (myShiftOrder + 1) % 3 === otherShiftOrder ||
+                (otherShiftOrder + 1) % 3 === myShiftOrder
+            ) {
                 transfers.push({
                     date: checkDate,
                     myShift: myShift,
                     otherShift: otherShift,
                     myCode: getShiftCode(checkDate, myTeam),
                     otherCode: getShiftCode(checkDate, otherTeam),
-                    type: (myShiftOrder + 1) % 3 === otherShiftOrder ? 'handover' : 'takeover'
+                    type:
+                        (myShiftOrder + 1) % 3 === otherShiftOrder
+                            ? 'handover'
+                            : 'takeover',
                 });
             }
         }
@@ -428,7 +470,7 @@ function getTransferDays(myTeam, otherTeam, fromDate, daysToCheckOrEndDate = 14)
  * @param {string|Date|dayjs.Dayjs} endDate - The end date of the range.
  * @return {Array} Array of shift objects with date, shift type, and code.
  */
-// eslint-disable-next-line no-unused-vars
+
 function getShiftsInDateRange(team, startDate, endDate) {
     const shifts = [];
     let checkDate = dayjs(startDate);
@@ -442,7 +484,7 @@ function getShiftsInDateRange(team, startDate, endDate) {
                     date: checkDate,
                     shift: shift,
                     code: getShiftCode(checkDate, team),
-                    dateCode: formatDateCode(checkDate)
+                    dateCode: formatDateCode(checkDate),
                 });
             }
         }
@@ -459,10 +501,9 @@ function getShiftsInDateRange(team, startDate, endDate) {
  * @param {string|Date|dayjs.Dayjs} endDate - The end date of the range.
  * @return {Array} Filtered array of transfers within the date range.
  */
-// eslint-disable-next-line no-unused-vars
-function filterTransfersByDateRange(transfers, startDate, endDate) {
-    return transfers.filter(transfer =>
-        isWithinDateRange(transfer.date, startDate, endDate)
+function _filterTransfersByDateRange(transfers, startDate, endDate) {
+    return transfers.filter((transfer) =>
+        isWithinDateRange(transfer.date, startDate, endDate),
     );
 }
 
@@ -509,9 +550,10 @@ function updateCurrentStatus() {
     const nextShift = getNextShift(currentShiftDay, userTeam);
 
     // Display the current shift day (may be different from calendar day for night shifts)
-    const displayText = isCurrentShiftDay(now) && now.hour() < 7 ?
-        `${currentShiftDay.format('dddd, MMMM D, YYYY')} (Night shift from ${now.subtract(1, 'day').format('MMM D')})` :
-        `${now.format('dddd, MMMM D, YYYY')}`;
+    const displayText =
+        isCurrentShiftDay(now) && now.hour() < 7
+            ? `${currentShiftDay.format('dddd, MMMM D, YYYY')} (Night shift from ${now.subtract(1, 'day').format('MMM D')})`
+            : `${now.format('dddd, MMMM D, YYYY')}`;
 
     elements.currentDate.textContent = `${displayText} (${dateCode})`;
 
@@ -549,7 +591,8 @@ function updateCurrentStatus() {
             <strong>${nextShift.shift.name}</strong> on ${nextShift.date.format('ddd, MMM D')} (${nextShift.code})
         `;
     } else {
-        elements.nextShift.innerHTML = '<small class="text-muted">No upcoming shifts found</small>';
+        elements.nextShift.innerHTML =
+            '<small class="text-muted">No upcoming shifts found</small>';
     }
 }
 
@@ -564,7 +607,8 @@ function updateTodayView() {
         const shift = calculateShift(currentShiftDay, team);
         const code = getShiftCode(currentShiftDay, team);
         const isMyTeam = team === userTeam;
-        const isCurrentTeamDay = isCurrentShiftDay(currentShiftDay) && team === userTeam;
+        const isCurrentTeamDay =
+            isCurrentShiftDay(currentShiftDay) && team === userTeam;
 
         shiftsHtml.push(`
             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
@@ -596,10 +640,12 @@ function generateScheduleTableHeader(days, currentShiftDay) {
     return `
         <tr>
             <th class="team-header">Team</th>
-            ${days.map(day => {
-        const isToday = isSameDay(day, currentShiftDay);
-        return `<th class="${isToday ? 'bg-light border-success' : ''}">${day.format('ddd')}<br><small>${day.format('M/D')}</small>${isToday ? '<br><span class="badge badge-sm bg-success">Today</span>' : ''}</th>`;
-    }).join('')}
+            ${days
+                .map((day) => {
+                    const isToday = isSameDay(day, currentShiftDay);
+                    return `<th class="${isToday ? 'bg-light border-success' : ''}">${day.format('ddd')}<br><small>${day.format('M/D')}</small>${isToday ? '<br><span class="badge badge-sm bg-success">Today</span>' : ''}</th>`;
+                })
+                .join('')}
         </tr>
     `;
 }
@@ -617,7 +663,7 @@ function generateScheduleTableRow(team, days, userTeam, currentShiftDay) {
     let rowHtml = `<tr ${isMyTeam ? 'class="table-primary"' : ''}>`;
     rowHtml += `<td class="team-header">Team ${team}</td>`;
 
-    days.forEach(day => {
+    days.forEach((day) => {
         const shift = calculateShift(day, team);
         const isToday = isSameDay(day, currentShiftDay);
         const isCurrentTeamToday = isToday && team === userTeam;
@@ -652,11 +698,18 @@ function updateScheduleView() {
     const currentShiftDay = getCurrentShiftDay();
 
     // Show user's shifts for this week using getShiftsInDateRange
-    const myShifts = getShiftsInDateRange(userTeam, weekRange.start, weekRange.end);
+    const myShifts = getShiftsInDateRange(
+        userTeam,
+        weekRange.start,
+        weekRange.end,
+    );
     if (myShifts.length > 0) {
-        const shiftsHtml = myShifts.map(shift =>
-            `<span class="badge shift-${shift.shift.name.toLowerCase()} me-1">${shift.code}</span>`
-        ).join('');
+        const shiftsHtml = myShifts
+            .map(
+                (shift) =>
+                    `<span class="badge shift-${shift.shift.name.toLowerCase()} me-1">${shift.code}</span>`,
+            )
+            .join('');
 
         elements.myShiftsWeek.innerHTML = `
             <div class="alert alert-primary">
@@ -682,7 +735,12 @@ function updateScheduleView() {
 
     // Generate rows for each team
     for (let team = 1; team <= CONFIG.TEAMS_COUNT; team++) {
-        tableHtml += generateScheduleTableRow(team, days, userTeam, currentShiftDay);
+        tableHtml += generateScheduleTableRow(
+            team,
+            days,
+            userTeam,
+            currentShiftDay,
+        );
     }
 
     tableHtml += '</tbody></table>';
@@ -720,11 +778,21 @@ function updateTransferView() {
             return;
         }
 
-        transfers = getTransferDays(userTeam, compareTeam, dayjs(startDate), dayjs(endDate));
+        transfers = getTransferDays(
+            userTeam,
+            compareTeam,
+            dayjs(startDate),
+            dayjs(endDate),
+        );
         rangeDescription = `from ${dayjs(startDate).format('MMM D')} to ${dayjs(endDate).format('MMM D, YYYY')}`;
     } else {
         const days = parseInt(rangeValue);
-        transfers = getTransferDays(userTeam, compareTeam, currentShiftDay, days);
+        transfers = getTransferDays(
+            userTeam,
+            compareTeam,
+            currentShiftDay,
+            days,
+        );
         rangeDescription = `in the next ${days} days`;
     }
 
@@ -744,9 +812,12 @@ function updateTransferView() {
         <div class="row g-3">
     `;
 
-    transfers.forEach(transfer => {
+    transfers.forEach((transfer) => {
         const typeClass = transfer.type === 'handover' ? 'success' : 'warning';
-        const typeText = transfer.type === 'handover' ? 'You hand over to' : 'You take over from';
+        const typeText =
+            transfer.type === 'handover'
+                ? 'You hand over to'
+                : 'You take over from';
         const isToday = isSameDay(transfer.date, currentShiftDay);
 
         transferHtml += `
@@ -801,8 +872,10 @@ function updateOnlineStatus() {
  * Updates all version display elements in the UI with the current application version.
  */
 function updateVersionDisplays() {
-    const versionElements = document.querySelectorAll('#appVersion, #aboutVersion');
-    versionElements.forEach(el => {
+    const versionElements = document.querySelectorAll(
+        '#appVersion, #aboutVersion',
+    );
+    versionElements.forEach((el) => {
         if (el) {
             el.textContent = `v${CONFIG.VERSION}`;
         }
@@ -816,7 +889,7 @@ function updateVersionDisplays() {
 function getServiceWorkerVersion() {
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         const channel = new MessageChannel();
-        channel.port1.onmessage = function(event) {
+        channel.port1.onmessage = (event) => {
             const swVersionEl = document.getElementById('swVersion');
             if (swVersionEl && event.data && event.data.version) {
                 swVersionEl.textContent = event.data.version;
@@ -825,7 +898,7 @@ function getServiceWorkerVersion() {
 
         navigator.serviceWorker.controller.postMessage(
             { type: 'GET_VERSION' },
-            [channel.port2]
+            [channel.port2],
         );
     } else if ('serviceWorker' in navigator) {
         // Wait for controller to be available
@@ -844,7 +917,7 @@ function startAutoRefresh() {
         clearInterval(autoRefreshInterval);
     }
 
-    autoRefreshInterval = setInterval(function() {
+    autoRefreshInterval = setInterval(() => {
         if (userTeam) {
             updateCurrentStatus();
         }

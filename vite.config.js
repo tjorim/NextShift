@@ -8,13 +8,14 @@ export default defineConfig({
             workbox: {
                 globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
                 cleanupOutdatedCaches: true,
-                skipWaiting: true
+                skipWaiting: true,
             },
             includeAssets: ['favicon.ico', 'assets/icons/*.png'],
             manifest: {
                 name: 'NextShift - Team Shift Tracker',
                 short_name: 'NextShift',
-                description: 'Team Shift Tracker PWA for 5-team volcontinu schedule',
+                description:
+                    'Team Shift Tracker PWA for 5-team volcontinu schedule',
                 theme_color: '#0d6efd',
                 background_color: '#ffffff',
                 display: 'standalone',
@@ -24,30 +25,40 @@ export default defineConfig({
                     {
                         src: 'assets/icons/icon-192.png',
                         sizes: '192x192',
-                        type: 'image/png'
+                        type: 'image/png',
                     },
                     {
                         src: 'assets/icons/icon-512.png',
                         sizes: '512x512',
-                        type: 'image/png'
-                    }
+                        type: 'image/png',
+                    },
                 ],
                 shortcuts: [
                     {
                         name: "Today's Schedule",
                         short_name: 'Today',
                         url: '/?tab=today',
-                        icons: [{ src: 'assets/icons/icon-192.png', sizes: '192x192' }]
+                        icons: [
+                            {
+                                src: 'assets/icons/icon-192.png',
+                                sizes: '192x192',
+                            },
+                        ],
                     },
                     {
                         name: 'My Next Shift',
                         short_name: 'Next Shift',
                         url: '/?tab=schedule',
-                        icons: [{ src: 'assets/icons/icon-192.png', sizes: '192x192' }]
-                    }
-                ]
-            }
-        })
+                        icons: [
+                            {
+                                src: 'assets/icons/icon-192.png',
+                                sizes: '192x192',
+                            },
+                        ],
+                    },
+                ],
+            },
+        }),
     ],
     build: {
         outDir: 'dist',
@@ -55,12 +66,17 @@ export default defineConfig({
         sourcemap: false,
         rollupOptions: {
             input: {
-                main: 'index.html'
-            }
-        }
+                main: 'index.html',
+            },
+        },
     },
     server: {
         port: 8000,
-        open: true
-    }
+        open: true,
+    },
+    test: {
+        environment: 'jsdom',
+        globals: true,
+        setupFiles: ['./tests/setup.js'],
+    },
 });

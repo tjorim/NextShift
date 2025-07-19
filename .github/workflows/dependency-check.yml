@@ -8,7 +8,7 @@ on:
 
 jobs:
   check-dependencies:
-    name: Check CDN Dependencies
+    name: Check npm Dependencies
     runs-on: ubuntu-latest
 
     steps:
@@ -20,111 +20,94 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Check CDN versions
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for updates
         run: |
-          echo "🔍 Checking CDN dependency versions..."
-
-          # Extract current versions from index.html
-          echo "Current versions in index.html:"
-
-          # Day.js version
-          DAYJS_CURRENT=$(grep -o 'dayjs@[0-9.]*' index.html | head -1 | cut -d'@' -f2)
-          echo "├── Day.js: ${DAYJS_CURRENT}"
-
-          # Bootstrap version
-          BOOTSTRAP_CURRENT=$(grep -o 'bootstrap@[0-9.]*' index.html | head -1 | cut -d'@' -f2)
-          echo "├── Bootstrap: ${BOOTSTRAP_CURRENT}"
-
-          # Check latest versions from npm
-          echo ""
-          echo "🔍 Checking latest versions..."
-
-          # Day.js latest
-          DAYJS_LATEST=$(npm view dayjs version)
-          echo "├── Day.js latest: ${DAYJS_LATEST}"
-
-          # Bootstrap latest
-          BOOTSTRAP_LATEST=$(npm view bootstrap version)
-          echo "├── Bootstrap latest: ${BOOTSTRAP_LATEST}"
-
-          # Version comparison
-          echo ""
-          echo "📊 Version Status:"
-
-          if [ "$DAYJS_CURRENT" = "$DAYJS_LATEST" ]; then
-            echo "✅ Day.js is up to date"
-          else
-            echo "⚠️  Day.js update available: ${DAYJS_CURRENT} → ${DAYJS_LATEST}"
-            echo "DAYJS_UPDATE_AVAILABLE=true" >> $GITHUB_ENV
-            echo "DAYJS_NEW_VERSION=${DAYJS_LATEST}" >> $GITHUB_ENV
-          fi
-
-          if [ "$BOOTSTRAP_CURRENT" = "$BOOTSTRAP_LATEST" ]; then
-            echo "✅ Bootstrap is up to date"
-          else
-            echo "⚠️  Bootstrap update available: ${BOOTSTRAP_CURRENT} → ${BOOTSTRAP_LATEST}"
-            echo "BOOTSTRAP_UPDATE_AVAILABLE=true" >> $GITHUB_ENV
-            echo "BOOTSTRAP_NEW_VERSION=${BOOTSTRAP_LATEST}" >> $GITHUB_ENV
-          fi
+          echo "🔍 Checking for npm dependency updates..."
+          
+          # Check for outdated packages
+          npm outdated || true
+          
+          # Store output for later use
+          npm outdated --json > outdated.json 2>/dev/null || echo "{}" > outdated.json
 
       - name: Security audit
         run: |
-          echo "🔒 Running security checks..."
+          echo "🔒 Running npm security audit..."
+          
+          # Run security audit
+          npm audit --audit-level=moderate || true
+          
+          # Store audit results
+          npm audit --json > audit.json 2>/dev/null || echo '{"vulnerabilities":{}}' > audit.json
 
-          # Check for known vulnerabilities in CDN versions
-          # This is a basic check - for production you might want more sophisticated tools
-
-          echo "Checking CDN security advisories..."
-
-          # Check if any version strings look suspicious (basic validation)
-          if grep -q 'http://' index.html; then
-            echo "⚠️  Found HTTP CDN links - should use HTTPS"
-          else
-            echo "✅ All CDN links use HTTPS"
-          fi
-
-          # Check for integrity hashes (SRI)
-          if grep -q 'integrity=' index.html; then
-            echo "✅ CDN integrity hashes found"
-          else
-            echo "ℹ️  Consider adding SRI integrity hashes to CDN links"
-          fi
+      - name: Analyze results
+        run: |
+          echo "📊 Analyzing dependency status..."
+          
+          # Check if any packages are outdated
+          OUTDATED_COUNT=$(node -e "
+            const data = JSON.parse(require('fs').readFileSync('outdated.json', 'utf8'));
+            console.log(Object.keys(data).length);
+          ")
+          
+          # Check security vulnerabilities
+          VULN_COUNT=$(node -e "
+            const data = JSON.parse(require('fs').readFileSync('audit.json', 'utf8'));
+            const vulns = data.vulnerabilities || {};
+            console.log(Object.keys(vulns).length);
+          ")
+          
+          echo "├── Outdated packages: $OUTDATED_COUNT"
+          echo "├── Security vulnerabilities: $VULN_COUNT"
+          
+          # Set environment variables
+          echo "OUTDATED_COUNT=$OUTDATED_COUNT" >> $GITHUB_ENV
+          echo "VULN_COUNT=$VULN_COUNT" >> $GITHUB_ENV
 
       - name: Create issue for updates
-        if: env.DAYJS_UPDATE_AVAILABLE == 'true' || env.BOOTSTRAP_UPDATE_AVAILABLE == 'true'
+        if: env.OUTDATED_COUNT != '0' || env.VULN_COUNT != '0'
         uses: actions/github-script@v7
         with:
           script: |
-            const { DAYJS_UPDATE_AVAILABLE, DAYJS_NEW_VERSION, BOOTSTRAP_UPDATE_AVAILABLE, BOOTSTRAP_NEW_VERSION } = process.env;
-
-            let updates = [];
-            if (DAYJS_UPDATE_AVAILABLE === 'true') {
-              updates.push(`- **Day.js**: Update to ${DAYJS_NEW_VERSION}`);
+            const fs = require('fs');
+            const outdatedData = JSON.parse(fs.readFileSync('outdated.json', 'utf8'));
+            const auditData = JSON.parse(fs.readFileSync('audit.json', 'utf8'));
+            
+            let issueBody = "## 📦 Dependency Status Report\n\n";
+            
+            // Outdated packages
+            if (Object.keys(outdatedData).length > 0) {
+              issueBody += "### 📈 Outdated Packages\n\n";
+              Object.entries(outdatedData).forEach(([pkg, info]) => {
+                issueBody += `- **${pkg}**: ${info.current} → ${info.latest}\n`;
+              });
+              issueBody += "\n";
             }
-            if (BOOTSTRAP_UPDATE_AVAILABLE === 'true') {
-              updates.push(`- **Bootstrap**: Update to ${BOOTSTRAP_NEW_VERSION}`);
+            
+            // Security vulnerabilities
+            const vulns = auditData.vulnerabilities || {};
+            if (Object.keys(vulns).length > 0) {
+              issueBody += "### 🔒 Security Vulnerabilities\n\n";
+              Object.entries(vulns).forEach(([pkg, vuln]) => {
+                issueBody += `- **${pkg}**: ${vuln.severity} severity\n`;
+              });
+              issueBody += "\n";
             }
-
-            if (updates.length === 0) return;
-
-            const body = `## 📦 Dependency Updates Available
-
-            The following CDN dependencies have updates available:
-
-            ${updates.join('\n')}
-
-            ### Recommended Actions:
-            1. Review changelog for breaking changes
-            2. Test updates in development
-            3. Update CDN links in \`index.html\`
-            4. Test PWA functionality after updates
-
-            ### Current CDN Links:
-            - Day.js: \`https://cdn.jsdelivr.net/npm/dayjs@...\`
-            - Bootstrap: \`https://cdn.jsdelivr.net/npm/bootstrap@...\`
-
-            > 🤖 This issue was automatically created by the dependency monitor workflow.`;
-
+            
+            issueBody += `### 🔧 Recommended Actions\n\n`;
+            if (Object.keys(outdatedData).length > 0) {
+              issueBody += `- Run \`npm update\` to update packages\n`;
+            }
+            if (Object.keys(vulns).length > 0) {
+              issueBody += `- Run \`npm audit fix\` to fix vulnerabilities\n`;
+            }
+            issueBody += `- Test thoroughly after updates\n`;
+            issueBody += `- Update package-lock.json if needed\n\n`;
+            issueBody += `> 🤖 This issue was automatically created by the dependency monitor workflow.`;
+            
             // Check if similar issue already exists
             const existingIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -132,16 +115,16 @@ jobs:
               labels: 'dependencies',
               state: 'open'
             });
-
+            
             if (existingIssues.data.length === 0) {
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: '📦 CDN Dependency Updates Available',
-                body: body,
-                labels: ['dependencies', 'enhancement']
+                title: '📦 Dependency Updates Available',
+                body: issueBody,
+                labels: ['dependencies', 'maintenance']
               });
-
+              
               console.log('✅ Created dependency update issue');
             } else {
               console.log('ℹ️  Dependency update issue already exists');
@@ -150,14 +133,15 @@ jobs:
       - name: Summary
         run: |
           echo "🎯 Dependency Check Summary:"
-          echo "├── ✅ CDN versions checked"
+          echo "├── ✅ npm dependencies checked"
           echo "├── ✅ Security audit completed"
-          echo "├── ✅ HTTPS verification done"
-
-          if [ "${{ env.DAYJS_UPDATE_AVAILABLE }}" = "true" ] || [ "${{ env.BOOTSTRAP_UPDATE_AVAILABLE }}" = "true" ]; then
-            echo "├── 📦 Updates available - issue created"
+          echo "├── Outdated packages: ${{ env.OUTDATED_COUNT }}"
+          echo "├── Security vulnerabilities: ${{ env.VULN_COUNT }}"
+          
+          if [ "${{ env.OUTDATED_COUNT }}" != "0" ] || [ "${{ env.VULN_COUNT }}" != "0" ]; then
+            echo "├── 📦 Updates needed - issue created"
           else
-            echo "├── ✅ All dependencies up to date"
+            echo "├── ✅ All dependencies up to date and secure"
           fi
-
+          
           echo "└── 🔄 Next check scheduled for next Monday"

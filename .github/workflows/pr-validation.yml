@@ -36,7 +36,7 @@ jobs:
 
           # Categorize changes
           CORE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(html|css|js)$' || true)
-          PWA_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(manifest\.json|serviceWorker\.js)$' || true)
+          CONFIG_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(vite\.config\.js|biome\.json|package\.json)$' || true)
           WORKFLOW_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.github/workflows' || true)
           DOC_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(md|txt)$' || true)
 
@@ -48,9 +48,9 @@ jobs:
             echo "CORE_CHANGES=true" >> $GITHUB_ENV
           fi
 
-          if [ -n "$PWA_CHANGES" ]; then
-            echo "📱 PWA configuration changes detected"
-            echo "PWA_CHANGES=true" >> $GITHUB_ENV
+          if [ -n "$CONFIG_CHANGES" ]; then
+            echo "⚙️  Build configuration changes detected"
+            echo "CONFIG_CHANGES=true" >> $GITHUB_ENV
           fi
 
           if [ -n "$WORKFLOW_CHANGES" ]; then
@@ -63,15 +63,21 @@ jobs:
             echo "DOC_CHANGES=true" >> $GITHUB_ENV
           fi
 
+      - name: Install dependencies  
+        run: npm ci
+
       - name: Validate core app changes
         if: env.CORE_CHANGES == 'true'
         run: |
           echo "🔧 Validating core app changes..."
 
-          # Check if JavaScript syntax is still valid
-          if [ -f "app.js" ]; then
-            node -c app.js && echo "✅ JavaScript syntax valid" || { echo "❌ JavaScript syntax error"; exit 1; }
-          fi
+          # Run Biome linting
+          npm run lint
+          echo "✅ Code quality checks passed"
+
+          # Run tests
+          npm run test  
+          echo "✅ Tests passed"
 
           # Check if critical functions still exist
           if [ -f "app.js" ]; then
@@ -112,18 +118,19 @@ jobs:
             fi
           fi
 
-      - name: Validate PWA changes
-        if: env.PWA_CHANGES == 'true'
+      - name: Validate build configuration changes
+        if: env.CONFIG_CHANGES == 'true'
         run: |
-          echo "📱 Validating PWA changes..."
+          echo "⚙️  Validating build configuration changes..."
 
-          # Validate manifest if changed
-          if [ -f "manifest.json" ]; then
-            node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))" && echo "✅ Manifest JSON valid" || { echo "❌ Manifest JSON invalid"; exit 1; }
+          # Test build to ensure config is valid
+          npm run build
+          echo "✅ Build completed successfully"
 
-            # Check required fields
+          # Check if built manifest is valid
+          if [ -f "dist/manifest.webmanifest" ]; then
             node -e "
-              const manifest = JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'));
+              const manifest = JSON.parse(require('fs').readFileSync('dist/manifest.webmanifest', 'utf8'));
               const required = ['name', 'short_name', 'icons', 'start_url', 'display'];
 
               const missing = required.filter(field => !manifest[field]);
@@ -131,25 +138,13 @@ jobs:
                 console.log('❌ Missing manifest fields:', missing.join(', '));
                 process.exit(1);
               } else {
-                console.log('✅ All required manifest fields present');
+                console.log('✅ Auto-generated manifest is valid');
               }
             "
           fi
 
-          # Validate service worker if changed
-          if [ -f "serviceWorker.js" ]; then
-            node -c serviceWorker.js && echo "✅ Service worker syntax valid" || { echo "❌ Service worker syntax error"; exit 1; }
-
-            # Check for cache implementation
-            if grep -q "cache" serviceWorker.js; then
-              echo "✅ Service worker has caching logic"
-            else
-              echo "⚠️  Service worker missing caching logic"
-            fi
-          fi
-
       - name: Check for version updates
-        if: env.CORE_CHANGES == 'true' || env.PWA_CHANGES == 'true'
+        if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
         run: |
           echo "🔢 Checking version consistency..."
 
@@ -158,11 +153,10 @@ jobs:
             echo "ℹ️  Version in app.js: 3.0.0 (consider updating for releases)"
           fi
 
-          # Check if service worker cache name includes version
-          if grep -q "nextshift-v" serviceWorker.js; then
-            echo "✅ Service worker cache includes version"
-          else
-            echo "⚠️  Consider including version in service worker cache name"
+          # Check package.json version if changed
+          if [ -f "package.json" ]; then
+            VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version)")
+            echo "ℹ️  Package version: $VERSION"
           fi
 
       - name: Performance impact analysis
@@ -170,18 +164,17 @@ jobs:
         run: |
           echo "📊 Analyzing performance impact..."
 
-          # Calculate current bundle size
-          if [ -f "app.js" ] && [ -f "style.css" ] && [ -f "index.html" ]; then
-            TOTAL_SIZE=$(stat -c%s app.js style.css index.html | awk '{sum += $1} END {print sum}')
-            TOTAL_KB=$((TOTAL_SIZE / 1024))
-            echo "Current bundle size: ${TOTAL_KB}KB"
+          # Build and calculate bundle size
+          npm run build
+          DIST_SIZE=$(du -sb dist/ | cut -f1)
+          DIST_KB=$((DIST_SIZE / 1024))
+          echo "Built bundle size: ${DIST_KB}KB"
 
-            # Basic size check
-            if [ $TOTAL_KB -gt 200 ]; then
-              echo "⚠️  Core files are getting large (${TOTAL_KB}KB)"
-            else
-              echo "✅ Core bundle size is reasonable (${TOTAL_KB}KB)"
-            fi
+          # Basic size check
+          if [ $DIST_KB -gt 500 ]; then
+            echo "⚠️  Built bundle is getting large (${DIST_KB}KB)"
+          else
+            echo "✅ Built bundle size is reasonable (${DIST_KB}KB)"
           fi
 
       - name: Security check
@@ -215,25 +208,25 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { CORE_CHANGES, PWA_CHANGES, WORKFLOW_CHANGES, DOC_CHANGES } = process.env;
+            const { CORE_CHANGES, CONFIG_CHANGES, WORKFLOW_CHANGES, DOC_CHANGES } = process.env;
 
             let summary = "## 🔍 PR Validation Summary\n\n";
 
             // Change analysis
             summary += "### 📝 Changes Detected:\n";
             if (CORE_CHANGES === 'true') summary += "- 🔧 Core application changes\n";
-            if (PWA_CHANGES === 'true') summary += "- 📱 PWA configuration changes\n";
-            if (WORKFLOW_CHANGES === 'true') summary += "- ⚙️ Workflow changes\n";
+            if (CONFIG_CHANGES === 'true') summary += "- ⚙️ Build configuration changes\n";
+            if (WORKFLOW_CHANGES === 'true') summary += "- 🔄 Workflow changes\n";
             if (DOC_CHANGES === 'true') summary += "- 📚 Documentation changes\n";
 
             summary += "\n### ✅ Validation Results:\n";
-            summary += "- ✅ JavaScript syntax validated\n";
+            summary += "- ✅ Code quality checks passed (Biome)\n";
+            summary += "- ✅ Tests passed (Vitest)\n";
             summary += "- ✅ Critical functions verified\n";
-            summary += "- ✅ HTML structure checked\n";
 
-            if (PWA_CHANGES === 'true') {
-              summary += "- ✅ PWA manifest validated\n";
-              summary += "- ✅ Service worker syntax checked\n";
+            if (CONFIG_CHANGES === 'true') {
+              summary += "- ✅ Build configuration validated\n";
+              summary += "- ✅ Auto-generated manifest valid\n";
             }
 
             summary += "- ✅ Security scan completed\n";

@@ -26,9 +26,8 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - name: Install validation tools
-        run: |
-          npm install -g eslint stylelint lighthouse-ci @lhci/cli
+      - name: Install dependencies
+        run: npm ci
 
       - name: Validate JavaScript
         run: |
@@ -36,53 +35,53 @@ jobs:
           node -c app.js
           echo "✅ JavaScript syntax is valid"
 
-      - name: Validate JSON files
+      - name: Run code quality checks
         run: |
-          echo "Validating JSON files..."
-          node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))" && echo "✅ manifest.json is valid"
-          node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8'))" 2>/dev/null && echo "✅ package.json is valid" || echo "ℹ️  No package.json found"
+          echo "Running Biome linting and tests..."
+          npm run lint
+          npm run test
+          echo "✅ All quality checks passed"
 
-      - name: Check PWA requirements
+      - name: Build and check PWA
         run: |
-          echo "Checking PWA file requirements..."
+          echo "Building PWA with Vite..."
+          npm run build
 
-          # Core files
+          echo "Checking built PWA requirements..."
+          # Core source files
           [ -f "index.html" ] && echo "✅ index.html found" || { echo "❌ index.html missing"; exit 1; }
-          [ -f "manifest.json" ] && echo "✅ manifest.json found" || { echo "❌ manifest.json missing"; exit 1; }
-          [ -f "serviceWorker.js" ] && echo "✅ serviceWorker.js found" || { echo "❌ serviceWorker.js missing"; exit 1; }
+          [ -f "style.css" ] && echo "✅ style.css found" || { echo "❌ style.css missing"; exit 1; }
+          [ -f "app.js" ] && echo "✅ app.js found" || { echo "❌ app.js missing"; exit 1; }
+
+          # Built PWA files
+          [ -f "dist/index.html" ] && echo "✅ Built index.html found" || { echo "❌ Built index.html missing"; exit 1; }
+          [ -f "dist/manifest.webmanifest" ] && echo "✅ Auto-generated manifest found" || { echo "❌ Manifest missing"; exit 1; }
 
           # PWA assets
           [ -f "assets/icons/icon-192.png" ] && echo "✅ 192px icon found" || { echo "❌ 192px icon missing"; exit 1; }
           [ -f "assets/icons/icon-512.png" ] && echo "✅ 512px icon found" || { echo "❌ 512px icon missing"; exit 1; }
 
-          # Check service worker registration
-          grep -q "serviceWorker.register" index.html && echo "✅ Service worker registration found" || { echo "❌ Service worker registration missing"; exit 1; }
-
           echo "✅ All PWA requirements met"
 
       - name: Calculate bundle size
         run: |
-          echo "Calculating PWA bundle size..."
+          echo "Calculating built PWA bundle size..."
 
-          # Calculate sizes
-          HTML_SIZE=$(stat -c%s index.html)
-          CSS_SIZE=$(stat -c%s style.css)
-          JS_SIZE=$(stat -c%s app.js)
-          SW_SIZE=$(stat -c%s serviceWorker.js)
-          MANIFEST_SIZE=$(stat -c%s manifest.json)
+          # Calculate built bundle size
+          DIST_SIZE=$(du -sb dist/ | cut -f1)
           ICONS_SIZE=$(du -sb assets/icons/ | cut -f1)
-
-          TOTAL_SIZE=$((HTML_SIZE + CSS_SIZE + JS_SIZE + SW_SIZE + MANIFEST_SIZE + ICONS_SIZE))
+          TOTAL_SIZE=$((DIST_SIZE + ICONS_SIZE))
           TOTAL_KB=$((TOTAL_SIZE / 1024))
 
           echo "📊 Bundle Size Analysis:"
-          echo "├── HTML: $((HTML_SIZE / 1024))KB"
-          echo "├── CSS: $((CSS_SIZE / 1024))KB"
-          echo "├── JavaScript: $((JS_SIZE / 1024))KB"
-          echo "├── Service Worker: $((SW_SIZE / 1024))KB"
-          echo "├── Manifest: $((MANIFEST_SIZE / 1024))KB"
+          echo "├── Built assets: $((DIST_SIZE / 1024))KB"
           echo "├── Icons: $((ICONS_SIZE / 1024))KB"
           echo "└── Total: ${TOTAL_KB}KB"
+
+          # List built files for transparency
+          echo ""
+          echo "📁 Built files:"
+          find dist -type f -exec ls -lh {} \; | awk '{print "├── " $9 ": " $5}'
 
           # Bundle size check (warn if over 500KB)
           if [ $TOTAL_KB -gt 500 ]; then
@@ -96,11 +95,11 @@ jobs:
 
       - name: Validate PWA manifest
         run: |
-          echo "Validating PWA manifest structure..."
+          echo "Validating auto-generated PWA manifest..."
 
-          # Check required manifest fields
+          # Check built manifest
           node -e "
-            const manifest = JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'));
+            const manifest = JSON.parse(require('fs').readFileSync('dist/manifest.webmanifest', 'utf8'));
             const required = ['name', 'short_name', 'icons', 'start_url', 'display'];
 
             required.forEach(field => {
@@ -118,7 +117,7 @@ jobs:
               process.exit(1);
             }
 
-            console.log('✅ PWA manifest is valid');
+            console.log('✅ Auto-generated PWA manifest is valid');
           "
 
       - name: Check shift calculation accuracy
@@ -159,9 +158,10 @@ jobs:
             const comment = `## 🚀 PWA Validation Results
 
             ✅ All PWA requirements met
-            ✅ JavaScript syntax valid
-            ✅ Manifest structure valid
-            ✅ Service worker configured
+            ✅ Code quality checks passed (Biome)
+            ✅ Tests passed (Vitest)
+            ✅ Build successful (Vite)
+            ✅ Auto-generated manifest valid
             ✅ Required icons present
             ✅ Core shift functions present
 

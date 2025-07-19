@@ -66,6 +66,8 @@ These variables anchor all shift calculations and should be set during initial d
 - **PWA**: Auto-generated Service Worker with Workbox for offline functionality
 - **Storage**: localStorage for user team preference and offline data
 - **Icons**: Embedded SVG icons in auto-generated manifest
+- **Code Quality**: Biome for fast linting and formatting (JS, CSS, JSON)
+- **Testing**: Vitest with jsdom for unit testing
 
 ## Development Commands
 
@@ -82,10 +84,12 @@ This PWA uses Vite for modern development and build processes:
    npm run preview      # Preview production build locally
    ```
 
-3. **Code Quality**: Linting and validation
+3. **Code Quality**: Modern linting with Biome
    ```bash
-   npm run lint         # Run all linters (JS, CSS, YAML)
-   npm run lint:fix     # Auto-fix linting issues
+   npm run lint         # Lint JavaScript, CSS, and JSON with Biome
+   npm run lint:fix     # Auto-fix all linting and formatting issues
+   npm run format       # Format code with consistent style
+   npm run test         # Run Vitest test suite
    ```
 
 4. **PWA Testing**: 

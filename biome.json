@@ -1,0 +1,79 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
+    "files": {
+        "ignoreUnknown": false
+    },
+    "css": {
+        "formatter": {
+            "enabled": true,
+            "indentStyle": "space",
+            "indentWidth": 4
+        },
+        "linter": {
+            "enabled": true
+        }
+    },
+    "json": {
+        "formatter": {
+            "enabled": true,
+            "indentStyle": "space",
+            "indentWidth": 4
+        },
+        "linter": {
+            "enabled": true
+        }
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "style": {
+                "useConst": "error"
+            }
+        }
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single",
+            "semicolons": "always"
+        },
+        "globals": [
+            "window",
+            "document",
+            "console",
+            "navigator",
+            "localStorage",
+            "bootstrap",
+            "dayjs",
+            "setInterval",
+            "clearInterval",
+            "setTimeout",
+            "clearTimeout",
+            "MessageChannel",
+            "dayjs_plugin_weekOfYear",
+            "dayjs_plugin_timezone",
+            "dayjs_plugin_utc",
+            "dayjs_plugin_isSameOrBefore",
+            "dayjs_plugin_isSameOrAfter",
+            "dayjs_plugin_localizedFormat"
+        ]
+    },
+    "assist": {
+        "enabled": true,
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
+    }
+}

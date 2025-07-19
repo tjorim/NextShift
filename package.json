@@ -1,53 +1,51 @@
 {
-  "name": "nextshift",
-  "version": "3.0.0",
-  "description": "Team Shift Tracker PWA for 5-team volcontinu schedule",
-  "main": "app.js",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "serve": "vite preview",
-    "lint": "npm run lint:js && npm run lint:css && npm run lint:yaml",
-    "lint:js": "eslint '**/*.js' --ignore-pattern '*.min.js' --ignore-pattern 'node_modules/**' --ignore-pattern 'assets/**' --ignore-pattern 'dist/**'",
-    "lint:css": "stylelint '**/*.css' --ignore-pattern 'node_modules/**' --ignore-pattern 'assets/**' --ignore-pattern 'dist/**'",
-    "lint:yaml": "eslint '.github/**/*.yml'",
-    "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix",
-    "lint:all": "npm run lint && npm run lint:json",
-    "lint:json": "find . -name '*.json' -not -path './node_modules/*' -exec jq empty {} \\;",
-    "test": "echo 'Tests not configured yet'"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tjorim/NextShift.git"
-  },
-  "keywords": [
-    "pwa",
-    "shift-tracker",
-    "volcontinu",
-    "team-schedule",
-    "offline",
-    "service-worker"
-  ],
-  "author": "Jorim Tielemans <tielemans.jorim@gmail.com>",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/tjorim/NextShift/issues"
-  },
-  "homepage": "https://github.com/tjorim/NextShift#readme",
-  "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-plugin-yml": "^1.15.0",
-    "stylelint": "^16.0.0",
-    "stylelint-config-standard": "^36.0.0",
-    "vite": "^7.0.5",
-    "vite-plugin-pwa": "^1.0.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "bootstrap": "^5.3.7",
-    "dayjs": "^1.11.13"
-  }
+    "name": "nextshift",
+    "version": "3.0.0",
+    "description": "Team Shift Tracker PWA for 5-team volcontinu schedule",
+    "main": "app.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "serve": "vite preview",
+        "lint": "biome check .",
+        "lint:fix": "biome check . --write",
+        "format": "biome format . --write",
+        "test": "vitest run",
+        "test:ui": "vitest --ui",
+        "test:watch": "vitest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tjorim/NextShift.git"
+    },
+    "keywords": [
+        "pwa",
+        "shift-tracker",
+        "volcontinu",
+        "team-schedule",
+        "offline",
+        "service-worker"
+    ],
+    "author": "Jorim Tielemans <tielemans.jorim@gmail.com>",
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/tjorim/NextShift/issues"
+    },
+    "homepage": "https://github.com/tjorim/NextShift#readme",
+    "devDependencies": {
+        "@biomejs/biome": "^2.1.2",
+        "@vitest/ui": "^3.2.4",
+        "jsdom": "^26.1.0",
+        "vite": "^7.0.5",
+        "vite-plugin-pwa": "^1.0.1",
+        "vitest": "^3.2.4"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "dependencies": {
+        "bootstrap": "^5.3.7",
+        "dayjs": "^1.11.13"
+    }
 }

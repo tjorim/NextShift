@@ -4,12 +4,12 @@ import '../style.css';
 
 // Import Day.js and plugins
 import dayjs from 'dayjs';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
 
 // Import Bootstrap JavaScript
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
