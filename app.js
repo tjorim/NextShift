@@ -51,8 +51,13 @@ function initializeElements() {
         nextShift: document.getElementById('nextShift'),
         todayShifts: document.getElementById('todayShifts'),
         scheduleView: document.getElementById('scheduleView'),
+        myShiftsWeek: document.getElementById('myShiftsWeek'),
         transferInfo: document.getElementById('transferInfo'),
         compareTeam: document.getElementById('compareTeam'),
+        transferRange: document.getElementById('transferRange'),
+        customDateRange: document.getElementById('customDateRange'),
+        startDate: document.getElementById('startDate'),
+        endDate: document.getElementById('endDate'),
         changeTeamBtn: document.getElementById('changeTeamBtn'),
         todayBtn: document.getElementById('todayBtn'),
         prevBtn: document.getElementById('prevBtn'),
@@ -135,6 +140,26 @@ function setupEventListeners() {
     elements.compareTeam.addEventListener('change', function() {
         updateTransferView();
     });
+
+    // Transfer date range selection
+    elements.transferRange.addEventListener('change', function() {
+        const isCustom = this.value === 'custom';
+        elements.customDateRange.classList.toggle('d-none', !isCustom);
+
+        if (isCustom) {
+            // Set default dates
+            const today = dayjs().format('YYYY-MM-DD');
+            const nextMonth = dayjs().add(30, 'day').format('YYYY-MM-DD');
+            elements.startDate.value = today;
+            elements.endDate.value = nextMonth;
+        }
+
+        updateTransferView();
+    });
+
+    // Custom date inputs
+    elements.startDate.addEventListener('change', updateTransferView);
+    elements.endDate.addEventListener('change', updateTransferView);
 
     // Tab switching
     document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
@@ -223,11 +248,18 @@ function getWeekRange(date) {
     };
 }
 
-// Utility function for future use
-// function isWithinDateRange(date, startDate, endDate) {
-//     const checkDate = dayjs(date);
-//     return checkDate.isSameOrAfter(dayjs(startDate)) &&
-//            checkDate.isSameOrBefore(dayjs(endDate));
+/**
+ * Checks if a date falls within a specified date range (inclusive).
+ * @param {string|Date|dayjs.Dayjs} date - The date to check.
+ * @param {string|Date|dayjs.Dayjs} startDate - The start date of the range.
+ * @param {string|Date|dayjs.Dayjs} endDate - The end date of the range.
+ * @return {boolean} True if the date is within the range; otherwise, false.
+ */
+function isWithinDateRange(date, startDate, endDate) {
+    const checkDate = dayjs(date);
+    return checkDate.isSameOrAfter(dayjs(startDate)) &&
+           checkDate.isSameOrBefore(dayjs(endDate));
+}
 /**
  * Determines whether two dates fall on the same calendar day.
  * @param {string|Date|dayjs.Dayjs} date1 - The first date to compare.
@@ -340,11 +372,28 @@ function getNextShift(fromDate, teamNumber) {
  * @param {number} [daysToCheck=14] - The number of days to check from the start date.
  * @return {Array<Object>} An array of transfer objects, each containing the date, both teams' shifts and codes, and the transfer type ('handover' or 'takeover').
  */
-function getTransferDays(myTeam, otherTeam, fromDate, daysToCheck = 14) {
+/**
+ * Gets transfer/handover days between two teams within a specified period or date range.
+ * @param {number} myTeam - The user's team number.
+ * @param {number} otherTeam - The other team number to compare with.
+ * @param {string|Date|dayjs.Dayjs} fromDate - The start date for checking transfers.
+ * @param {number|string|Date|dayjs.Dayjs} daysToCheckOrEndDate - Either number of days to check or end date.
+ * @return {Array} Array of transfer objects with date, shift info, and transfer type.
+ */
+function getTransferDays(myTeam, otherTeam, fromDate, daysToCheckOrEndDate = 14) {
     const transfers = [];
+    let endDate;
 
-    for (let i = 0; i < daysToCheck; i++) {
-        const checkDate = dayjs(fromDate).add(i, 'day');
+    // Support both day count and end date parameters
+    if (typeof daysToCheckOrEndDate === 'number') {
+        endDate = dayjs(fromDate).add(daysToCheckOrEndDate - 1, 'day');
+    } else {
+        endDate = dayjs(daysToCheckOrEndDate);
+    }
+
+    let checkDate = dayjs(fromDate);
+
+    while (checkDate.isSameOrBefore(endDate)) {
         const myShift = calculateShift(checkDate, myTeam);
         const otherShift = calculateShift(checkDate, otherTeam);
 
@@ -365,9 +414,56 @@ function getTransferDays(myTeam, otherTeam, fromDate, daysToCheck = 14) {
                 });
             }
         }
+
+        checkDate = checkDate.add(1, 'day');
     }
 
     return transfers;
+}
+
+/**
+ * Gets all working shifts for a team within a specified date range.
+ * @param {number} team - The team number.
+ * @param {string|Date|dayjs.Dayjs} startDate - The start date of the range.
+ * @param {string|Date|dayjs.Dayjs} endDate - The end date of the range.
+ * @return {Array} Array of shift objects with date, shift type, and code.
+ */
+// eslint-disable-next-line no-unused-vars
+function getShiftsInDateRange(team, startDate, endDate) {
+    const shifts = [];
+    let checkDate = dayjs(startDate);
+    const end = dayjs(endDate);
+
+    while (checkDate.isSameOrBefore(end)) {
+        if (isWithinDateRange(checkDate, startDate, endDate)) {
+            const shift = calculateShift(checkDate, team);
+            if (shift !== SHIFTS.OFF) {
+                shifts.push({
+                    date: checkDate,
+                    shift: shift,
+                    code: getShiftCode(checkDate, team),
+                    dateCode: formatDateCode(checkDate)
+                });
+            }
+        }
+        checkDate = checkDate.add(1, 'day');
+    }
+
+    return shifts;
+}
+
+/**
+ * Filters transfer data to only include transfers within a specified date range.
+ * @param {Array} transfers - Array of transfer objects.
+ * @param {string|Date|dayjs.Dayjs} startDate - The start date of the range.
+ * @param {string|Date|dayjs.Dayjs} endDate - The end date of the range.
+ * @return {Array} Filtered array of transfers within the date range.
+ */
+// eslint-disable-next-line no-unused-vars
+function filterTransfersByDateRange(transfers, startDate, endDate) {
+    return transfers.filter(transfer =>
+        isWithinDateRange(transfer.date, startDate, endDate)
+    );
 }
 
 /**
@@ -555,6 +651,26 @@ function updateScheduleView() {
 
     const currentShiftDay = getCurrentShiftDay();
 
+    // Show user's shifts for this week using getShiftsInDateRange
+    const myShifts = getShiftsInDateRange(userTeam, weekRange.start, weekRange.end);
+    if (myShifts.length > 0) {
+        const shiftsHtml = myShifts.map(shift =>
+            `<span class="badge shift-${shift.shift.name.toLowerCase()} me-1">${shift.code}</span>`
+        ).join('');
+
+        elements.myShiftsWeek.innerHTML = `
+            <div class="alert alert-primary">
+                <strong>Your shifts this week:</strong> ${shiftsHtml}
+            </div>
+        `;
+    } else {
+        elements.myShiftsWeek.innerHTML = `
+            <div class="alert alert-secondary">
+                <strong>No shifts this week</strong> - You're off duty!
+            </div>
+        `;
+    }
+
     // Generate table HTML using helper functions
     let tableHtml = `
         <table class="table table-bordered schedule-table">
@@ -586,12 +702,36 @@ function updateTransferView() {
     }
 
     const currentShiftDay = getCurrentShiftDay();
-    const transfers = getTransferDays(userTeam, compareTeam, currentShiftDay);
+    let transfers;
+    let rangeDescription;
+
+    // Get transfers based on selected range
+    const rangeValue = elements.transferRange.value;
+    if (rangeValue === 'custom') {
+        const startDate = elements.startDate.value;
+        const endDate = elements.endDate.value;
+
+        if (!startDate || !endDate) {
+            elements.transferInfo.innerHTML = `
+                <div class="alert alert-warning">
+                    Please select both start and end dates for custom range.
+                </div>
+            `;
+            return;
+        }
+
+        transfers = getTransferDays(userTeam, compareTeam, dayjs(startDate), dayjs(endDate));
+        rangeDescription = `from ${dayjs(startDate).format('MMM D')} to ${dayjs(endDate).format('MMM D, YYYY')}`;
+    } else {
+        const days = parseInt(rangeValue);
+        transfers = getTransferDays(userTeam, compareTeam, currentShiftDay, days);
+        rangeDescription = `in the next ${days} days`;
+    }
 
     if (transfers.length === 0) {
         elements.transferInfo.innerHTML = `
             <div class="alert alert-info">
-                No transfers found between Team ${userTeam} and Team ${compareTeam} in the next 14 days.
+                No transfers found between Team ${userTeam} and Team ${compareTeam} ${rangeDescription}.
             </div>
         `;
         return;
@@ -599,7 +739,7 @@ function updateTransferView() {
 
     let transferHtml = `
         <div class="alert alert-info">
-            <strong>Transfers between Team ${userTeam} and Team ${compareTeam}:</strong>
+            <strong>Transfers between Team ${userTeam} and Team ${compareTeam}</strong> ${rangeDescription}:
         </div>
         <div class="row g-3">
     `;
