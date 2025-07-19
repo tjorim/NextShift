@@ -9,12 +9,26 @@ const urlsToCache = [
     '/manifest.json',
     '/assets/icons/icon-192.png',
     '/assets/icons/icon-512.png',
+    // Local dependencies for offline support
+    '/assets/css/bootstrap.min.css',
+    '/assets/js/bootstrap.bundle.min.js',
+    '/assets/js/dayjs.min.js',
+    '/assets/js/dayjs/weekOfYear.js',
+    '/assets/js/dayjs/timezone.js',
+    '/assets/js/dayjs/utc.js',
+    '/assets/js/dayjs/isSameOrBefore.js',
+    '/assets/js/dayjs/isSameOrAfter.js',
+    '/assets/js/dayjs/localizedFormat.js',
+    // CDN fallbacks (cached when accessed)
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
     'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js',
     'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/weekOfYear.js',
     'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/timezone.js',
-    'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/utc.js'
+    'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/utc.js',
+    'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isSameOrBefore.js',
+    'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isSameOrAfter.js',
+    'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/localizedFormat.js'
 ];
 
 // Install event - cache resources

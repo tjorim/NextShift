@@ -59,42 +59,48 @@ These variables anchor all shift calculations and should be set during initial d
 
 ## Technology Stack
 
-- **Frontend**: Vanilla JavaScript (implemented)
+- **Frontend**: Vanilla JavaScript with ES modules
+- **Build Tool**: Vite with PWA plugin for modern development and optimization
 - **UI Framework**: Bootstrap 5 responsive and mobile-first design
-- **Date Handling**: day.js for date calculations and week number formatting
-- **PWA**: Service Worker + Cache API for offline functionality
+- **Date Handling**: Day.js for date calculations and week number formatting
+- **PWA**: Auto-generated Service Worker with Workbox for offline functionality
 - **Storage**: localStorage for user team preference and offline data
-- **Icons**: Embedded SVG icons in manifest for PWA installation
+- **Icons**: Embedded SVG icons in auto-generated manifest
 
 ## Development Commands
 
-This is a static PWA with no build process required. Development involves:
+This PWA uses Vite for modern development and build processes:
 
-1. **Local Development**: Serve files with any HTTP server
+1. **Development Server**: Fast development with hot module replacement
    ```bash
-   # Python 3
-   python -m http.server 8000
-   
-   # Node.js (if http-server installed)
-   npx http-server
-   
-   # PHP
-   php -S localhost:8000
+   npm run dev          # Start Vite dev server at http://localhost:8000
    ```
 
-2. **Testing PWA Features**: Use HTTPS or localhost for service worker testing
+2. **Production Build**: Optimized build with automatic PWA generation
+   ```bash
+   npm run build        # Build for production in dist/ directory
+   npm run preview      # Preview production build locally
+   ```
 
-3. **Validation**: 
-   - Test offline functionality
-   - Verify PWA installability
-   - Check responsive design on mobile devices
+3. **Code Quality**: Linting and validation
+   ```bash
+   npm run lint         # Run all linters (JS, CSS, YAML)
+   npm run lint:fix     # Auto-fix linting issues
+   ```
+
+4. **PWA Testing**: 
+   - Use development server for service worker testing
+   - Test offline functionality with built version
+   - Verify PWA installability in browser dev tools
 
 ## PWA Configuration
 
-- **manifest.json**: Defines app metadata for installation with embedded SVG icons
-- **serviceWorker.js**: Handles caching strategy for offline use with CDN fallbacks
-- **Icons**: Embedded base64-encoded SVG icons for 192px and 512px sizes
+- **vite.config.js**: Vite PWA plugin configuration for automatic generation
+- **manifest.webmanifest**: Auto-generated PWA manifest with proper metadata
+- **Service Worker**: Auto-generated with Workbox for optimal caching strategies
+- **Icons**: Local PNG icons (192px and 512px) for installation
 - **Shortcuts**: Quick access to "Today's Schedule" and "My Next Shift"
+- **Auto-updates**: Built-in service worker update mechanism
 
 ## Future Extensions
 

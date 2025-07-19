@@ -44,18 +44,8 @@ jobs:
         run: |
           echo "Preparing NextShift PWA files for deployment..."
 
-          # Create clean deployment directory
-          mkdir -p _site
-
-          # Copy all static files, excluding development/build artifacts
-          rsync -av --exclude='node_modules/' \
-                    --exclude='package*.json' \
-                    --exclude='.*' \
-                    --exclude='*.md' \
-                    --exclude='LICENSE' \
-                    --exclude='create-icons.html' \
-                    --exclude='app.js' \
-                    ./ _site/
+          # Copy Vite build output to deployment directory
+          cp -r dist _site
 
           echo "✓ Deployment contents:"
           find _site -type f | sort

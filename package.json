@@ -4,13 +4,13 @@
   "description": "Team Shift Tracker PWA for 5-team volcontinu schedule",
   "main": "app.js",
   "scripts": {
-    "dev": "python -m http.server 8000",
-    "serve": "python -m http.server 8000",
-    "build": "npm run minify:js",
-    "minify:js": "terser app.js --compress --mangle --output app.min.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:yaml",
-    "lint:js": "eslint '**/*.js' --ignore-pattern '*.min.js' --ignore-pattern 'node_modules/**'",
-    "lint:css": "stylelint '**/*.css' --ignore-pattern 'node_modules/**'",
+    "lint:js": "eslint '**/*.js' --ignore-pattern '*.min.js' --ignore-pattern 'node_modules/**' --ignore-pattern 'assets/**' --ignore-pattern 'dist/**'",
+    "lint:css": "stylelint '**/*.css' --ignore-pattern 'node_modules/**' --ignore-pattern 'assets/**' --ignore-pattern 'dist/**'",
     "lint:yaml": "eslint '.github/**/*.yml'",
     "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix",
     "lint:all": "npm run lint && npm run lint:json",
@@ -40,9 +40,14 @@
     "eslint-plugin-yml": "^1.15.0",
     "stylelint": "^16.0.0",
     "stylelint-config-standard": "^36.0.0",
-    "terser": "^5.43.1"
+    "vite": "^7.0.5",
+    "vite-plugin-pwa": "^1.0.1"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.7",
+    "dayjs": "^1.11.13"
   }
 }

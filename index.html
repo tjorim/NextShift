@@ -29,26 +29,8 @@
         .mb-0{margin-bottom:0!important}
     </style>
     
-    <!-- Non-critical CSS (deferred) -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous"></noscript>
+    <!-- Styles will be handled by Vite via main.js -->
     
-    <!-- Custom Styles (deferred) -->
-    <link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="style.css"></noscript>
-    
-    <!-- CSS loading fallback -->
-    <script>
-        // Ensure CSS loads even if preload fails
-        setTimeout(() => {
-            const links = document.querySelectorAll('link[rel="preload"][as="style"]');
-            links.forEach(link => {
-                if (link.rel === 'preload') {
-                    link.rel = 'stylesheet';
-                }
-            });
-        }, 3000);
-    </script>
 </head>
 <body class="bg-light">
     <div class="container-fluid">
@@ -257,49 +239,7 @@
         </div>
     </div>
 
-    <!-- Critical JavaScript (minified for production) -->
-    <script src="app.min.js"></script>
-    
-    <!-- Non-critical JavaScript (deferred) -->
-    <script>
-        // Load Day.js plugins asynchronously
-        const loadScript = (src, integrity) => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.async = true;
-            script.crossOrigin = 'anonymous';
-            if (integrity) {
-                script.integrity = integrity;
-            }
-            document.head.appendChild(script);
-        };
-        
-        // Load Day.js and plugins after initial render
-        window.addEventListener('load', () => {
-            loadScript('https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js', 'sha384-DpVxUeeBWjUvUV1czyIHJAjh+jYUZFu2lLakbdua5vbwOrBGi1UgaKCHjTC+x3Ky');
-            loadScript('https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/weekOfYear.js', 'sha384-Hwy/S7Rzg4HvTBJJA00AQGnlvvuhcQ74ZnQtdbO2E5C/vpwVjUTWwb2r3rAHDEpi');
-            loadScript('https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/timezone.js', 'sha384-pTM2D4iDDvhssWjd06ZnUKpRQq3dQ+VS8ryYBFbkK1rlMf+95xELfv3ex8rrf0lt');
-            loadScript('https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/utc.js', 'sha384-xOmw7yhFcuMoXJXH8EDMIjcqreFkEW8JoFlJM+QquDJbLJN/G8hSNzGKf698+623');
-            loadScript('https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isSameOrBefore.js', 'sha384-u/aSdNVbZVAXx6iJt1QCX70kgo4y/o9QA+Ofi6WU2xgoNAz0wPaU8eq/o/zGHucc');
-            loadScript('https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/isSameOrAfter.js', 'sha384-m6v7kux7biu2PyaXFIuLdb9lpEoeWqw3ijapLgbFvYiob6aakuOLtOY/Vo5hZBiM');
-            loadScript('https://cdn.jsdelivr.net/npm/dayjs@1.11.10/plugin/localizedFormat.js', 'sha384-iuFpgyG+/EWLaH+QftleTM09Ui3ttFvEdMGKrvJY24QlklT0IwHR7xj2Sw1Chu8R');
-            loadScript('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js', 'sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz');
-        });
-    </script>
-    
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('serviceWorker.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
-    </script>
+    <!-- Main Application Script (Vite will handle bundling) -->
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>
