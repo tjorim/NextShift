@@ -9,62 +9,62 @@ jobs:
   lighthouse:
     name: PWA Performance Audit
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: "20"
+
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli
-        
+
       - name: Build PWA (prepare files)
         run: |
           echo "Preparing PWA files for audit..."
-          
+
           # Create a clean build directory with only PWA files
           mkdir -p build
           cp index.html style.css app.js manifest.json serviceWorker.js build/
           cp -r assets build/
-          
+
           echo "✅ PWA files prepared for Lighthouse audit"
-          
+
       - name: Start HTTP server
         run: |
           echo "Starting HTTP server for Lighthouse..."
           cd build
           python -m http.server 8080 &
-          
+
           # Wait for server to start
           sleep 3
-          
+
           # Verify server is running
           curl -f http://localhost:8080 > /dev/null && echo "✅ Server is running" || { echo "❌ Server failed to start"; exit 1; }
-          
+
       - name: Run Lighthouse CI
         run: |
           lhci autorun --upload.target=temporary-public-storage --collect.url=http://localhost:8080 || echo "Lighthouse completed with warnings"
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-          
+
       - name: Custom PWA checks
         run: |
           echo "Running custom PWA compliance checks..."
-          
+
           # Check if PWA is installable
           node -e "
             const https = require('https');
             const fs = require('fs');
-            
+
             console.log('🔍 Checking PWA compliance...');
-            
+
             // Check manifest
             const manifest = JSON.parse(fs.readFileSync('build/manifest.json', 'utf8'));
-            
+
             // PWA criteria
             const checks = [
               { name: 'Has name', pass: !!manifest.name },
@@ -73,7 +73,7 @@ jobs:
               { name: 'Has display mode', pass: !!manifest.display },
               { name: 'Service Worker exists', pass: fs.existsSync('build/serviceWorker.js') }
             ];
-            
+
             let passed = 0;
             checks.forEach(check => {
               if (check.pass) {
@@ -83,37 +83,37 @@ jobs:
                 console.log(\`❌ \${check.name}\`);
               }
             });
-            
+
             console.log(\`\nPWA Compliance: \${passed}/\${checks.length} checks passed\`);
-            
+
             if (passed === checks.length) {
               console.log('🎉 PWA is fully compliant!');
             } else {
               console.log('⚠️  PWA has compliance issues');
             }
           "
-          
+
       - name: Performance summary
         run: |
           echo "📊 Performance Summary:"
           echo "├── ✅ Lighthouse audit completed"
-          echo "├── ✅ PWA compliance checked" 
+          echo "├── ✅ PWA compliance checked"
           echo "├── ✅ Installability verified"
           echo "└── 🔗 Detailed results available in Lighthouse CI"
-          
+
           # Check for common performance issues
           echo ""
           echo "🔍 Performance Recommendations:"
-          
+
           TOTAL_SIZE=$(du -sb build/ | cut -f1)
           TOTAL_KB=$((TOTAL_SIZE / 1024))
-          
+
           if [ $TOTAL_KB -gt 1000 ]; then
             echo "⚠️  Consider optimizing bundle size (${TOTAL_KB}KB)"
           else
             echo "✅ Bundle size is good (${TOTAL_KB}KB)"
           fi
-          
+
           # Check for service worker caching
           if grep -q "Cache API" build/serviceWorker.js; then
             echo "✅ Service worker uses Cache API"

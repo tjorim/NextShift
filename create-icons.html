@@ -25,10 +25,28 @@
             ctx.fillStyle = '#0d6efd';
             ctx.fillRect(0, 0, size, size);
             
-            // Add rounded corners
+            // Add rounded corners with fallback for older browsers
             ctx.globalCompositeOperation = 'destination-in';
             ctx.beginPath();
-            ctx.roundRect(0, 0, size, size, size * 0.1);
+            
+            if (ctx.roundRect) {
+                // Modern browsers with roundRect support
+                ctx.roundRect(0, 0, size, size, size * 0.1);
+            } else {
+                // Fallback for older browsers - draw rounded rectangle manually
+                const radius = size * 0.1;
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(size - radius, 0);
+                ctx.arc(size - radius, radius, radius, -Math.PI/2, 0);
+                ctx.lineTo(size, size - radius);
+                ctx.arc(size - radius, size - radius, radius, 0, Math.PI/2);
+                ctx.lineTo(radius, size);
+                ctx.arc(radius, size - radius, radius, Math.PI/2, Math.PI);
+                ctx.lineTo(0, radius);
+                ctx.arc(radius, radius, radius, Math.PI, -Math.PI/2);
+                ctx.closePath();
+            }
+            
             ctx.fill();
             ctx.globalCompositeOperation = 'source-over';
             
@@ -81,33 +99,31 @@
         createIcon('icon192', 192);
         createIcon('icon512', 512);
         
-        // Add download links
-        setTimeout(() => {
-            const canvas192 = document.getElementById('icon192');
-            const canvas512 = document.getElementById('icon512');
-            
-            canvas192.toBlob(blob => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'icon-192.png';
-                link.textContent = 'Download 192x192 PNG';
-                link.style.display = 'block';
-                link.style.marginTop = '10px';
-                canvas192.parentNode.insertBefore(link, canvas192.nextSibling);
-            });
-            
-            canvas512.toBlob(blob => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'icon-512.png';
-                link.textContent = 'Download 512x512 PNG';
-                link.style.display = 'block';
-                link.style.marginTop = '10px';
-                canvas512.parentNode.insertBefore(link, canvas512.nextSibling);
-            });
-        }, 100);
+        // Add download links - canvas drawing is synchronous, no delay needed
+        const canvas192 = document.getElementById('icon192');
+        const canvas512 = document.getElementById('icon512');
+        
+        canvas192.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'icon-192.png';
+            link.textContent = 'Download 192x192 PNG';
+            link.style.display = 'block';
+            link.style.marginTop = '10px';
+            canvas192.parentNode.insertBefore(link, canvas192.nextSibling);
+        });
+        
+        canvas512.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'icon-512.png';
+            link.textContent = 'Download 512x512 PNG';
+            link.style.display = 'block';
+            link.style.marginTop = '10px';
+            canvas512.parentNode.insertBefore(link, canvas512.nextSibling);
+        });
     </script>
 </body>
 </html>

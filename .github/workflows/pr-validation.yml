@@ -12,86 +12,86 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch full history for comparison
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: "20"
+
       - name: Analyze changed files
         run: |
           echo "🔍 Analyzing PR changes..."
-          
+
           # Get list of changed files
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
-          
+
           echo "📝 Changed files:"
           echo "$CHANGED_FILES" | sed 's/^/├── /'
-          
+
           # Categorize changes
           CORE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(html|css|js)$' || true)
           PWA_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(manifest\.json|serviceWorker\.js)$' || true)
           WORKFLOW_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.github/workflows' || true)
           DOC_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(md|txt)$' || true)
-          
+
           echo ""
           echo "📊 Change Analysis:"
-          
+
           if [ -n "$CORE_CHANGES" ]; then
             echo "🔧 Core app changes detected"
             echo "CORE_CHANGES=true" >> $GITHUB_ENV
           fi
-          
+
           if [ -n "$PWA_CHANGES" ]; then
             echo "📱 PWA configuration changes detected"
             echo "PWA_CHANGES=true" >> $GITHUB_ENV
           fi
-          
+
           if [ -n "$WORKFLOW_CHANGES" ]; then
             echo "⚙️  Workflow changes detected"
             echo "WORKFLOW_CHANGES=true" >> $GITHUB_ENV
           fi
-          
+
           if [ -n "$DOC_CHANGES" ]; then
             echo "📚 Documentation changes detected"
             echo "DOC_CHANGES=true" >> $GITHUB_ENV
           fi
-          
+
       - name: Validate core app changes
         if: env.CORE_CHANGES == 'true'
         run: |
           echo "🔧 Validating core app changes..."
-          
+
           # Check if JavaScript syntax is still valid
           if [ -f "app.js" ]; then
             node -c app.js && echo "✅ JavaScript syntax valid" || { echo "❌ JavaScript syntax error"; exit 1; }
           fi
-          
+
           # Check if critical functions still exist
           if [ -f "app.js" ]; then
             node -e "
               const fs = require('fs');
               const appJs = fs.readFileSync('app.js', 'utf8');
-              
+
               const criticalFunctions = [
                 'calculateShift',
                 'formatDateCode',
                 'getCurrentShiftDay'
               ];
-              
+
               let missing = [];
               criticalFunctions.forEach(func => {
                 if (!appJs.includes('function ' + func) && !appJs.includes(func + ' =')) {
                   missing.push(func);
                 }
               });
-              
+
               if (missing.length > 0) {
                 console.log('❌ Missing critical functions:', missing.join(', '));
                 process.exit(1);
@@ -100,7 +100,7 @@ jobs:
               }
             "
           fi
-          
+
           # Check if HTML structure is intact
           if [ -f "index.html" ]; then
             # Basic HTML validation
@@ -111,21 +111,21 @@ jobs:
               exit 1
             fi
           fi
-          
+
       - name: Validate PWA changes
         if: env.PWA_CHANGES == 'true'
         run: |
           echo "📱 Validating PWA changes..."
-          
+
           # Validate manifest if changed
           if [ -f "manifest.json" ]; then
             node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))" && echo "✅ Manifest JSON valid" || { echo "❌ Manifest JSON invalid"; exit 1; }
-            
+
             # Check required fields
             node -e "
               const manifest = JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'));
               const required = ['name', 'short_name', 'icons', 'start_url', 'display'];
-              
+
               const missing = required.filter(field => !manifest[field]);
               if (missing.length > 0) {
                 console.log('❌ Missing manifest fields:', missing.join(', '));
@@ -135,11 +135,11 @@ jobs:
               }
             "
           fi
-          
+
           # Validate service worker if changed
           if [ -f "serviceWorker.js" ]; then
             node -c serviceWorker.js && echo "✅ Service worker syntax valid" || { echo "❌ Service worker syntax error"; exit 1; }
-            
+
             # Check for cache implementation
             if grep -q "cache" serviceWorker.js; then
               echo "✅ Service worker has caching logic"
@@ -147,35 +147,35 @@ jobs:
               echo "⚠️  Service worker missing caching logic"
             fi
           fi
-          
+
       - name: Check for version updates
         if: env.CORE_CHANGES == 'true' || env.PWA_CHANGES == 'true'
         run: |
           echo "🔢 Checking version consistency..."
-          
+
           # Check if version was updated in app.js CONFIG
           if grep -q "VERSION.*3\.0\.0" app.js; then
             echo "ℹ️  Version in app.js: 3.0.0 (consider updating for releases)"
           fi
-          
+
           # Check if service worker cache name includes version
           if grep -q "nextshift-v" serviceWorker.js; then
             echo "✅ Service worker cache includes version"
           else
             echo "⚠️  Consider including version in service worker cache name"
           fi
-          
+
       - name: Performance impact analysis
         if: env.CORE_CHANGES == 'true'
         run: |
           echo "📊 Analyzing performance impact..."
-          
+
           # Calculate current bundle size
           if [ -f "app.js" ] && [ -f "style.css" ] && [ -f "index.html" ]; then
             TOTAL_SIZE=$(stat -c%s app.js style.css index.html | awk '{sum += $1} END {print sum}')
             TOTAL_KB=$((TOTAL_SIZE / 1024))
             echo "Current bundle size: ${TOTAL_KB}KB"
-            
+
             # Basic size check
             if [ $TOTAL_KB -gt 200 ]; then
               echo "⚠️  Core files are getting large (${TOTAL_KB}KB)"
@@ -183,65 +183,65 @@ jobs:
               echo "✅ Core bundle size is reasonable (${TOTAL_KB}KB)"
             fi
           fi
-          
+
       - name: Security check
         run: |
           echo "🔒 Running security checks..."
-          
+
           # Check for potential security issues
           SECURITY_ISSUES=""
-          
+
           # Check for console.log in production code (optional)
           if grep -q "console\.log" app.js 2>/dev/null; then
             echo "ℹ️  Console.log statements found (consider removing for production)"
           fi
-          
+
           # Check for eval usage
           if grep -q "eval(" app.js 2>/dev/null; then
             echo "⚠️  eval() usage detected - potential security risk"
             SECURITY_ISSUES="true"
           fi
-          
+
           # Check for innerHTML without sanitization
           if grep -q "innerHTML.*=" app.js 2>/dev/null; then
             echo "ℹ️  innerHTML usage detected - ensure content is sanitized"
           fi
-          
+
           if [ -z "$SECURITY_ISSUES" ]; then
             echo "✅ No obvious security issues detected"
           fi
-          
+
       - name: PR Summary
         uses: actions/github-script@v7
         with:
           script: |
             const { CORE_CHANGES, PWA_CHANGES, WORKFLOW_CHANGES, DOC_CHANGES } = process.env;
-            
+
             let summary = "## 🔍 PR Validation Summary\n\n";
-            
+
             // Change analysis
             summary += "### 📝 Changes Detected:\n";
             if (CORE_CHANGES === 'true') summary += "- 🔧 Core application changes\n";
             if (PWA_CHANGES === 'true') summary += "- 📱 PWA configuration changes\n";
             if (WORKFLOW_CHANGES === 'true') summary += "- ⚙️ Workflow changes\n";
             if (DOC_CHANGES === 'true') summary += "- 📚 Documentation changes\n";
-            
+
             summary += "\n### ✅ Validation Results:\n";
             summary += "- ✅ JavaScript syntax validated\n";
             summary += "- ✅ Critical functions verified\n";
             summary += "- ✅ HTML structure checked\n";
-            
+
             if (PWA_CHANGES === 'true') {
               summary += "- ✅ PWA manifest validated\n";
               summary += "- ✅ Service worker syntax checked\n";
             }
-            
+
             summary += "- ✅ Security scan completed\n";
             summary += "- ✅ Performance impact analyzed\n";
-            
+
             summary += "\n### 🚀 Ready for Review\n";
             summary += "All automated checks passed! This PR is ready for manual review.\n";
-            
+
             // Only comment on PR, don't create issues
             if (context.eventName === 'pull_request') {
               await github.rest.issues.createComment({

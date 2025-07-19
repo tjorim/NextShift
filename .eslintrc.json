@@ -5,9 +5,23 @@
     "serviceworker": true
   },
   "extends": ["eslint:recommended"],
+  "plugins": ["yml"],
+  "ignorePatterns": ["node_modules/", "*.min.js"],
+  "overrides": [
+    {
+      "files": ["*.yml", "*.yaml", ".github/workflows/*.yml"],
+      "parser": "yaml-eslint-parser",
+      "extends": ["plugin:yml/standard"],
+      "rules": {
+        "yml/quotes": ["error", { "prefer": "double" }],
+        "yml/indent": ["error", 2],
+        "yml/no-empty-mapping-value": "off"
+      }
+    }
+  ],
   "parserOptions": {
     "ecmaVersion": "latest",
-    "sourceType": "script"
+    "sourceType": "module"
   },
   "globals": {
     "dayjs": "readonly",

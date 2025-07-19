@@ -7,6 +7,8 @@ const urlsToCache = [
     '/style.css',
     '/app.min.js',
     '/manifest.json',
+    '/assets/icons/icon-192.png',
+    '/assets/icons/icon-512.png',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
     'https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js',
@@ -76,7 +78,7 @@ self.addEventListener('fetch', function(event) {
                 console.log('Service Worker: Fetching from network', event.request.url);
                 return fetch(event.request).then(function(response) {
                     // Check if we received a valid response
-                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                    if (!response || response.status !== 200) {
                         return response;
                     }
 
@@ -97,8 +99,7 @@ self.addEventListener('fetch', function(event) {
                     console.log('Service Worker: Fetch failed', error);
 
                     // Return a fallback response for HTML requests when offline
-                    if (event.request.headers.get('accept') &&
-                        event.request.headers.get('accept').includes('text/html')) {
+                    if (event.request.headers.get('accept')?.includes('text/html')) {
                         return caches.match('/index.html');
                     }
 

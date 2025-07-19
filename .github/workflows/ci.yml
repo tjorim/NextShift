@@ -15,55 +15,55 @@ jobs:
   validate-pwa:
     name: Validate PWA
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          
+          node-version: "20"
+          cache: npm
+
       - name: Install validation tools
         run: |
           npm install -g eslint stylelint lighthouse-ci @lhci/cli
-          
+
       - name: Validate JavaScript
         run: |
           echo "Validating JavaScript syntax..."
           node -c app.js
           echo "✅ JavaScript syntax is valid"
-          
+
       - name: Validate JSON files
         run: |
           echo "Validating JSON files..."
           node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))" && echo "✅ manifest.json is valid"
           node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8'))" 2>/dev/null && echo "✅ package.json is valid" || echo "ℹ️  No package.json found"
-          
+
       - name: Check PWA requirements
         run: |
           echo "Checking PWA file requirements..."
-          
+
           # Core files
           [ -f "index.html" ] && echo "✅ index.html found" || { echo "❌ index.html missing"; exit 1; }
           [ -f "manifest.json" ] && echo "✅ manifest.json found" || { echo "❌ manifest.json missing"; exit 1; }
           [ -f "serviceWorker.js" ] && echo "✅ serviceWorker.js found" || { echo "❌ serviceWorker.js missing"; exit 1; }
-          
+
           # PWA assets
           [ -f "assets/icons/icon-192.png" ] && echo "✅ 192px icon found" || { echo "❌ 192px icon missing"; exit 1; }
           [ -f "assets/icons/icon-512.png" ] && echo "✅ 512px icon found" || { echo "❌ 512px icon missing"; exit 1; }
-          
+
           # Check service worker registration
           grep -q "serviceWorker.register" index.html && echo "✅ Service worker registration found" || { echo "❌ Service worker registration missing"; exit 1; }
-          
+
           echo "✅ All PWA requirements met"
-          
+
       - name: Calculate bundle size
         run: |
           echo "Calculating PWA bundle size..."
-          
+
           # Calculate sizes
           HTML_SIZE=$(stat -c%s index.html)
           CSS_SIZE=$(stat -c%s style.css)
@@ -71,38 +71,38 @@ jobs:
           SW_SIZE=$(stat -c%s serviceWorker.js)
           MANIFEST_SIZE=$(stat -c%s manifest.json)
           ICONS_SIZE=$(du -sb assets/icons/ | cut -f1)
-          
+
           TOTAL_SIZE=$((HTML_SIZE + CSS_SIZE + JS_SIZE + SW_SIZE + MANIFEST_SIZE + ICONS_SIZE))
           TOTAL_KB=$((TOTAL_SIZE / 1024))
-          
+
           echo "📊 Bundle Size Analysis:"
           echo "├── HTML: $((HTML_SIZE / 1024))KB"
-          echo "├── CSS: $((CSS_SIZE / 1024))KB" 
+          echo "├── CSS: $((CSS_SIZE / 1024))KB"
           echo "├── JavaScript: $((JS_SIZE / 1024))KB"
           echo "├── Service Worker: $((SW_SIZE / 1024))KB"
           echo "├── Manifest: $((MANIFEST_SIZE / 1024))KB"
           echo "├── Icons: $((ICONS_SIZE / 1024))KB"
           echo "└── Total: ${TOTAL_KB}KB"
-          
+
           # Bundle size check (warn if over 500KB)
           if [ $TOTAL_KB -gt 500 ]; then
             echo "⚠️  Bundle size is large (${TOTAL_KB}KB > 500KB)"
           else
             echo "✅ Bundle size is optimal (${TOTAL_KB}KB)"
           fi
-          
+
           # Save for PR comment
           echo "BUNDLE_SIZE=${TOTAL_KB}KB" >> $GITHUB_ENV
-          
+
       - name: Validate PWA manifest
         run: |
           echo "Validating PWA manifest structure..."
-          
+
           # Check required manifest fields
           node -e "
             const manifest = JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'));
             const required = ['name', 'short_name', 'icons', 'start_url', 'display'];
-            
+
             required.forEach(field => {
               if (!manifest[field]) {
                 console.log(\`❌ Missing required field: \${field}\`);
@@ -111,32 +111,32 @@ jobs:
                 console.log(\`✅ \${field}: \${JSON.stringify(manifest[field]).substring(0, 50)}...\`);
               }
             });
-            
+
             // Check icons
             if (!manifest.icons || manifest.icons.length === 0) {
               console.log('❌ No icons defined in manifest');
               process.exit(1);
             }
-            
+
             console.log('✅ PWA manifest is valid');
           "
-          
+
       - name: Check shift calculation accuracy
         run: |
           echo "Testing shift calculation logic..."
-          
+
           # Basic test - check if core functions exist
           node -e "
             const fs = require('fs');
             const appJs = fs.readFileSync('app.js', 'utf8');
-            
+
             const requiredFunctions = [
               'calculateShift',
-              'formatDateCode', 
+              'formatDateCode',
               'getNextShift',
               'getCurrentShiftDay'
             ];
-            
+
             requiredFunctions.forEach(func => {
               if (appJs.includes('function ' + func) || appJs.includes(func + ' =')) {
                 console.log(\`✅ \${func} function found\`);
@@ -145,30 +145,30 @@ jobs:
                 process.exit(1);
               }
             });
-            
+
             console.log('✅ Core shift functions are present');
           "
-          
+
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
             const bundleSize = process.env.BUNDLE_SIZE;
-            
+
             const comment = `## 🚀 PWA Validation Results
-            
+
             ✅ All PWA requirements met
             ✅ JavaScript syntax valid
             ✅ Manifest structure valid
             ✅ Service worker configured
             ✅ Required icons present
             ✅ Core shift functions present
-            
+
             📊 **Bundle Size:** ${bundleSize}
-            
+
             Ready for deployment! 🎉`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

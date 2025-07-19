@@ -3,7 +3,7 @@ name: Deploy NextShift PWA to GitHub Pages
 on:
   # Runs on pushes targeting the main branch
   push:
-    branches: ["main"]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -17,7 +17,7 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
@@ -30,48 +30,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: "20"
       - name: Install dependencies
         run: npm ci
-        
       - name: Build minified assets
         run: npm run build
-        
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        
       - name: Prepare PWA deployment
         run: |
           echo "Preparing NextShift PWA files for deployment..."
-          
+
           # Create clean deployment directory
           mkdir -p _site
-          
-          # Copy only essential PWA files
-          cp index.html _site/
-          cp style.css _site/
-          cp app.min.js _site/
-          cp manifest.json _site/
-          cp serviceWorker.js _site/
-          
-          # Copy PWA assets
-          cp -r assets _site/
-          
+
+          # Copy all static files, excluding development/build artifacts
+          rsync -av --exclude='node_modules/' \
+                    --exclude='package*.json' \
+                    --exclude='.*' \
+                    --exclude='*.md' \
+                    --exclude='LICENSE' \
+                    --exclude='create-icons.html' \
+                    --exclude='app.js' \
+                    ./ _site/
+
           echo "✓ Deployment contents:"
-          ls -la _site/
+          find _site -type f | sort
           echo "✓ PWA ready for deployment!"
-          
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload only the clean PWA files
-          path: '_site'
-          
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

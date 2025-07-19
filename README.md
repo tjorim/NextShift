@@ -75,7 +75,7 @@ php -S localhost:8000
 
 ### PWA Installation
 
-- **Desktop**: Click the install button in your browser's address bar
+- **Desktop**: Click the installation button in your browser's address bar
 - **Mobile**: Use "Add to Home Screen" from your browser menu
 - **Offline**: Once installed, the app works completely offline
 
@@ -110,6 +110,6 @@ Works on all modern browsers with:
 - localStorage support
 - ES6+ JavaScript features
 
-## License
+## Licence
 
 Apache License 2.0 - see LICENSE file for details.

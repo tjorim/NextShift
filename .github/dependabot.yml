@@ -1,41 +1,41 @@
 version: 2
 updates:
   # Monitor npm dependencies (if package.json exists)
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: npm
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: weekly
+      day: monday
       time: "09:00"
     open-pull-requests-limit: 5
     reviewers:
-      - "@me"
+      - tjorim
     assignees:
-      - "@me"
+      - tjorim
     commit-message:
-      prefix: "deps"
-      include: "scope"
+      prefix: deps
+      include: scope
     labels:
-      - "dependencies"
-      - "npm"
-    versioning-strategy: "increase"
-    
+      - dependencies
+      - npm
+    versioning-strategy: increase
+
   # Monitor GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: weekly
+      day: monday
       time: "09:00"
     open-pull-requests-limit: 3
     reviewers:
-      - "@me"
+      - tjorim
     assignees:
-      - "@me"
+      - tjorim
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: ci
+      include: scope
     labels:
-      - "dependencies"
-      - "github-actions"
-    versioning-strategy: "increase"
+      - dependencies
+      - github-actions
+    versioning-strategy: increase

@@ -3,54 +3,54 @@ name: Dependency Monitor
 on:
   schedule:
     # Run weekly on Mondays at 9 AM UTC
-    - cron: '0 9 * * 1'
+    - cron: "0 9 * * 1"
   workflow_dispatch:
 
 jobs:
   check-dependencies:
     name: Check CDN Dependencies
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: "20"
+
       - name: Check CDN versions
         run: |
           echo "🔍 Checking CDN dependency versions..."
-          
+
           # Extract current versions from index.html
           echo "Current versions in index.html:"
-          
+
           # Day.js version
           DAYJS_CURRENT=$(grep -o 'dayjs@[0-9.]*' index.html | head -1 | cut -d'@' -f2)
           echo "├── Day.js: ${DAYJS_CURRENT}"
-          
-          # Bootstrap version  
+
+          # Bootstrap version
           BOOTSTRAP_CURRENT=$(grep -o 'bootstrap@[0-9.]*' index.html | head -1 | cut -d'@' -f2)
           echo "├── Bootstrap: ${BOOTSTRAP_CURRENT}"
-          
+
           # Check latest versions from npm
           echo ""
           echo "🔍 Checking latest versions..."
-          
+
           # Day.js latest
           DAYJS_LATEST=$(npm view dayjs version)
           echo "├── Day.js latest: ${DAYJS_LATEST}"
-          
+
           # Bootstrap latest
           BOOTSTRAP_LATEST=$(npm view bootstrap version)
           echo "├── Bootstrap latest: ${BOOTSTRAP_LATEST}"
-          
+
           # Version comparison
           echo ""
           echo "📊 Version Status:"
-          
+
           if [ "$DAYJS_CURRENT" = "$DAYJS_LATEST" ]; then
             echo "✅ Day.js is up to date"
           else
@@ -58,45 +58,45 @@ jobs:
             echo "DAYJS_UPDATE_AVAILABLE=true" >> $GITHUB_ENV
             echo "DAYJS_NEW_VERSION=${DAYJS_LATEST}" >> $GITHUB_ENV
           fi
-          
+
           if [ "$BOOTSTRAP_CURRENT" = "$BOOTSTRAP_LATEST" ]; then
             echo "✅ Bootstrap is up to date"
           else
             echo "⚠️  Bootstrap update available: ${BOOTSTRAP_CURRENT} → ${BOOTSTRAP_LATEST}"
-            echo "BOOTSTRAP_UPDATE_AVAILABLE=true" >> $GITHUB_ENV  
+            echo "BOOTSTRAP_UPDATE_AVAILABLE=true" >> $GITHUB_ENV
             echo "BOOTSTRAP_NEW_VERSION=${BOOTSTRAP_LATEST}" >> $GITHUB_ENV
           fi
-          
+
       - name: Security audit
         run: |
           echo "🔒 Running security checks..."
-          
+
           # Check for known vulnerabilities in CDN versions
           # This is a basic check - for production you might want more sophisticated tools
-          
+
           echo "Checking CDN security advisories..."
-          
+
           # Check if any version strings look suspicious (basic validation)
           if grep -q 'http://' index.html; then
             echo "⚠️  Found HTTP CDN links - should use HTTPS"
           else
             echo "✅ All CDN links use HTTPS"
           fi
-          
+
           # Check for integrity hashes (SRI)
           if grep -q 'integrity=' index.html; then
             echo "✅ CDN integrity hashes found"
           else
             echo "ℹ️  Consider adding SRI integrity hashes to CDN links"
           fi
-          
+
       - name: Create issue for updates
         if: env.DAYJS_UPDATE_AVAILABLE == 'true' || env.BOOTSTRAP_UPDATE_AVAILABLE == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const { DAYJS_UPDATE_AVAILABLE, DAYJS_NEW_VERSION, BOOTSTRAP_UPDATE_AVAILABLE, BOOTSTRAP_NEW_VERSION } = process.env;
-            
+
             let updates = [];
             if (DAYJS_UPDATE_AVAILABLE === 'true') {
               updates.push(`- **Day.js**: Update to ${DAYJS_NEW_VERSION}`);
@@ -104,27 +104,27 @@ jobs:
             if (BOOTSTRAP_UPDATE_AVAILABLE === 'true') {
               updates.push(`- **Bootstrap**: Update to ${BOOTSTRAP_NEW_VERSION}`);
             }
-            
+
             if (updates.length === 0) return;
-            
+
             const body = `## 📦 Dependency Updates Available
-            
+
             The following CDN dependencies have updates available:
-            
+
             ${updates.join('\n')}
-            
+
             ### Recommended Actions:
             1. Review changelog for breaking changes
             2. Test updates in development
             3. Update CDN links in \`index.html\`
             4. Test PWA functionality after updates
-            
+
             ### Current CDN Links:
             - Day.js: \`https://cdn.jsdelivr.net/npm/dayjs@...\`
             - Bootstrap: \`https://cdn.jsdelivr.net/npm/bootstrap@...\`
-            
+
             > 🤖 This issue was automatically created by the dependency monitor workflow.`;
-            
+
             // Check if similar issue already exists
             const existingIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -132,7 +132,7 @@ jobs:
               labels: 'dependencies',
               state: 'open'
             });
-            
+
             if (existingIssues.data.length === 0) {
               await github.rest.issues.create({
                 owner: context.repo.owner,
@@ -141,23 +141,23 @@ jobs:
                 body: body,
                 labels: ['dependencies', 'enhancement']
               });
-              
+
               console.log('✅ Created dependency update issue');
             } else {
               console.log('ℹ️  Dependency update issue already exists');
             }
-            
+
       - name: Summary
         run: |
           echo "🎯 Dependency Check Summary:"
           echo "├── ✅ CDN versions checked"
           echo "├── ✅ Security audit completed"
           echo "├── ✅ HTTPS verification done"
-          
+
           if [ "${{ env.DAYJS_UPDATE_AVAILABLE }}" = "true" ] || [ "${{ env.BOOTSTRAP_UPDATE_AVAILABLE }}" = "true" ]; then
             echo "├── 📦 Updates available - issue created"
           else
             echo "├── ✅ All dependencies up to date"
           fi
-          
+
           echo "└── 🔄 Next check scheduled for next Monday"

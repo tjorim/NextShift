@@ -82,12 +82,12 @@ function initializeApp() {
     // Register service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('serviceWorker.js')
-            .then(_registration => {
+            .then(() => {
                 console.log('ServiceWorker registered');
                 // Get service worker version
                 getServiceWorkerVersion();
             })
-            .catch(_error => console.log('ServiceWorker registration failed'));
+            .catch(error => console.error('ServiceWorker registration failed:', error));
     }
 }
 
@@ -491,6 +491,55 @@ function updateTodayView() {
 }
 
 /**
+ * Generates the HTML for the schedule table header with day columns.
+ * @param {Array} days - Array of day.js objects representing the week
+ * @param {Object} currentShiftDay - The current shift day for highlighting
+ * @returns {string} HTML string for the table header
+ */
+function generateScheduleTableHeader(days, currentShiftDay) {
+    return `
+        <tr>
+            <th class="team-header">Team</th>
+            ${days.map(day => {
+        const isToday = isSameDay(day, currentShiftDay);
+        return `<th class="${isToday ? 'bg-light border-success' : ''}">${day.format('ddd')}<br><small>${day.format('M/D')}</small>${isToday ? '<br><span class="badge badge-sm bg-success">Today</span>' : ''}</th>`;
+    }).join('')}
+        </tr>
+    `;
+}
+
+/**
+ * Generates the HTML for a single team row in the schedule table.
+ * @param {number} team - Team number
+ * @param {Array} days - Array of day.js objects representing the week
+ * @param {number} userTeam - The user's team number for highlighting
+ * @param {Object} currentShiftDay - The current shift day for highlighting
+ * @returns {string} HTML string for the team row
+ */
+function generateScheduleTableRow(team, days, userTeam, currentShiftDay) {
+    const isMyTeam = team === userTeam;
+    let rowHtml = `<tr ${isMyTeam ? 'class="table-primary"' : ''}>`;
+    rowHtml += `<td class="team-header">Team ${team}</td>`;
+
+    days.forEach(day => {
+        const shift = calculateShift(day, team);
+        const isToday = isSameDay(day, currentShiftDay);
+        const isCurrentTeamToday = isToday && team === userTeam;
+
+        rowHtml += `
+            <td class="${isToday ? 'bg-light' : ''} ${isCurrentTeamToday ? 'border-success border-2' : ''}">
+                <span class="badge shift-${shift.name.toLowerCase()} shift-code">${shift.code}</span>
+                <br><small>${shift.name}</small>
+                ${isCurrentTeamToday ? '<br><span class="badge badge-sm bg-success">Active</span>' : ''}
+            </td>
+        `;
+    });
+
+    rowHtml += '</tr>';
+    return rowHtml;
+}
+
+/**
  * Updates the weekly schedule table view, displaying each team's shifts for the current week.
  *
  * Highlights the user's team and the current shift day, and marks the active shift for the user's team. The schedule covers a Monday-to-Sunday week based on the selected view date.
@@ -506,40 +555,18 @@ function updateScheduleView() {
 
     const currentShiftDay = getCurrentShiftDay();
 
+    // Generate table HTML using helper functions
     let tableHtml = `
         <table class="table table-bordered schedule-table">
             <thead>
-                <tr>
-                    <th class="team-header">Team</th>
-                    ${days.map(day => {
-        const isToday = isSameDay(day, currentShiftDay);
-        return `<th class="${isToday ? 'bg-light border-success' : ''}">${day.format('ddd')}<br><small>${day.format('M/D')}</small>${isToday ? '<br><span class="badge badge-sm bg-success">Today</span>' : ''}</th>`;
-    }).join('')}
-                </tr>
+                ${generateScheduleTableHeader(days, currentShiftDay)}
             </thead>
             <tbody>
     `;
 
+    // Generate rows for each team
     for (let team = 1; team <= CONFIG.TEAMS_COUNT; team++) {
-        const isMyTeam = team === userTeam;
-        tableHtml += `<tr ${isMyTeam ? 'class="table-primary"' : ''}>`;
-        tableHtml += `<td class="team-header">Team ${team}</td>`;
-
-        days.forEach(day => {
-            const shift = calculateShift(day, team);
-            const isToday = isSameDay(day, currentShiftDay);
-            const isCurrentTeamToday = isToday && team === userTeam;
-
-            tableHtml += `
-                <td class="${isToday ? 'bg-light' : ''} ${isCurrentTeamToday ? 'border-success border-2' : ''}">
-                    <span class="badge shift-${shift.name.toLowerCase()} shift-code">${shift.code}</span>
-                    <br><small>${shift.name}</small>
-                    ${isCurrentTeamToday ? '<br><span class="badge badge-sm bg-success">Active</span>' : ''}
-                </td>
-            `;
-        });
-
-        tableHtml += '</tr>';
+        tableHtml += generateScheduleTableRow(team, days, userTeam, currentShiftDay);
     }
 
     tableHtml += '</tbody></table>';
@@ -617,7 +644,8 @@ function updateTransferView() {
 function checkOnlineStatus() {
     updateOnlineStatus();
     // Check every 30 seconds
-    setInterval(updateOnlineStatus, 30000);
+    const onlineStatusInterval = setInterval(updateOnlineStatus, 30000);
+    return onlineStatusInterval;
 }
 
 /**
@@ -643,6 +671,7 @@ function updateVersionDisplays() {
 
 /**
  * Requests the version of the active service worker and updates the corresponding UI element with the version information if available.
+ * If the service worker controller is not yet available, sets up a listener to retry when it becomes available.
  */
 function getServiceWorkerVersion() {
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -658,12 +687,29 @@ function getServiceWorkerVersion() {
             { type: 'GET_VERSION' },
             [channel.port2]
         );
+    } else if ('serviceWorker' in navigator) {
+        // Wait for controller to be available
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            getServiceWorkerVersion();
+        });
     }
 }
 
 // Auto-refresh every minute to keep current time accurate
-setInterval(function() {
-    if (userTeam) {
-        updateCurrentStatus();
+let autoRefreshInterval = null;
+
+function startAutoRefresh() {
+    // Clear any existing interval to prevent duplicates
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
     }
-}, 60000);
+
+    autoRefreshInterval = setInterval(function() {
+        if (userTeam) {
+            updateCurrentStatus();
+        }
+    }, 60000);
+}
+
+// Start auto-refresh when app loads
+startAutoRefresh();

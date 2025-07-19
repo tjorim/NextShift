@@ -8,7 +8,7 @@ NextShift is a Team Shift Tracker PWA for a volcontinu (24/7) 5-team shift sched
 
 ## File Structure
 
-```
+```text
 NextShift/
 ├── index.html           # Main HTML file with Bootstrap 5 UI
 ├── style.css           # Custom styles and shift color coding
