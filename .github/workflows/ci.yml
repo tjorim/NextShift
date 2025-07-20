@@ -15,6 +15,10 @@ jobs:
   validate-pwa:
     name: Validate PWA
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -32,7 +36,7 @@ jobs:
       - name: Validate JavaScript
         run: |
           echo "Validating JavaScript syntax..."
-          node -c app.js
+          node -c src/app.js
           echo "✅ JavaScript syntax is valid"
 
       - name: Run code quality checks
@@ -51,7 +55,7 @@ jobs:
           # Core source files
           [ -f "index.html" ] && echo "✅ index.html found" || { echo "❌ index.html missing"; exit 1; }
           [ -f "style.css" ] && echo "✅ style.css found" || { echo "❌ style.css missing"; exit 1; }
-          [ -f "app.js" ] && echo "✅ app.js found" || { echo "❌ app.js missing"; exit 1; }
+          [ -f "src/app.js" ] && echo "✅ src/app.js found" || { echo "❌ src/app.js missing"; exit 1; }
 
           # Built PWA files
           [ -f "dist/index.html" ] && echo "✅ Built index.html found" || { echo "❌ Built index.html missing"; exit 1; }
@@ -71,11 +75,11 @@ jobs:
           DIST_SIZE=$(du -sb dist/ | cut -f1)
           ICONS_SIZE=$(du -sb assets/icons/ | cut -f1)
           TOTAL_SIZE=$((DIST_SIZE + ICONS_SIZE))
-          TOTAL_KB=$((TOTAL_SIZE / 1024))
+          TOTAL_KB=$(( (TOTAL_SIZE + 1023) / 1024 ))
 
           echo "📊 Bundle Size Analysis:"
-          echo "├── Built assets: $((DIST_SIZE / 1024))KB"
-          echo "├── Icons: $((ICONS_SIZE / 1024))KB"
+          echo "├── Built assets: $(( (DIST_SIZE + 1023) / 1024 ))KB"
+          echo "├── Icons: $(( (ICONS_SIZE + 1023) / 1024 ))KB"
           echo "└── Total: ${TOTAL_KB}KB"
 
           # List built files for transparency
@@ -127,7 +131,7 @@ jobs:
           # Basic test - check if core functions exist
           node -e "
             const fs = require('fs');
-            const appJs = fs.readFileSync('app.js', 'utf8');
+            const appJs = fs.readFileSync('src/app.js', 'utf8');
 
             const requiredFunctions = [
               'calculateShift',

@@ -18,9 +18,10 @@ beforeEach(() => {
 });
 
 // Mock dayjs plugins
-global.dayjs_plugin_weekOfYear = {};
-global.dayjs_plugin_timezone = {};
-global.dayjs_plugin_utc = {};
-global.dayjs_plugin_isSameOrBefore = {};
-global.dayjs_plugin_isSameOrAfter = {};
-global.dayjs_plugin_localizedFormat = {};
+const mockPlugin = {};
+global.dayjs_plugin_weekOfYear = mockPlugin;
+global.dayjs_plugin_timezone = mockPlugin;
+global.dayjs_plugin_utc = mockPlugin;
+global.dayjs_plugin_isSameOrBefore = mockPlugin;
+global.dayjs_plugin_isSameOrAfter = mockPlugin;
+global.dayjs_plugin_localizedFormat = mockPlugin;

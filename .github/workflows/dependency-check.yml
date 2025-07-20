@@ -10,6 +10,9 @@ jobs:
   check-dependencies:
     name: Check npm Dependencies
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
 
     steps:
       - name: Checkout
@@ -26,43 +29,43 @@ jobs:
       - name: Check for updates
         run: |
           echo "🔍 Checking for npm dependency updates..."
-          
+
           # Check for outdated packages
           npm outdated || true
-          
+
           # Store output for later use
           npm outdated --json > outdated.json 2>/dev/null || echo "{}" > outdated.json
 
       - name: Security audit
         run: |
           echo "🔒 Running npm security audit..."
-          
+
           # Run security audit
           npm audit --audit-level=moderate || true
-          
+
           # Store audit results
           npm audit --json > audit.json 2>/dev/null || echo '{"vulnerabilities":{}}' > audit.json
 
       - name: Analyze results
         run: |
           echo "📊 Analyzing dependency status..."
-          
+
           # Check if any packages are outdated
           OUTDATED_COUNT=$(node -e "
             const data = JSON.parse(require('fs').readFileSync('outdated.json', 'utf8'));
             console.log(Object.keys(data).length);
           ")
-          
+
           # Check security vulnerabilities
           VULN_COUNT=$(node -e "
             const data = JSON.parse(require('fs').readFileSync('audit.json', 'utf8'));
             const vulns = data.vulnerabilities || {};
             console.log(Object.keys(vulns).length);
           ")
-          
+
           echo "├── Outdated packages: $OUTDATED_COUNT"
           echo "├── Security vulnerabilities: $VULN_COUNT"
-          
+
           # Set environment variables
           echo "OUTDATED_COUNT=$OUTDATED_COUNT" >> $GITHUB_ENV
           echo "VULN_COUNT=$VULN_COUNT" >> $GITHUB_ENV
@@ -75,9 +78,9 @@ jobs:
             const fs = require('fs');
             const outdatedData = JSON.parse(fs.readFileSync('outdated.json', 'utf8'));
             const auditData = JSON.parse(fs.readFileSync('audit.json', 'utf8'));
-            
+
             let issueBody = "## 📦 Dependency Status Report\n\n";
-            
+
             // Outdated packages
             if (Object.keys(outdatedData).length > 0) {
               issueBody += "### 📈 Outdated Packages\n\n";
@@ -86,7 +89,7 @@ jobs:
               });
               issueBody += "\n";
             }
-            
+
             // Security vulnerabilities
             const vulns = auditData.vulnerabilities || {};
             if (Object.keys(vulns).length > 0) {
@@ -96,7 +99,7 @@ jobs:
               });
               issueBody += "\n";
             }
-            
+
             issueBody += `### 🔧 Recommended Actions\n\n`;
             if (Object.keys(outdatedData).length > 0) {
               issueBody += `- Run \`npm update\` to update packages\n`;
@@ -107,7 +110,7 @@ jobs:
             issueBody += `- Test thoroughly after updates\n`;
             issueBody += `- Update package-lock.json if needed\n\n`;
             issueBody += `> 🤖 This issue was automatically created by the dependency monitor workflow.`;
-            
+
             // Check if similar issue already exists
             const existingIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -115,7 +118,7 @@ jobs:
               labels: 'dependencies',
               state: 'open'
             });
-            
+
             if (existingIssues.data.length === 0) {
               await github.rest.issues.create({
                 owner: context.repo.owner,
@@ -124,7 +127,7 @@ jobs:
                 body: issueBody,
                 labels: ['dependencies', 'maintenance']
               });
-              
+
               console.log('✅ Created dependency update issue');
             } else {
               console.log('ℹ️  Dependency update issue already exists');
@@ -137,11 +140,11 @@ jobs:
           echo "├── ✅ Security audit completed"
           echo "├── Outdated packages: ${{ env.OUTDATED_COUNT }}"
           echo "├── Security vulnerabilities: ${{ env.VULN_COUNT }}"
-          
+
           if [ "${{ env.OUTDATED_COUNT }}" != "0" ] || [ "${{ env.VULN_COUNT }}" != "0" ]; then
             echo "├── 📦 Updates needed - issue created"
           else
             echo "├── ✅ All dependencies up to date and secure"
           fi
-          
+
           echo "└── 🔄 Next check scheduled for next Monday"

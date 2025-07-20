@@ -2,8 +2,69 @@
 // Configuration
 const CONFIG = {
     VERSION: '3.0.0',
-    REFERENCE_DATE: new Date('2025-01-06'), // Configure this during setup
-    REFERENCE_TEAM: 1, // Configure this during setup
+    REFERENCE_DATE: (() => {
+        // Try to load from environment variable first
+        if (
+            typeof process !== 'undefined' &&
+            process.env?.VITE_REFERENCE_DATE
+        ) {
+            const envDate = new Date(process.env.VITE_REFERENCE_DATE);
+            if (!Number.isNaN(envDate.getTime())) {
+                return envDate;
+            }
+            console.warn('Invalid VITE_REFERENCE_DATE format, using default');
+        }
+
+        // Try to load from window config (for runtime configuration)
+        if (
+            typeof window !== 'undefined' &&
+            window.NEXTSHIFT_CONFIG?.REFERENCE_DATE
+        ) {
+            const windowDate = new Date(window.NEXTSHIFT_CONFIG.REFERENCE_DATE);
+            if (!Number.isNaN(windowDate.getTime())) {
+                return windowDate;
+            }
+            console.warn(
+                'Invalid window.NEXTSHIFT_CONFIG.REFERENCE_DATE format, using default',
+            );
+        }
+
+        // Fallback to default date
+        return new Date('2025-01-06');
+    })(),
+    REFERENCE_TEAM: (() => {
+        // Try to load from environment variable first
+        if (
+            typeof process !== 'undefined' &&
+            process.env?.VITE_REFERENCE_TEAM
+        ) {
+            const envTeam = parseInt(process.env.VITE_REFERENCE_TEAM, 10);
+            if (envTeam >= 1 && envTeam <= 5) {
+                return envTeam;
+            }
+            console.warn('Invalid VITE_REFERENCE_TEAM value, using default');
+        }
+
+        // Try to load from window config (for runtime configuration)
+        if (
+            typeof window !== 'undefined' &&
+            window.NEXTSHIFT_CONFIG?.REFERENCE_TEAM
+        ) {
+            const windowTeam = parseInt(
+                window.NEXTSHIFT_CONFIG.REFERENCE_TEAM,
+                10,
+            );
+            if (windowTeam >= 1 && windowTeam <= 5) {
+                return windowTeam;
+            }
+            console.warn(
+                'Invalid window.NEXTSHIFT_CONFIG.REFERENCE_TEAM value, using default',
+            );
+        }
+
+        // Fallback to default team
+        return 1;
+    })(),
     SHIFT_CYCLE_DAYS: 10,
     TEAMS_COUNT: 5,
 };
@@ -40,54 +101,160 @@ const SHIFTS = {
     },
 };
 
-// Initialize day.js plugins
-dayjs.extend(dayjs_plugin_weekOfYear);
-dayjs.extend(dayjs_plugin_timezone);
-dayjs.extend(dayjs_plugin_utc);
-dayjs.extend(dayjs_plugin_isSameOrBefore);
-dayjs.extend(dayjs_plugin_isSameOrAfter);
-dayjs.extend(dayjs_plugin_localizedFormat);
+/**
+ * Escapes HTML special characters to prevent XSS attacks using native browser API
+ * @param {string} unsafe - The unsafe string to escape
+ * @return {string} The escaped string safe for HTML insertion
+ */
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') {
+        return String(unsafe);
+    }
+
+    // Use native browser API if available (browser environment)
+    if (typeof document !== 'undefined') {
+        const div = document.createElement('div');
+        div.textContent = unsafe;
+        return div.innerHTML;
+    }
+
+    // Fallback for test environment (no DOM)
+    return unsafe
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Export configuration for testing (moved to top)
+export { CONFIG, SHIFTS, escapeHtml, destroy };
+
+// Day.js plugins are already initialized in main.js
 
 // App state
 let userTeam = null;
-let currentViewDate = dayjs();
+let currentViewDate = typeof dayjs !== 'undefined' ? dayjs() : null;
 
 // DOM elements
 let elements = {};
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-    initializeElements();
-    initializeApp();
-    setupEventListeners();
-    checkOnlineStatus();
-});
+// Initialize app (only in browser environment)
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeElements();
+        initializeApp();
+        setupEventListeners();
+        onlineStatusInterval = checkOnlineStatus();
+    });
+}
 
 /**
  * Initializes and caches references to key DOM elements used throughout the application.
+ * @throws {Error} If any required DOM element is missing
  */
 function initializeElements() {
+    // Helper function to get element with null check
+    function getRequiredElement(id, description = '') {
+        const element = document.getElementById(id);
+        if (!element) {
+            const error = `Missing required DOM element: '${id}'${description ? ` (${description})` : ''}`;
+            console.error(error);
+            throw new Error(error);
+        }
+        return element;
+    }
+
+    // Get all required elements with null checks
+    const teamModalElement = getRequiredElement(
+        'teamModal',
+        'team selection modal',
+    );
+    const connectionStatusElement = getRequiredElement(
+        'connectionStatus',
+        'connection status indicator',
+    );
+    const currentDateElement = getRequiredElement(
+        'currentDate',
+        'current date display',
+    );
+    const myTeamShiftElement = getRequiredElement(
+        'myTeamShift',
+        'my team shift display',
+    );
+    const nextShiftElement = getRequiredElement(
+        'nextShift',
+        'next shift display',
+    );
+    const todayShiftsElement = getRequiredElement(
+        'todayShifts',
+        'today shifts container',
+    );
+    const scheduleViewElement = getRequiredElement(
+        'scheduleView',
+        'schedule view container',
+    );
+    const myShiftsWeekElement = getRequiredElement(
+        'myShiftsWeek',
+        'my shifts week display',
+    );
+    const transferInfoElement = getRequiredElement(
+        'transferInfo',
+        'transfer info container',
+    );
+    const compareTeamElement = getRequiredElement(
+        'compareTeam',
+        'compare team selector',
+    );
+    const transferRangeElement = getRequiredElement(
+        'transferRange',
+        'transfer range selector',
+    );
+    const customDateRangeElement = getRequiredElement(
+        'customDateRange',
+        'custom date range container',
+    );
+    const startDateElement = getRequiredElement(
+        'startDate',
+        'start date input',
+    );
+    const endDateElement = getRequiredElement('endDate', 'end date input');
+    const changeTeamBtnElement = getRequiredElement(
+        'changeTeamBtn',
+        'change team button',
+    );
+    const todayBtnElement = getRequiredElement('todayBtn', 'today button');
+    const prevBtnElement = getRequiredElement('prevBtn', 'previous button');
+    const currentBtnElement = getRequiredElement(
+        'currentBtn',
+        'current button',
+    );
+    const nextBtnElement = getRequiredElement('nextBtn', 'next button');
+
+    // Initialize elements object with validated references
     elements = {
-        teamModal: new bootstrap.Modal(document.getElementById('teamModal')),
-        connectionStatus: document.getElementById('connectionStatus'),
-        currentDate: document.getElementById('currentDate'),
-        myTeamShift: document.getElementById('myTeamShift'),
-        nextShift: document.getElementById('nextShift'),
-        todayShifts: document.getElementById('todayShifts'),
-        scheduleView: document.getElementById('scheduleView'),
-        myShiftsWeek: document.getElementById('myShiftsWeek'),
-        transferInfo: document.getElementById('transferInfo'),
-        compareTeam: document.getElementById('compareTeam'),
-        transferRange: document.getElementById('transferRange'),
-        customDateRange: document.getElementById('customDateRange'),
-        startDate: document.getElementById('startDate'),
-        endDate: document.getElementById('endDate'),
-        changeTeamBtn: document.getElementById('changeTeamBtn'),
-        todayBtn: document.getElementById('todayBtn'),
-        prevBtn: document.getElementById('prevBtn'),
-        currentBtn: document.getElementById('currentBtn'),
-        nextBtn: document.getElementById('nextBtn'),
+        teamModal: new bootstrap.Modal(teamModalElement),
+        connectionStatus: connectionStatusElement,
+        currentDate: currentDateElement,
+        myTeamShift: myTeamShiftElement,
+        nextShift: nextShiftElement,
+        todayShifts: todayShiftsElement,
+        scheduleView: scheduleViewElement,
+        myShiftsWeek: myShiftsWeekElement,
+        transferInfo: transferInfoElement,
+        compareTeam: compareTeamElement,
+        transferRange: transferRangeElement,
+        customDateRange: customDateRangeElement,
+        startDate: startDateElement,
+        endDate: endDateElement,
+        changeTeamBtn: changeTeamBtnElement,
+        todayBtn: todayBtnElement,
+        prevBtn: prevBtnElement,
+        currentBtn: currentBtnElement,
+        nextBtn: nextBtnElement,
     };
+
+    console.log('✅ All DOM elements successfully initialized');
 }
 
 /**
@@ -338,7 +505,7 @@ function calculateShift(date, teamNumber) {
 /**
  * Formats a date as a compact code combining two-digit year, ISO week number, and day of week (Monday=1 to Sunday=7).
  * @param {string|Date|dayjs.Dayjs} date - The date to format.
- * @return {string} The formatted date code in the format 'YYWW.D', e.g., '2415.3' for Wednesday of week 15 in 2024.
+ * @return {string} The formatted date code in the format 'YYWW.D' where YY=year, WW=week, D=weekday, e.g., '2415.3' for Wednesday of week 15 in 2024.
  */
 function formatDateCode(date) {
     const d = dayjs(date);
@@ -352,7 +519,7 @@ function formatDateCode(date) {
  * Returns the shift code for a given date and team, adjusting for night shifts to use the previous day's date code.
  * @param {dayjs.Dayjs|string|Date} date - The date for which to generate the shift code.
  * @param {number} teamNumber - The team number.
- * @return {string} The shift code in the format YYWW.DX, where X is the shift code.
+ * @return {string} The shift code in the format YYWW.DX, where YY=year, WW=week, D=weekday, X=shift code (M/E/N/O).
  */
 function getShiftCode(date, teamNumber) {
     const shift = calculateShift(date, teamNumber);
@@ -400,16 +567,8 @@ function getNextShift(fromDate, teamNumber) {
  * @param {number} myTeam - The user's team number.
  * @param {number} otherTeam - The comparison team number.
  * @param {dayjs.Dayjs|string|Date} fromDate - The start date for the search.
- * @param {number} [daysToCheck=14] - The number of days to check from the start date.
- * @return {Array<Object>} An array of transfer objects, each containing the date, both teams' shifts and codes, and the transfer type ('handover' or 'takeover').
- */
-/**
- * Gets transfer/handover days between two teams within a specified period or date range.
- * @param {number} myTeam - The user's team number.
- * @param {number} otherTeam - The other team number to compare with.
- * @param {string|Date|dayjs.Dayjs} fromDate - The start date for checking transfers.
  * @param {number|string|Date|dayjs.Dayjs} daysToCheckOrEndDate - Either number of days to check or end date.
- * @return {Array} Array of transfer objects with date, shift info, and transfer type.
+ * @return {Array<Object>} An array of transfer objects, each containing the date, both teams' shifts and codes, and the transfer type ('handover' or 'takeover').
  */
 function getTransferDays(
     myTeam,
@@ -495,19 +654,6 @@ function getShiftsInDateRange(team, startDate, endDate) {
 }
 
 /**
- * Filters transfer data to only include transfers within a specified date range.
- * @param {Array} transfers - Array of transfer objects.
- * @param {string|Date|dayjs.Dayjs} startDate - The start date of the range.
- * @param {string|Date|dayjs.Dayjs} endDate - The end date of the range.
- * @return {Array} Filtered array of transfers within the date range.
- */
-function _filterTransfersByDateRange(transfers, startDate, endDate) {
-    return transfers.filter((transfer) =>
-        isWithinDateRange(transfer.date, startDate, endDate),
-    );
-}
-
-/**
  * Returns the numeric order of a shift type for sequencing purposes.
  * @param {Object} shift - The shift object to evaluate.
  * @return {number} The order of the shift: 0 for Morning, 1 for Evening, 2 for Night, or -1 if not a recognized shift.
@@ -575,10 +721,10 @@ function updateCurrentStatus() {
 
     const shiftHtml = `
         <div class="d-flex align-items-center">
-            <span class="badge shift-${myShift.name.toLowerCase()} me-2 shift-code">${myShift.code}</span>
+            <span class="badge shift-${escapeHtml(myShift.name.toLowerCase())} me-2 shift-code">${escapeHtml(myShift.code)}</span>
             <div>
-                <div class="fw-bold">Team ${userTeam} - ${myShift.name}</div>
-                <small class="text-muted">${timingInfo}</small>
+                <div class="fw-bold">Team ${escapeHtml(userTeam)} - ${escapeHtml(myShift.name)}</div>
+                <small class="text-muted">${escapeHtml(timingInfo)}</small>
             </div>
         </div>
     `;
@@ -615,12 +761,12 @@ function updateTodayView() {
                 <div class="card h-100 ${isMyTeam ? 'my-team' : ''} ${isCurrentTeamDay ? 'border-success border-2' : ''}">
                     <div class="card-body text-center">
                         <h6 class="card-title">
-                            Team ${team}
+                            Team ${escapeHtml(team)}
                             ${isCurrentTeamDay ? '<span class="badge bg-success ms-1">Active</span>' : ''}
                         </h6>
-                        <span class="badge shift-${shift.name.toLowerCase()} shift-code mb-2">${code}</span>
-                        <div class="small text-muted">${shift.name}</div>
-                        <div class="small text-muted">${shift.hours}</div>
+                        <span class="badge shift-${escapeHtml(shift.name.toLowerCase())} shift-code mb-2">${escapeHtml(code)}</span>
+                        <div class="small text-muted">${escapeHtml(shift.name)}</div>
+                        <div class="small text-muted">${escapeHtml(shift.hours)}</div>
                     </div>
                 </div>
             </div>
@@ -807,7 +953,7 @@ function updateTransferView() {
 
     let transferHtml = `
         <div class="alert alert-info">
-            <strong>Transfers between Team ${userTeam} and Team ${compareTeam}</strong> ${rangeDescription}:
+            <strong>Transfers between Team ${escapeHtml(userTeam)} and Team ${escapeHtml(compareTeam)}</strong> ${escapeHtml(rangeDescription)}:
         </div>
         <div class="row g-3">
     `;
@@ -822,19 +968,19 @@ function updateTransferView() {
 
         transferHtml += `
             <div class="col-12 col-md-6">
-                <div class="card border-${typeClass} ${isToday ? 'border-3 bg-light' : ''}">
+                <div class="card border-${escapeHtml(typeClass)} ${isToday ? 'border-3 bg-light' : ''}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h6 class="card-title">
-                                    ${transfer.date.format('ddd, MMM D')}
+                                    ${escapeHtml(transfer.date.format('ddd, MMM D'))}
                                     ${isToday ? '<span class="badge bg-success ms-1">Today</span>' : ''}
                                 </h6>
-                                <p class="card-text small mb-1">${typeText} Team ${compareTeam}</p>
+                                <p class="card-text small mb-1">${escapeHtml(typeText)} Team ${escapeHtml(compareTeam)}</p>
                                 <div class="d-flex gap-2">
-                                    <span class="badge shift-${transfer.myShift.name.toLowerCase()}">${transfer.myCode}</span>
+                                    <span class="badge shift-${escapeHtml(transfer.myShift.name.toLowerCase())}">${escapeHtml(transfer.myCode)}</span>
                                     <span class="text-muted">→</span>
-                                    <span class="badge shift-${transfer.otherShift.name.toLowerCase()}">${transfer.otherCode}</span>
+                                    <span class="badge shift-${escapeHtml(transfer.otherShift.name.toLowerCase())}">${escapeHtml(transfer.otherCode)}</span>
                                 </div>
                                 ${isToday ? '<small class="text-success fw-bold">Active transfer day</small>' : ''}
                             </div>
@@ -855,7 +1001,7 @@ function updateTransferView() {
 function checkOnlineStatus() {
     updateOnlineStatus();
     // Check every 30 seconds
-    const onlineStatusInterval = setInterval(updateOnlineStatus, 30000);
+    onlineStatusInterval = setInterval(updateOnlineStatus, 30000);
     return onlineStatusInterval;
 }
 
@@ -910,6 +1056,7 @@ function getServiceWorkerVersion() {
 
 // Auto-refresh every minute to keep current time accurate
 let autoRefreshInterval = null;
+let onlineStatusInterval = null;
 
 function startAutoRefresh() {
     // Clear any existing interval to prevent duplicates
@@ -924,5 +1071,46 @@ function startAutoRefresh() {
     }, 60000);
 }
 
-// Start auto-refresh when app loads
-startAutoRefresh();
+/**
+ * Cleans up all active intervals to prevent memory leaks
+ */
+function cleanupIntervals() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+    if (onlineStatusInterval) {
+        clearInterval(onlineStatusInterval);
+        onlineStatusInterval = null;
+    }
+}
+
+/**
+ * Public API: Clean up intervals when user logs out or app is destroyed
+ * Call this function in SPA contexts when navigating away or logging out
+ */
+function destroy() {
+    cleanupIntervals();
+}
+
+// Start auto-refresh when app loads (only in browser environment)
+if (typeof window !== 'undefined') {
+    startAutoRefresh();
+
+    // Clean up intervals on page unload to prevent memory leaks
+    window.addEventListener('beforeunload', cleanupIntervals);
+    window.addEventListener('unload', cleanupIntervals);
+
+    // Also clean up on visibility change when page becomes hidden
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cleanupIntervals();
+        } else {
+            // Restart intervals when page becomes visible again
+            startAutoRefresh();
+            if (elements.connectionStatus) {
+                onlineStatusInterval = checkOnlineStatus();
+            }
+        }
+    });
+}

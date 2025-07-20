@@ -1,6 +1,6 @@
 # NextShift - Team Shift Tracker
 
-A lightweight, offline-capable Progressive Web App (PWA) for tracking 5-team volcontinu (24/7) shift schedules.
+A lightweight, offline-capable Progressive Web App (PWA) for tracking 5-team continuous (24/7) shift schedules.
 
 ## Overview
 
@@ -15,7 +15,7 @@ NextShift helps teams working in a 5-team rotating shift system to quickly check
 ### 🕐 Current Status
 - Real-time display of your team's current shift
 - Next shift countdown and scheduling
-- Date display in weeknumber.weekday format (e.g., 2520.2M)
+- Date display in YYWW.D format (e.g., 2520.2M = year 2025, week 20, Tuesday Morning)
 
 ### 👥 Team Management
 - Team selection on first visit (stored locally)
@@ -45,8 +45,13 @@ Teams are numbered 1-5, with each team starting their cycle 2 days after the pre
 
 ## Date Format
 
-Dates are displayed in **weeknumber.weekday** format:
-- Tuesday, May 13, 2025 = `2520.2`
+Dates are displayed in **YYWW.D** format where:
+- **YY** = Last 2 digits of year (25 = 2025)
+- **WW** = Week number (20 = week 20)  
+- **D** = Weekday (1=Monday, 2=Tuesday...7=Sunday)
+
+Examples:
+- Tuesday, May 13, 2025 = `2520.2` (year 2025, week 20, Tuesday)
 - Morning shift: `2520.2M`
 - Evening shift: `2520.2E` 
 - Night shift: `2520.1N` (uses previous day for night starting at 23:00)

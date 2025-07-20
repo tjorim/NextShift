@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-NextShift is a Team Shift Tracker PWA for a volcontinu (24/7) 5-team shift schedule. This lightweight, offline-capable Progressive Web App allows users to quickly check which teams are working on any given day, see when their team's next shift is, and identify transfer/handover points between teams.
+NextShift is a Team Shift Tracker PWA for a continuous (24/7) 5-team shift schedule. This lightweight, offline-capable Progressive Web App allows users to quickly check which teams are working on any given day, see when their team's next shift is, and identify transfer/handover points between teams.
 
 ## File Structure
 
@@ -34,17 +34,46 @@ Total cycle: 10 days per team
 Teams are numbered 1-5, with each team offset in the schedule cycle.
 
 ### Date Format
-Uses weeknumber.weekday format:
-- Today (Tuesday 13 May 2025) = 2520.2
+Uses weeknumber.weekday format (YYWW.D):
+- Format: **YYWW.D** where YY=year, WW=week number, D=weekday (1=Monday, 7=Sunday)
+- Today (Tuesday 13 May 2025) = **2520.2** (year 2025, week 20, Tuesday)
 - Night shifts use previous day (2520.1N for night starting Monday 23h)
-- Full shift codes: 2520.2M, 2520.2E, 2520.1N
+- Full shift codes: **2520.2M**, **2520.2E**, **2520.1N**
 
 ### Reference Variables (Configurable)
-```javascript
-const REFERENCE_DATE = new Date('2025-01-06'); // Currently set, configure during setup
-const REFERENCE_TEAM = 1; // Currently set, configure during setup
+The app supports configurable reference values for shift calculations:
+
+**Environment Variables (Build-time):**
+```bash
+# Set in .env file or build environment
+VITE_REFERENCE_DATE=2025-01-06
+VITE_REFERENCE_TEAM=1
 ```
-These variables anchor all shift calculations and should be set during initial deployment.
+
+**Runtime Configuration:**
+```javascript
+// Add to index.html before main script
+window.NEXTSHIFT_CONFIG = {
+    REFERENCE_DATE: '2025-01-06',
+    REFERENCE_TEAM: 1
+};
+```
+
+**Deployment Examples:**
+```bash
+# Development
+echo "VITE_REFERENCE_DATE=2025-01-06" > .env
+echo "VITE_REFERENCE_TEAM=1" >> .env
+
+# Production build
+VITE_REFERENCE_DATE=2025-01-13 VITE_REFERENCE_TEAM=3 npm run build
+
+# Docker
+ENV VITE_REFERENCE_DATE=2025-01-06
+ENV VITE_REFERENCE_TEAM=1
+```
+
+These variables anchor all shift calculations. If not configured, defaults to `2025-01-06` and team `1`.
 
 ## Key Features
 
@@ -54,7 +83,7 @@ These variables anchor all shift calculations and should be set during initial d
 - **My Team Next Shift**: Quickly see when user's team works next
 - **Transfer/Handover View**: See when user's team transfers with any other team (works before/after)
 - **Date Navigation**: Today button, date picker, previous/next day
-- **Date Format**: Display in weeknumber.weekday format (e.g., 2520.2M, 2520.1N)
+- **Date Format**: Display in YYWW.D format (e.g., 2520.2M = year 2025, week 20, Tuesday Morning)
 - **Offline Support**: Full PWA functionality without internet connection
 
 ## Technology Stack

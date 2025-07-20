@@ -22,11 +22,17 @@ dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(localizedFormat);
 
-// Make dayjs globally available (same as before)
+// Make dayjs and plugins globally available (same as before)
 window.dayjs = dayjs;
-
-// Import our main application logic
-import '../app.js';
+window.dayjs_plugin_weekOfYear = weekOfYear;
+window.dayjs_plugin_timezone = timezone;
+window.dayjs_plugin_utc = utc;
+window.dayjs_plugin_isSameOrBefore = isSameOrBefore;
+window.dayjs_plugin_isSameOrAfter = isSameOrAfter;
+window.dayjs_plugin_localizedFormat = localizedFormat;
 
 // PWA service worker registration (Vite PWA plugin will handle this automatically)
 console.log('NextShift PWA loaded');
+
+// Import our main application logic after globals are set
+import './app.js';

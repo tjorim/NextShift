@@ -48,8 +48,11 @@ jobs:
         run: |
           echo "Preparing NextShift PWA files for deployment..."
 
-          # Copy Vite build output to deployment directory
-          cp -r dist _site
+          # Create deployment directory if it doesn't exist
+          mkdir -p _site
+          
+          # Copy Vite build contents directly into _site (not nested)
+          cp -r dist/. _site/
 
           echo "✓ Deployment contents:"
           find _site -type f | sort

@@ -10,12 +10,12 @@ export default defineConfig({
                 cleanupOutdatedCaches: true,
                 skipWaiting: true,
             },
-            includeAssets: ['favicon.ico', 'assets/icons/*.png'],
+            includeAssets: ['assets/icons/*.png'],
             manifest: {
                 name: 'NextShift - Team Shift Tracker',
                 short_name: 'NextShift',
                 description:
-                    'Team Shift Tracker PWA for 5-team volcontinu schedule',
+                    'Team Shift Tracker PWA for 5-team continuous (24/7) schedule',
                 theme_color: '#0d6efd',
                 background_color: '#ffffff',
                 display: 'standalone',
@@ -73,6 +73,7 @@ export default defineConfig({
     server: {
         port: 8000,
         open: true,
+        cors: true,
     },
     test: {
         environment: 'jsdom',

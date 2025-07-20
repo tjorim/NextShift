@@ -7,12 +7,10 @@
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0d6efd">
-    <meta name="description" content="Team Shift Tracker for 5-team volcontinu schedule">
-    <link rel="manifest" href="manifest.json">
+    <meta name="description" content="Team Shift Tracker for 5-team continuous (24/7) schedule">
+    <!-- Vite PWA plugin will inject the manifest link automatically -->
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="app.js" as="script">
-    <link rel="preload" href="style.css" as="style">
+    <!-- Vite will handle preloading automatically -->
     
     <!-- Critical CSS (inlined) -->
     <style>
@@ -220,10 +218,10 @@
                         <hr>
                         <p class="small mb-2"><strong>Features:</strong></p>
                         <ul class="small">
-                            <li>5-team volcontinu shift tracking</li>
+                            <li>5-team continuous (24/7) shift tracking</li>
                             <li>Offline PWA functionality</li>
                             <li>Transfer/handover detection</li>
-                            <li>Weeknumber.weekday date format</li>
+                            <li>YYWW.D date format (year.week.day)</li>
                         </ul>
                         <hr>
                         <p class="text-muted small mb-0">
