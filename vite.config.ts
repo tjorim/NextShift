@@ -1,8 +1,10 @@
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
     plugins: [
+        react(),
         VitePWA({
             registerType: 'autoUpdate',
             workbox: {
@@ -10,7 +12,6 @@ export default defineConfig({
                 cleanupOutdatedCaches: true,
                 skipWaiting: true,
             },
-            includeAssets: ['assets/icons/*.png'],
             manifest: {
                 name: 'NextShift - Team Shift Tracker',
                 short_name: 'NextShift',
@@ -23,28 +24,28 @@ export default defineConfig({
                 start_url: '/',
                 icons: [
                     {
-                        src: 'assets/icons/icon-16.png',
+                        src: '/assets/icons/icon-16.png',
                         sizes: '16x16',
                         type: 'image/png',
                     },
                     {
-                        src: 'assets/icons/icon-32.png',
+                        src: '/assets/icons/icon-32.png',
                         sizes: '32x32',
                         type: 'image/png',
                     },
                     {
-                        src: 'assets/icons/icon-48.png',
+                        src: '/assets/icons/icon-48.png',
                         sizes: '48x48',
                         type: 'image/png',
                     },
                     {
-                        src: 'assets/icons/icon-192.png',
+                        src: '/assets/icons/icon-192.png',
                         sizes: '192x192',
                         type: 'image/png',
                         purpose: 'any maskable',
                     },
                     {
-                        src: 'assets/icons/icon-512.png',
+                        src: '/assets/icons/icon-512.png',
                         sizes: '512x512',
                         type: 'image/png',
                         purpose: 'any maskable',
@@ -57,7 +58,7 @@ export default defineConfig({
                         url: '/?tab=today',
                         icons: [
                             {
-                                src: 'assets/icons/icon-192.png',
+                                src: '/assets/icons/icon-192.png',
                                 sizes: '192x192',
                             },
                         ],
@@ -68,7 +69,7 @@ export default defineConfig({
                         url: '/?tab=schedule',
                         icons: [
                             {
-                                src: 'assets/icons/icon-192.png',
+                                src: '/assets/icons/icon-192.png',
                                 sizes: '192x192',
                             },
                         ],
@@ -95,6 +96,6 @@ export default defineConfig({
     test: {
         environment: 'jsdom',
         globals: true,
-        setupFiles: ['./tests/setup.js'],
+        setupFiles: ['./tests/setup.ts'],
     },
 });
