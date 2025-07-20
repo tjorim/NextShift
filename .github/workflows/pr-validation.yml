@@ -29,17 +29,29 @@ jobs:
           echo "🔍 Analyzing PR changes..."
 
           # Fetch the base branch for comparison (works on forks)
-          git fetch --no-tags --depth=1 ${{ github.event.pull_request.base.repo.full_name }} ${{ github.event.pull_request.base.ref }}
-
-          # Get list of changed files using GitHub-provided merge base
-          CHANGED_FILES=$(git diff --name-only FETCH_HEAD...HEAD)
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ github.event.pull_request.base.repo.full_name }}" ]; then
+            echo "📥 Fetching PR base: ${{ github.event.pull_request.base.repo.full_name }}/${{ github.event.pull_request.base.ref }}"
+            
+            # Add the base repository as a remote and fetch from it (handles forks properly)
+            BASE_REPO_URL="https://github.com/${{ github.event.pull_request.base.repo.full_name }}.git"
+            git remote add base_repo "$BASE_REPO_URL" 2>/dev/null || true
+            git fetch --no-tags --depth=1 base_repo ${{ github.event.pull_request.base.ref }} || {
+              echo "⚠️  Failed to fetch from PR base repository, falling back to origin default branch"
+              git fetch --no-tags --depth=1 origin ${{ github.event.repository.default_branch }}
+            }
+            CHANGED_FILES=$(git diff --name-only FETCH_HEAD...HEAD)
+          else
+            echo "📥 Not a PR context, comparing with default branch"
+            git fetch --no-tags --depth=1 origin ${{ github.event.repository.default_branch }}
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.event.repository.default_branch }}...HEAD)
+          fi
 
           echo "📝 Changed files:"
           echo "$CHANGED_FILES" | sed 's/^/├── /'
 
           # Categorize changes
-          CORE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(html|css|js)$' || true)
-          CONFIG_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(vite\.config\.js|biome\.json|package\.json)$' || true)
+          CORE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(html|css|js|ts|tsx|jsx)$' || true)
+          CONFIG_CHANGES=$(echo "$CHANGED_FILES" | grep -E '(vite\.config\.(js|ts)|biome\.json|package\.json|tsconfig\.json)$' || true)
           WORKFLOW_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.github/workflows' || true)
           DOC_CHANGES=$(echo "$CHANGED_FILES" | grep -E '\.(md|txt)$' || true)
 
@@ -75,12 +87,20 @@ jobs:
           echo "🔧 Validating core app changes..."
 
           # Run Biome linting
-          npm run lint
-          echo "✅ Code quality checks passed"
+          if npm run lint; then
+            echo "✅ Code quality checks passed"
+          else
+            echo "❌ Code quality checks failed"
+            exit 1
+          fi
 
           # Run tests
-          npm run test
-          echo "✅ Tests passed"
+          if npm run test; then
+            echo "✅ Tests passed"
+          else
+            echo "❌ Tests failed"
+            exit 1
+          fi
 
           # Check if critical functions still exist
           APP_JS=$(git ls-files | grep -E '(^|/)app\.(js|ts)$' | head -n1)
@@ -184,6 +204,7 @@ jobs:
           fi
 
       - name: Security check
+        if: env.CORE_CHANGES == 'true'
         run: |
           echo "🔒 Running security checks..."
 
@@ -233,20 +254,30 @@ jobs:
             if (DOC_CHANGES === 'true') summary += "- 📚 Documentation changes\n";
 
             summary += "\n### ✅ Validation Results:\n";
-            summary += "- ✅ Code quality checks passed (Biome)\n";
-            summary += "- ✅ Tests passed (Vitest)\n";
-            summary += "- ✅ Critical functions verified\n";
+            
+            if (CORE_CHANGES === 'true') {
+              summary += "- ✅ Code quality checks passed (Biome)\n";
+              summary += "- ✅ Tests passed (Vitest)\n";
+              summary += "- ✅ Critical functions verified\n";
+            }
 
             if (CONFIG_CHANGES === 'true') {
               summary += "- ✅ Build configuration validated\n";
               summary += "- ✅ Auto-generated manifest valid\n";
             }
 
-            summary += "- ✅ Security scan completed\n";
-            summary += "- ✅ Performance impact analyzed\n";
+            if (CORE_CHANGES === 'true') {
+              summary += "- ✅ Security scan completed\n";
+              summary += "- ✅ Performance impact analyzed\n";
+            }
 
             summary += "\n### 🚀 Ready for Review\n";
-            summary += "All automated checks passed! This PR is ready for manual review.\n";
+            
+            if (CORE_CHANGES === 'true' || CONFIG_CHANGES === 'true') {
+              summary += "All automated checks passed! This PR is ready for manual review.\n";
+            } else {
+              summary += "No code changes detected. This PR primarily contains documentation or workflow updates and is ready for manual review.\n";
+            }
 
             // Only comment on PR, don't create issues
             if (context.eventName === 'pull_request') {

@@ -7,14 +7,35 @@
     <h2>NextShift Icons</h2>
     <p>Right-click and save the icons below:</p>
     
-    <!-- 192x192 Icon -->
-    <h3>192x192 Icon</h3>
-    <canvas id="icon192" width="192" height="192" style="border: 1px solid #ccc;"></canvas>
-    <br><br>
+    <!-- Favicon Sizes -->
+    <h3>Favicons</h3>
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+        <div>
+            <p>16x16 (Favicon)</p>
+            <canvas id="favicon16" width="16" height="16" style="border: 1px solid #ccc; width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+        </div>
+        <div>
+            <p>32x32 (Favicon)</p>
+            <canvas id="favicon32" width="32" height="32" style="border: 1px solid #ccc; width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+        </div>
+        <div>
+            <p>48x48 (Favicon)</p>
+            <canvas id="favicon48" width="48" height="48" style="border: 1px solid #ccc; width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+        </div>
+    </div>
     
-    <!-- 512x512 Icon -->
-    <h3>512x512 Icon</h3>
-    <canvas id="icon512" width="512" height="512" style="border: 1px solid #ccc;"></canvas>
+    <!-- PWA Icons -->
+    <h3>PWA Icons</h3>
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+        <div>
+            <p>192x192 (PWA)</p>
+            <canvas id="icon192" width="192" height="192" style="border: 1px solid #ccc; width: 128px; height: 128px;"></canvas>
+        </div>
+        <div>
+            <p>512x512 (PWA)</p>
+            <canvas id="icon512" width="512" height="512" style="border: 1px solid #ccc; width: 128px; height: 128px;"></canvas>
+        </div>
+    </div>
     
     <script>
         function createIcon(canvasId, size) {
@@ -95,35 +116,92 @@
             ctx.fillText('NS', centerX, centerY + size * 0.45);
         }
         
-        // Create both icons
-        createIcon('icon192', 192);
-        createIcon('icon512', 512);
+        // Create all icons
+        const sizes = [
+            { id: 'favicon16', size: 16, filename: 'icon-16.png', name: '16x16 Favicon' },
+            { id: 'favicon32', size: 32, filename: 'icon-32.png', name: '32x32 Favicon' },
+            { id: 'favicon48', size: 48, filename: 'icon-48.png', name: '48x48 Favicon' },
+            { id: 'icon192', size: 192, filename: 'icon-192.png', name: '192x192 PWA Icon' },
+            { id: 'icon512', size: 512, filename: 'icon-512.png', name: '512x512 PWA Icon' }
+        ];
         
-        // Add download links - canvas drawing is synchronous, no delay needed
-        const canvas192 = document.getElementById('icon192');
-        const canvas512 = document.getElementById('icon512');
-        
-        canvas192.toBlob(blob => {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'icon-192.png';
-            link.textContent = 'Download 192x192 PNG';
-            link.style.display = 'block';
-            link.style.marginTop = '10px';
-            canvas192.parentNode.insertBefore(link, canvas192.nextSibling);
+        sizes.forEach(({ id, size, filename, name }) => {
+            createIcon(id, size);
+            
+            // Add download link
+            const canvas = document.getElementById(id);
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.textContent = `Download ${name}`;
+                link.style.display = 'block';
+                link.style.marginTop = '10px';
+                link.style.marginBottom = '10px';
+                link.style.padding = '5px 10px';
+                link.style.backgroundColor = '#0d6efd';
+                link.style.color = 'white';
+                link.style.textDecoration = 'none';
+                link.style.borderRadius = '4px';
+                link.style.fontSize = '14px';
+                canvas.parentNode.insertBefore(link, canvas.nextSibling);
+            });
         });
         
-        canvas512.toBlob(blob => {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'icon-512.png';
-            link.textContent = 'Download 512x512 PNG';
-            link.style.display = 'block';
-            link.style.marginTop = '10px';
-            canvas512.parentNode.insertBefore(link, canvas512.nextSibling);
-        });
+        // Add instructions for favicon usage
+        const instructions = document.createElement('div');
+        instructions.style.marginTop = '30px';
+        instructions.style.padding = '20px';
+        instructions.style.backgroundColor = '#f8f9fa';
+        instructions.style.borderRadius = '8px';
+        instructions.style.border = '1px solid #dee2e6';
+        instructions.innerHTML = `
+            <h3>🔧 How to Use These Icons</h3>
+            <h4>📁 Modern Vite Structure (Recommended):</h4>
+            <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace;">
+📁 public/assets/icons/
+├── icon-16.png     (16x16 favicon)
+├── icon-32.png     (32x32 favicon)  
+├── icon-48.png     (48x48 favicon)
+├── icon-192.png    (192x192 PWA)
+└── icon-512.png    (512x512 PWA)
+
+📁 src/
+├── styles/
+│   └── main.css    (application styles)
+├── app.js         (main application logic)
+└── main.js        (entry point)
+            </pre>
+            
+            <h4>🔧 Integration Steps:</h4>
+            <ol>
+                <li>Download all icon files using the buttons above</li>
+                <li><strong>Place ALL icons in <code>public/assets/icons/</code> directory</strong></li>
+                <li>HTML favicon links are already configured</li>
+                <li>Vite automatically serves from public/ as static assets</li>
+                <li>Clean separation of source vs. static assets!</li>
+            </ol>
+            
+            <h4>✅ What's Automatically Handled:</h4>
+            <ul>
+                <li>✅ PWA manifest generation with all icon sizes</li>
+                <li>✅ Service worker caching of icon files</li>
+                <li>✅ Favicon links in HTML head</li>
+                <li>✅ Proper MIME types and purposes for PWA</li>
+                <li>✅ Maskable icon support for Android</li>
+            </ul>
+            
+            <h4>🎯 Platform Coverage:</h4>
+            <ul>
+                <li><strong>Browser tabs:</strong> 16x16 favicon</li>
+                <li><strong>Bookmarks:</strong> 32x32, 48x48 favicons</li>
+                <li><strong>Android home screen:</strong> 192x192 PWA icon</li>
+                <li><strong>iOS/Android splash:</strong> 512x512 PWA icon</li>
+                <li><strong>App stores:</strong> All sizes for submission</li>
+            </ul>
+        `;
+        document.body.appendChild(instructions);
     </script>
 </body>
 </html>

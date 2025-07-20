@@ -11,13 +11,19 @@ NextShift is a Team Shift Tracker PWA for a continuous (24/7) 5-team shift sched
 ```text
 NextShift/
 ├── index.html           # Main HTML file with Bootstrap 5 UI
-├── style.css           # Custom styles and shift color coding
-├── app.js              # Core application logic and shift calculations
-├── manifest.json       # PWA manifest with embedded SVG icons
-├── serviceWorker.js    # Offline functionality and caching strategy
+├── src/
+│   ├── styles/
+│   │   └── main.css    # Custom styles and shift color coding
+│   ├── app.js          # Core application logic and shift calculations
+│   └── main.js         # Entry point and app initialization
+├── public/
+│   └── assets/
+│       └── icons/      # PWA and favicon icons
 ├── create-icons.html   # Icon generator utility
-└── assets/
-    └── icons/          # Directory for additional icon assets
+├── vite.config.js      # Build configuration with PWA plugin
+└── dist/               # Production build output
+    ├── sw.js           # Auto-generated service worker (Workbox)
+    └── manifest.webmanifest # Auto-generated PWA manifest
 ```
 
 ## Core Logic & Architecture

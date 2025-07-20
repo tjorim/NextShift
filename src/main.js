@@ -1,6 +1,6 @@
 // NextShift - Main application entry point
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../style.css';
+import './styles/main.css';
 
 // Import Day.js and plugins
 import dayjs from 'dayjs';

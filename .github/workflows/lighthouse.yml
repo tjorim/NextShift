@@ -75,14 +75,14 @@ jobs:
           let passed = 0;
           checks.forEach(check => {
             if (check.pass) {
-              console.log(\`✅ \${check.name}\`);
+              console.log(`✅ ${check.name}`);
               passed++;
             } else {
-              console.log(\`❌ \${check.name}\`);
+              console.log(`❌ ${check.name}`);
             }
           });
 
-          console.log(\`\\nPWA Compliance: \${passed}/\${checks.length} checks passed\`);
+          console.log(`\nPWA Compliance: ${passed}/${checks.length} checks passed`);
 
           if (passed === checks.length) {
             console.log('🎉 PWA is fully compliant!');

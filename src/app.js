@@ -1,4 +1,10 @@
 // NextShift v3 - Team Shift Tracker
+import dayjs from 'dayjs';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+
+// Initialize dayjs plugins
+dayjs.extend(weekOfYear);
+
 // Configuration
 const CONFIG = {
     VERSION: '3.0.0',
@@ -127,8 +133,18 @@ function escapeHtml(unsafe) {
         .replace(/'/g, '&#039;');
 }
 
-// Export configuration for testing (moved to top)
-export { CONFIG, SHIFTS, escapeHtml, destroy };
+// Export configuration and functions for testing
+export {
+    CONFIG,
+    SHIFTS,
+    escapeHtml,
+    destroy,
+    calculateShift,
+    formatDateCode,
+    getCurrentShiftDay,
+    getShiftCode,
+    getNextShift,
+};
 
 // Day.js plugins are already initialized in main.js
 
@@ -278,7 +294,7 @@ function initializeApp() {
     // Register service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker
-            .register('serviceWorker.js')
+            .register('sw.js')
             .then(() => {
                 console.log('ServiceWorker registered');
                 // Get service worker version
@@ -1001,7 +1017,14 @@ function updateTransferView() {
 function checkOnlineStatus() {
     updateOnlineStatus();
     // Check every 30 seconds
-    onlineStatusInterval = setInterval(updateOnlineStatus, 30000);
+    onlineStatusInterval = setInterval(() => {
+        try {
+            updateOnlineStatus();
+        } catch (error) {
+            console.error('Error during online status update:', error);
+            // Continue running the interval despite the error
+        }
+    }, 30000);
     return onlineStatusInterval;
 }
 
@@ -1065,8 +1088,13 @@ function startAutoRefresh() {
     }
 
     autoRefreshInterval = setInterval(() => {
-        if (userTeam) {
-            updateCurrentStatus();
+        try {
+            if (userTeam) {
+                updateCurrentStatus();
+            }
+        } catch (error) {
+            console.error('Error during auto-refresh update:', error);
+            // Continue running the interval despite the error
         }
     }, 60000);
 }
