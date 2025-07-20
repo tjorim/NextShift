@@ -5,7 +5,7 @@
     "main": "app.js",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "tsc -b && vite build",
         "preview": "vite preview",
         "lint": "biome check .",
         "lint:fix": "biome check . --write",

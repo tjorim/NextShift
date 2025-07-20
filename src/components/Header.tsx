@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Badge, Button, Col, Modal, Row } from 'react-bootstrap';
+import { useState } from 'react';
+import { Badge, Button, Col, Modal } from 'react-bootstrap';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { CONFIG } from '../utils/config';
 
@@ -7,7 +7,7 @@ interface HeaderProps {
     onChangeTeam: () => void;
 }
 
-export function Header({ onChangeTeam }: HeaderProps) {
+export function Header({ onChangeTeam: _ }: HeaderProps) {
     const isOnline = useOnlineStatus();
     const [showAbout, setShowAbout] = useState(false);
 

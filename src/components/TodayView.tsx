@@ -1,19 +1,18 @@
-import dayjs from 'dayjs';
-import React from 'react';
+import type { Dayjs } from 'dayjs';
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
 import type { ShiftResult } from '../utils/shiftCalculations';
 
 interface TodayViewProps {
     todayShifts: ShiftResult[];
     selectedTeam: number | null;
-    currentDate: any; // Dayjs
+    currentDate: Dayjs;
     onTodayClick: () => void;
 }
 
 export function TodayView({
     todayShifts,
     selectedTeam,
-    currentDate,
+    currentDate: _,
     onTodayClick,
 }: TodayViewProps) {
     const getShiftClassName = (shiftCode: string) => {

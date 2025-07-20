@@ -1,7 +1,7 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
-import { calculateShift, getShiftCode } from '../utils/shiftCalculations';
+import { calculateShift } from '../utils/shiftCalculations';
 
 interface TransferViewProps {
     selectedTeam: number | null;

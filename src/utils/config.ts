@@ -57,7 +57,7 @@ export const CONFIG = {
             window.NEXTSHIFT_CONFIG?.REFERENCE_TEAM
         ) {
             const windowTeam = parseInt(
-                window.NEXTSHIFT_CONFIG.REFERENCE_TEAM,
+                String(window.NEXTSHIFT_CONFIG.REFERENCE_TEAM),
                 10,
             );
             if (windowTeam >= 1 && windowTeam <= 5) {

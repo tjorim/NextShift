@@ -37,8 +37,26 @@
         "enabled": true,
         "rules": {
             "recommended": true,
+            "complexity": {
+                "noUselessTypeConstraint": "error"
+            },
+            "correctness": {
+                "useExhaustiveDependencies": "warn",
+                "useHookAtTopLevel": "error"
+            },
             "style": {
-                "useConst": "error"
+                "useConst": "error",
+                "noCommonJs": "error",
+                "noNamespace": "error",
+                "useArrayLiterals": "error",
+                "useAsConstAssertion": "error"
+            },
+            "suspicious": {
+                "noExplicitAny": "error",
+                "noExtraNonNullAssertion": "error",
+                "noMisleadingInstantiator": "error",
+                "noUnsafeDeclarationMerging": "error",
+                "useNamespaceKeyword": "error"
             }
         }
     },

@@ -1,5 +1,5 @@
-import React from 'react';
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
+import type { Dayjs } from 'dayjs';
 import type { NextShiftResult, ShiftResult } from '../utils/shiftCalculations';
 import { formatDateCode } from '../utils/shiftCalculations';
 
@@ -7,7 +7,7 @@ interface CurrentStatusProps {
     selectedTeam: number | null;
     currentShift: ShiftResult | null;
     nextShift: NextShiftResult | null;
-    currentDate: any; // Dayjs
+    currentDate: Dayjs;
     onChangeTeam: () => void;
 }
 

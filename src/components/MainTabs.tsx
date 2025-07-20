@@ -1,16 +1,16 @@
-import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import dayjs, { type Dayjs } from 'dayjs';
+import { useState } from 'react';
 import { Nav, Tab } from 'react-bootstrap';
-import type { UseShiftCalculationReturn } from '../hooks/useShiftCalculation';
+import type { ShiftResult } from '../utils/shiftCalculations';
 import { ScheduleView } from './ScheduleView';
 import { TodayView } from './TodayView';
 import { TransferView } from './TransferView';
 
 interface MainTabsProps {
     selectedTeam: number | null;
-    currentDate: any; // Dayjs
-    setCurrentDate: (date: any) => void; // Dayjs
-    todayShifts: any[]; // ShiftResult[]
+    currentDate: Dayjs;
+    setCurrentDate: (date: Dayjs) => void;
+    todayShifts: ShiftResult[];
 }
 
 export function MainTabs({

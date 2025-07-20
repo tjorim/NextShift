@@ -84,7 +84,7 @@ describe('Shift Calculations', () => {
             if (nightDate) {
                 const code = getShiftCode(nightDate, 1);
                 const expectedPrevDay = dayjs(nightDate).subtract(1, 'day');
-                const expectedCode = formatDateCode(expectedPrevDay) + 'N';
+                const expectedCode = `${formatDateCode(expectedPrevDay)}N`;
                 expect(code).toBe(expectedCode);
             }
         });
@@ -105,7 +105,7 @@ describe('Shift Calculations', () => {
         it('should return null for team with no upcoming shifts in cycle', () => {
             // This is edge case - should not happen in normal 10-day cycle
             // but tests the boundary condition
-            const result = getNextShift(new Date('2025-01-06'), 999); // Invalid team
+            const _result = getNextShift(new Date('2025-01-06'), 999); // Invalid team
             // Implementation should handle this gracefully
         });
     });
