@@ -7,13 +7,13 @@ export default defineConfig({
         reactPlugin(),
         VitePWA({
             registerType: 'autoUpdate',
-            workbox: {
+            srcDir: 'public',
+            filename: 'sw.js',
+            strategies: 'injectManifest',
+            injectManifest: {
                 globPatterns: [
                     '**/*.{js,css,html,ico,png,svg,webmanifest,json}',
                 ],
-                cleanupOutdatedCaches: true,
-                skipWaiting: true,
-                clientsClaim: true,
             },
             manifest: {
                 name: 'NextShift - Team Shift Tracker',

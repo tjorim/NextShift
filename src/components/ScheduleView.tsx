@@ -84,7 +84,7 @@ export function ScheduleView({
                                     {weekDays.map((day) => (
                                         <th
                                             key={day.format('YYYY-MM-DD')}
-                                            className="text-center"
+                                            className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
                                         >
                                             <div>{day.format('ddd')}</div>
                                             <div className="small text-muted">
@@ -116,7 +116,7 @@ export function ScheduleView({
                                                     key={day.format(
                                                         'YYYY-MM-DD',
                                                     )}
-                                                    className="text-center"
+                                                    className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
                                                 >
                                                     {shift.isWorking && (
                                                         <Badge

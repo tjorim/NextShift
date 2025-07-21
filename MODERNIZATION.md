@@ -106,7 +106,7 @@ interface ShiftConfig {
 interface ShiftResult {
   team: number;
   date: Date;
-  shift: 'M' | 'E' | 'N' | 'OFF';
+  shift: 'M' | 'E' | 'N' | 'O';
   code: string;
 }
 

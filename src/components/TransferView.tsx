@@ -13,7 +13,8 @@ interface TransferInfo {
     date: Dayjs;
     fromTeam: number;
     toTeam: number;
-    shiftType: string;
+    shiftType: ShiftType;
+    shiftName: string;
     isHandover: boolean;
 }
 
@@ -62,7 +63,8 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                     date,
                     fromTeam: selectedTeam,
                     toTeam: compareTeam,
-                    shiftType: compareShift.name,
+                    shiftType: compareShift.code,
+                    shiftName: compareShift.name,
                     isHandover: true,
                 });
             }
@@ -77,7 +79,8 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                     date,
                     fromTeam: compareTeam,
                     toTeam: selectedTeam,
-                    shiftType: myShift.name,
+                    shiftType: myShift.code,
+                    shiftName: myShift.name,
                     isHandover: false,
                 });
             }
@@ -199,9 +202,11 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                                                         )}
                                                     </strong>
                                                     <Badge
-                                                        className={`${getShiftClassName(transfer.shiftType.charAt(0) as ShiftType)}`}
+                                                        className={getShiftClassName(
+                                                            transfer.shiftType,
+                                                        )}
                                                     >
-                                                        {transfer.shiftType}
+                                                        {transfer.shiftName}
                                                     </Badge>
                                                 </div>
                                                 <div className="text-muted small">

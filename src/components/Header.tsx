@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { Badge, Button, Col, Modal } from 'react-bootstrap';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import {
+    getServiceWorkerStatusText,
+    useServiceWorkerStatus,
+} from '../hooks/useServiceWorkerStatus';
 import { CONFIG } from '../utils/config';
 
 export function Header() {
     const isOnline = useOnlineStatus();
+    const serviceWorkerStatus = useServiceWorkerStatus();
     const [showAbout, setShowAbout] = useState(false);
 
     return (
@@ -50,7 +55,7 @@ export function Header() {
                             Version {CONFIG.VERSION}
                         </p>
                         <p className="text-muted small">
-                            Service Worker Loading...
+                            {getServiceWorkerStatusText(serviceWorkerStatus)}
                         </p>
                     </div>
                     <hr />
