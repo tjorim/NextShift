@@ -1,5 +1,6 @@
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
 import type { ShiftResult } from '../utils/shiftCalculations';
+import { getShiftClassName } from '../utils/shiftStyles';
 
 interface TodayViewProps {
     todayShifts: ShiftResult[];
@@ -12,19 +13,6 @@ export function TodayView({
     selectedTeam,
     onTodayClick,
 }: TodayViewProps) {
-    const getShiftClassName = (shiftCode: string) => {
-        switch (shiftCode) {
-            case 'M':
-                return 'shift-morning';
-            case 'E':
-                return 'shift-evening';
-            case 'N':
-                return 'shift-night';
-            default:
-                return 'shift-off';
-        }
-    };
-
     const isMyTeam = (teamNumber: number) => {
         return selectedTeam === teamNumber ? 'my-team' : '';
     };
@@ -69,8 +57,8 @@ export function TodayView({
                                             </div>
                                             <div className="text-muted small">
                                                 {shiftResult.shift.name}
-                                                {shiftResult.shift.hours !==
-                                                    'Not working' && (
+                                                {shiftResult.shift
+                                                    .isWorking && (
                                                     <>
                                                         <br />
                                                         {

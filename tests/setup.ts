@@ -10,4 +10,4 @@ beforeEach(() => {
     localStorage.clear();
 });
 
-// Mock dayjs plugins are handled by actual imports in components
+// Note: dayjs plugins are handled by actual imports in components for better compatibility

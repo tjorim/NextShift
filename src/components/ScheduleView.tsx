@@ -2,6 +2,7 @@ import dayjs, { type Dayjs } from 'dayjs';
 import { Badge, Button, Card, Table } from 'react-bootstrap';
 import { CONFIG } from '../utils/config';
 import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
+import { getShiftClassName } from '../utils/shiftStyles';
 
 interface ScheduleViewProps {
     selectedTeam: number | null;
@@ -14,19 +15,6 @@ export function ScheduleView({
     currentDate,
     setCurrentDate,
 }: ScheduleViewProps) {
-    const getShiftClassName = (shiftCode: string) => {
-        switch (shiftCode) {
-            case 'M':
-                return 'shift-morning';
-            case 'E':
-                return 'shift-evening';
-            case 'N':
-                return 'shift-night';
-            default:
-                return 'shift-off';
-        }
-    };
-
     const isMyTeam = (teamNumber: number) => {
         return selectedTeam === teamNumber ? 'my-team' : '';
     };
@@ -130,7 +118,7 @@ export function ScheduleView({
                                                     )}
                                                     className="text-center"
                                                 >
-                                                    {shift.code !== 'O' && (
+                                                    {shift.isWorking && (
                                                         <Badge
                                                             className={`shift-code ${getShiftClassName(shift.code)}`}
                                                         >

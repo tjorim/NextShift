@@ -2,6 +2,7 @@ import type { Dayjs } from 'dayjs';
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
 import type { NextShiftResult, ShiftResult } from '../utils/shiftCalculations';
 import { formatDateCode } from '../utils/shiftCalculations';
+import { getShiftClassName } from '../utils/shiftStyles';
 
 interface CurrentStatusProps {
     selectedTeam: number | null;
@@ -18,19 +19,6 @@ export function CurrentStatus({
     currentDate,
     onChangeTeam,
 }: CurrentStatusProps) {
-    const getShiftClassName = (shiftCode: string) => {
-        switch (shiftCode) {
-            case 'M':
-                return 'shift-morning';
-            case 'E':
-                return 'shift-evening';
-            case 'N':
-                return 'shift-night';
-            default:
-                return 'shift-off';
-        }
-    };
-
     return (
         <div className="col-12 mb-4">
             <Card>

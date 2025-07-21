@@ -1,7 +1,8 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
 import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
-import { calculateShift } from '../utils/shiftCalculations';
+import { calculateShift, type ShiftType } from '../utils/shiftCalculations';
+import { getShiftClassName } from '../utils/shiftStyles';
 
 interface TransferViewProps {
     selectedTeam: number | null;
@@ -21,19 +22,6 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
     const [dateRange, setDateRange] = useState<string>('14');
     const [customStartDate, setCustomStartDate] = useState<string>('');
     const [customEndDate, setCustomEndDate] = useState<string>('');
-
-    const getShiftClassName = (shiftCode: string) => {
-        switch (shiftCode) {
-            case 'M':
-                return 'shift-morning';
-            case 'E':
-                return 'shift-evening';
-            case 'N':
-                return 'shift-night';
-            default:
-                return 'shift-off';
-        }
-    };
 
     const transfers = useMemo((): TransferInfo[] => {
         if (!selectedTeam) return [];
@@ -211,7 +199,7 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                                                         )}
                                                     </strong>
                                                     <Badge
-                                                        className={`${getShiftClassName(transfer.shiftType.charAt(0))}`}
+                                                        className={`${getShiftClassName(transfer.shiftType.charAt(0) as ShiftType)}`}
                                                     >
                                                         {transfer.shiftType}
                                                     </Badge>

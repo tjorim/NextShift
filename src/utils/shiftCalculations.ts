@@ -13,6 +13,7 @@ export interface Shift {
     hours: string;
     start: number | null;
     end: number | null;
+    isWorking: boolean;
 }
 
 export interface ShiftResult {
@@ -29,13 +30,14 @@ export interface NextShiftResult {
 }
 
 // Shift definitions
-export const SHIFTS: Record<string, Shift> = {
+export const SHIFTS = {
     MORNING: {
         code: 'M',
         name: 'Morning',
         hours: '07:00-15:00',
         start: 7,
         end: 15,
+        isWorking: true,
     },
     EVENING: {
         code: 'E',
@@ -43,6 +45,7 @@ export const SHIFTS: Record<string, Shift> = {
         hours: '15:00-23:00',
         start: 15,
         end: 23,
+        isWorking: true,
     },
     NIGHT: {
         code: 'N',
@@ -50,6 +53,7 @@ export const SHIFTS: Record<string, Shift> = {
         hours: '23:00-07:00',
         start: 23,
         end: 7,
+        isWorking: true,
     },
     OFF: {
         code: 'O',
@@ -57,6 +61,7 @@ export const SHIFTS: Record<string, Shift> = {
         hours: 'Not working',
         start: null,
         end: null,
+        isWorking: false,
     },
 } as const;
 
@@ -100,6 +105,7 @@ export function calculateShift(
 
 /**
  * Formats a date into the YYWW.D format
+ * Note: Year is represented as 2 digits (00-99), valid for years 2000-2099
  * @param date - The date to format
  * @returns The formatted date code (e.g., "2520.2")
  */
@@ -160,11 +166,16 @@ export function getNextShift(
     fromDate: string | Date | Dayjs,
     teamNumber: number,
 ): NextShiftResult | null {
+    // Validate team number range
+    if (teamNumber < 1 || teamNumber > CONFIG.TEAMS_COUNT) {
+        return null;
+    }
+
     let checkDate = dayjs(fromDate).add(1, 'day');
 
     for (let i = 0; i < CONFIG.SHIFT_CYCLE_DAYS; i++) {
         const shift = calculateShift(checkDate, teamNumber);
-        if (shift !== SHIFTS.OFF) {
+        if (shift.isWorking) {
             return {
                 date: checkDate,
                 shift: shift,

@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Analyze changed files
         run: |
@@ -31,7 +32,7 @@ jobs:
           # Fetch the base branch for comparison (works on forks)
           if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ github.event.pull_request.base.repo.full_name }}" ]; then
             echo "📥 Fetching PR base: ${{ github.event.pull_request.base.repo.full_name }}/${{ github.event.pull_request.base.ref }}"
-            
+
             # Add the base repository as a remote and fetch from it (handles forks properly)
             BASE_REPO_URL="https://github.com/${{ github.event.pull_request.base.repo.full_name }}.git"
             git remote add base_repo "$BASE_REPO_URL" 2>/dev/null || true
@@ -118,7 +119,15 @@ jobs:
 
               let missing = [];
               criticalFunctions.forEach(func => {
-                if (!appJs.includes('function ' + func) && !appJs.includes(func + ' =')) {
+                const patterns = [
+                  'function ' + func,
+                  func + ' =',
+                  'const ' + func + ' =',
+                  'let ' + func + ' =',
+                  'var ' + func + ' =',
+                  func + ':' // For object methods
+                ];
+                if (!patterns.some(pattern => appJs.includes(pattern))) {
                   missing.push(func);
                 }
               });
@@ -221,8 +230,8 @@ jobs:
             fi
 
             # Check for eval usage
-            if grep -q "eval(" "$APP_JS" 2>/dev/null; then
-              echo "⚠️  eval() usage detected - potential security risk"
+            if grep -E "eval\s*\(|new\s+Function\s*\(" "$APP_JS" 2>/dev/null; then
+              echo "⚠️  eval() or new Function() usage detected - potential security risk"
               SECURITY_ISSUES="true"
             fi
 
@@ -254,7 +263,7 @@ jobs:
             if (DOC_CHANGES === 'true') summary += "- 📚 Documentation changes\n";
 
             summary += "\n### ✅ Validation Results:\n";
-            
+
             if (CORE_CHANGES === 'true') {
               summary += "- ✅ Code quality checks passed (Biome)\n";
               summary += "- ✅ Tests passed (Vitest)\n";
@@ -272,7 +281,7 @@ jobs:
             }
 
             summary += "\n### 🚀 Ready for Review\n";
-            
+
             if (CORE_CHANGES === 'true' || CONFIG_CHANGES === 'true') {
               summary += "All automated checks passed! This PR is ready for manual review.\n";
             } else {

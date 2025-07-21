@@ -1,4 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TeamSelector } from '../../src/components/TeamSelector';
 
@@ -38,9 +40,10 @@ describe('TeamSelector Component', () => {
         }
     });
 
-    it('should call onTeamSelect and onHide when team is selected', () => {
+    it('should call onTeamSelect and onHide when team is selected', async () => {
         const mockOnTeamSelect = vi.fn();
         const mockOnHide = vi.fn();
+        const user = userEvent.setup();
 
         render(
             <TeamSelector
@@ -51,7 +54,7 @@ describe('TeamSelector Component', () => {
         );
 
         const team3Button = screen.getByText('Team 3');
-        fireEvent.click(team3Button);
+        await user.click(team3Button);
 
         expect(mockOnTeamSelect).toHaveBeenCalledWith(3);
         expect(mockOnHide).toHaveBeenCalled();

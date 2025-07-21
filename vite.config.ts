@@ -1,16 +1,19 @@
-import react from '@vitejs/plugin-react';
+import reactPlugin from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
     plugins: [
-        react(),
+        reactPlugin(),
         VitePWA({
             registerType: 'autoUpdate',
             workbox: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+                globPatterns: [
+                    '**/*.{js,css,html,ico,png,svg,webmanifest,json}',
+                ],
                 cleanupOutdatedCaches: true,
                 skipWaiting: true,
+                clientsClaim: true,
             },
             manifest: {
                 name: 'NextShift - Team Shift Tracker',

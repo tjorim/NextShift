@@ -116,6 +116,9 @@ export function calculateShift(date: Date, teamNumber: number, config: ShiftConf
 }
 
 export function formatDateCode(date: Date): string {
+  if (!date || isNaN(date.getTime())) {
+    throw new Error('Invalid date provided to formatDateCode');
+  }
   const dayjs_date = dayjs(date);
   const year = dayjs_date.year().toString().slice(-2);
   const week = dayjs_date.week().toString().padStart(2, '0');
@@ -296,7 +299,7 @@ export default App;
 ```
 
 ### Project Structure
-```
+```text
 nextshift-react/
 ├── src/
 │   ├── components/

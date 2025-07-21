@@ -27,6 +27,10 @@ declare global {
     }
 }
 
+// Define constants that don't depend on configuration
+const TEAMS_COUNT = 5;
+const SHIFT_CYCLE_DAYS = 10;
+
 export const CONFIG = {
     VERSION: '3.0.0',
     REFERENCE_DATE: (() => {
@@ -72,7 +76,7 @@ export const CONFIG = {
         // Try to load from environment variable first
         if (import.meta.env.VITE_REFERENCE_TEAM) {
             const envTeam = parseInt(import.meta.env.VITE_REFERENCE_TEAM, 10);
-            if (envTeam >= 1 && envTeam <= 5) {
+            if (envTeam >= 1 && envTeam <= TEAMS_COUNT) {
                 return envTeam;
             }
             console.warn('Invalid VITE_REFERENCE_TEAM value, using default');
@@ -87,7 +91,7 @@ export const CONFIG = {
                 String(window.NEXTSHIFT_CONFIG.REFERENCE_TEAM),
                 10,
             );
-            if (windowTeam >= 1 && windowTeam <= 5) {
+            if (windowTeam >= 1 && windowTeam <= TEAMS_COUNT) {
                 return windowTeam;
             }
             console.warn(
@@ -98,6 +102,6 @@ export const CONFIG = {
         // Fallback to default team
         return 1;
     })(),
-    SHIFT_CYCLE_DAYS: 10,
-    TEAMS_COUNT: 5,
+    SHIFT_CYCLE_DAYS,
+    TEAMS_COUNT,
 } as const;
