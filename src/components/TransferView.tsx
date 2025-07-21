@@ -1,6 +1,7 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
+import { CONFIG } from '../utils/config';
 import { calculateShift, type ShiftType } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
@@ -19,10 +20,25 @@ interface TransferInfo {
 }
 
 export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
-    const [compareTeam, setCompareTeam] = useState<number>(1);
+    // Get available teams (excluding selected team)
+    const availableTeams = useMemo(() => {
+        const allTeams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
+        return allTeams.filter(team => team !== selectedTeam);
+    }, [selectedTeam]);
+
+    // Default to first available team
+    const defaultCompareTeam = availableTeams[0] || 1;
+    const [compareTeam, setCompareTeam] = useState<number>(defaultCompareTeam);
     const [dateRange, setDateRange] = useState<string>('14');
     const [customStartDate, setCustomStartDate] = useState<string>('');
     const [customEndDate, setCustomEndDate] = useState<string>('');
+
+    // Update compareTeam when selectedTeam changes and current compareTeam is not available
+    useEffect(() => {
+        if (!availableTeams.includes(compareTeam)) {
+            setCompareTeam(defaultCompareTeam);
+        }
+    }, [selectedTeam, availableTeams, compareTeam, defaultCompareTeam]);
 
     const transfers = useMemo((): TransferInfo[] => {
         if (!selectedTeam) return [];
@@ -97,137 +113,135 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
     ]);
 
     return (
-        <div className="tab-pane fade" id="transfer" role="tabpanel">
-            <Card>
-                <Card.Header>
-                    <h6 className="mb-0">Team Transfers</h6>
-                </Card.Header>
-                <Card.Body>
+        <Card>
+            <Card.Header>
+                <h6 className="mb-0">Team Transfers</h6>
+            </Card.Header>
+            <Card.Body>
+                <Row className="mb-3">
+                    <Col md={6}>
+                        <Form.Label htmlFor="compareTeam">
+                            Compare with Team:
+                        </Form.Label>
+                        <Form.Select
+                            id="compareTeam"
+                            value={compareTeam}
+                            onChange={(e) =>
+                                setCompareTeam(parseInt(e.target.value))
+                            }
+                        >
+                            {availableTeams.map(teamNumber => (
+                                <option key={teamNumber} value={teamNumber}>
+                                    Team {teamNumber}
+                                </option>
+                            ))}
+                        </Form.Select>
+                    </Col>
+                    <Col md={6}>
+                        <Form.Label htmlFor="transferRange">
+                            Date Range:
+                        </Form.Label>
+                        <Form.Select
+                            id="transferRange"
+                            value={dateRange}
+                            onChange={(e) => setDateRange(e.target.value)}
+                        >
+                            <option value="14">Next 14 days</option>
+                            <option value="30">Next 30 days</option>
+                            <option value="60">Next 60 days</option>
+                            <option value="custom">Custom range</option>
+                        </Form.Select>
+                    </Col>
+                </Row>
+
+                {dateRange === 'custom' && (
                     <Row className="mb-3">
                         <Col md={6}>
-                            <Form.Label htmlFor="compareTeam">
-                                Compare with Team:
+                            <Form.Label htmlFor="startDate">
+                                Start Date:
                             </Form.Label>
-                            <Form.Select
-                                id="compareTeam"
-                                value={compareTeam}
+                            <Form.Control
+                                type="date"
+                                id="startDate"
+                                value={customStartDate}
                                 onChange={(e) =>
-                                    setCompareTeam(parseInt(e.target.value))
+                                    setCustomStartDate(e.target.value)
                                 }
-                            >
-                                <option value={1}>Team 1</option>
-                                <option value={2}>Team 2</option>
-                                <option value={3}>Team 3</option>
-                                <option value={4}>Team 4</option>
-                                <option value={5}>Team 5</option>
-                            </Form.Select>
+                            />
                         </Col>
                         <Col md={6}>
-                            <Form.Label htmlFor="transferRange">
-                                Date Range:
+                            <Form.Label htmlFor="endDate">
+                                End Date:
                             </Form.Label>
-                            <Form.Select
-                                id="transferRange"
-                                value={dateRange}
-                                onChange={(e) => setDateRange(e.target.value)}
-                            >
-                                <option value="14">Next 14 days</option>
-                                <option value="30">Next 30 days</option>
-                                <option value="60">Next 60 days</option>
-                                <option value="custom">Custom range</option>
-                            </Form.Select>
+                            <Form.Control
+                                type="date"
+                                id="endDate"
+                                value={customEndDate}
+                                onChange={(e) =>
+                                    setCustomEndDate(e.target.value)
+                                }
+                            />
                         </Col>
                     </Row>
+                )}
 
-                    {dateRange === 'custom' && (
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <Form.Label htmlFor="startDate">
-                                    Start Date:
-                                </Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    id="startDate"
-                                    value={customStartDate}
-                                    onChange={(e) =>
-                                        setCustomStartDate(e.target.value)
-                                    }
-                                />
-                            </Col>
-                            <Col md={6}>
-                                <Form.Label htmlFor="endDate">
-                                    End Date:
-                                </Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    id="endDate"
-                                    value={customEndDate}
-                                    onChange={(e) =>
-                                        setCustomEndDate(e.target.value)
-                                    }
-                                />
-                            </Col>
-                        </Row>
-                    )}
-
-                    <div id="transferInfo">
-                        {!selectedTeam ? (
-                            <div className="text-muted">
-                                Please select your team to see transfer
-                                information.
-                            </div>
-                        ) : transfers.length === 0 ? (
-                            <div className="text-muted">
-                                No transfers found between Team {selectedTeam}{' '}
-                                and Team {compareTeam} in the selected date
-                                range.
-                            </div>
-                        ) : (
-                            <div>
-                                <h6 className="mb-3">
-                                    Transfers between Team {selectedTeam} and
-                                    Team {compareTeam}:
-                                </h6>
-                                <div className="row g-2">
-                                    {transfers.map((transfer) => (
-                                        <div
-                                            key={`${transfer.date.toISOString()}-${transfer.fromTeam}-${transfer.toTeam}`}
-                                            className="col-12 col-md-6"
-                                        >
-                                            <div className="border rounded p-3">
-                                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                                    <strong>
-                                                        {transfer.date.format(
-                                                            'MMM D, YYYY',
-                                                        )}
-                                                    </strong>
-                                                    <Badge
-                                                        className={getShiftClassName(
-                                                            transfer.shiftType,
-                                                        )}
-                                                    >
-                                                        {transfer.shiftName}
-                                                    </Badge>
-                                                </div>
-                                                <div className="text-muted small">
-                                                    Team {transfer.fromTeam} →
-                                                    Team {transfer.toTeam}
-                                                    <br />
-                                                    <em>
-                                                        {transfer.isHandover
-                                                            ? 'Handover'
-                                                            : 'Transfer'}
-                                                    </em>
-                                                </div>
+                <div id="transferInfo">
+                    {!selectedTeam ? (
+                        <div className="text-muted">
+                            Please select your team to see transfer
+                            information.
+                        </div>
+                    ) : transfers.length === 0 ? (
+                        <div className="text-muted">
+                            No transfers found between Team {selectedTeam}{' '}
+                            and Team {compareTeam} in the selected date
+                            range.
+                        </div>
+                    ) : (
+                        <div>
+                            <h6 className="mb-3">
+                                Transfers between Team {selectedTeam} and
+                                Team {compareTeam}:
+                            </h6>
+                            <div className="row g-2">
+                                {transfers.map((transfer) => (
+                                    <div
+                                        key={`${transfer.date.toISOString()}-${transfer.fromTeam}-${transfer.toTeam}`}
+                                        className="col-12 col-md-6"
+                                    >
+                                        <div className="border rounded p-3">
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <strong>
+                                                    {transfer.date.format(
+                                                        'MMM D, YYYY',
+                                                    )}
+                                                </strong>
+                                                <Badge
+                                                    className={getShiftClassName(
+                                                        transfer.shiftType,
+                                                    )}
+                                                >
+                                                    {transfer.shiftName}
+                                                </Badge>
+                                            </div>
+                                            <div className="text-muted small">
+                                                Team {transfer.fromTeam} →
+                                                Team {transfer.toTeam}
+                                                <br />
+                                                <em>
+                                                    {transfer.isHandover
+                                                        ? 'Handover'
+                                                        : 'Transfer'}
+                                                </em>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
+                                    </div>
+                                ))}
                             </div>
-                        )}
-                    </div>
-                </Card.Body>
-            </Card>
-        </div>
+                        </div>
+                    )}
+                </div>
+            </Card.Body>
+        </Card>
     );
 }

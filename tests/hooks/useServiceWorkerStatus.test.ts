@@ -57,10 +57,12 @@ describe('useServiceWorkerStatus', () => {
                 state: 'activated',
                 postMessage: vi.fn(),
                 addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
             },
             waiting: null,
             installing: null,
             addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
         };
 
         mockServiceWorker.getRegistration.mockResolvedValue(mockRegistration);

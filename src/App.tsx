@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 import { CurrentStatus } from './components/CurrentStatus';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
@@ -56,7 +56,7 @@ function App() {
                     onChangeTeam={handleChangeTeam}
                 />
 
-                <div className="row">
+                <Row>
                     <MainTabs
                         selectedTeam={selectedTeam}
                         currentDate={currentDate}
@@ -64,7 +64,7 @@ function App() {
                         todayShifts={todayShifts}
                         currentShift={currentShift}
                     />
-                </div>
+                </Row>
 
                 <TeamSelector
                     show={showTeamModal}

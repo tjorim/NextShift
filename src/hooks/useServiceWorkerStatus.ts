@@ -30,26 +30,28 @@ export function useServiceWorkerStatus(): ServiceWorkerStatus {
             return;
         }
 
+        let registration: ServiceWorkerRegistration | null = null;
+        let installing: ServiceWorker | null = null;
+        let waiting: ServiceWorker | null = null;
+        let active: ServiceWorker | null = null;
+
         const updateStatus = () => {
             navigator.serviceWorker
                 .getRegistration()
-                .then((registration) => {
-                    if (!registration) {
+                .then((reg) => {
+                    if (!reg) {
                         setStatus((prev) => ({ ...prev, isRegistered: false }));
                         return;
                     }
 
-                    const sw =
-                        registration.active ||
-                        registration.waiting ||
-                        registration.installing;
+                    const sw = reg.active || reg.waiting || reg.installing;
 
                     setStatus((prev) => ({
                         ...prev,
                         isRegistered: true,
-                        isInstalling: !!registration.installing,
-                        isWaiting: !!registration.waiting,
-                        isActive: !!registration.active,
+                        isInstalling: !!reg.installing,
+                        isWaiting: !!reg.waiting,
+                        isActive: !!reg.active,
                     }));
 
                     // Try to get version from service worker
@@ -85,36 +87,48 @@ export function useServiceWorkerStatus(): ServiceWorkerStatus {
         );
 
         // Listen for registration updates
-        navigator.serviceWorker.getRegistration().then((registration) => {
-            if (registration) {
+        navigator.serviceWorker.getRegistration().then((reg) => {
+            if (reg) {
+                registration = reg;
                 registration.addEventListener('updatefound', updateStatus);
 
                 if (registration.installing) {
-                    registration.installing.addEventListener(
-                        'statechange',
-                        updateStatus,
-                    );
+                    installing = registration.installing;
+                    installing.addEventListener('statechange', updateStatus);
                 }
                 if (registration.waiting) {
-                    registration.waiting.addEventListener(
-                        'statechange',
-                        updateStatus,
-                    );
+                    waiting = registration.waiting;
+                    waiting.addEventListener('statechange', updateStatus);
                 }
                 if (registration.active) {
-                    registration.active.addEventListener(
-                        'statechange',
-                        updateStatus,
-                    );
+                    active = registration.active;
+                    active.addEventListener('statechange', updateStatus);
                 }
             }
         });
 
         return () => {
+            // Remove all event listeners to prevent memory leaks
             navigator.serviceWorker.removeEventListener(
                 'controllerchange',
                 updateStatus,
             );
+
+            if (registration) {
+                registration.removeEventListener('updatefound', updateStatus);
+            }
+
+            if (installing) {
+                installing.removeEventListener('statechange', updateStatus);
+            }
+
+            if (waiting) {
+                waiting.removeEventListener('statechange', updateStatus);
+            }
+
+            if (active) {
+                active.removeEventListener('statechange', updateStatus);
+            }
         };
     }, []);
 

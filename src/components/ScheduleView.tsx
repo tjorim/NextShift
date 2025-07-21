@@ -37,104 +37,102 @@ export function ScheduleView({
     );
 
     return (
-        <div className="tab-pane fade" id="schedule" role="tabpanel">
-            <Card>
-                <Card.Header className="d-flex justify-content-between align-items-center">
-                    <h6 className="mb-0">Schedule Overview</h6>
-                    <fieldset className="btn-group">
-                        <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            onClick={handlePrevious}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline-primary"
-                            size="sm"
-                            onClick={handleCurrent}
-                        >
-                            Current
-                        </Button>
-                        <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            onClick={handleNext}
-                        >
-                            Next
-                        </Button>
-                    </fieldset>
-                </Card.Header>
-                <Card.Body>
-                    {selectedTeam && (
-                        <div className="mb-3">
-                            <strong>Team {selectedTeam} Schedule:</strong>
-                            <div className="text-muted small">
-                                Week starting{' '}
-                                {currentDate.format('MMM D, YYYY')}
-                            </div>
+        <Card>
+            <Card.Header className="d-flex justify-content-between align-items-center">
+                <h6 className="mb-0">Schedule Overview</h6>
+                <fieldset className="btn-group">
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={handlePrevious}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={handleCurrent}
+                    >
+                        Current
+                    </Button>
+                    <Button
+                        variant="outline-secondary"
+                        size="sm"
+                        onClick={handleNext}
+                    >
+                        Next
+                    </Button>
+                </fieldset>
+            </Card.Header>
+            <Card.Body>
+                {selectedTeam && (
+                    <div className="mb-3">
+                        <strong>Team {selectedTeam} Schedule:</strong>
+                        <div className="text-muted small">
+                            Week starting{' '}
+                            {currentDate.format('MMM D, YYYY')}
                         </div>
-                    )}
-
-                    <div className="table-responsive">
-                        <Table className="schedule-table table-sm">
-                            <thead>
-                                <tr>
-                                    <th className="team-header">Team</th>
-                                    {weekDays.map((day) => (
-                                        <th
-                                            key={day.format('YYYY-MM-DD')}
-                                            className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
-                                        >
-                                            <div>{day.format('ddd')}</div>
-                                            <div className="small text-muted">
-                                                {formatDateCode(day)}
-                                            </div>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Array.from(
-                                    { length: CONFIG.TEAMS_COUNT },
-                                    (_, i) => i + 1,
-                                ).map((teamNumber) => (
-                                    <tr
-                                        key={teamNumber}
-                                        className={isMyTeam(teamNumber)}
-                                    >
-                                        <td className="team-header">
-                                            <strong>Team {teamNumber}</strong>
-                                        </td>
-                                        {weekDays.map((day) => {
-                                            const shift = calculateShift(
-                                                day,
-                                                teamNumber,
-                                            );
-                                            return (
-                                                <td
-                                                    key={day.format(
-                                                        'YYYY-MM-DD',
-                                                    )}
-                                                    className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
-                                                >
-                                                    {shift.isWorking && (
-                                                        <Badge
-                                                            className={`shift-code ${getShiftClassName(shift.code)}`}
-                                                        >
-                                                            {shift.code}
-                                                        </Badge>
-                                                    )}
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
                     </div>
-                </Card.Body>
-            </Card>
-        </div>
+                )}
+
+                <div className="table-responsive">
+                    <Table className="schedule-table table-sm">
+                        <thead>
+                            <tr>
+                                <th className="team-header">Team</th>
+                                {weekDays.map((day) => (
+                                    <th
+                                        key={day.format('YYYY-MM-DD')}
+                                        className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
+                                    >
+                                        <div>{day.format('ddd')}</div>
+                                        <div className="small text-muted">
+                                            {formatDateCode(day)}
+                                        </div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Array.from(
+                                { length: CONFIG.TEAMS_COUNT },
+                                (_, i) => i + 1,
+                            ).map((teamNumber) => (
+                                <tr
+                                    key={teamNumber}
+                                    className={isMyTeam(teamNumber)}
+                                >
+                                    <td className="team-header">
+                                        <strong>Team {teamNumber}</strong>
+                                    </td>
+                                    {weekDays.map((day) => {
+                                        const shift = calculateShift(
+                                            day,
+                                            teamNumber,
+                                        );
+                                        return (
+                                            <td
+                                                key={day.format(
+                                                    'YYYY-MM-DD',
+                                                )}
+                                                className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
+                                            >
+                                                {shift.isWorking && (
+                                                    <Badge
+                                                        className={`shift-code ${getShiftClassName(shift.code)}`}
+                                                    >
+                                                        {shift.code}
+                                                    </Badge>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
+            </Card.Body>
+        </Card>
     );
 }

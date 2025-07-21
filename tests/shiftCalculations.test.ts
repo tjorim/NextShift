@@ -130,4 +130,25 @@ describe('Shift Calculations', () => {
             expect(shiftDay.isSame(expectedDay, 'day')).toBe(true);
         });
     });
+
+    describe('Night shift midnight crossing consistency', () => {
+        it('should have consistent shift calculation and code for night shifts crossing midnight', () => {
+            // Test at 2 AM during a night shift
+            const nightTime = dayjs('2025-01-08 02:00'); // 2 AM on Jan 8
+            
+            const shiftDay = getCurrentShiftDay(nightTime); // Should be Jan 7
+            const shift = calculateShift(shiftDay, 1);
+            const code = getShiftCode(shiftDay, 1);
+            
+            // All calculations should be based on the same day (shiftDay)
+            expect(shiftDay.isSame(nightTime.subtract(1, 'day'), 'day')).toBe(true);
+            
+            // If this is a night shift, the code should reflect the previous day
+            if (shift.code === 'N') {
+                // Code should use previous day format
+                const expectedCode = `${formatDateCode(shiftDay)}N`;
+                expect(code).toBe(expectedCode);
+            }
+        });
+    });
 });

@@ -40,13 +40,13 @@ export function useShiftCalculation(): UseShiftCalculationReturn {
     const currentShift = useMemo((): ShiftResult | null => {
         if (!selectedTeam) return null;
 
-        const shift = calculateShift(currentDate, selectedTeam);
         const shiftDay = getCurrentShiftDay(currentDate);
+        const shift = calculateShift(shiftDay, selectedTeam);
 
         return {
             date: shiftDay,
             shift,
-            code: getShiftCode(currentDate, selectedTeam),
+            code: getShiftCode(shiftDay, selectedTeam),
             teamNumber: selectedTeam,
         };
     }, [selectedTeam, currentDate]);
