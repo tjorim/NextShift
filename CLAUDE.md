@@ -94,15 +94,15 @@ These variables anchor all shift calculations. If not configured, defaults to `2
 
 ## Technology Stack
 
-- **Frontend**: Vanilla JavaScript with ES modules
+- **Frontend**: React 18 with TypeScript and ES modules
 - **Build Tool**: Vite with PWA plugin for modern development and optimization
-- **UI Framework**: Bootstrap 5 responsive and mobile-first design
+- **UI Framework**: React Bootstrap (Bootstrap 5 components) for responsive design
 - **Date Handling**: Day.js for date calculations and week number formatting
 - **PWA**: Auto-generated Service Worker with Workbox for offline functionality
-- **Storage**: localStorage for user team preference and offline data
-- **Icons**: Embedded SVG icons in auto-generated manifest
-- **Code Quality**: Biome for fast linting and formatting (JS, CSS, JSON)
-- **Testing**: Vitest with jsdom for unit testing
+- **Storage**: Custom localStorage hook for user team preference and offline data
+- **Icons**: PNG icons in auto-generated manifest
+- **Code Quality**: Biome for fast linting and formatting (TS, JS, CSS, JSON)
+- **Testing**: Vitest with React Testing Library for component and unit testing
 
 ## Development Commands
 
@@ -134,7 +134,7 @@ This PWA uses Vite for modern development and build processes:
 
 ## PWA Configuration
 
-- **vite.config.js**: Vite PWA plugin configuration for automatic generation
+- **vite.config.ts**: Vite PWA plugin configuration for automatic generation
 - **manifest.webmanifest**: Auto-generated PWA manifest with proper metadata
 - **Service Worker**: Auto-generated with Workbox for optimal caching strategies
 - **Icons**: Local PNG icons (192px and 512px) for installation
