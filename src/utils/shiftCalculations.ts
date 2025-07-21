@@ -199,29 +199,3 @@ export function getAllTeamsShifts(date: string | Date | Dayjs): ShiftResult[] {
 
     return results;
 }
-
-/**
- * Escapes HTML special characters to prevent XSS attacks
- * @param unsafe - The unsafe string to escape
- * @returns The escaped string safe for HTML insertion
- */
-export function escapeHtml(unsafe: unknown): string {
-    if (typeof unsafe !== 'string') {
-        return String(unsafe);
-    }
-
-    // Use native browser API if available (browser environment)
-    if (typeof document !== 'undefined') {
-        const div = document.createElement('div');
-        div.textContent = unsafe;
-        return div.innerHTML;
-    }
-
-    // Fallback for test environment (no DOM)
-    return unsafe
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}

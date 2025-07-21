@@ -1,4 +1,5 @@
 import { Button, Col, Modal, Row } from 'react-bootstrap';
+import { CONFIG } from '../utils/config';
 
 interface TeamSelectorProps {
     show: boolean;
@@ -11,7 +12,7 @@ export function TeamSelector({
     onTeamSelect,
     onHide,
 }: TeamSelectorProps) {
-    const teams = [1, 2, 3, 4, 5];
+    const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
 
     const handleTeamSelect = (team: number) => {
         onTeamSelect(team);

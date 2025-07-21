@@ -4,12 +4,12 @@ import { useState } from 'react';
  * Custom hook for persisting state to localStorage
  * @param key - The localStorage key
  * @param initialValue - The initial value if nothing is stored
- * @returns [value, setValue] tuple similar to useState
+ * @returns [value, setValue] tuple similar to useState, setValue supports functional updates
  */
 export function useLocalStorage<T>(
     key: string,
     initialValue: T,
-): [T, (value: T) => void] {
+): [T, (value: T | ((prev: T) => T)) => void] {
     // State to store our value
     // Pass initial state function to useState so logic is only executed once
     const [storedValue, setStoredValue] = useState<T>(() => {
@@ -30,7 +30,7 @@ export function useLocalStorage<T>(
     });
 
     // Return a wrapped version of useState's setter function that persists the new value to localStorage
-    const setValue = (value: T) => {
+    const setValue = (value: T | ((prev: T) => T)) => {
         try {
             // Allow value to be a function so we have the same API as useState
             const valueToStore =

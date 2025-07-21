@@ -90,7 +90,7 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                     fromTeam: compareTeam,
                     toTeam: selectedTeam,
                     shiftType: myShift.name,
-                    isHandover: true,
+                    isHandover: false,
                 });
             }
         }
@@ -198,9 +198,9 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                                     Team {compareTeam}:
                                 </h6>
                                 <div className="row g-2">
-                                    {transfers.map((transfer, index) => (
+                                    {transfers.map((transfer) => (
                                         <div
-                                            key={index}
+                                            key={`${transfer.date.toISOString()}-${transfer.fromTeam}-${transfer.toTeam}`}
                                             className="col-12 col-md-6"
                                         >
                                             <div className="border rounded p-3">

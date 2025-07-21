@@ -58,25 +58,45 @@ Examples:
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js 18 or higher
+- npm (comes with Node.js)
+
 ### Local Development
 
-1. Clone the repository
-2. Serve the files with any HTTP server:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/tjorim/NextShift.git
+   cd NextShift
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   - Navigate to `http://localhost:8000`
+   - Select your team when prompted
+   - Start tracking your shifts!
+
+### Building for Production
 
 ```bash
-# Python 3
-python -m http.server 8000
+# Build the application
+npm run build
 
-# Node.js (if http-server installed)
-npx http-server
-
-# PHP
-php -S localhost:8000
+# Preview the production build
+npm run preview
 ```
 
-3. Open `http://localhost:8000` in your browser
-4. Select your team when prompted
-5. Start tracking your shifts!
+The built files will be in the `dist/` directory, ready for deployment to any static hosting service.
 
 ### PWA Installation
 
@@ -86,34 +106,87 @@ php -S localhost:8000
 
 ## Configuration
 
-For deployment, configure the reference variables in `app.js`:
+### Environment Variables
+
+Configure reference variables for shift calculations using environment variables or runtime configuration:
+
+```bash
+# Development (.env file)
+VITE_REFERENCE_DATE=2025-01-06
+VITE_REFERENCE_TEAM=1
+
+# Production build
+VITE_REFERENCE_DATE=2025-01-13 VITE_REFERENCE_TEAM=3 npm run build
+```
+
+### Runtime Configuration
+
+Alternatively, configure at runtime by adding to your HTML before the main script:
 
 ```javascript
-const CONFIG = {
-    REFERENCE_DATE: new Date('2025-01-06'), // Anchor date for calculations
-    REFERENCE_TEAM: 1, // Reference team number
-    SHIFT_CYCLE_DAYS: 10,
-    TEAMS_COUNT: 5
+window.NEXTSHIFT_CONFIG = {
+    REFERENCE_DATE: '2025-01-06',
+    REFERENCE_TEAM: 1
 };
 ```
 
-These variables anchor all shift calculations to your specific schedule.
+These variables anchor all shift calculations to your specific schedule. If not configured, defaults to `2025-01-06` and team `1`.
+
+### Development Commands
+
+```bash
+# Development
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+
+# Code Quality
+npm run lint         # Run Biome linter
+npm run lint:fix     # Auto-fix linting issues
+npm run format       # Format code
+npm run test         # Run test suite
+```
 
 ## Technology Stack
 
-- **Frontend**: Vanilla JavaScript, HTML5, CSS3
-- **UI Framework**: Bootstrap 5 (responsive, mobile-first)
-- **Date Handling**: day.js with timezone support
-- **PWA**: Service Worker + Cache API
-- **Storage**: localStorage for preferences
-- **Icons**: Embedded SVG for reliability
+### Core Framework
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite with PWA plugin
+- **UI Framework**: React Bootstrap (Bootstrap 5 components)
+- **Styling**: CSS3 with Bootstrap 5 design system
+
+### Development Tools
+- **Linting**: Biome (fast, modern linter and formatter)
+- **Testing**: Vitest + React Testing Library
+- **Type Checking**: TypeScript with strict configuration
+- **Hot Reload**: Vite development server with HMR
+
+### PWA & Data
+- **PWA**: Vite PWA plugin with Workbox
+- **Date Handling**: Day.js with timezone and week plugins
+- **Storage**: Custom localStorage hook with error handling
+- **State Management**: React hooks + custom hooks
+- **Icons**: PNG icons generated programmatically
+
+### Deployment
+- **CI/CD**: GitHub Actions with comprehensive workflows
+- **Static Hosting**: Deployable to any static hosting service
+- **Caching**: Optimized service worker with asset caching
+- **Performance**: Lighthouse monitoring and optimization
 
 ## Browser Support
 
-Works on all modern browsers with:
-- Service Worker support
-- localStorage support
-- ES6+ JavaScript features
+**Modern Browsers** (last 2 versions):
+- Chrome/Chromium 88+
+- Firefox 85+
+- Safari 14+
+- Edge 88+
+
+**Requirements**:
+- ES2020+ support
+- Service Worker API
+- localStorage API
+- CSS Grid and Flexbox
 
 ## Licence
 

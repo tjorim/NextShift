@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
 import {
     calculateShift,
-    escapeHtml,
     formatDateCode,
     getCurrentShiftDay,
     getNextShift,
@@ -81,12 +80,18 @@ describe('Shift Calculations', () => {
                 }
             }
 
-            if (nightDate) {
-                const code = getShiftCode(nightDate, 1);
-                const expectedPrevDay = dayjs(nightDate).subtract(1, 'day');
-                const expectedCode = `${formatDateCode(expectedPrevDay)}N`;
-                expect(code).toBe(expectedCode);
+            // Ensure we found a night shift date, fail the test if not
+            expect(nightDate).not.toBeNull();
+            if (!nightDate) {
+                throw new Error(
+                    'No night shift found in test range - test setup is invalid',
+                );
             }
+
+            const code = getShiftCode(nightDate, 1);
+            const expectedPrevDay = dayjs(nightDate).subtract(1, 'day');
+            const expectedCode = `${formatDateCode(expectedPrevDay)}N`;
+            expect(code).toBe(expectedCode);
         });
     });
 
@@ -105,8 +110,9 @@ describe('Shift Calculations', () => {
         it('should return null for team with no upcoming shifts in cycle', () => {
             // This is edge case - should not happen in normal 10-day cycle
             // but tests the boundary condition
-            const _result = getNextShift(new Date('2025-01-06'), 999); // Invalid team
-            // Implementation should handle this gracefully
+            const result = getNextShift(new Date('2025-01-06'), 999); // Invalid team
+            // Implementation should handle this gracefully by returning null
+            expect(result).toBeNull();
         });
     });
 
@@ -122,21 +128,6 @@ describe('Shift Calculations', () => {
             const shiftDay = getCurrentShiftDay(testDate);
             const expectedDay = testDate.subtract(1, 'day');
             expect(shiftDay.isSame(expectedDay, 'day')).toBe(true);
-        });
-    });
-
-    describe('HTML Escape Function', () => {
-        it('should escape HTML special characters', () => {
-            const result = escapeHtml('<script>alert("xss")</script>');
-            expect(result).toContain('&lt;script&gt;');
-            expect(result).toContain('&lt;/script&gt;');
-            expect(result).not.toContain('<script>');
-        });
-
-        it('should handle non-string input', () => {
-            expect(escapeHtml(123)).toBe('123');
-            expect(escapeHtml(null)).toBe('null');
-            expect(escapeHtml(undefined)).toBe('undefined');
         });
     });
 });

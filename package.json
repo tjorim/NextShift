@@ -2,7 +2,7 @@
     "name": "nextshift",
     "version": "3.0.0",
     "description": "Team Shift Tracker PWA for 5-team continuous (24/7) schedule",
-    "main": "app.js",
+    "main": "dist/index.js",
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",

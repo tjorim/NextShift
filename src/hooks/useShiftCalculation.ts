@@ -5,6 +5,7 @@ import {
     getAllTeamsShifts,
     getCurrentShiftDay,
     getNextShift,
+    getShiftCode,
     type NextShiftResult,
     type ShiftResult,
 } from '../utils/shiftCalculations';
@@ -45,7 +46,7 @@ export function useShiftCalculation(): UseShiftCalculationReturn {
         return {
             date: shiftDay,
             shift,
-            code: `${shiftDay.format('YYMMDD')}${shift.code}`,
+            code: getShiftCode(currentDate, selectedTeam),
             teamNumber: selectedTeam,
         };
     }, [selectedTeam, currentDate]);

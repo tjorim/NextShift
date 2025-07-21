@@ -3,11 +3,7 @@ import { Badge, Button, Col, Modal } from 'react-bootstrap';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { CONFIG } from '../utils/config';
 
-interface HeaderProps {
-    onChangeTeam: () => void;
-}
-
-export function Header({ onChangeTeam: _ }: HeaderProps) {
+export function Header() {
     const isOnline = useOnlineStatus();
     const [showAbout, setShowAbout] = useState(false);
 

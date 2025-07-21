@@ -52,7 +52,6 @@ export function MainTabs({
                         <TodayView
                             todayShifts={todayShifts}
                             selectedTeam={selectedTeam}
-                            currentDate={currentDate}
                             onTodayClick={handleTodayClick}
                         />
                     </Tab.Pane>

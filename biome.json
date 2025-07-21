@@ -65,26 +65,7 @@
             "quoteStyle": "single",
             "semicolons": "always"
         },
-        "globals": [
-            "window",
-            "document",
-            "console",
-            "navigator",
-            "localStorage",
-            "bootstrap",
-            "dayjs",
-            "setInterval",
-            "clearInterval",
-            "setTimeout",
-            "clearTimeout",
-            "MessageChannel",
-            "dayjs_plugin_weekOfYear",
-            "dayjs_plugin_timezone",
-            "dayjs_plugin_utc",
-            "dayjs_plugin_isSameOrBefore",
-            "dayjs_plugin_isSameOrAfter",
-            "dayjs_plugin_localizedFormat"
-        ]
+        "globals": []
     },
     "assist": {
         "enabled": true,

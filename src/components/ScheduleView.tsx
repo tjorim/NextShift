@@ -1,6 +1,7 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { Badge, Button, Card, Table } from 'react-bootstrap';
-import { formatDateCode, getAllTeamsShifts } from '../utils/shiftCalculations';
+import { CONFIG } from '../utils/config';
+import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
 
 interface ScheduleViewProps {
     selectedTeam: number | null;
@@ -52,7 +53,7 @@ export function ScheduleView({
             <Card>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <h6 className="mb-0">Schedule Overview</h6>
-                    <div className="btn-group" role="group">
+                    <fieldset className="btn-group">
                         <Button
                             variant="outline-secondary"
                             size="sm"
@@ -74,7 +75,7 @@ export function ScheduleView({
                         >
                             Next
                         </Button>
-                    </div>
+                    </fieldset>
                 </Card.Header>
                 <Card.Body>
                     {selectedTeam && (
@@ -106,7 +107,10 @@ export function ScheduleView({
                                 </tr>
                             </thead>
                             <tbody>
-                                {[1, 2, 3, 4, 5].map((teamNumber) => (
+                                {Array.from(
+                                    { length: CONFIG.TEAMS_COUNT },
+                                    (_, i) => i + 1,
+                                ).map((teamNumber) => (
                                     <tr
                                         key={teamNumber}
                                         className={isMyTeam(teamNumber)}
@@ -115,11 +119,9 @@ export function ScheduleView({
                                             <strong>Team {teamNumber}</strong>
                                         </td>
                                         {weekDays.map((day) => {
-                                            const dayShifts =
-                                                getAllTeamsShifts(day);
-                                            const teamShift = dayShifts.find(
-                                                (s) =>
-                                                    s.teamNumber === teamNumber,
+                                            const shift = calculateShift(
+                                                day,
+                                                teamNumber,
                                             );
                                             return (
                                                 <td
@@ -128,14 +130,11 @@ export function ScheduleView({
                                                     )}
                                                     className="text-center"
                                                 >
-                                                    {teamShift && (
+                                                    {shift.code !== 'O' && (
                                                         <Badge
-                                                            className={`shift-code ${getShiftClassName(teamShift.shift.code)}`}
+                                                            className={`shift-code ${getShiftClassName(shift.code)}`}
                                                         >
-                                                            {
-                                                                teamShift.shift
-                                                                    .code
-                                                            }
+                                                            {shift.code}
                                                         </Badge>
                                                     )}
                                                 </td>

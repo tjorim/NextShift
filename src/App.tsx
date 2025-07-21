@@ -46,7 +46,7 @@ function App() {
     return (
         <div className="bg-light min-vh-100">
             <Container fluid>
-                <Header onChangeTeam={handleChangeTeam} />
+                <Header />
 
                 <CurrentStatus
                     selectedTeam={selectedTeam}
