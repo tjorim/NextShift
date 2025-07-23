@@ -20,16 +20,16 @@ interface CurrentStatusProps {
 }
 
 /**
- * Displays the current and next work shift status for the selected team, including a countdown to the next shift.
+ * Renders the current and upcoming work shift details for a selected team, including a live countdown to the next shift.
  *
- * Shows today's date, the current shift with team and shift details, and the upcoming shift with a countdown timer. Provides controls to change the team and optionally view who is currently working. Displays loading indicators when data is being fetched.
+ * Displays today's date, the current shift with team and shift information, and the next scheduled shift with a countdown timer. Provides controls to change the team and, if available, view who is currently working. Shows loading indicators when shift data is being fetched.
  *
  * @param selectedTeam - The team number to display shift information for, or null if no team is selected.
  * @param onChangeTeam - Callback invoked when the user requests to change the team.
  * @param onShowWhoIsWorking - Optional callback to show the current working members.
  * @param isLoading - Optional flag to indicate loading state.
  *
- * @returns A React component rendering the current and next shift status for the selected team.
+ * @returns A React component displaying the current and next shift status for the selected team.
  */
 export function CurrentStatus({
     selectedTeam,

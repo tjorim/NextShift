@@ -9,9 +9,9 @@ import {
 import { CONFIG } from '../utils/config';
 
 /**
- * Renders the top navigation bar and About modal for the NextShift application.
+ * Displays the top navigation bar and About modal for the NextShift application.
  *
- * Displays the app title, online/offline status, a conditional PWA install button, and an About button. The About modal provides version information, service worker status, feature highlights, and licensing details.
+ * The header shows the app title, online/offline status, a PWA install button when available, and an About button. The About modal presents version information, service worker status, feature highlights, and licensing details.
  */
 export function Header() {
     const isOnline = useOnlineStatus();
