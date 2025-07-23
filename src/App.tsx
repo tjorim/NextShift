@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Container, Row } from 'react-bootstrap';
 import { CurrentStatus } from './components/CurrentStatus';
@@ -11,6 +12,7 @@ import './styles/main.css';
 function App() {
     const [showTeamModal, setShowTeamModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState('today');
     const {
         selectedTeam,
         setSelectedTeam,
@@ -47,6 +49,12 @@ function App() {
         }
     };
 
+    const handleShowWhoIsWorking = () => {
+        // Switch to Today tab to show who's working
+        setActiveTab('today');
+        setCurrentDate(dayjs());
+    };
+
     return (
         <div className="bg-light min-vh-100">
             <Container fluid>
@@ -55,6 +63,7 @@ function App() {
                 <CurrentStatus
                     selectedTeam={selectedTeam}
                     onChangeTeam={handleChangeTeam}
+                    onShowWhoIsWorking={handleShowWhoIsWorking}
                     isLoading={isLoading}
                 />
 
@@ -64,6 +73,8 @@ function App() {
                         currentDate={currentDate}
                         setCurrentDate={setCurrentDate}
                         todayShifts={todayShifts}
+                        activeTab={activeTab}
+                        onTabChange={setActiveTab}
                     />
                 </Row>
 

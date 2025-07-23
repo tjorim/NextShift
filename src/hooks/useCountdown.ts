@@ -141,7 +141,7 @@ export function useCountdown(
         const interval = setInterval(updateCountdown, updateInterval);
 
         return () => clearInterval(interval);
-    }, [targetDate, updateInterval]);
+    }, [targetDate, updateInterval]); // targetDate is stable now
 
     return timeLeft;
 }

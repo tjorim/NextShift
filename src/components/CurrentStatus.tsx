@@ -15,12 +15,14 @@ import { getShiftClassName } from '../utils/shiftStyles';
 interface CurrentStatusProps {
     selectedTeam: number | null;
     onChangeTeam: () => void;
+    onShowWhoIsWorking?: () => void;
     isLoading?: boolean;
 }
 
 export function CurrentStatus({
     selectedTeam,
     onChangeTeam,
+    onShowWhoIsWorking,
     isLoading = false,
 }: CurrentStatusProps) {
     // Always use today's date for current status
@@ -78,13 +80,24 @@ export function CurrentStatus({
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                         <Card.Title className="mb-0">Current Status</Card.Title>
-                        <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            onClick={onChangeTeam}
-                        >
-                            Change Team
-                        </Button>
+                        <div className="d-flex gap-2">
+                            <Button
+                                variant="outline-primary"
+                                size="sm"
+                                onClick={onShowWhoIsWorking}
+                                title="See who's working right now"
+                                disabled={!onShowWhoIsWorking}
+                            >
+                                👥 Who's On?
+                            </Button>
+                            <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={onChangeTeam}
+                            >
+                                Change Team
+                            </Button>
+                        </div>
                     </div>
                     <Row>
                         <Col md={6}>

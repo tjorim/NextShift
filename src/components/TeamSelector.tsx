@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Button, Col, Modal, Row, Spinner } from 'react-bootstrap';
 import { CONFIG } from '../utils/config';
 
@@ -15,11 +16,19 @@ export function TeamSelector({
     isLoading = false,
 }: TeamSelectorProps) {
     const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
+    const firstButtonRef = useRef<HTMLButtonElement>(null);
 
     const handleTeamSelect = (team: number) => {
         onTeamSelect(team);
         onHide();
     };
+
+    // Focus first button when modal opens
+    useEffect(() => {
+        if (show && !isLoading && firstButtonRef.current) {
+            setTimeout(() => firstButtonRef.current?.focus(), 100);
+        }
+    }, [show, isLoading]);
 
     return (
         <Modal
@@ -42,14 +51,18 @@ export function TeamSelector({
                         </div>
                     </div>
                 ) : (
-                    <Row className="g-2">
-                        {teams.map((team) => (
+                    <Row className="g-2" aria-label="Select your team">
+                        {teams.map((team, index) => (
                             <Col key={team} xs={12} sm={6} md={4}>
                                 <Button
+                                    ref={
+                                        index === 0 ? firstButtonRef : undefined
+                                    }
                                     variant="outline-primary"
                                     className="w-100 team-btn"
                                     onClick={() => handleTeamSelect(team)}
                                     disabled={isLoading}
+                                    aria-label={`Select Team ${team}`}
                                 >
                                     Team {team}
                                 </Button>

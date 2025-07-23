@@ -1,5 +1,5 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Nav, Tab } from 'react-bootstrap';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { ScheduleView } from './ScheduleView';
@@ -11,6 +11,8 @@ interface MainTabsProps {
     currentDate: Dayjs;
     setCurrentDate: (date: Dayjs) => void;
     todayShifts: ShiftResult[];
+    activeTab?: string;
+    onTabChange?: (tab: string) => void;
 }
 
 export function MainTabs({
@@ -18,8 +20,15 @@ export function MainTabs({
     currentDate,
     setCurrentDate,
     todayShifts,
+    activeTab = 'today',
+    onTabChange,
 }: MainTabsProps) {
-    const [activeKey, setActiveKey] = useState<string>('today');
+    const [activeKey, setActiveKey] = useState<string>(activeTab);
+
+    // Sync with external tab changes
+    useEffect(() => {
+        setActiveKey(activeTab);
+    }, [activeTab]);
 
     const handleTodayClick = () => {
         setCurrentDate(dayjs());
@@ -29,7 +38,11 @@ export function MainTabs({
         <div className="col-12">
             <Tab.Container
                 activeKey={activeKey}
-                onSelect={(k) => setActiveKey(k || 'today')}
+                onSelect={(k) => {
+                    const newKey = k || 'today';
+                    setActiveKey(newKey);
+                    onTabChange?.(newKey);
+                }}
             >
                 {/* Navigation Tabs */}
                 <div className="col-12 mb-4">

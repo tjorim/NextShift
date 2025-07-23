@@ -1,5 +1,6 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import { Badge, Button, Card, Table } from 'react-bootstrap';
+import { Badge, Button, Card, Form, Table } from 'react-bootstrap';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { CONFIG } from '../utils/config';
 import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
@@ -31,39 +32,81 @@ export function ScheduleView({
         setCurrentDate(dayjs());
     };
 
+    const handleDateChange = (dateString: string) => {
+        if (dateString) {
+            setCurrentDate(dayjs(dateString));
+        }
+    };
+
     // Generate Monday-Sunday week containing the current date
     const startOfWeek = currentDate.startOf('week'); // Monday
     const weekDays = Array.from({ length: 7 }, (_, i) =>
         startOfWeek.add(i, 'day'),
     );
 
+    // Keyboard shortcuts
+    useKeyboardShortcuts({
+        onToday: handleCurrent,
+        onPrevious: handlePrevious,
+        onNext: handleNext,
+    });
+
     return (
         <Card>
-            <Card.Header className="d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">Schedule Overview</h6>
-                <fieldset className="btn-group">
-                    <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={handlePrevious}
+            <Card.Header>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h6 className="mb-0">Schedule Overview</h6>
+                    <fieldset
+                        className="btn-group"
+                        aria-label="Week navigation"
                     >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={handleCurrent}
-                    >
-                        Current
-                    </Button>
-                    <Button
-                        variant="outline-secondary"
-                        size="sm"
-                        onClick={handleNext}
-                    >
-                        Next
-                    </Button>
-                </fieldset>
+                        <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={handlePrevious}
+                            aria-label="Go to previous week"
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={handleCurrent}
+                            aria-label="Go to current week"
+                        >
+                            This Week
+                        </Button>
+                        <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            onClick={handleNext}
+                            aria-label="Go to next week"
+                        >
+                            Next
+                        </Button>
+                    </fieldset>
+                </div>
+                <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex align-items-center gap-2">
+                        <Form.Label
+                            htmlFor="datePicker"
+                            className="mb-0 small text-muted"
+                        >
+                            Jump to date:
+                        </Form.Label>
+                        <Form.Control
+                            type="date"
+                            id="datePicker"
+                            size="sm"
+                            value={currentDate.format('YYYY-MM-DD')}
+                            onChange={(e) => handleDateChange(e.target.value)}
+                            style={{ width: 'auto' }}
+                        />
+                    </div>
+                    <div className="small text-muted">
+                        Keyboard: ← → arrows, Ctrl+H (this week)
+                    </div>
+                </div>
             </Card.Header>
             <Card.Body>
                 {selectedTeam && (
@@ -77,7 +120,10 @@ export function ScheduleView({
                 )}
 
                 <div className="table-responsive">
-                    <Table className="schedule-table table-sm">
+                    <Table
+                        className="schedule-table table-sm"
+                        aria-label={`Schedule for week of ${startOfWeek.format('MMM D')} - ${startOfWeek.add(6, 'day').format('MMM D, YYYY')}`}
+                    >
                         <thead>
                             <tr>
                                 <th className="team-header">Team</th>
@@ -87,6 +133,7 @@ export function ScheduleView({
                                         <th
                                             key={day.format('YYYY-MM-DD')}
                                             className={`text-center ${isToday ? 'table-primary' : ''}`}
+                                            aria-label={`${day.format('dddd, MMM D')}${isToday ? ' (today)' : ''}`}
                                         >
                                             <div className="fw-semibold">
                                                 {day.format('ddd')}
@@ -107,6 +154,7 @@ export function ScheduleView({
                                 <tr
                                     key={teamNumber}
                                     className={isMyTeam(teamNumber)}
+                                    aria-label={`Team ${teamNumber}${selectedTeam === teamNumber ? ' (your team)' : ''}`}
                                 >
                                     <td className="team-header">
                                         <strong>Team {teamNumber}</strong>
@@ -125,6 +173,7 @@ export function ScheduleView({
                                             <td
                                                 key={day.format('YYYY-MM-DD')}
                                                 className={`text-center ${isToday ? 'table-primary' : ''}`}
+                                                aria-label={`Team ${teamNumber} on ${day.format('dddd')}: ${shift.isWorking ? shift.name : 'Off'}`}
                                             >
                                                 {shift.isWorking && (
                                                     <Badge
