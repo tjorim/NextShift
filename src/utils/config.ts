@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import utc from 'dayjs/plugin/utc';
 
-// Ensure UTC plugin is loaded for consistent date parsing
+// Ensure plugins are loaded for consistent date parsing and week handling
 dayjs.extend(utc);
+dayjs.extend(isoWeek);
 
 /**
  * Parse date string in UTC to avoid timezone interpretation issues

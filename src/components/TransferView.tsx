@@ -109,7 +109,11 @@ export function TransferView({ selectedTeam }: TransferViewProps) {
             const myNextShift = calculateShift(nextDate, selectedTeam);
             const compareNextShift = calculateShift(nextDate, compareTeam);
 
-            if (myShift.code === 'N' && compareNextShift.code === 'M') {
+            if (
+                myShift.code === 'N' &&
+                compareNextShift.code === 'M' &&
+                !nextDate.isAfter(endDate)
+            ) {
                 transfers.push({
                     date: nextDate,
                     fromTeam: selectedTeam,
@@ -149,7 +153,11 @@ export function TransferView({ selectedTeam }: TransferViewProps) {
                 });
             }
 
-            if (compareShift.code === 'N' && myNextShift.code === 'M') {
+            if (
+                compareShift.code === 'N' &&
+                myNextShift.code === 'M' &&
+                !nextDate.isAfter(endDate)
+            ) {
                 transfers.push({
                     date: nextDate,
                     fromTeam: compareTeam,

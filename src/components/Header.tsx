@@ -41,7 +41,7 @@ export function Header() {
                                     onClick={promptInstall}
                                     aria-label="Install NextShift App"
                                 >
-                                    📱
+                                    📱 Install
                                 </Button>
                             )}
                             <Button

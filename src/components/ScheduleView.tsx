@@ -48,7 +48,7 @@ export function ScheduleView({
     };
 
     // Generate Monday-Sunday week containing the current date
-    const startOfWeek = currentDate.startOf('week'); // Monday
+    const startOfWeek = currentDate.startOf('isoWeek'); // Monday (ISO week)
     const weekDays = Array.from({ length: 7 }, (_, i) =>
         startOfWeek.add(i, 'day'),
     );
