@@ -8,11 +8,11 @@ interface KeyboardShortcuts {
 }
 
 /**
- * React hook that registers global keyboard shortcuts and invokes provided callbacks for specific actions.
+ * React hook that enables global keyboard shortcuts for navigation and selection actions.
  *
- * Installs a keydown event listener on the document to handle shortcut keys for navigation and selection actions. Ignores events originating from input, textarea, or select elements to prevent interfering with user input.
+ * Registers a keydown event listener on the document to trigger the corresponding callback in `shortcuts` when specific keys or key combinations are pressed. Shortcut handling is disabled when the focus is on input, textarea, or select elements.
  *
- * @param shortcuts - Object containing optional callback functions for handling "today", "previous", "next", and "team select" shortcut actions
+ * @param shortcuts - Object with optional callbacks for "today", "previous", "next", and "team select" actions, invoked when their respective shortcuts are pressed
  */
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
     useEffect(() => {

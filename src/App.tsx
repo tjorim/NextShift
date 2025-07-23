@@ -11,11 +11,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.css';
 
 /**
- * Main application component for managing team selection and shift display.
+ * The main application component for team selection and shift management.
  *
- * Handles team selection, loading state, tab navigation, and displays the current team's shift information using various UI components.
+ * Coordinates team selection, loading state, and tab navigation, and renders the primary UI for viewing and managing shift information.
  *
- * @returns The rendered application UI.
+ * @returns The application's rendered user interface.
  */
 function App() {
     const [showTeamModal, setShowTeamModal] = useState(false);

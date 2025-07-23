@@ -10,16 +10,16 @@ interface TeamSelectorProps {
 }
 
 /**
- * Displays a modal dialog for selecting a team, with optional loading state and focus management for accessibility.
+ * Renders a modal dialog for selecting a team, with optional loading state and accessible focus management.
  *
- * When shown, presents a list of team buttons based on the configured team count. If loading, displays a spinner and disables interaction. Invokes callbacks when a team is selected or the modal is dismissed.
+ * When visible, displays a list of team buttons based on the configured team count. If loading, shows a spinner and disables interaction. Calls the provided callbacks when a team is selected or the modal is dismissed.
  *
  * @param show - Whether the modal is visible
- * @param onTeamSelect - Callback invoked with the selected team number
- * @param onHide - Callback to hide the modal
- * @param isLoading - If true, shows a loading spinner and disables team selection (default: false)
+ * @param onTeamSelect - Invoked with the selected team number when a team is chosen
+ * @param onHide - Invoked to hide the modal
+ * @param isLoading - If true, displays a loading spinner and disables team selection (default: false)
  *
- * @returns The rendered team selection modal component
+ * @returns The team selection modal component
  */
 export function TeamSelector({
     show,
