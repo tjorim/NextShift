@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NextShift Icon Generator</title>
+</head>
+<body>
+    <h2>NextShift Icons</h2>
+    <p>Right-click and save the icons below:</p>
+    
+    <!-- Favicon Sizes -->
+    <h3>Favicons</h3>
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+        <div>
+            <p>16x16 (Favicon)</p>
+            <canvas id="favicon16" width="16" height="16" style="border: 1px solid #ccc; width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+        </div>
+        <div>
+            <p>32x32 (Favicon)</p>
+            <canvas id="favicon32" width="32" height="32" style="border: 1px solid #ccc; width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+        </div>
+        <div>
+            <p>48x48 (Favicon)</p>
+            <canvas id="favicon48" width="48" height="48" style="border: 1px solid #ccc; width: 64px; height: 64px; image-rendering: pixelated;"></canvas>
+        </div>
+    </div>
+    
+    <!-- PWA Icons -->
+    <h3>PWA Icons</h3>
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+        <div>
+            <p>192x192 (PWA)</p>
+            <canvas id="icon192" width="192" height="192" style="border: 1px solid #ccc; width: 128px; height: 128px;"></canvas>
+        </div>
+        <div>
+            <p>512x512 (PWA)</p>
+            <canvas id="icon512" width="512" height="512" style="border: 1px solid #ccc; width: 128px; height: 128px;"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        function createIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#0d6efd';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Add rounded corners with fallback for older browsers
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            
+            if (ctx.roundRect) {
+                // Modern browsers with roundRect support
+                ctx.roundRect(0, 0, size, size, size * 0.1);
+            } else {
+                // Fallback for older browsers - draw rounded rectangle manually
+                const radius = size * 0.1;
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(size - radius, 0);
+                ctx.arc(size - radius, radius, radius, -Math.PI/2, 0);
+                ctx.lineTo(size, size - radius);
+                ctx.arc(size - radius, size - radius, radius, 0, Math.PI/2);
+                ctx.lineTo(radius, size);
+                ctx.arc(radius, size - radius, radius, Math.PI/2, Math.PI);
+                ctx.lineTo(0, radius);
+                ctx.arc(radius, radius, radius, Math.PI, -Math.PI/2);
+                ctx.closePath();
+            }
+            
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // White circle background
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size * 0.35, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Clock face
+            ctx.strokeStyle = '#0d6efd';
+            ctx.lineWidth = size * 0.02;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size * 0.3, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Clock hands
+            const centerX = size/2;
+            const centerY = size/2;
+            
+            // Hour hand (pointing to 7 for morning shift)
+            ctx.strokeStyle = '#0d6efd';
+            ctx.lineWidth = size * 0.025;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX - size * 0.15, centerY + size * 0.1);
+            ctx.stroke();
+            
+            // Minute hand (pointing to 12)
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX, centerY - size * 0.2);
+            ctx.stroke();
+            
+            // Center dot
+            ctx.fillStyle = '#0d6efd';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size * 0.02, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add text "NS" for NextShift
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.15}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('NS', centerX, centerY + size * 0.45);
+        }
+        
+        // Create all icons
+        const sizes = [
+            { id: 'favicon16', size: 16, filename: 'icon-16.png', name: '16x16 Favicon' },
+            { id: 'favicon32', size: 32, filename: 'icon-32.png', name: '32x32 Favicon' },
+            { id: 'favicon48', size: 48, filename: 'icon-48.png', name: '48x48 Favicon' },
+            { id: 'icon192', size: 192, filename: 'icon-192.png', name: '192x192 PWA Icon' },
+            { id: 'icon512', size: 512, filename: 'icon-512.png', name: '512x512 PWA Icon' }
+        ];
+        
+        sizes.forEach(({ id, size, filename, name }) => {
+            createIcon(id, size);
+            
+            // Add download link
+            const canvas = document.getElementById(id);
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.textContent = `Download ${name}`;
+                link.style.display = 'block';
+                link.style.marginTop = '10px';
+                link.style.marginBottom = '10px';
+                link.style.padding = '5px 10px';
+                link.style.backgroundColor = '#0d6efd';
+                link.style.color = 'white';
+                link.style.textDecoration = 'none';
+                link.style.borderRadius = '4px';
+                link.style.fontSize = '14px';
+                canvas.parentNode.insertBefore(link, canvas.nextSibling);
+            });
+        });
+        
+        // Add instructions for favicon usage
+        const instructions = document.createElement('div');
+        instructions.style.marginTop = '30px';
+        instructions.style.padding = '20px';
+        instructions.style.backgroundColor = '#f8f9fa';
+        instructions.style.borderRadius = '8px';
+        instructions.style.border = '1px solid #dee2e6';
+        instructions.innerHTML = `
+            <h3>🔧 How to Use These Icons</h3>
+            <h4>📁 Modern Vite Structure (Recommended):</h4>
+            <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace;">
+📁 public/assets/icons/
+├── icon-16.png     (16x16 favicon)
+├── icon-32.png     (32x32 favicon)  
+├── icon-48.png     (48x48 favicon)
+├── icon-192.png    (192x192 PWA)
+└── icon-512.png    (512x512 PWA)
+
+📁 src/
+├── styles/
+│   └── main.css    (application styles)
+├── app.js         (main application logic)
+└── main.js        (entry point)
+            </pre>
+            
+            <h4>🔧 Integration Steps:</h4>
+            <ol>
+                <li>Download all icon files using the buttons above</li>
+                <li><strong>Place ALL icons in <code>public/assets/icons/</code> directory</strong></li>
+                <li>HTML favicon links are already configured</li>
+                <li>Vite automatically serves from public/ as static assets</li>
+                <li>Clean separation of source vs. static assets!</li>
+            </ol>
+            
+            <h4>✅ What's Automatically Handled:</h4>
+            <ul>
+                <li>✅ PWA manifest generation with all icon sizes</li>
+                <li>✅ Service worker caching of icon files</li>
+                <li>✅ Favicon links in HTML head</li>
+                <li>✅ Proper MIME types and purposes for PWA</li>
+                <li>✅ Maskable icon support for Android</li>
+            </ul>
+            
+            <h4>🎯 Platform Coverage:</h4>
+            <ul>
+                <li><strong>Browser tabs:</strong> 16x16 favicon</li>
+                <li><strong>Bookmarks:</strong> 32x32, 48x48 favicons</li>
+                <li><strong>Android home screen:</strong> 192x192 PWA icon</li>
+                <li><strong>iOS/Android splash:</strong> 512x512 PWA icon</li>
+                <li><strong>App stores:</strong> All sizes for submission</li>
+            </ul>
+        `;
+        document.body.appendChild(instructions);
+    </script>
+</body>
+</html>

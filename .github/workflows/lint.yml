@@ -1,0 +1,45 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Biome linting
+        run: |
+          echo "🔍 Running Biome code quality checks..."
+          npm run lint
+          echo "✅ All linting completed"
+
+      - name: Run tests
+        run: |
+          echo "🧪 Running test suite..."
+          npm run test
+          echo "✅ Tests completed"
+
+      - name: Summary
+        run: |
+          echo "🎯 Quality Check Summary:"
+          echo "├── ✅ JavaScript linted (Biome)"
+          echo "├── ✅ CSS linted (Biome)"
+          echo "├── ✅ JSON validated (Biome)"
+          echo "└── ✅ Tests passed (Vitest)"
