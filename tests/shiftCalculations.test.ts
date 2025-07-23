@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
+import { CONFIG } from '../src/utils/config';
 import {
     calculateShift,
     formatDateCode,
@@ -43,6 +44,20 @@ describe('Shift Calculations', () => {
             expect(shifts.slice(0, 6)).toEqual(['M', 'M', 'E', 'E', 'N', 'N']);
             expect(shifts.slice(6)).toEqual(['O', 'O', 'O', 'O']);
         });
+
+        it('should use correct default reference date', () => {
+            // Test that the configuration uses July 16, 2025 as the reference date
+            // This ensures Team 1's cycle aligns with August 1, 2022 historic start
+            const referenceDate = CONFIG.REFERENCE_DATE;
+            
+            // Convert to comparable format
+            const referenceDateString = referenceDate.toISOString().split('T')[0];
+            expect(referenceDateString).toBe('2025-07-16');
+            
+            // Verify Team 1 has morning shift on reference date
+            const shift = calculateShift(referenceDate, 1);
+            expect(shift).toBe(SHIFTS.MORNING);
+        });
     });
 
     describe('Date Code Formatting', () => {
@@ -69,7 +84,7 @@ describe('Shift Calculations', () => {
         it('should adjust date for night shifts', () => {
             // Find a date where team has night shift
             const baseDate = new Date('2025-07-16');
-            let nightDate = null;
+            let nightDate: Date | null = null;
 
             for (let i = 0; i < 10; i++) {
                 const date = dayjs(baseDate).add(i, 'day').toDate();

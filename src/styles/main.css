@@ -3,11 +3,11 @@
 :root {
     --shift-morning: #1976d2;
     --shift-morning-text: #ffffff;
-    --shift-evening: #f57c00;
+    --shift-evening: #e65100;
     --shift-evening-text: #ffffff;
     --shift-night: #7b1fa2;
     --shift-night-text: #ffffff;
-    --shift-off: #9e9e9e;
+    --shift-off: #616161;
     --shift-off-text: #ffffff;
     --primary-color: #0d6efd;
 }
