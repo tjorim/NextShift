@@ -23,7 +23,9 @@ describe('usePWAInstall', () => {
     beforeEach(() => {
         addEventListenerSpy = vi.spyOn(window, 'addEventListener');
         removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
-        consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        consoleErrorSpy = vi
+            .spyOn(console, 'error')
+            .mockImplementation(() => {});
         vi.clearAllMocks();
     });
 
@@ -96,7 +98,9 @@ describe('usePWAInstall', () => {
                 eventHandler?.(mockBeforeInstallPromptEvent);
             });
 
-            expect(mockBeforeInstallPromptEvent.preventDefault).toHaveBeenCalled();
+            expect(
+                mockBeforeInstallPromptEvent.preventDefault,
+            ).toHaveBeenCalled();
         });
 
         it('should store the beforeinstallprompt event for later use', () => {
@@ -150,9 +154,10 @@ describe('usePWAInstall', () => {
 
             // First make it installable
             act(() => {
-                const beforeInstallHandler = addEventListenerSpy.mock.calls.find(
-                    (call) => call[0] === 'beforeinstallprompt',
-                )?.[1];
+                const beforeInstallHandler =
+                    addEventListenerSpy.mock.calls.find(
+                        (call) => call[0] === 'beforeinstallprompt',
+                    )?.[1];
                 beforeInstallHandler?.(mockBeforeInstallPromptEvent);
             });
 
@@ -174,9 +179,10 @@ describe('usePWAInstall', () => {
 
             // Make it installable first
             act(() => {
-                const beforeInstallHandler = addEventListenerSpy.mock.calls.find(
-                    (call) => call[0] === 'beforeinstallprompt',
-                )?.[1];
+                const beforeInstallHandler =
+                    addEventListenerSpy.mock.calls.find(
+                        (call) => call[0] === 'beforeinstallprompt',
+                    )?.[1];
                 beforeInstallHandler?.(mockBeforeInstallPromptEvent);
             });
 
@@ -190,7 +196,9 @@ describe('usePWAInstall', () => {
 
             // Trying to prompt install should now return false
             act(async () => {
-                const result = await renderHook(() => usePWAInstall()).result.current.promptInstall();
+                const result = await renderHook(() =>
+                    usePWAInstall(),
+                ).result.current.promptInstall();
                 expect(result).toBe(false);
             });
         });
@@ -262,7 +270,9 @@ describe('usePWAInstall', () => {
             });
 
             expect(installResult).toBe(false);
-            expect(mockBeforeInstallPromptEventDismissed.prompt).toHaveBeenCalled();
+            expect(
+                mockBeforeInstallPromptEventDismissed.prompt,
+            ).toHaveBeenCalled();
         });
 
         it('should clear deferred prompt and set isInstallable to false after prompt', async () => {
@@ -288,7 +298,9 @@ describe('usePWAInstall', () => {
         it('should handle installation errors gracefully', async () => {
             const mockErrorEvent = {
                 preventDefault: vi.fn(),
-                prompt: vi.fn().mockRejectedValue(new Error('Installation failed')),
+                prompt: vi
+                    .fn()
+                    .mockRejectedValue(new Error('Installation failed')),
                 userChoice: Promise.resolve({ outcome: 'dismissed' as const }),
             };
 
@@ -307,7 +319,10 @@ describe('usePWAInstall', () => {
             });
 
             expect(installResult).toBe(false);
-            expect(consoleErrorSpy).toHaveBeenCalledWith('Install prompt failed:', expect.any(Error));
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                'Install prompt failed:',
+                expect.any(Error),
+            );
         });
 
         it('should handle missing userChoice promise', async () => {
@@ -355,7 +370,10 @@ describe('usePWAInstall', () => {
             });
 
             expect(installResult).toBe(false);
-            expect(consoleErrorSpy).toHaveBeenCalledWith('Install prompt failed:', expect.any(Error));
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                'Install prompt failed:',
+                expect.any(Error),
+            );
         });
     });
 
@@ -568,12 +586,14 @@ describe('usePWAInstall', () => {
                 {
                     preventDefault: vi.fn(),
                     prompt: vi.fn().mockResolvedValue(undefined),
-                    userChoice: Promise.resolve({ outcome: 'accepted' as const }),
+                    userChoice: Promise.resolve({
+                        outcome: 'accepted' as const,
+                    }),
                 },
             ];
 
             // Simulate multiple events
-            events.forEach(event => {
+            events.forEach((event) => {
                 act(() => {
                     const eventHandler = addEventListenerSpy.mock.calls.find(
                         (call) => call[0] === 'beforeinstallprompt',
@@ -584,7 +604,7 @@ describe('usePWAInstall', () => {
 
             // Should still be installable and use the latest event
             expect(result.current.isInstallable).toBe(true);
-            events.forEach(event => {
+            events.forEach((event) => {
                 expect(event.preventDefault).toHaveBeenCalled();
             });
         });

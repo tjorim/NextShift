@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useKeyboardShortcuts } from '../../src/hooks/useKeyboardShortcuts';
 
@@ -16,12 +16,12 @@ const mockRemoveEventListener = vi.fn();
 beforeEach(() => {
     mockAddEventListener.mockClear();
     mockRemoveEventListener.mockClear();
-    
+
     Object.defineProperty(document, 'addEventListener', {
         value: mockAddEventListener,
         writable: true,
     });
-    
+
     Object.defineProperty(document, 'removeEventListener', {
         value: mockRemoveEventListener,
         writable: true,
@@ -40,7 +40,10 @@ describe('useKeyboardShortcuts', () => {
 
             renderHook(() => useKeyboardShortcuts(shortcuts));
 
-            expect(mockAddEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
+            expect(mockAddEventListener).toHaveBeenCalledWith(
+                'keydown',
+                expect.any(Function),
+            );
             expect(mockAddEventListener).toHaveBeenCalledTimes(1);
         });
 
@@ -49,13 +52,18 @@ describe('useKeyboardShortcuts', () => {
                 onToday: vi.fn(),
             };
 
-            const { unmount } = renderHook(() => useKeyboardShortcuts(shortcuts));
-            
+            const { unmount } = renderHook(() =>
+                useKeyboardShortcuts(shortcuts),
+            );
+
             expect(mockAddEventListener).toHaveBeenCalledTimes(1);
-            
+
             unmount();
 
-            expect(mockRemoveEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
+            expect(mockRemoveEventListener).toHaveBeenCalledWith(
+                'keydown',
+                expect.any(Function),
+            );
             expect(mockRemoveEventListener).toHaveBeenCalledTimes(1);
         });
 
@@ -224,7 +232,7 @@ describe('useKeyboardShortcuts', () => {
             const onPrevious = vi.fn();
             const onNext = vi.fn();
             const onTeamSelect = vi.fn();
-            
+
             const shortcuts = { onToday, onPrevious, onNext, onTeamSelect };
 
             renderHook(() => useKeyboardShortcuts(shortcuts));
@@ -516,14 +524,16 @@ describe('useKeyboardShortcuts', () => {
             const errorCallback = vi.fn(() => {
                 throw new Error('Test error');
             });
-            
+
             const normalCallback = vi.fn();
             const shortcuts = {
                 onToday: errorCallback,
                 onPrevious: normalCallback,
             };
 
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleSpy = vi
+                .spyOn(console, 'error')
+                .mockImplementation(() => {});
 
             renderHook(() => useKeyboardShortcuts(shortcuts));
             const eventHandler = mockAddEventListener.mock.calls[0][1];
@@ -654,12 +664,12 @@ describe('useKeyboardShortcuts', () => {
         it('should update event listeners when shortcuts change', () => {
             const callback1 = vi.fn();
             const callback2 = vi.fn();
-            
+
             let shortcuts = { onToday: callback1 };
 
             const { rerender } = renderHook(
                 ({ shortcuts }) => useKeyboardShortcuts(shortcuts),
-                { initialProps: { shortcuts } }
+                { initialProps: { shortcuts } },
             );
 
             expect(mockAddEventListener).toHaveBeenCalledTimes(1);
@@ -696,7 +706,7 @@ describe('useKeyboardShortcuts', () => {
 
             const { rerender } = renderHook(
                 ({ shortcuts }) => useKeyboardShortcuts(shortcuts),
-                { initialProps: { shortcuts } }
+                { initialProps: { shortcuts } },
             );
 
             // Simulate rapid changes
@@ -712,20 +722,21 @@ describe('useKeyboardShortcuts', () => {
 
         it('should work correctly when callbacks reference changing variables', () => {
             let counter = 0;
-            
-            const createCallback = () => vi.fn(() => {
-                counter++;
-            });
+
+            const createCallback = () =>
+                vi.fn(() => {
+                    counter++;
+                });
 
             let shortcuts = { onToday: createCallback() };
 
             const { rerender } = renderHook(
                 ({ shortcuts }) => useKeyboardShortcuts(shortcuts),
-                { initialProps: { shortcuts } }
+                { initialProps: { shortcuts } },
             );
 
             const eventHandler1 = mockAddEventListener.mock.calls[0][1];
-            
+
             // Call first callback
             act(() => {
                 eventHandler1({
@@ -746,7 +757,7 @@ describe('useKeyboardShortcuts', () => {
             rerender({ shortcuts });
 
             const eventHandler2 = mockAddEventListener.mock.calls[1][1];
-            
+
             // Call second callback
             act(() => {
                 eventHandler2({
@@ -773,7 +784,7 @@ describe('useKeyboardShortcuts', () => {
             const eventHandler = mockAddEventListener.mock.calls[0][1];
 
             const startTime = performance.now();
-            
+
             // Simulate rapid key presses
             for (let i = 0; i < 100; i++) {
                 act(() => {
@@ -801,7 +812,7 @@ describe('useKeyboardShortcuts', () => {
 
             const { rerender, unmount } = renderHook(
                 ({ shortcuts }) => useKeyboardShortcuts(shortcuts),
-                { initialProps: { shortcuts } }
+                { initialProps: { shortcuts } },
             );
 
             // Simulate many re-renders

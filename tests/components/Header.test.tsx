@@ -1,6 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Header } from '../../src/components/Header';
 
 // Mock the custom hooks used by the Header component
@@ -30,7 +30,13 @@ vi.mock('react-bootstrap', () => ({
             {children}
         </span>
     ),
-    Button: ({ variant, size, onClick, children, 'aria-label': ariaLabel }: any) => (
+    Button: ({
+        variant,
+        size,
+        onClick,
+        children,
+        'aria-label': ariaLabel,
+    }: any) => (
         <button
             className={`btn btn-${variant} btn-${size}`}
             onClick={onClick}
@@ -40,15 +46,17 @@ vi.mock('react-bootstrap', () => ({
             {children}
         </button>
     ),
-    Modal: ({ show, onHide, centered, children }: any) => (
+    Modal: ({ show, onHide, centered, children }: any) =>
         show ? (
             <div className="modal" data-testid="modal" onClick={onHide}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div
+                    className="modal-content"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     {children}
                 </div>
             </div>
-        ) : null
-    ),
+        ) : null,
     'Modal.Header': ({ closeButton, children }: any) => (
         <div className="modal-header" data-testid="modal-header">
             {children}
@@ -83,7 +91,10 @@ vi.mock('react-bootstrap', () => ({
 // Import the mocked hooks
 import { useOnlineStatus } from '../../src/hooks/useOnlineStatus';
 import { usePWAInstall } from '../../src/hooks/usePWAInstall';
-import { useServiceWorkerStatus, getServiceWorkerStatusText } from '../../src/hooks/useServiceWorkerStatus';
+import {
+    getServiceWorkerStatusText,
+    useServiceWorkerStatus,
+} from '../../src/hooks/useServiceWorkerStatus';
 
 const mockUseOnlineStatus = vi.mocked(useOnlineStatus);
 const mockUsePWAInstall = vi.mocked(usePWAInstall);
@@ -93,7 +104,7 @@ const mockGetServiceWorkerStatusText = vi.mocked(getServiceWorkerStatusText);
 describe('Header Component', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        
+
         // Set default mock return values
         mockUseOnlineStatus.mockReturnValue(true);
         mockUsePWAInstall.mockReturnValue({
@@ -101,7 +112,9 @@ describe('Header Component', () => {
             promptInstall: vi.fn(),
         });
         mockUseServiceWorkerStatus.mockReturnValue('active');
-        mockGetServiceWorkerStatusText.mockReturnValue('Service Worker: Active');
+        mockGetServiceWorkerStatusText.mockReturnValue(
+            'Service Worker: Active',
+        );
     });
 
     afterEach(() => {
@@ -111,15 +124,22 @@ describe('Header Component', () => {
     describe('Basic Rendering', () => {
         it('should render the header element with correct structure', () => {
             render(<Header />);
-            
+
             const headerElement = screen.getByRole('banner');
             expect(headerElement).toBeInTheDocument();
-            expect(headerElement).toHaveClass('sticky-top', 'bg-primary', 'text-white', 'py-2', 'mb-3', 'shadow-sm');
+            expect(headerElement).toHaveClass(
+                'sticky-top',
+                'bg-primary',
+                'text-white',
+                'py-2',
+                'mb-3',
+                'shadow-sm',
+            );
         });
 
         it('should render the NextShift title', () => {
             render(<Header />);
-            
+
             const title = screen.getByRole('heading', { name: 'NextShift' });
             expect(title).toBeInTheDocument();
             expect(title).toHaveClass('h4', 'mb-0');
@@ -127,8 +147,10 @@ describe('Header Component', () => {
 
         it('should render the about button with correct aria-label', () => {
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             expect(aboutButton).toBeInTheDocument();
             expect(aboutButton).toHaveTextContent('?');
         });
@@ -138,7 +160,7 @@ describe('Header Component', () => {
         it('should show online badge when connected', () => {
             mockUseOnlineStatus.mockReturnValue(true);
             render(<Header />);
-            
+
             const badge = screen.getByTestId('badge');
             expect(badge).toHaveTextContent('Online');
             expect(badge).toHaveClass('badge-success', 'connection-online');
@@ -147,7 +169,7 @@ describe('Header Component', () => {
         it('should show offline badge when disconnected', () => {
             mockUseOnlineStatus.mockReturnValue(false);
             render(<Header />);
-            
+
             const badge = screen.getByTestId('badge');
             expect(badge).toHaveTextContent('Offline');
             expect(badge).toHaveClass('badge-danger', 'connection-offline');
@@ -156,14 +178,14 @@ describe('Header Component', () => {
         it('should update badge when online status changes', () => {
             mockUseOnlineStatus.mockReturnValue(true);
             const { rerender } = render(<Header />);
-            
+
             let badge = screen.getByTestId('badge');
             expect(badge).toHaveTextContent('Online');
-            
+
             // Simulate going offline
             mockUseOnlineStatus.mockReturnValue(false);
             rerender(<Header />);
-            
+
             badge = screen.getByTestId('badge');
             expect(badge).toHaveTextContent('Offline');
         });
@@ -176,10 +198,12 @@ describe('Header Component', () => {
                 isInstallable: true,
                 promptInstall: mockPromptInstall,
             });
-            
+
             render(<Header />);
-            
-            const installButton = screen.getByRole('button', { name: 'Install NextShift App' });
+
+            const installButton = screen.getByRole('button', {
+                name: 'Install NextShift App',
+            });
             expect(installButton).toBeInTheDocument();
             expect(installButton).toHaveTextContent('📱 Install');
         });
@@ -189,10 +213,12 @@ describe('Header Component', () => {
                 isInstallable: false,
                 promptInstall: vi.fn(),
             });
-            
+
             render(<Header />);
-            
-            const installButton = screen.queryByRole('button', { name: 'Install NextShift App' });
+
+            const installButton = screen.queryByRole('button', {
+                name: 'Install NextShift App',
+            });
             expect(installButton).not.toBeInTheDocument();
         });
 
@@ -203,12 +229,14 @@ describe('Header Component', () => {
                 isInstallable: true,
                 promptInstall: mockPromptInstall,
             });
-            
+
             render(<Header />);
-            
-            const installButton = screen.getByRole('button', { name: 'Install NextShift App' });
+
+            const installButton = screen.getByRole('button', {
+                name: 'Install NextShift App',
+            });
             await user.click(installButton);
-            
+
             expect(mockPromptInstall).toHaveBeenCalledTimes(1);
         });
 
@@ -217,10 +245,12 @@ describe('Header Component', () => {
                 isInstallable: true,
                 promptInstall: vi.fn(),
             });
-            
+
             render(<Header />);
-            
-            const installButton = screen.getByRole('button', { name: 'Install NextShift App' });
+
+            const installButton = screen.getByRole('button', {
+                name: 'Install NextShift App',
+            });
             expect(installButton).toHaveClass('btn-outline-light', 'btn-sm');
         });
     });
@@ -229,44 +259,58 @@ describe('Header Component', () => {
         it('should open modal when about button is clicked', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
+
             const modal = screen.getByTestId('modal');
             expect(modal).toBeInTheDocument();
         });
 
         it('should display correct modal content', async () => {
             const user = userEvent.setup();
-            mockGetServiceWorkerStatusText.mockReturnValue('Service Worker: Active');
-            
+            mockGetServiceWorkerStatusText.mockReturnValue(
+                'Service Worker: Active',
+            );
+
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
-            expect(screen.getByTestId('modal-title')).toHaveTextContent('About NextShift');
-            expect(screen.getByText('NextShift - Team Shift Tracker')).toBeInTheDocument();
+
+            expect(screen.getByTestId('modal-title')).toHaveTextContent(
+                'About NextShift',
+            );
+            expect(
+                screen.getByText('NextShift - Team Shift Tracker'),
+            ).toBeInTheDocument();
             expect(screen.getByText('Version 1.0.0')).toBeInTheDocument();
-            expect(screen.getByText('Service Worker: Active')).toBeInTheDocument();
+            expect(
+                screen.getByText('Service Worker: Active'),
+            ).toBeInTheDocument();
         });
 
         it('should display feature list in modal', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
+
             const features = [
                 '5-team continuous (24/7) shift tracking',
                 'Offline PWA functionality',
                 'Transfer/handover detection',
-                'YYWW.D date format (year.week.day)'
+                'YYWW.D date format (year.week.day)',
             ];
-            
-            features.forEach(feature => {
+
+            features.forEach((feature) => {
                 expect(screen.getByText(feature)).toBeInTheDocument();
             });
         });
@@ -274,59 +318,73 @@ describe('Header Component', () => {
         it('should display license and technology information', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
-            expect(screen.getByText('Licensed under Apache 2.0')).toBeInTheDocument();
-            expect(screen.getByText('Built with React, TypeScript & React Bootstrap')).toBeInTheDocument();
+
+            expect(
+                screen.getByText('Licensed under Apache 2.0'),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByText(
+                    'Built with React, TypeScript & React Bootstrap',
+                ),
+            ).toBeInTheDocument();
         });
 
         it('should close modal when close button is clicked', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
+
             // Open modal
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
+
             expect(screen.getByTestId('modal')).toBeInTheDocument();
-            
+
             // Close modal
             const closeButton = screen.getByRole('button', { name: 'Close' });
             await user.click(closeButton);
-            
+
             expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
         });
 
         it('should close modal when clicking outside modal content', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
+
             // Open modal
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
+
             const modal = screen.getByTestId('modal');
             expect(modal).toBeInTheDocument();
-            
+
             // Click on modal backdrop
             await user.click(modal);
-            
+
             expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
         });
 
         it('should not close modal when clicking on modal content', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
+
             // Open modal
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
+
             const modalContent = screen.getByTestId('modal-body');
             await user.click(modalContent);
-            
+
             // Modal should still be open
             expect(screen.getByTestId('modal')).toBeInTheDocument();
         });
@@ -336,27 +394,37 @@ describe('Header Component', () => {
         it('should display service worker status in modal', async () => {
             const user = userEvent.setup();
             mockUseServiceWorkerStatus.mockReturnValue('installing');
-            mockGetServiceWorkerStatusText.mockReturnValue('Service Worker: Installing');
-            
+            mockGetServiceWorkerStatusText.mockReturnValue(
+                'Service Worker: Installing',
+            );
+
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
-            expect(screen.getByText('Service Worker: Installing')).toBeInTheDocument();
+
+            expect(
+                screen.getByText('Service Worker: Installing'),
+            ).toBeInTheDocument();
         });
 
         it('should call getServiceWorkerStatusText with correct status', async () => {
             const user = userEvent.setup();
             const mockStatus = 'activated';
             mockUseServiceWorkerStatus.mockReturnValue(mockStatus);
-            
+
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
-            expect(mockGetServiceWorkerStatusText).toHaveBeenCalledWith(mockStatus);
+
+            expect(mockGetServiceWorkerStatusText).toHaveBeenCalledWith(
+                mockStatus,
+            );
         });
 
         it('should handle different service worker states', async () => {
@@ -365,24 +433,28 @@ describe('Header Component', () => {
                 { status: 'installing', text: 'Service Worker: Installing' },
                 { status: 'waiting', text: 'Service Worker: Waiting' },
                 { status: 'active', text: 'Service Worker: Active' },
-                { status: 'redundant', text: 'Service Worker: Redundant' }
+                { status: 'redundant', text: 'Service Worker: Redundant' },
             ];
-            
+
             for (const state of states) {
                 mockUseServiceWorkerStatus.mockReturnValue(state.status);
                 mockGetServiceWorkerStatusText.mockReturnValue(state.text);
-                
+
                 const { rerender } = render(<Header />);
-                
-                const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+                const aboutButton = screen.getByRole('button', {
+                    name: 'About NextShift',
+                });
                 await user.click(aboutButton);
-                
+
                 expect(screen.getByText(state.text)).toBeInTheDocument();
-                
+
                 // Close modal for next iteration
-                const closeButton = screen.getByRole('button', { name: 'Close' });
+                const closeButton = screen.getByRole('button', {
+                    name: 'Close',
+                });
                 await user.click(closeButton);
-                
+
                 rerender(<></>); // Clean up
             }
         });
@@ -394,19 +466,29 @@ describe('Header Component', () => {
                 isInstallable: true,
                 promptInstall: vi.fn(),
             });
-            
+
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
-            expect(aboutButton).toHaveAttribute('aria-label', 'About NextShift');
-            
-            const installButton = screen.getByRole('button', { name: 'Install NextShift App' });
-            expect(installButton).toHaveAttribute('aria-label', 'Install NextShift App');
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
+            expect(aboutButton).toHaveAttribute(
+                'aria-label',
+                'About NextShift',
+            );
+
+            const installButton = screen.getByRole('button', {
+                name: 'Install NextShift App',
+            });
+            expect(installButton).toHaveAttribute(
+                'aria-label',
+                'Install NextShift App',
+            );
         });
 
         it('should have proper heading hierarchy', () => {
             render(<Header />);
-            
+
             const mainTitle = screen.getByRole('heading', { level: 1 });
             expect(mainTitle).toHaveTextContent('NextShift');
         });
@@ -417,30 +499,36 @@ describe('Header Component', () => {
                 isInstallable: true,
                 promptInstall: vi.fn(),
             });
-            
+
             render(<Header />);
-            
+
             // Tab through interactive elements
             await user.tab();
-            const installButton = screen.getByRole('button', { name: 'Install NextShift App' });
+            const installButton = screen.getByRole('button', {
+                name: 'Install NextShift App',
+            });
             expect(installButton).toHaveFocus();
-            
+
             await user.tab();
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             expect(aboutButton).toHaveFocus();
         });
 
         it('should handle modal keyboard interactions', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             aboutButton.focus();
-            
+
             // Open modal with Enter key
             await user.keyboard('{Enter}');
             expect(screen.getByTestId('modal')).toBeInTheDocument();
-            
+
             // Close modal with Escape key
             await user.keyboard('{Escape}');
             expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
@@ -452,26 +540,32 @@ describe('Header Component', () => {
             mockUseOnlineStatus.mockImplementation(() => {
                 throw new Error('Online status hook failed');
             });
-            
-            const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-            
+
+            const consoleSpy = vi
+                .spyOn(console, 'error')
+                .mockImplementation(() => {});
+
             expect(() => render(<Header />)).not.toThrow();
-            
+
             consoleSpy.mockRestore();
         });
 
         it('should handle PWA install errors gracefully', async () => {
             const user = userEvent.setup();
-            const mockPromptInstall = vi.fn().mockRejectedValue(new Error('Install failed'));
+            const mockPromptInstall = vi
+                .fn()
+                .mockRejectedValue(new Error('Install failed'));
             mockUsePWAInstall.mockReturnValue({
                 isInstallable: true,
                 promptInstall: mockPromptInstall,
             });
-            
+
             render(<Header />);
-            
-            const installButton = screen.getByRole('button', { name: 'Install NextShift App' });
-            
+
+            const installButton = screen.getByRole('button', {
+                name: 'Install NextShift App',
+            });
+
             // Should not throw when install fails
             await expect(user.click(installButton)).resolves.not.toThrow();
             expect(mockPromptInstall).toHaveBeenCalledTimes(1);
@@ -484,12 +578,14 @@ describe('Header Component', () => {
                     VERSION: undefined,
                 },
             }));
-            
+
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
+
             // Should still render modal even with missing version
             expect(screen.getByTestId('modal')).toBeInTheDocument();
         });
@@ -497,15 +593,19 @@ describe('Header Component', () => {
         it('should handle rapid modal open/close operations', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
-            
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
+
             // Rapidly open and close modal
             for (let i = 0; i < 5; i++) {
                 await user.click(aboutButton);
                 expect(screen.getByTestId('modal')).toBeInTheDocument();
-                
-                const closeButton = screen.getByRole('button', { name: 'Close' });
+
+                const closeButton = screen.getByRole('button', {
+                    name: 'Close',
+                });
                 await user.click(closeButton);
                 expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
             }
@@ -515,15 +615,15 @@ describe('Header Component', () => {
     describe('Performance Considerations', () => {
         it('should not re-render unnecessarily when hook values do not change', () => {
             const renderSpy = vi.fn();
-            
+
             const TestWrapper = () => {
                 renderSpy();
                 return <Header />;
             };
-            
+
             const { rerender } = render(<TestWrapper />);
             expect(renderSpy).toHaveBeenCalledTimes(1);
-            
+
             // Re-render with same hook values
             rerender(<TestWrapper />);
             expect(renderSpy).toHaveBeenCalledTimes(1);
@@ -532,14 +632,16 @@ describe('Header Component', () => {
         it('should handle multiple state updates efficiently', async () => {
             const user = userEvent.setup();
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
-            
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
+
             // Multiple rapid interactions should be handled smoothly
             await user.click(aboutButton);
             await user.click(aboutButton);
             await user.click(aboutButton);
-            
+
             expect(screen.getByTestId('modal')).toBeInTheDocument();
         });
     });
@@ -547,30 +649,38 @@ describe('Header Component', () => {
     describe('Integration with External Dependencies', () => {
         it('should integrate properly with react-bootstrap components', () => {
             render(<Header />);
-            
+
             const headerElement = screen.getByRole('banner');
             expect(headerElement).toHaveClass('container-fluid');
-            
+
             const badge = screen.getByTestId('badge');
             expect(badge).toHaveClass('badge');
-            
+
             const buttons = screen.getAllByTestId('button');
-            buttons.forEach(button => {
+            buttons.forEach((button) => {
                 expect(button).toHaveClass('btn');
             });
         });
 
         it('should work with different service worker registration states', () => {
-            const states = ['installing', 'installed', 'waiting', 'active', 'redundant'];
-            
-            states.forEach(state => {
+            const states = [
+                'installing',
+                'installed',
+                'waiting',
+                'active',
+                'redundant',
+            ];
+
+            states.forEach((state) => {
                 mockUseServiceWorkerStatus.mockReturnValue(state);
-                mockGetServiceWorkerStatusText.mockReturnValue(`Service Worker: ${state}`);
-                
+                mockGetServiceWorkerStatusText.mockReturnValue(
+                    `Service Worker: ${state}`,
+                );
+
                 const { unmount } = render(<Header />);
-                
+
                 expect(mockUseServiceWorkerStatus).toHaveBeenCalled();
-                
+
                 unmount();
             });
         });
@@ -582,12 +692,14 @@ describe('Header Component', () => {
                     VERSION: '2.1.0-beta',
                 },
             }));
-            
+
             render(<Header />);
-            
-            const aboutButton = screen.getByRole('button', { name: 'About NextShift' });
+
+            const aboutButton = screen.getByRole('button', {
+                name: 'About NextShift',
+            });
             await user.click(aboutButton);
-            
+
             expect(screen.getByText('Version 2.1.0-beta')).toBeInTheDocument();
         });
     });

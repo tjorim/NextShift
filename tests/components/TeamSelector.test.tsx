@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TeamSelector } from '../../src/components/TeamSelector';
 
 describe('TeamSelector Component', () => {
@@ -70,7 +70,9 @@ describe('TeamSelector Component', () => {
                 />,
             );
 
-            expect(screen.queryByText('Select Your Team')).not.toBeInTheDocument();
+            expect(
+                screen.queryByText('Select Your Team'),
+            ).not.toBeInTheDocument();
         });
 
         it('should render correct number of team buttons based on CONFIG.TEAMS_COUNT', () => {
@@ -99,7 +101,9 @@ describe('TeamSelector Component', () => {
             );
 
             expect(screen.getByRole('status')).toBeInTheDocument(); // Bootstrap spinner has role="status"
-            expect(screen.getByText('Setting up your team...')).toBeInTheDocument();
+            expect(
+                screen.getByText('Setting up your team...'),
+            ).toBeInTheDocument();
         });
 
         it('should not show team buttons when loading', () => {
@@ -180,10 +184,13 @@ describe('TeamSelector Component', () => {
             );
 
             // Wait for the focus timeout to complete
-            await waitFor(() => {
-                const firstButton = screen.getByText('Team 1');
-                expect(firstButton).toHaveFocus();
-            }, { timeout: 200 });
+            await waitFor(
+                () => {
+                    const firstButton = screen.getByText('Team 1');
+                    expect(firstButton).toHaveFocus();
+                },
+                { timeout: 200 },
+            );
         });
 
         it('should not focus button when loading', async () => {
@@ -197,7 +204,7 @@ describe('TeamSelector Component', () => {
             );
 
             // Wait to ensure focus timeout has passed
-            await new Promise(resolve => setTimeout(resolve, 150));
+            await new Promise((resolve) => setTimeout(resolve, 150));
 
             // No team buttons should exist when loading
             expect(screen.queryByText('Team 1')).not.toBeInTheDocument();
@@ -222,10 +229,13 @@ describe('TeamSelector Component', () => {
                 />,
             );
 
-            await waitFor(() => {
-                const firstButton = screen.getByText('Team 1');
-                expect(firstButton).toHaveFocus();
-            }, { timeout: 200 });
+            await waitFor(
+                () => {
+                    const firstButton = screen.getByText('Team 1');
+                    expect(firstButton).toHaveFocus();
+                },
+                { timeout: 200 },
+            );
         });
 
         it('should have first button with ref when not loading', () => {
@@ -383,9 +393,14 @@ describe('TeamSelector Component', () => {
             );
 
             for (let i = 1; i <= 5; i++) {
-                const button = screen.getByRole('button', { name: `Select Team ${i}` });
+                const button = screen.getByRole('button', {
+                    name: `Select Team ${i}`,
+                });
                 expect(button).toBeInTheDocument();
-                expect(button).toHaveAttribute('aria-label', `Select Team ${i}`);
+                expect(button).toHaveAttribute(
+                    'aria-label',
+                    `Select Team ${i}`,
+                );
             }
         });
 
@@ -424,7 +439,9 @@ describe('TeamSelector Component', () => {
                 />,
             );
 
-            const heading = screen.getByRole('heading', { name: 'Select Your Team' });
+            const heading = screen.getByRole('heading', {
+                name: 'Select Your Team',
+            });
             expect(heading).toBeInTheDocument();
         });
 
@@ -440,7 +457,7 @@ describe('TeamSelector Component', () => {
 
             const spinner = screen.getByRole('status');
             expect(spinner).toBeInTheDocument();
-            
+
             const loadingText = screen.getByText('Setting up your team...');
             expect(loadingText).toBeInTheDocument();
         });
@@ -521,7 +538,7 @@ describe('TeamSelector Component', () => {
 
             // Check for Bootstrap classes
             const buttons = screen.getAllByText(/^Team \d+$/);
-            buttons.forEach(button => {
+            buttons.forEach((button) => {
                 expect(button).toHaveClass('btn'); // Bootstrap button class
                 expect(button).toHaveClass('btn-outline-primary');
                 expect(button).toHaveClass('w-100');
@@ -605,7 +622,7 @@ describe('TeamSelector Component', () => {
             // Test each team button individually
             for (let i = 1; i <= 5; i++) {
                 vi.clearAllMocks();
-                
+
                 const teamButton = screen.getByText(`Team ${i}`);
                 await user.click(teamButton);
 
@@ -641,9 +658,13 @@ describe('TeamSelector Component', () => {
 
                 if (i % 2 === 0) {
                     expect(screen.getByRole('status')).toBeInTheDocument();
-                    expect(screen.queryByText('Team 1')).not.toBeInTheDocument();
+                    expect(
+                        screen.queryByText('Team 1'),
+                    ).not.toBeInTheDocument();
                 } else {
-                    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+                    expect(
+                        screen.queryByRole('status'),
+                    ).not.toBeInTheDocument();
                     expect(screen.getByText('Team 1')).toBeInTheDocument();
                 }
             }
@@ -703,7 +724,7 @@ describe('TeamSelector Component', () => {
 
         it('should efficiently render team buttons from CONFIG', () => {
             const startTime = performance.now();
-            
+
             render(
                 <TeamSelector
                     show={true}
@@ -713,10 +734,10 @@ describe('TeamSelector Component', () => {
             );
 
             const endTime = performance.now();
-            
+
             // Should render quickly (arbitrary reasonable threshold)
             expect(endTime - startTime).toBeLessThan(100);
-            
+
             // All buttons should be rendered
             for (let i = 1; i <= 5; i++) {
                 expect(screen.getByText(`Team ${i}`)).toBeInTheDocument();

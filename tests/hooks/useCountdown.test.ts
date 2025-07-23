@@ -1,6 +1,6 @@
-import { renderHook, act } from '@testing-library/react';
-import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 import dayjs, { type Dayjs } from 'dayjs';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCountdown } from '../../src/hooks/useCountdown';
 
 describe('useCountdown', () => {
@@ -290,7 +290,7 @@ describe('useCountdown', () => {
             let targetDate = dayjs().add(5, 'seconds');
             const { result, rerender } = renderHook(
                 ({ date }) => useCountdown(date),
-                { initialProps: { date: targetDate } }
+                { initialProps: { date: targetDate } },
             );
 
             expect(result.current.totalSeconds).toBe(5);
@@ -306,7 +306,7 @@ describe('useCountdown', () => {
             let targetDate: Dayjs | null = dayjs().add(5, 'seconds');
             const { result, rerender } = renderHook(
                 ({ date }) => useCountdown(date),
-                { initialProps: { date: targetDate } }
+                { initialProps: { date: targetDate } },
             );
 
             expect(result.current.isExpired).toBe(false);
@@ -322,7 +322,7 @@ describe('useCountdown', () => {
             let targetDate: Dayjs | null = null;
             const { result, rerender } = renderHook(
                 ({ date }) => useCountdown(date),
-                { initialProps: { date: targetDate } }
+                { initialProps: { date: targetDate } },
             );
 
             expect(result.current.isExpired).toBe(true);
@@ -338,8 +338,9 @@ describe('useCountdown', () => {
             const targetDate = dayjs().add(10, 'seconds');
             let interval = 1000;
             const { result, rerender } = renderHook(
-                ({ updateInterval }) => useCountdown(targetDate, updateInterval),
-                { initialProps: { updateInterval: interval } }
+                ({ updateInterval }) =>
+                    useCountdown(targetDate, updateInterval),
+                { initialProps: { updateInterval: interval } },
             );
 
             expect(result.current.totalSeconds).toBe(10);
@@ -370,17 +371,18 @@ describe('useCountdown', () => {
         it('should clear previous interval when dependencies change', () => {
             const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
             let targetDate = dayjs().add(5, 'seconds');
-            const { rerender } = renderHook(
-                ({ date }) => useCountdown(date),
-                { initialProps: { date: targetDate } }
-            );
+            const { rerender } = renderHook(({ date }) => useCountdown(date), {
+                initialProps: { date: targetDate },
+            });
 
             const initialCallCount = clearIntervalSpy.mock.calls.length;
 
             targetDate = dayjs().add(10, 'seconds');
             rerender({ date: targetDate });
 
-            expect(clearIntervalSpy.mock.calls.length).toBeGreaterThan(initialCallCount);
+            expect(clearIntervalSpy.mock.calls.length).toBeGreaterThan(
+                initialCallCount,
+            );
         });
 
         it('should not cause memory leaks after unmount', () => {
@@ -417,7 +419,9 @@ describe('useCountdown', () => {
 
         it('should handle negative update intervals by using default', () => {
             const futureDate = dayjs().add(5, 'seconds');
-            const { result } = renderHook(() => useCountdown(futureDate, -1000));
+            const { result } = renderHook(() =>
+                useCountdown(futureDate, -1000),
+            );
 
             // Should still work with default interval (1000ms)
             act(() => {
@@ -437,7 +441,9 @@ describe('useCountdown', () => {
 
         it('should handle extremely large update intervals', () => {
             const futureDate = dayjs().add(5, 'seconds');
-            const { result } = renderHook(() => useCountdown(futureDate, 1000000));
+            const { result } = renderHook(() =>
+                useCountdown(futureDate, 1000000),
+            );
 
             expect(result.current.totalSeconds).toBe(5);
 
@@ -595,7 +601,10 @@ describe('useCountdown', () => {
         });
 
         it('should format large values correctly', () => {
-            const futureDate = dayjs().add(999, 'days').add(23, 'hours').add(59, 'minutes');
+            const futureDate = dayjs()
+                .add(999, 'days')
+                .add(23, 'hours')
+                .add(59, 'minutes');
             const { result } = renderHook(() => useCountdown(futureDate));
 
             expect(result.current.days).toBe(999);
@@ -605,7 +614,11 @@ describe('useCountdown', () => {
         });
 
         it('should handle single digit formatting', () => {
-            const futureDate = dayjs().add(1, 'day').add(1, 'hour').add(1, 'minute').add(1, 'second');
+            const futureDate = dayjs()
+                .add(1, 'day')
+                .add(1, 'hour')
+                .add(1, 'minute')
+                .add(1, 'second');
             const { result } = renderHook(() => useCountdown(futureDate));
 
             expect(result.current.formatted).toBe('1d 1h 1m');
