@@ -49,11 +49,13 @@ describe('Shift Calculations', () => {
             // Test that the configuration uses July 16, 2025 as the reference date
             // This ensures Team 1's cycle aligns with August 1, 2022 historic start
             const referenceDate = CONFIG.REFERENCE_DATE;
-            
+
             // Convert to comparable format
-            const referenceDateString = referenceDate.toISOString().split('T')[0];
+            const referenceDateString = referenceDate
+                .toISOString()
+                .split('T')[0];
             expect(referenceDateString).toBe('2025-07-16');
-            
+
             // Verify Team 1 has morning shift on reference date
             const shift = calculateShift(referenceDate, 1);
             expect(shift).toBe(SHIFTS.MORNING);
