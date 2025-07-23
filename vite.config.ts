@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import packageJson from './package.json';
 
 export default defineConfig({
+    base: '/NextShift/',
     define: {
         __APP_VERSION__: JSON.stringify(packageJson.version),
     },
