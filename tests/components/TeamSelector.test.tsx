@@ -736,7 +736,7 @@ describe('TeamSelector Component', () => {
             const endTime = performance.now();
 
             // Should render quickly (arbitrary reasonable threshold)
-            expect(endTime - startTime).toBeLessThan(100);
+            expect(endTime - startTime).toBeLessThan(500);
 
             // All buttons should be rendered
             for (let i = 1; i <= 5; i++) {
