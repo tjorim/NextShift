@@ -25,7 +25,7 @@ function App() {
         if (!selectedTeam) {
             setShowTeamModal(true);
         }
-    }, [selectedTeam]);
+    }, [selectedTeam]); // setShowTeamModal is stable from useState
 
     const handleTeamSelect = (team: number) => {
         setSelectedTeam(team);

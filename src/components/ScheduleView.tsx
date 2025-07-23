@@ -69,8 +69,7 @@ export function ScheduleView({
                     <div className="mb-3">
                         <strong>Team {selectedTeam} Schedule:</strong>
                         <div className="text-muted small">
-                            Week starting{' '}
-                            {currentDate.format('MMM D, YYYY')}
+                            Week starting {currentDate.format('MMM D, YYYY')}
                         </div>
                     </div>
                 )}
@@ -80,17 +79,22 @@ export function ScheduleView({
                         <thead>
                             <tr>
                                 <th className="team-header">Team</th>
-                                {weekDays.map((day) => (
-                                    <th
-                                        key={day.format('YYYY-MM-DD')}
-                                        className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
-                                    >
-                                        <div>{day.format('ddd')}</div>
-                                        <div className="small text-muted">
-                                            {formatDateCode(day)}
-                                        </div>
-                                    </th>
-                                ))}
+                                {weekDays.map((day) => {
+                                    const isToday = day.isSame(dayjs(), 'day');
+                                    return (
+                                        <th
+                                            key={day.format('YYYY-MM-DD')}
+                                            className={`text-center ${isToday ? 'table-primary' : ''}`}
+                                        >
+                                            <div className="fw-semibold">
+                                                {day.format('ddd')}
+                                            </div>
+                                            <div className="small text-muted">
+                                                {formatDateCode(day)}
+                                            </div>
+                                        </th>
+                                    );
+                                })}
                             </tr>
                         </thead>
                         <tbody>
@@ -110,12 +114,15 @@ export function ScheduleView({
                                             day,
                                             teamNumber,
                                         );
+                                        const isToday = day.isSame(
+                                            dayjs(),
+                                            'day',
+                                        );
+
                                         return (
                                             <td
-                                                key={day.format(
-                                                    'YYYY-MM-DD',
-                                                )}
-                                                className={`text-center ${day.isSame(dayjs(), 'day') ? 'table-primary' : ''}`}
+                                                key={day.format('YYYY-MM-DD')}
+                                                className={`text-center ${isToday ? 'table-primary' : ''}`}
                                             >
                                                 {shift.isWorking && (
                                                     <Badge

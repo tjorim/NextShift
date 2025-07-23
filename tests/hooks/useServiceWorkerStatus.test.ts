@@ -45,7 +45,7 @@ describe('useServiceWorkerStatus', () => {
 
         // Wait for async effect
         await act(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 10));
+            await Promise.resolve(); // Wait for microtasks
         });
 
         expect(result.current.isRegistered).toBe(false);
@@ -71,7 +71,7 @@ describe('useServiceWorkerStatus', () => {
 
         // Wait for async effect
         await act(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 10));
+            await Promise.resolve(); // Wait for microtasks
         });
 
         expect(result.current.isRegistered).toBe(true);

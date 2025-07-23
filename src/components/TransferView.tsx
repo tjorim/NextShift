@@ -22,8 +22,11 @@ interface TransferInfo {
 export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
     // Get available teams (excluding selected team)
     const availableTeams = useMemo(() => {
-        const allTeams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
-        return allTeams.filter(team => team !== selectedTeam);
+        const allTeams = Array.from(
+            { length: CONFIG.TEAMS_COUNT },
+            (_, i) => i + 1,
+        );
+        return allTeams.filter((team) => team !== selectedTeam);
     }, [selectedTeam]);
 
     // Default to first available team
@@ -38,7 +41,7 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
         if (!availableTeams.includes(compareTeam)) {
             setCompareTeam(defaultCompareTeam);
         }
-    }, [selectedTeam, availableTeams, compareTeam, defaultCompareTeam]);
+    }, [availableTeams, compareTeam, defaultCompareTeam]);
 
     const transfers = useMemo((): TransferInfo[] => {
         if (!selectedTeam) return [];
@@ -130,7 +133,7 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                                 setCompareTeam(parseInt(e.target.value))
                             }
                         >
-                            {availableTeams.map(teamNumber => (
+                            {availableTeams.map((teamNumber) => (
                                 <option key={teamNumber} value={teamNumber}>
                                     Team {teamNumber}
                                 </option>
@@ -170,9 +173,7 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                             />
                         </Col>
                         <Col md={6}>
-                            <Form.Label htmlFor="endDate">
-                                End Date:
-                            </Form.Label>
+                            <Form.Label htmlFor="endDate">End Date:</Form.Label>
                             <Form.Control
                                 type="date"
                                 id="endDate"
@@ -188,20 +189,18 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                 <div id="transferInfo">
                     {!selectedTeam ? (
                         <div className="text-muted">
-                            Please select your team to see transfer
-                            information.
+                            Please select your team to see transfer information.
                         </div>
                     ) : transfers.length === 0 ? (
                         <div className="text-muted">
-                            No transfers found between Team {selectedTeam}{' '}
-                            and Team {compareTeam} in the selected date
-                            range.
+                            No transfers found between Team {selectedTeam} and
+                            Team {compareTeam} in the selected date range.
                         </div>
                     ) : (
                         <div>
                             <h6 className="mb-3">
-                                Transfers between Team {selectedTeam} and
-                                Team {compareTeam}:
+                                Transfers between Team {selectedTeam} and Team{' '}
+                                {compareTeam}:
                             </h6>
                             <div className="row g-2">
                                 {transfers.map((transfer) => (
@@ -225,8 +224,8 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
                                                 </Badge>
                                             </div>
                                             <div className="text-muted small">
-                                                Team {transfer.fromTeam} →
-                                                Team {transfer.toTeam}
+                                                Team {transfer.fromTeam} → Team{' '}
+                                                {transfer.toTeam}
                                                 <br />
                                                 <em>
                                                     {transfer.isHandover

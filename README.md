@@ -190,4 +190,4 @@ npm run test         # Run test suite
 
 ## Licence
 
-Apache License 2.0 - see LICENSE file for details.
+Apache Licence 2.0 - see LICENSE file for details.
