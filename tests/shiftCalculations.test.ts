@@ -4,6 +4,7 @@ import { CONFIG } from '../src/utils/config';
 import {
     calculateShift,
     formatDateCode,
+    getAllTeamsShifts,
     getCurrentShiftDay,
     getNextShift,
     getShiftCode,
