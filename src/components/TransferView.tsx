@@ -7,7 +7,6 @@ import { getShiftClassName } from '../utils/shiftStyles';
 
 interface TransferViewProps {
     selectedTeam: number | null;
-    currentDate: Dayjs;
 }
 
 interface TransferInfo {
@@ -19,7 +18,7 @@ interface TransferInfo {
     isHandover: boolean;
 }
 
-export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
+export function TransferView({ selectedTeam }: TransferViewProps) {
     // Get available teams (excluding selected team)
     const availableTeams = useMemo(() => {
         const allTeams = Array.from(
@@ -53,11 +52,11 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
             if (!customStartDate || !customEndDate) return [];
             endDate = dayjs(customEndDate);
         } else {
-            endDate = currentDate.add(parseInt(dateRange), 'day');
+            endDate = dayjs().add(parseInt(dateRange), 'day');
         }
 
         const startDate =
-            dateRange === 'custom' ? dayjs(customStartDate) : currentDate;
+            dateRange === 'custom' ? dayjs(customStartDate) : dayjs();
 
         for (
             let date = startDate;
@@ -106,14 +105,7 @@ export function TransferView({ selectedTeam, currentDate }: TransferViewProps) {
         }
 
         return transfers.slice(0, 20); // Limit to 20 transfers
-    }, [
-        selectedTeam,
-        compareTeam,
-        dateRange,
-        customStartDate,
-        customEndDate,
-        currentDate,
-    ]);
+    }, [selectedTeam, compareTeam, dateRange, customStartDate, customEndDate]);
 
     return (
         <Card>

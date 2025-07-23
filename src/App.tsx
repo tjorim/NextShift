@@ -62,7 +62,6 @@ function App() {
                         currentDate={currentDate}
                         setCurrentDate={setCurrentDate}
                         todayShifts={todayShifts}
-                        currentShift={currentShift}
                     />
                 </Row>
 

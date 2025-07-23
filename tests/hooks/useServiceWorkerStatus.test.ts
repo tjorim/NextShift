@@ -4,6 +4,7 @@ import {
     getServiceWorkerStatusText,
     useServiceWorkerStatus,
 } from '../../src/hooks/useServiceWorkerStatus';
+import { CONFIG } from '../../src/utils/config';
 
 // Mock navigator.serviceWorker
 const mockServiceWorker = {
@@ -141,11 +142,11 @@ describe('getServiceWorkerStatusText', () => {
             isInstalling: false,
             isWaiting: false,
             isActive: true,
-            version: '3.0.0',
+            version: CONFIG.VERSION,
         };
 
         expect(getServiceWorkerStatusText(status)).toBe(
-            'Service Worker: Active (v3.0.0)',
+            `Service Worker: Active (v${CONFIG.VERSION})`,
         );
     });
 

@@ -50,6 +50,8 @@ Dates are displayed in **YYWW.D** format where:
 - **WW** = Week number (20 = week 20)  
 - **D** = Weekday (1=Monday, 2=Tuesday...7=Sunday)
 
+Optional shift code suffixes (M/E/N) can be added to specify the shift type:
+
 Examples:
 - Tuesday, May 13, 2025 = `2520.2` (year 2025, week 20, Tuesday)
 - Morning shift: `2520.2M`
@@ -177,10 +179,10 @@ npm run test         # Run test suite
 ## Browser Support
 
 **Modern Browsers** (last 2 versions):
-- Chrome/Chromium 88+
-- Firefox 85+
-- Safari 14+
-- Edge 88+
+- Chrome/Chromium 108+
+- Firefox 108+
+- Safari 16+
+- Edge 108+
 
 **Requirements**:
 - ES2020+ support
@@ -190,4 +192,4 @@ npm run test         # Run test suite
 
 ## Licence
 
-Apache Licence 2.0 - see LICENSE file for details.
+Apache License 2.0 - see LICENSE file for details.

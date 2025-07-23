@@ -10,20 +10,49 @@ NextShift is a Team Shift Tracker PWA for a continuous (24/7) 5-team shift sched
 
 ```text
 NextShift/
-├── index.html           # Main HTML file with Bootstrap 5 UI
+├── index.html              # Main HTML entry point
 ├── src/
-│   ├── styles/
-│   │   └── main.css    # Custom styles and shift color coding
-│   ├── app.js          # Core application logic and shift calculations
-│   └── main.js         # Entry point and app initialization
+│   ├── App.tsx            # Main React application component
+│   ├── main.tsx           # React app entry point and initialization
+│   ├── vite-env.d.ts      # TypeScript environment declarations
+│   ├── components/        # React components
+│   │   ├── CurrentStatus.tsx    # Current team shift and status display
+│   │   ├── Header.tsx           # App header with title and controls
+│   │   ├── MainTabs.tsx         # Main tabbed interface container
+│   │   ├── ScheduleView.tsx     # Weekly schedule overview
+│   │   ├── TeamSelector.tsx     # Team selection modal
+│   │   ├── TodayView.tsx        # Today's schedule for all teams
+│   │   └── TransferView.tsx     # Team handover/transfer analysis
+│   ├── hooks/             # Custom React hooks
+│   │   ├── useLocalStorage.ts      # LocalStorage persistence hook
+│   │   ├── useOnlineStatus.ts      # Online/offline status hook
+│   │   ├── useServiceWorkerStatus.ts # Service worker status hook
+│   │   └── useShiftCalculation.ts  # Shift calculation logic hook
+│   ├── utils/             # TypeScript utilities and business logic
+│   │   ├── config.ts           # App configuration and constants
+│   │   ├── shiftCalculations.ts # Core shift calculation functions
+│   │   └── shiftStyles.ts      # Shift styling utilities
+│   └── styles/
+│       └── main.css       # Custom styles and shift color coding
+├── tests/                 # Test files
+│   ├── components/        # Component tests
+│   ├── hooks/            # Hook tests
+│   ├── setup.ts          # Test environment setup
+│   └── shiftCalculations.test.ts # Business logic tests
 ├── public/
-│   └── assets/
-│       └── icons/      # PWA and favicon icons
-├── create-icons.html   # Icon generator utility
-├── vite.config.js      # Build configuration with PWA plugin
-└── dist/               # Production build output
-    ├── sw.js           # Auto-generated service worker (Workbox)
-    └── manifest.webmanifest # Auto-generated PWA manifest
+│   ├── assets/icons/      # PWA and favicon icons
+│   └── sw.js             # Custom service worker
+├── create-icons.html      # Icon generator utility
+├── vite.config.ts         # Vite build configuration with React and PWA
+├── vitest.config.ts       # Vitest testing configuration
+├── tsconfig.json          # TypeScript project references
+├── tsconfig.app.json      # TypeScript app configuration
+├── tsconfig.node.json     # TypeScript Node.js configuration
+├── tsconfig.test.json     # TypeScript test configuration
+└── dist/                  # Production build output
+    ├── sw.js             # Built service worker (Workbox)
+    ├── manifest.webmanifest # Auto-generated PWA manifest
+    └── assets/           # Built and optimized assets
 ```
 
 ## Core Logic & Architecture
@@ -94,12 +123,12 @@ These variables anchor all shift calculations. If not configured, defaults to `2
 
 ## Technology Stack
 
-- **Frontend**: React 18 with TypeScript and ES modules
+- **Frontend**: React 19 with TypeScript and modern JSX transform
 - **Build Tool**: Vite with PWA plugin for modern development and optimization
 - **UI Framework**: React Bootstrap (Bootstrap 5 components) for responsive design
 - **Date Handling**: Day.js for date calculations and week number formatting
 - **PWA**: Auto-generated Service Worker with Workbox for offline functionality
-- **Storage**: Custom localStorage hook for user team preference and offline data
+- **Storage**: Custom React hooks for localStorage persistence and state management
 - **Icons**: PNG icons in auto-generated manifest
 - **Code Quality**: Biome for fast linting and formatting (TS, JS, CSS, JSON)
 - **Testing**: Vitest with React Testing Library for component and unit testing

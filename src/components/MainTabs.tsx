@@ -11,7 +11,6 @@ interface MainTabsProps {
     currentDate: Dayjs;
     setCurrentDate: (date: Dayjs) => void;
     todayShifts: ShiftResult[];
-    currentShift: ShiftResult | null;
 }
 
 export function MainTabs({
@@ -19,7 +18,6 @@ export function MainTabs({
     currentDate,
     setCurrentDate,
     todayShifts,
-    currentShift,
 }: MainTabsProps) {
     const [activeKey, setActiveKey] = useState<string>('today');
 
@@ -54,7 +52,6 @@ export function MainTabs({
                         <TodayView
                             todayShifts={todayShifts}
                             selectedTeam={selectedTeam}
-                            currentShift={currentShift}
                             onTodayClick={handleTodayClick}
                         />
                     </Tab.Pane>
@@ -68,10 +65,7 @@ export function MainTabs({
                     </Tab.Pane>
 
                     <Tab.Pane eventKey="transfer">
-                        <TransferView
-                            selectedTeam={selectedTeam}
-                            currentDate={currentDate}
-                        />
+                        <TransferView selectedTeam={selectedTeam} />
                     </Tab.Pane>
                 </Tab.Content>
             </Tab.Container>

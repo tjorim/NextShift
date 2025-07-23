@@ -6,14 +6,12 @@ import { getShiftClassName } from '../utils/shiftStyles';
 interface TodayViewProps {
     todayShifts: ShiftResult[];
     selectedTeam: number | null;
-    currentShift: ShiftResult | null;
     onTodayClick: () => void;
 }
 
 export function TodayView({
     todayShifts,
     selectedTeam,
-    currentShift,
     onTodayClick,
 }: TodayViewProps) {
     const isMyTeam = (teamNumber: number) => {
@@ -21,18 +19,28 @@ export function TodayView({
     };
 
     const isCurrentlyActive = (shiftResult: ShiftResult) => {
-        if (!currentShift) return false;
+        if (!shiftResult.shift.isWorking) return false;
 
         const now = dayjs();
         const shiftDay = shiftResult.date;
+        const shiftStartHour = shiftResult.shift.start;
+        const shiftEndHour = shiftResult.shift.end;
 
-        // Check if this is today's shift and currently active
-        return (
-            shiftDay.isSame(now, 'day') &&
-            shiftResult.shift.isWorking &&
-            shiftResult.teamNumber === currentShift.teamNumber &&
-            shiftResult.shift.code === currentShift.shift.code
-        );
+        if (shiftStartHour === null || shiftEndHour === null) return false;
+
+        // Check if this shift is for today (or yesterday for night shifts)
+        const isRightDay = shiftDay.isSame(now, 'day');
+        if (!isRightDay) return false;
+
+        const currentHour = now.hour();
+
+        // Handle night shift crossing midnight (23:00-07:00)
+        if (shiftStartHour > shiftEndHour) {
+            return currentHour >= shiftStartHour || currentHour < shiftEndHour;
+        }
+
+        // Handle regular shifts (morning and evening)
+        return currentHour >= shiftStartHour && currentHour < shiftEndHour;
     };
 
     return (

@@ -32,7 +32,7 @@ const TEAMS_COUNT = 5;
 const SHIFT_CYCLE_DAYS = 10;
 
 export const CONFIG = {
-    VERSION: '3.0.0',
+    VERSION: __APP_VERSION__,
     REFERENCE_DATE: (() => {
         // Try to load from environment variable first
         if (import.meta.env.VITE_REFERENCE_DATE) {

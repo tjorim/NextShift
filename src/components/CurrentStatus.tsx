@@ -42,11 +42,7 @@ export function CurrentStatus({
                                 {selectedTeam && currentShift ? (
                                     <div>
                                         <Badge
-                                            className={`shift-code ${getShiftClassName(currentShift.shift.code)}`}
-                                            style={{
-                                                fontSize: '1rem',
-                                                padding: '0.5rem 1rem',
-                                            }}
+                                            className={`shift-code shift-badge-lg ${getShiftClassName(currentShift.shift.code)}`}
                                         >
                                             Team {selectedTeam}:{' '}
                                             {currentShift.shift.name}
