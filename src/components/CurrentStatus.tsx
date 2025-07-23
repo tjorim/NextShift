@@ -1,24 +1,42 @@
-import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
+import { useMemo } from 'react';
 import type { NextShiftResult, ShiftResult } from '../utils/shiftCalculations';
-import { formatDateCode } from '../utils/shiftCalculations';
+import { calculateShift, formatDateCode, getCurrentShiftDay, getNextShift, getShiftCode } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
 interface CurrentStatusProps {
     selectedTeam: number | null;
-    currentShift: ShiftResult | null;
-    nextShift: NextShiftResult | null;
-    currentDate: Dayjs;
     onChangeTeam: () => void;
 }
 
 export function CurrentStatus({
     selectedTeam,
-    currentShift,
-    nextShift,
-    currentDate,
     onChangeTeam,
 }: CurrentStatusProps) {
+    // Always use today's date for current status
+    const today = dayjs();
+    
+    // Calculate current shift for today
+    const currentShift = useMemo((): ShiftResult | null => {
+        if (!selectedTeam) return null;
+
+        const shiftDay = getCurrentShiftDay(today);
+        const shift = calculateShift(shiftDay, selectedTeam);
+
+        return {
+            date: shiftDay,
+            shift,
+            code: getShiftCode(shiftDay, selectedTeam),
+            teamNumber: selectedTeam,
+        };
+    }, [selectedTeam, today]);
+
+    // Calculate next shift from today
+    const nextShift = useMemo((): NextShiftResult | null => {
+        if (!selectedTeam) return null;
+        return getNextShift(today, selectedTeam);
+    }, [selectedTeam, today]);
     return (
         <div className="col-12 mb-4">
             <Card>
@@ -36,7 +54,7 @@ export function CurrentStatus({
                     <Row>
                         <Col md={6}>
                             <div className="h6 text-muted mb-2">
-                                {formatDateCode(currentDate)}
+                                {formatDateCode(today)}
                             </div>
                             <div className="mb-3">
                                 {selectedTeam && currentShift ? (

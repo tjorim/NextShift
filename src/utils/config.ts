@@ -69,8 +69,8 @@ export const CONFIG = {
             );
         }
 
-        // Fallback to default date
-        return parseUTCDate('2025-01-06');
+        // Fallback to default date (aligned with Team 1 starting August 1, 2022)
+        return parseUTCDate('2025-07-16');
     })(),
     REFERENCE_TEAM: (() => {
         // Try to load from environment variable first

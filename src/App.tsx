@@ -15,8 +15,6 @@ function App() {
         setSelectedTeam,
         currentDate,
         setCurrentDate,
-        currentShift,
-        nextShift,
         todayShifts,
     } = useShiftCalculation();
 
@@ -50,9 +48,6 @@ function App() {
 
                 <CurrentStatus
                     selectedTeam={selectedTeam}
-                    currentShift={currentShift}
-                    nextShift={nextShift}
-                    currentDate={currentDate}
                     onChangeTeam={handleChangeTeam}
                 />
 
