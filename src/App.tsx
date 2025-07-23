@@ -10,6 +10,13 @@ import { useShiftCalculation } from './hooks/useShiftCalculation';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.css';
 
+/**
+ * Main application component for managing team selection and shift display.
+ *
+ * Handles team selection, loading state, tab navigation, and displays the current team's shift information using various UI components.
+ *
+ * @returns The rendered application UI.
+ */
 function App() {
     const [showTeamModal, setShowTeamModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
