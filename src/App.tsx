@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Container, Row } from 'react-bootstrap';
 import { CurrentStatus } from './components/CurrentStatus';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { TeamSelector } from './components/TeamSelector';
@@ -30,12 +31,13 @@ function App() {
 
     const handleTeamSelect = (team: number) => {
         setIsLoading(true);
-        // Simulate brief loading for better UX
-        setTimeout(() => {
-            setSelectedTeam(team);
+
+        // Use requestAnimationFrame to ensure loading state is visible
+        requestAnimationFrame(() => {
+            setSelectedTeam(team); // This triggers localStorage write and heavy recalculations
             setShowTeamModal(false);
             setIsLoading(false);
-        }, 300);
+        });
     };
 
     const handleChangeTeam = () => {
@@ -56,36 +58,42 @@ function App() {
     };
 
     return (
-        <div className="bg-light min-vh-100">
-            <Container fluid>
-                <Header />
+        <ErrorBoundary>
+            <div className="bg-light min-vh-100">
+                <Container fluid>
+                    <Header />
 
-                <CurrentStatus
-                    selectedTeam={selectedTeam}
-                    onChangeTeam={handleChangeTeam}
-                    onShowWhoIsWorking={handleShowWhoIsWorking}
-                    isLoading={isLoading}
-                />
+                    <ErrorBoundary>
+                        <CurrentStatus
+                            selectedTeam={selectedTeam}
+                            onChangeTeam={handleChangeTeam}
+                            onShowWhoIsWorking={handleShowWhoIsWorking}
+                            isLoading={isLoading}
+                        />
+                    </ErrorBoundary>
 
-                <Row>
-                    <MainTabs
-                        selectedTeam={selectedTeam}
-                        currentDate={currentDate}
-                        setCurrentDate={setCurrentDate}
-                        todayShifts={todayShifts}
-                        activeTab={activeTab}
-                        onTabChange={setActiveTab}
+                    <Row>
+                        <ErrorBoundary>
+                            <MainTabs
+                                selectedTeam={selectedTeam}
+                                currentDate={currentDate}
+                                setCurrentDate={setCurrentDate}
+                                todayShifts={todayShifts}
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                            />
+                        </ErrorBoundary>
+                    </Row>
+
+                    <TeamSelector
+                        show={showTeamModal}
+                        onTeamSelect={handleTeamSelect}
+                        onHide={handleTeamModalHide}
+                        isLoading={isLoading}
                     />
-                </Row>
-
-                <TeamSelector
-                    show={showTeamModal}
-                    onTeamSelect={handleTeamSelect}
-                    onHide={handleTeamModalHide}
-                    isLoading={isLoading}
-                />
-            </Container>
-        </div>
+                </Container>
+            </div>
+        </ErrorBoundary>
     );
 }
 

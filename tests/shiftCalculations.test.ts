@@ -12,14 +12,14 @@ import {
 describe('Shift Calculations', () => {
     describe('Core Business Logic', () => {
         it('should calculate correct shift for reference team on reference date', () => {
-            // Reference: Team 1 on 2025-01-06 should be in morning shift (cycle start)
-            const referenceDate = new Date('2025-01-06');
+            // Reference: Team 1 on 2025-07-16 should be in morning shift (cycle start)
+            const referenceDate = new Date('2025-07-16');
             const shift = calculateShift(referenceDate, 1);
             expect(shift).toBe(SHIFTS.MORNING);
         });
 
         it('should calculate different shifts for different teams on same date', () => {
-            const testDate = new Date('2025-01-06');
+            const testDate = new Date('2025-07-16');
             const team1Shift = calculateShift(testDate, 1);
             const team2Shift = calculateShift(testDate, 2);
 
@@ -28,7 +28,7 @@ describe('Shift Calculations', () => {
         });
 
         it('should handle shift progression correctly', () => {
-            const baseDate = new Date('2025-01-06');
+            const baseDate = new Date('2025-07-16');
             const team = 1;
 
             // Test 10-day cycle
@@ -61,14 +61,14 @@ describe('Shift Calculations', () => {
 
     describe('Shift Code Generation', () => {
         it('should generate correct shift codes', () => {
-            const testDate = new Date('2025-01-06');
+            const testDate = new Date('2025-07-16');
             const code = getShiftCode(testDate, 1);
             expect(code).toMatch(/^\d{4}\.\d[MEN]$/); // Format: YYWW.DX
         });
 
         it('should adjust date for night shifts', () => {
             // Find a date where team has night shift
-            const baseDate = new Date('2025-01-06');
+            const baseDate = new Date('2025-07-16');
             let nightDate = null;
 
             for (let i = 0; i < 10; i++) {
@@ -97,7 +97,7 @@ describe('Shift Calculations', () => {
 
     describe('Next Shift Calculation', () => {
         it('should find next working shift', () => {
-            const testDate = new Date('2025-01-06');
+            const testDate = new Date('2025-07-16');
             const nextShift = getNextShift(testDate, 1);
 
             expect(nextShift).toBeTruthy();
@@ -110,7 +110,7 @@ describe('Shift Calculations', () => {
         it('should return null for team with no upcoming shifts in cycle', () => {
             // This is edge case - should not happen in normal 10-day cycle
             // but tests the boundary condition
-            const result = getNextShift(new Date('2025-01-06'), 999); // Invalid team
+            const result = getNextShift(new Date('2025-07-16'), 999); // Invalid team
             // Implementation should handle this gracefully by returning null
             expect(result).toBeNull();
         });
@@ -118,13 +118,13 @@ describe('Shift Calculations', () => {
 
     describe('Current Shift Day', () => {
         it('should return same day for times after 7 AM', () => {
-            const testDate = dayjs('2025-01-06 10:00');
+            const testDate = dayjs('2025-07-16 10:00');
             const shiftDay = getCurrentShiftDay(testDate);
             expect(shiftDay.isSame(testDate, 'day')).toBe(true);
         });
 
         it('should return previous day for times before 7 AM', () => {
-            const testDate = dayjs('2025-01-06 05:00');
+            const testDate = dayjs('2025-07-16 05:00');
             const shiftDay = getCurrentShiftDay(testDate);
             const expectedDay = testDate.subtract(1, 'day');
             expect(shiftDay.isSame(expectedDay, 'day')).toBe(true);
@@ -133,10 +133,10 @@ describe('Shift Calculations', () => {
 
     describe('Night shift midnight crossing consistency', () => {
         it('should have consistent shift calculation and code for night shifts crossing midnight', () => {
-            // Test at 2 AM during a night shift
-            const nightTime = dayjs('2025-01-08 02:00'); // 2 AM on Jan 8
+            // Test at 2 AM during a night shift (using date with known night shift)
+            const nightTime = dayjs('2025-07-20 02:00'); // 2 AM on July 20 (team 1 night shift period)
 
-            const shiftDay = getCurrentShiftDay(nightTime); // Should be Jan 7
+            const shiftDay = getCurrentShiftDay(nightTime); // Should be July 19
             const shift = calculateShift(shiftDay, 1);
             const code = getShiftCode(shiftDay, 1);
 

@@ -109,7 +109,7 @@ export function CurrentStatus({
                                     <div className="d-flex align-items-center gap-2">
                                         <Spinner animation="border" size="sm" />
                                         <span className="text-muted">
-                                            Loading...
+                                            Updating...
                                         </span>
                                     </div>
                                 ) : selectedTeam && currentShift ? (
@@ -137,7 +137,7 @@ export function CurrentStatus({
                                 {isLoading ? (
                                     <div className="d-flex align-items-center gap-2">
                                         <Spinner animation="border" size="sm" />
-                                        <span>Loading next shift...</span>
+                                        <span>Calculating next shift...</span>
                                     </div>
                                 ) : selectedTeam && nextShift ? (
                                     <div>
