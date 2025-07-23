@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
+import { useCountdown } from '../hooks/useCountdown';
 import type { NextShiftResult, ShiftResult } from '../utils/shiftCalculations';
 import {
     calculateShift,
@@ -14,11 +15,13 @@ import { getShiftClassName } from '../utils/shiftStyles';
 interface CurrentStatusProps {
     selectedTeam: number | null;
     onChangeTeam: () => void;
+    isLoading?: boolean;
 }
 
 export function CurrentStatus({
     selectedTeam,
     onChangeTeam,
+    isLoading = false,
 }: CurrentStatusProps) {
     // Always use today's date for current status
     const today = dayjs();
@@ -43,6 +46,32 @@ export function CurrentStatus({
         if (!selectedTeam) return null;
         return getNextShift(today, selectedTeam);
     }, [selectedTeam, today]);
+
+    // Calculate next shift start time for countdown
+    const nextShiftStartTime = useMemo(() => {
+        if (!nextShift || !nextShift.shift.start) return null;
+
+        // Create datetime for the shift start
+        const shiftDate = nextShift.date;
+        let startTime = shiftDate
+            .hour(nextShift.shift.start)
+            .minute(0)
+            .second(0);
+
+        // If it's night shift (23:00), it starts on the previous day
+        if (nextShift.shift.code === 'N' && nextShift.shift.start === 23) {
+            startTime = shiftDate
+                .subtract(1, 'day')
+                .hour(23)
+                .minute(0)
+                .second(0);
+        }
+
+        return startTime;
+    }, [nextShift]);
+
+    // Countdown to next shift
+    const countdown = useCountdown(nextShiftStartTime);
     return (
         <div className="col-12 mb-4">
             <Card>
@@ -63,7 +92,14 @@ export function CurrentStatus({
                                 {formatDateCode(today)}
                             </div>
                             <div className="mb-3">
-                                {selectedTeam && currentShift ? (
+                                {isLoading ? (
+                                    <div className="d-flex align-items-center gap-2">
+                                        <Spinner animation="border" size="sm" />
+                                        <span className="text-muted">
+                                            Loading...
+                                        </span>
+                                    </div>
+                                ) : selectedTeam && currentShift ? (
                                     <div>
                                         <Badge
                                             className={`shift-code shift-badge-lg ${getShiftClassName(currentShift.shift.code)}`}
@@ -85,7 +121,12 @@ export function CurrentStatus({
                         </Col>
                         <Col md={6}>
                             <div className="text-muted">
-                                {selectedTeam && nextShift ? (
+                                {isLoading ? (
+                                    <div className="d-flex align-items-center gap-2">
+                                        <Spinner animation="border" size="sm" />
+                                        <span>Loading next shift...</span>
+                                    </div>
+                                ) : selectedTeam && nextShift ? (
                                     <div>
                                         <strong>Next Shift:</strong>
                                         <br />
@@ -93,6 +134,20 @@ export function CurrentStatus({
                                         {nextShift.shift.name}
                                         <br />
                                         <small>{nextShift.shift.hours}</small>
+                                        {countdown &&
+                                            !countdown.isExpired &&
+                                            nextShiftStartTime && (
+                                                <>
+                                                    <br />
+                                                    <Badge
+                                                        bg="info"
+                                                        className="mt-1"
+                                                    >
+                                                        ⏰ Starts in{' '}
+                                                        {countdown.formatted}
+                                                    </Badge>
+                                                </>
+                                            )}
                                     </div>
                                 ) : selectedTeam ? (
                                     <div>

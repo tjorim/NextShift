@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, Modal } from 'react-bootstrap';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 import {
     getServiceWorkerStatusText,
     useServiceWorkerStatus,
@@ -10,6 +11,7 @@ import { CONFIG } from '../utils/config';
 export function Header() {
     const isOnline = useOnlineStatus();
     const serviceWorkerStatus = useServiceWorkerStatus();
+    const { isInstallable, promptInstall } = usePWAInstall();
     const [showAbout, setShowAbout] = useState(false);
 
     return (
@@ -27,6 +29,16 @@ export function Header() {
                             >
                                 {isOnline ? 'Online' : 'Offline'}
                             </Badge>
+                            {isInstallable && (
+                                <Button
+                                    variant="outline-light"
+                                    size="sm"
+                                    onClick={promptInstall}
+                                    aria-label="Install NextShift App"
+                                >
+                                    📱
+                                </Button>
+                            )}
                             <Button
                                 variant="outline-light"
                                 size="sm"

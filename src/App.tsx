@@ -10,6 +10,7 @@ import './styles/main.css';
 
 function App() {
     const [showTeamModal, setShowTeamModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const {
         selectedTeam,
         setSelectedTeam,
@@ -26,8 +27,13 @@ function App() {
     }, [selectedTeam]); // setShowTeamModal is stable from useState
 
     const handleTeamSelect = (team: number) => {
-        setSelectedTeam(team);
-        setShowTeamModal(false);
+        setIsLoading(true);
+        // Simulate brief loading for better UX
+        setTimeout(() => {
+            setSelectedTeam(team);
+            setShowTeamModal(false);
+            setIsLoading(false);
+        }, 300);
     };
 
     const handleChangeTeam = () => {
@@ -49,6 +55,7 @@ function App() {
                 <CurrentStatus
                     selectedTeam={selectedTeam}
                     onChangeTeam={handleChangeTeam}
+                    isLoading={isLoading}
                 />
 
                 <Row>
@@ -64,6 +71,7 @@ function App() {
                     show={showTeamModal}
                     onTeamSelect={handleTeamSelect}
                     onHide={handleTeamModalHide}
+                    isLoading={isLoading}
                 />
             </Container>
         </div>
