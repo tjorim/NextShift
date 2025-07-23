@@ -282,7 +282,12 @@ describe('MainTabs Component', () => {
             fireEvent.click(todayClickButton);
 
             // Should set current date to today (dayjs())
-            expect(mockSetCurrentDate).toHaveBeenCalledWith(expect.any(Object));
+            expect(mockSetCurrentDate).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    format: expect.any(Function),
+                    isSame: expect.any(Function),
+                }),
+            );
 
             const calledWith = mockSetCurrentDate.mock.calls[0][0];
             expect(calledWith.format('YYYY-MM-DD')).toBe(
