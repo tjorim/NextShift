@@ -53,13 +53,13 @@ export function CurrentStatus({
             code: getShiftCode(shiftDay, selectedTeam),
             teamNumber: selectedTeam,
         };
-    }, [selectedTeam, today]);
+    }, [selectedTeam, today.startOf('minute').toISOString()]);
 
     // Calculate next shift from today
     const nextShift = useMemo((): NextShiftResult | null => {
         if (!selectedTeam) return null;
         return getNextShift(today, selectedTeam);
-    }, [selectedTeam, today]);
+    }, [selectedTeam, today.startOf('minute').toISOString()]);
 
     // Calculate next shift start time for countdown
     const nextShiftStartTime = useMemo(() => {
