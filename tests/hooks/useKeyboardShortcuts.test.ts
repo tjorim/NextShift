@@ -823,8 +823,8 @@ describe('useKeyboardShortcuts', () => {
 
             unmount();
 
-            // Should have cleaned up properly
-            expect(mockRemoveEventListener).toHaveBeenCalledTimes(50);
+            // Should have cleaned up properly (50 re-renders + 1 final unmount)
+            expect(mockRemoveEventListener).toHaveBeenCalledTimes(51);
         });
     });
 

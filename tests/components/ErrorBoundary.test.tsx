@@ -299,7 +299,7 @@ describe('ErrorBoundary Component', () => {
                 <div data-testid="complex-fallback">
                     <h2>Custom Error Handler</h2>
                     <p>Something went wrong in our custom way</p>
-                    <button>Custom Action</button>
+                    <button type="button">Custom Action</button>
                 </div>
             );
 

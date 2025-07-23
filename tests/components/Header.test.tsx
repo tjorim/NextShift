@@ -42,11 +42,12 @@ vi.mock('react-bootstrap', () => ({
             onClick={onClick}
             aria-label={ariaLabel}
             data-testid="button"
+            type="button"
         >
             {children}
         </button>
     ),
-    Modal: ({ show, onHide, centered, children }: any) =>
+    Modal: ({ show, onHide, children }: any) =>
         show ? (
             <div className="modal" data-testid="modal" onClick={onHide}>
                 <div
@@ -65,6 +66,7 @@ vi.mock('react-bootstrap', () => ({
                     className="btn-close"
                     data-testid="modal-close"
                     onClick={() => {}}
+                    type="button"
                 >
                     ×
                 </button>

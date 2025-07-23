@@ -9,7 +9,11 @@ import type { ShiftResult } from '../../src/utils/shiftCalculations';
 vi.mock('../../src/components/TodayView', () => ({
     TodayView: ({ onTodayClick }: { onTodayClick: () => void }) => (
         <div data-testid="today-view">
-            <button onClick={onTodayClick} data-testid="today-click-button">
+            <button
+                onClick={onTodayClick}
+                data-testid="today-click-button"
+                type="button"
+            >
                 Go to Today
             </button>
         </div>
@@ -31,6 +35,7 @@ vi.mock('../../src/components/ScheduleView', () => ({
             <button
                 onClick={() => setCurrentDate(dayjs('2024-01-15'))}
                 data-testid="set-date-button"
+                type="button"
             >
                 Set Date
             </button>
@@ -345,9 +350,7 @@ describe('MainTabs Component', () => {
             const scheduleTab = screen.getByRole('tab', { name: 'Schedule' });
 
             // Should not throw error when onTabChange is not provided
-            expect(async () => {
-                await user.click(scheduleTab);
-            }).not.toThrow();
+            await expect(user.click(scheduleTab)).resolves.not.toThrow();
         });
 
         it('should handle rapid tab switching', async () => {
