@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, Col, Modal } from 'react-bootstrap';
+import { Badge, Button, Modal } from 'react-bootstrap';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import {
     getServiceWorkerStatusText,
@@ -14,14 +14,11 @@ export function Header() {
 
     return (
         <>
-            <header className="row bg-primary text-white py-3 mb-4">
-                <Col>
+            <header className="sticky-top bg-primary text-white py-2 mb-3 shadow-sm">
+                <div className="container-fluid">
                     <div className="d-flex justify-content-between align-items-center">
                         <div>
-                            <h1 className="h3 mb-0">NextShift</h1>
-                            <small className="text-white-50">
-                                v{CONFIG.VERSION}
-                            </small>
+                            <h1 className="h4 mb-0">NextShift</h1>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             <Badge
@@ -40,7 +37,7 @@ export function Header() {
                             </Button>
                         </div>
                     </div>
-                </Col>
+                </div>
             </header>
 
             {/* About Modal */}
@@ -52,7 +49,7 @@ export function Header() {
                     <div className="text-center mb-3">
                         <h6>NextShift - Team Shift Tracker</h6>
                         <p className="text-muted mb-1">
-                            Version {CONFIG.VERSION}
+                            <strong>Version {CONFIG.VERSION}</strong>
                         </p>
                         <p className="text-muted small">
                             {getServiceWorkerStatusText(serviceWorkerStatus)}

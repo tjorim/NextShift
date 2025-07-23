@@ -13,8 +13,10 @@ interface TransferInfo {
     date: Dayjs;
     fromTeam: number;
     toTeam: number;
-    shiftType: ShiftType;
-    shiftName: string;
+    fromShiftType: ShiftType;
+    fromShiftName: string;
+    toShiftType: ShiftType;
+    toShiftName: string;
     isHandover: boolean;
 }
 
@@ -66,39 +68,89 @@ export function TransferView({ selectedTeam }: TransferViewProps) {
             const myShift = calculateShift(date, selectedTeam);
             const compareShift = calculateShift(date, compareTeam);
 
-            // Check for handovers (one team ends, another starts)
-            const prevDate = date.subtract(1, 'day');
-            const myPrevShift = calculateShift(prevDate, selectedTeam);
-            const comparePrevShift = calculateShift(prevDate, compareTeam);
-
-            // My team hands over to compare team (I finish working, they start)
-            if (
-                myPrevShift.code !== 'O' &&
-                myShift.code === 'O' &&
-                compareShift.code !== 'O'
-            ) {
+            // Check for same-day transfers (shift-to-shift)
+            // Morning to Evening transfer
+            if (myShift.code === 'M' && compareShift.code === 'E') {
                 transfers.push({
                     date,
                     fromTeam: selectedTeam,
                     toTeam: compareTeam,
-                    shiftType: compareShift.code,
-                    shiftName: compareShift.name,
+                    fromShiftType: myShift.code,
+                    fromShiftName: myShift.name,
+                    toShiftType: compareShift.code,
+                    toShiftName: compareShift.name,
                     isHandover: true,
                 });
             }
 
-            // Compare team hands over to my team (they finish working, I start)
-            if (
-                comparePrevShift.code !== 'O' &&
-                compareShift.code === 'O' &&
-                myShift.code !== 'O'
-            ) {
+            // Evening to Night transfer
+            if (myShift.code === 'E' && compareShift.code === 'N') {
+                transfers.push({
+                    date,
+                    fromTeam: selectedTeam,
+                    toTeam: compareTeam,
+                    fromShiftType: myShift.code,
+                    fromShiftName: myShift.name,
+                    toShiftType: compareShift.code,
+                    toShiftName: compareShift.name,
+                    isHandover: true,
+                });
+            }
+
+            // Night to Morning transfer (next day)
+            const nextDate = date.add(1, 'day');
+            const myNextShift = calculateShift(nextDate, selectedTeam);
+            const compareNextShift = calculateShift(nextDate, compareTeam);
+
+            if (myShift.code === 'N' && compareNextShift.code === 'M') {
+                transfers.push({
+                    date: nextDate,
+                    fromTeam: selectedTeam,
+                    toTeam: compareTeam,
+                    fromShiftType: myShift.code,
+                    fromShiftName: myShift.name,
+                    toShiftType: compareNextShift.code,
+                    toShiftName: compareNextShift.name,
+                    isHandover: true,
+                });
+            }
+
+            // Reverse transfers (compare team to my team)
+            if (compareShift.code === 'M' && myShift.code === 'E') {
                 transfers.push({
                     date,
                     fromTeam: compareTeam,
                     toTeam: selectedTeam,
-                    shiftType: myShift.code,
-                    shiftName: myShift.name,
+                    fromShiftType: compareShift.code,
+                    fromShiftName: compareShift.name,
+                    toShiftType: myShift.code,
+                    toShiftName: myShift.name,
+                    isHandover: false,
+                });
+            }
+
+            if (compareShift.code === 'E' && myShift.code === 'N') {
+                transfers.push({
+                    date,
+                    fromTeam: compareTeam,
+                    toTeam: selectedTeam,
+                    fromShiftType: compareShift.code,
+                    fromShiftName: compareShift.name,
+                    toShiftType: myShift.code,
+                    toShiftName: myShift.name,
+                    isHandover: false,
+                });
+            }
+
+            if (compareShift.code === 'N' && myNextShift.code === 'M') {
+                transfers.push({
+                    date: nextDate,
+                    fromTeam: compareTeam,
+                    toTeam: selectedTeam,
+                    fromShiftType: compareShift.code,
+                    fromShiftName: compareShift.name,
+                    toShiftType: myNextShift.code,
+                    toShiftName: myNextShift.name,
                     isHandover: false,
                 });
             }
@@ -207,13 +259,23 @@ export function TransferView({ selectedTeam }: TransferViewProps) {
                                                         'MMM D, YYYY',
                                                     )}
                                                 </strong>
-                                                <Badge
-                                                    className={getShiftClassName(
-                                                        transfer.shiftType,
-                                                    )}
-                                                >
-                                                    {transfer.shiftName}
-                                                </Badge>
+                                                <div className="d-flex gap-2 align-items-center">
+                                                    <Badge
+                                                        className={getShiftClassName(
+                                                            transfer.fromShiftType,
+                                                        )}
+                                                    >
+                                                        {transfer.fromShiftName}
+                                                    </Badge>
+                                                    <span>→</span>
+                                                    <Badge
+                                                        className={getShiftClassName(
+                                                            transfer.toShiftType,
+                                                        )}
+                                                    >
+                                                        {transfer.toShiftName}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                             <div className="text-muted small">
                                                 Team {transfer.fromTeam} → Team{' '}
@@ -222,7 +284,7 @@ export function TransferView({ selectedTeam }: TransferViewProps) {
                                                 <em>
                                                     {transfer.isHandover
                                                         ? 'Handover'
-                                                        : 'Transfer'}
+                                                        : 'Takeover'}
                                                 </em>
                                             </div>
                                         </div>

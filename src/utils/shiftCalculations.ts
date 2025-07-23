@@ -33,7 +33,7 @@ export interface NextShiftResult {
 export const SHIFTS = {
     MORNING: {
         code: 'M',
-        name: 'Morning',
+        name: '🌅 Morning',
         hours: '07:00-15:00',
         start: 7,
         end: 15,
@@ -41,7 +41,7 @@ export const SHIFTS = {
     },
     EVENING: {
         code: 'E',
-        name: 'Evening',
+        name: '🌆 Evening',
         hours: '15:00-23:00',
         start: 15,
         end: 23,
@@ -49,7 +49,7 @@ export const SHIFTS = {
     },
     NIGHT: {
         code: 'N',
-        name: 'Night',
+        name: '🌙 Night',
         hours: '23:00-07:00',
         start: 23,
         end: 7,
@@ -57,7 +57,7 @@ export const SHIFTS = {
     },
     OFF: {
         code: 'O',
-        name: 'Off',
+        name: '🏠 Off',
         hours: 'Not working',
         start: null,
         end: null,

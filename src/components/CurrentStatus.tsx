@@ -1,8 +1,14 @@
 import dayjs from 'dayjs';
-import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
 import { useMemo } from 'react';
+import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
 import type { NextShiftResult, ShiftResult } from '../utils/shiftCalculations';
-import { calculateShift, formatDateCode, getCurrentShiftDay, getNextShift, getShiftCode } from '../utils/shiftCalculations';
+import {
+    calculateShift,
+    formatDateCode,
+    getCurrentShiftDay,
+    getNextShift,
+    getShiftCode,
+} from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
 interface CurrentStatusProps {
@@ -16,7 +22,7 @@ export function CurrentStatus({
 }: CurrentStatusProps) {
     // Always use today's date for current status
     const today = dayjs();
-    
+
     // Calculate current shift for today
     const currentShift = useMemo((): ShiftResult | null => {
         if (!selectedTeam) return null;

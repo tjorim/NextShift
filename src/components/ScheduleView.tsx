@@ -31,9 +31,10 @@ export function ScheduleView({
         setCurrentDate(dayjs());
     };
 
-    // Generate 7 days starting from current date
+    // Generate Monday-Sunday week containing the current date
+    const startOfWeek = currentDate.startOf('week'); // Monday
     const weekDays = Array.from({ length: 7 }, (_, i) =>
-        currentDate.add(i, 'day'),
+        startOfWeek.add(i, 'day'),
     );
 
     return (
@@ -69,7 +70,8 @@ export function ScheduleView({
                     <div className="mb-3">
                         <strong>Team {selectedTeam} Schedule:</strong>
                         <div className="text-muted small">
-                            Week starting {currentDate.format('MMM D, YYYY')}
+                            Week of {startOfWeek.format('MMM D')} -{' '}
+                            {startOfWeek.add(6, 'day').format('MMM D, YYYY')}
                         </div>
                     </div>
                 )}
