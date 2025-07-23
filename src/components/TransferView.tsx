@@ -20,6 +20,13 @@ interface TransferInfo {
     isHandover: boolean;
 }
 
+/**
+ * Displays a comparison of shift transfers between the selected team and another team over a specified date range.
+ *
+ * Allows users to select a team to compare against, choose a date range (preset or custom), and view up to 20 detected shift transfer events. Transfers are identified based on specific shift transitions (Morning to Evening, Evening to Night, Night to next-day Morning) in both directions between the two teams. Each transfer entry shows the date, involved teams, shift types, and whether it is a handover or takeover.
+ *
+ * If no team is selected or no transfers are found in the chosen range, an appropriate message is displayed.
+ */
 export function TransferView({ selectedTeam }: TransferViewProps) {
     // Get available teams (excluding selected team)
     const availableTeams = useMemo(() => {

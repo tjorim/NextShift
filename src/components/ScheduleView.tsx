@@ -11,6 +11,15 @@ interface ScheduleViewProps {
     setCurrentDate: (date: Dayjs) => void;
 }
 
+/**
+ * Displays a weekly schedule overview for all teams, with navigation controls, date picker, and keyboard shortcuts.
+ *
+ * Renders a table showing each team's shift assignments for the selected week, highlighting the current day and selected team. Users can navigate between weeks, jump to the current week, or select a specific date. Accessibility features include ARIA labels for navigation and table elements.
+ *
+ * @param selectedTeam - The currently selected team number, or null if none is selected.
+ * @param currentDate - The date representing the week to display.
+ * @param setCurrentDate - Callback to update the current date in view.
+ */
 export function ScheduleView({
     selectedTeam,
     currentDate,

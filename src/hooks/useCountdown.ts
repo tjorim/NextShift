@@ -12,10 +12,13 @@ interface CountdownResult {
 }
 
 /**
- * Hook to create a live countdown to a target date
- * @param targetDate - The date to count down to
- * @param updateInterval - Update interval in milliseconds (default: 1000)
- * @returns Countdown information that updates every second
+ * React hook that provides a live countdown to a specified target date.
+ *
+ * Calculates and updates the remaining time until the given `targetDate`, returning days, hours, minutes, seconds, expiration status, total seconds left, and a formatted string. If the target date is null or has passed, the countdown is marked as expired.
+ *
+ * @param targetDate - The date to count down to, or null to disable the countdown
+ * @param updateInterval - How often to update the countdown in milliseconds (default: 1000)
+ * @returns An object containing the current countdown state, including time units, expiration status, total seconds remaining, and a formatted string
  */
 export function useCountdown(
     targetDate: Dayjs | null,

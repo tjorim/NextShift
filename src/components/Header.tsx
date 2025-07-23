@@ -8,6 +8,11 @@ import {
 } from '../hooks/useServiceWorkerStatus';
 import { CONFIG } from '../utils/config';
 
+/**
+ * Renders the top navigation bar and About modal for the NextShift application.
+ *
+ * Displays the app title, online/offline status, a conditional PWA install button, and an About button. The About modal provides version information, service worker status, feature highlights, and licensing details.
+ */
 export function Header() {
     const isOnline = useOnlineStatus();
     const serviceWorkerStatus = useServiceWorkerStatus();

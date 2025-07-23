@@ -15,6 +15,20 @@ interface MainTabsProps {
     onTabChange?: (tab: string) => void;
 }
 
+/**
+ * Renders a tabbed interface for viewing today's shifts, the schedule, or transfer information for a selected team.
+ *
+ * Allows external control of the active tab and notifies when the tab changes. Each tab displays a different view component relevant to the selected team and current date.
+ *
+ * @param selectedTeam - The identifier of the currently selected team, or null if none is selected.
+ * @param currentDate - The current date used for the schedule view.
+ * @param setCurrentDate - Function to update the current date.
+ * @param todayShifts - Array of shift data for the current day.
+ * @param activeTab - (Optional) The key of the initially active tab; defaults to 'today'.
+ * @param onTabChange - (Optional) Callback invoked when the active tab changes.
+ *
+ * @returns The rendered tabbed interface component.
+ */
 export function MainTabs({
     selectedTeam,
     currentDate,

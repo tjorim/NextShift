@@ -6,7 +6,11 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 /**
- * Simple PWA install hook that works with modern browsers
+ * React hook for managing Progressive Web App (PWA) installation prompts in modern browsers.
+ *
+ * Listens for browser events to determine when the app is installable, exposes a boolean indicating installability, and provides a function to trigger the install prompt and await the user's choice.
+ *
+ * @returns An object with `isInstallable` (boolean) indicating if the app can be installed, and `promptInstall` (function) to trigger the install prompt and return whether the user accepted.
  */
 export function usePWAInstall() {
     const [deferredPrompt, setDeferredPrompt] =
