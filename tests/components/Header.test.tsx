@@ -50,6 +50,10 @@ interface MockModalHeaderProps {
     children?: ReactNode;
 }
 
+interface MockModalChildProps {
+    children: React.ReactNode;
+}
+
 // Mock react-bootstrap components
 vi.mock('react-bootstrap', () => {
     let globalOnHide: (() => void) | null = null;
@@ -105,19 +109,19 @@ vi.mock('react-bootstrap', () => {
         </div>
     );
 
-    MockModal.Title = ({ children }: { children: ReactNode }) => (
+    MockModal.Title = ({ children }: MockModalChildProps) => (
         <h5 className="modal-title" data-testid="modal-title">
             {children}
         </h5>
     );
 
-    MockModal.Body = ({ children }: { children: ReactNode }) => (
+    MockModal.Body = ({ children }: MockModalChildProps) => (
         <div className="modal-body" data-testid="modal-body">
             {children}
         </div>
     );
 
-    MockModal.Footer = ({ children }: { children: ReactNode }) => (
+    MockModal.Footer = ({ children }: MockModalChildProps) => (
         <div className="modal-footer" data-testid="modal-footer">
             {children}
         </div>
