@@ -20,13 +20,17 @@ export function usePWAInstall() {
 
     useEffect(() => {
         // Early return if window or necessary methods are not available
-        if (typeof window === 'undefined' || !window.addEventListener || !window.removeEventListener) {
+        if (
+            typeof window === 'undefined' ||
+            !window.addEventListener ||
+            !window.removeEventListener
+        ) {
             return;
         }
 
         const handleBeforeInstallPrompt = (e: Event | null) => {
             if (!e) return;
-            
+
             // Prevent default mini-infobar
             if (e.preventDefault) {
                 e.preventDefault();
@@ -65,7 +69,7 @@ export function usePWAInstall() {
         setIsPrompting(true);
         setDeferredPrompt(null); // Clear immediately to prevent concurrent access
         setIsInstallable(false);
-        
+
         try {
             await promptToUse.prompt();
             const { outcome } = await promptToUse.userChoice;

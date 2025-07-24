@@ -27,13 +27,16 @@ describe('usePWAInstall', () => {
         if (typeof window !== 'undefined') {
             originalAddEventListener = window.addEventListener;
             originalRemoveEventListener = window.removeEventListener;
-            
+
             // Only spy if the methods exist
             if (window.addEventListener) {
                 addEventListenerSpy = vi.spyOn(window, 'addEventListener');
             }
             if (window.removeEventListener) {
-                removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+                removeEventListenerSpy = vi.spyOn(
+                    window,
+                    'removeEventListener',
+                );
             }
         }
         consoleErrorSpy = vi

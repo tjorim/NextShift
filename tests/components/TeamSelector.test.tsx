@@ -100,7 +100,9 @@ describe('TeamSelector Component', () => {
                 />,
             );
 
-            expect(screen.getByText('Setting up your team...')).toBeInTheDocument(); // Check for loading text instead
+            expect(
+                screen.getByText('Setting up your team...'),
+            ).toBeInTheDocument(); // Check for loading text instead
         });
 
         it('should not show team buttons when loading', () => {
@@ -130,7 +132,9 @@ describe('TeamSelector Component', () => {
                 />,
             );
 
-            expect(screen.getByText('Setting up your team...')).toBeInTheDocument();
+            expect(
+                screen.getByText('Setting up your team...'),
+            ).toBeInTheDocument();
             expect(screen.queryByText('Team 1')).not.toBeInTheDocument();
 
             rerender(
@@ -495,7 +499,9 @@ describe('TeamSelector Component', () => {
             );
 
             // When show={false}, modal is not in document
-            expect(screen.queryByText('Select Your Team')).not.toBeInTheDocument();
+            expect(
+                screen.queryByText('Select Your Team'),
+            ).not.toBeInTheDocument();
 
             // Show the modal
             rerender(
@@ -643,7 +649,9 @@ describe('TeamSelector Component', () => {
                 );
 
                 if (i % 2 === 0) {
-                    expect(screen.getByText('Setting up your team...')).toBeInTheDocument();
+                    expect(
+                        screen.getByText('Setting up your team...'),
+                    ).toBeInTheDocument();
                     expect(
                         screen.queryByText('Team 1'),
                     ).not.toBeInTheDocument();

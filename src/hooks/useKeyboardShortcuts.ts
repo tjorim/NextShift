@@ -23,7 +23,8 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
                 target instanceof HTMLInputElement ||
                 target instanceof HTMLTextAreaElement ||
                 target instanceof HTMLSelectElement ||
-                (target instanceof HTMLElement && target.contentEditable === 'true') ||
+                (target instanceof HTMLElement &&
+                    target.contentEditable === 'true') ||
                 // Support mock elements in tests
                 target?.tagName === 'INPUT' ||
                 target?.tagName === 'TEXTAREA' ||
@@ -54,7 +55,10 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
                         try {
                             shortcuts.onPrevious?.();
                         } catch (error) {
-                            console.error('Error in onPrevious callback:', error);
+                            console.error(
+                                'Error in onPrevious callback:',
+                                error,
+                            );
                         }
                         break;
                     case 'j':
@@ -70,7 +74,10 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
                         try {
                             shortcuts.onTeamSelect?.();
                         } catch (error) {
-                            console.error('Error in onTeamSelect callback:', error);
+                            console.error(
+                                'Error in onTeamSelect callback:',
+                                error,
+                            );
                         }
                         break;
                 }
@@ -84,7 +91,10 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
                         try {
                             shortcuts.onPrevious?.();
                         } catch (error) {
-                            console.error('Error in onPrevious callback:', error);
+                            console.error(
+                                'Error in onPrevious callback:',
+                                error,
+                            );
                         }
                     }
                     break;

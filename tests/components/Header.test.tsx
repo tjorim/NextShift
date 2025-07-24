@@ -50,10 +50,10 @@ interface MockModalHeaderProps {
     children?: ReactNode;
 }
 
-// Mock react-bootstrap components  
+// Mock react-bootstrap components
 vi.mock('react-bootstrap', () => {
     let globalOnHide: any = null;
-    
+
     const MockModal = ({ show, onHide, children }: any) => {
         globalOnHide = onHide;
         return show ? (
@@ -125,7 +125,10 @@ vi.mock('react-bootstrap', () => {
 
     return {
         Badge: ({ bg, className, children }: any) => (
-            <span className={`badge badge-${bg} ${className}`} data-testid="badge">
+            <span
+                className={`badge badge-${bg} ${className}`}
+                data-testid="badge"
+            >
                 {children}
             </span>
         ),
@@ -395,7 +398,9 @@ describe('Header Component', () => {
                 screen.getByText(/Licensed under Apache 2\.0/),
             ).toBeInTheDocument();
             expect(
-                screen.getByText(/Built with React, TypeScript & React Bootstrap/),
+                screen.getByText(
+                    /Built with React, TypeScript & React Bootstrap/,
+                ),
             ).toBeInTheDocument();
         });
 
@@ -687,7 +692,9 @@ describe('Header Component', () => {
                 .spyOn(console, 'error')
                 .mockImplementation(() => {});
 
-            expect(() => render(<Header />)).toThrow('Online status hook failed');
+            expect(() => render(<Header />)).toThrow(
+                'Online status hook failed',
+            );
 
             consoleSpy.mockRestore();
         });
@@ -798,7 +805,11 @@ describe('Header Component', () => {
             render(<Header />);
 
             const headerElement = screen.getByRole('banner');
-            expect(headerElement).toHaveClass('sticky-top', 'bg-primary', 'text-white');
+            expect(headerElement).toHaveClass(
+                'sticky-top',
+                'bg-primary',
+                'text-white',
+            );
 
             const badge = screen.getByTestId('badge');
             expect(badge).toHaveClass('badge');

@@ -456,7 +456,9 @@ describe('ErrorBoundary Component', () => {
             expect(debugSection).toBeInTheDocument();
 
             // Check that error details are expandable
-            const errorSummary = screen.getAllByText(/Error: Stack trace test/)[0];
+            const errorSummary = screen.getAllByText(
+                /Error: Stack trace test/,
+            )[0];
             expect(errorSummary).toBeInTheDocument();
         });
 
@@ -481,16 +483,11 @@ describe('ErrorBoundary Component', () => {
             // In the test environment, DEV is always true, so debug info should show
             render(
                 <ErrorBoundary>
-                    <ThrowError
-                        shouldThrow={true}
-                        errorMessage="Test error"
-                    />
+                    <ThrowError shouldThrow={true} errorMessage="Test error" />
                 </ErrorBoundary>,
             );
 
-            expect(
-                screen.getByText('Debug Information'),
-            ).toBeInTheDocument();
+            expect(screen.getByText('Debug Information')).toBeInTheDocument();
             expect(
                 screen.getAllByText(/Error: Test error/)[0],
             ).toBeInTheDocument();
@@ -515,7 +512,7 @@ describe('ErrorBoundary Component', () => {
             const user = userEvent.setup();
             const tryAgainButton = screen.getByText('Try Again');
             await user.click(tryAgainButton);
-            
+
             expect(
                 screen.queryByText('⚠️ Something went wrong'),
             ).not.toBeInTheDocument();

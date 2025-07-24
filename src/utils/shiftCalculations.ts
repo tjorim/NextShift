@@ -63,7 +63,7 @@ export const SHIFTS = Object.freeze({
         end: null,
         isWorking: false,
     }),
-}) as const;
+});
 
 /**
  * Calculates the shift for a given team on a specific date.
