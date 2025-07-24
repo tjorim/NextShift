@@ -50,18 +50,22 @@ interface MockModalHeaderProps {
     children?: ReactNode;
 }
 
+interface MockModalChildProps {
+    children: React.ReactNode;
+}
+
 // Mock react-bootstrap components
 vi.mock('react-bootstrap', () => {
-    let globalOnHide: any = null;
+    let globalOnHide: (() => void) | null = null;
 
-    const MockModal = ({ show, onHide, children }: any) => {
+    const MockModal = ({ show, onHide, children }: MockModalProps) => {
         globalOnHide = onHide;
         return show ? (
             <div
                 className="modal"
                 data-testid="modal"
                 onClick={onHide}
-                onKeyDown={(e: any) => {
+                onKeyDown={(e: React.KeyboardEvent) => {
                     if (e.key === 'Escape') {
                         onHide?.();
                     }
@@ -72,8 +76,8 @@ vi.mock('react-bootstrap', () => {
             >
                 <div
                     className="modal-content"
-                    onClick={(e: any) => e.stopPropagation()}
-                    onKeyDown={(e: any) => e.stopPropagation()}
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                    onKeyDown={(e: React.KeyboardEvent) => e.stopPropagation()}
                     role="document"
                 >
                     {children}
@@ -82,7 +86,7 @@ vi.mock('react-bootstrap', () => {
         ) : null;
     };
 
-    MockModal.Header = ({ closeButton, children }: any) => (
+    MockModal.Header = ({ closeButton, children }: MockModalHeaderProps) => (
         <div className="modal-header" data-testid="modal-header">
             {children}
             {closeButton && (
@@ -90,7 +94,7 @@ vi.mock('react-bootstrap', () => {
                     className="btn-close"
                     data-testid="modal-close"
                     onClick={() => globalOnHide?.()}
-                    onKeyDown={(e: any) => {
+                    onKeyDown={(e: React.KeyboardEvent) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             globalOnHide?.();
@@ -105,26 +109,26 @@ vi.mock('react-bootstrap', () => {
         </div>
     );
 
-    MockModal.Title = ({ children }: any) => (
+    MockModal.Title = ({ children }: MockModalChildProps) => (
         <h5 className="modal-title" data-testid="modal-title">
             {children}
         </h5>
     );
 
-    MockModal.Body = ({ children }: any) => (
+    MockModal.Body = ({ children }: MockModalChildProps) => (
         <div className="modal-body" data-testid="modal-body">
             {children}
         </div>
     );
 
-    MockModal.Footer = ({ children }: any) => (
+    MockModal.Footer = ({ children }: MockModalChildProps) => (
         <div className="modal-footer" data-testid="modal-footer">
             {children}
         </div>
     );
 
     return {
-        Badge: ({ bg, className, children }: any) => (
+        Badge: ({ bg, className, children }: MockBadgeProps) => (
             <span
                 className={`badge badge-${bg} ${className}`}
                 data-testid="badge"
@@ -138,7 +142,7 @@ vi.mock('react-bootstrap', () => {
             onClick,
             children,
             'aria-label': ariaLabel,
-        }: any) => (
+        }: MockButtonProps) => (
             <button
                 className={`btn btn-${variant} btn-${size}`}
                 onClick={onClick}
