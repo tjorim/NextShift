@@ -117,25 +117,18 @@ describe('MainTabs Component', () => {
                 <MainTabs {...defaultProps} activeTab="today" />,
             );
             expect(screen.getByTestId('today-view')).toBeInTheDocument();
-            expect(
-                screen.queryByTestId('schedule-view'),
-            ).not.toBeInTheDocument();
-            expect(
-                screen.queryByTestId('transfer-view'),
-            ).not.toBeInTheDocument();
+            // All tab panes are rendered in DOM but only active one is visible
+            expect(screen.getByTestId('schedule-view')).toBeInTheDocument();
+            expect(screen.getByTestId('transfer-view')).toBeInTheDocument();
 
             rerender(<MainTabs {...defaultProps} activeTab="schedule" />);
-            expect(screen.queryByTestId('today-view')).not.toBeInTheDocument();
+            expect(screen.getByTestId('today-view')).toBeInTheDocument();
             expect(screen.getByTestId('schedule-view')).toBeInTheDocument();
-            expect(
-                screen.queryByTestId('transfer-view'),
-            ).not.toBeInTheDocument();
+            expect(screen.getByTestId('transfer-view')).toBeInTheDocument();
 
             rerender(<MainTabs {...defaultProps} activeTab="transfer" />);
-            expect(screen.queryByTestId('today-view')).not.toBeInTheDocument();
-            expect(
-                screen.queryByTestId('schedule-view'),
-            ).not.toBeInTheDocument();
+            expect(screen.getByTestId('today-view')).toBeInTheDocument();
+            expect(screen.getByTestId('schedule-view')).toBeInTheDocument();
             expect(screen.getByTestId('transfer-view')).toBeInTheDocument();
         });
     });
@@ -392,7 +385,7 @@ describe('MainTabs Component', () => {
             expect(tabList).toHaveAttribute('id', 'mainTabs');
 
             const tabPanels = screen.getAllByRole('tabpanel');
-            expect(tabPanels).toHaveLength(1); // Only active tab panel should be rendered
+            expect(tabPanels).toHaveLength(3); // All tab panels are rendered in DOM with React Bootstrap
         });
     });
 
@@ -434,7 +427,7 @@ describe('MainTabs Component', () => {
     describe('Performance', () => {
         it('should not cause unnecessary re-renders when props do not change', () => {
             const renderSpy = vi.fn();
-            const TestWrapper = (props: any) => {
+            const TestWrapper = (props: typeof defaultProps) => {
                 renderSpy();
                 return <MainTabs {...props} />;
             };

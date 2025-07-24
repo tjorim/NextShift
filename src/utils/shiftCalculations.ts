@@ -30,40 +30,40 @@ export interface NextShiftResult {
 }
 
 // Shift definitions
-export const SHIFTS = {
-    MORNING: {
+export const SHIFTS = Object.freeze({
+    MORNING: Object.freeze({
         code: 'M',
         name: '🌅 Morning',
         hours: '07:00-15:00',
         start: 7,
         end: 15,
         isWorking: true,
-    },
-    EVENING: {
+    }),
+    EVENING: Object.freeze({
         code: 'E',
         name: '🌆 Evening',
         hours: '15:00-23:00',
         start: 15,
         end: 23,
         isWorking: true,
-    },
-    NIGHT: {
+    }),
+    NIGHT: Object.freeze({
         code: 'N',
         name: '🌙 Night',
         hours: '23:00-07:00',
         start: 23,
         end: 7,
         isWorking: true,
-    },
-    OFF: {
+    }),
+    OFF: Object.freeze({
         code: 'O',
         name: '🏠 Off',
         hours: 'Not working',
         start: null,
         end: null,
         isWorking: false,
-    },
-} as const;
+    }),
+}) as const;
 
 /**
  * Calculates the shift for a given team on a specific date.

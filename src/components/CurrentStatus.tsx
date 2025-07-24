@@ -41,11 +41,15 @@ export function CurrentStatus({
     const today = dayjs();
 
     // Calculate current shift for today
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const currentShift = useMemo((): ShiftResult | null => {
         if (!selectedTeam) return null;
 
         const shiftDay = getCurrentShiftDay(today);
         const shift = calculateShift(shiftDay, selectedTeam);
+
+        // Return null if calculateShift returns null
+        if (!shift) return null;
 
         return {
             date: shiftDay,
@@ -56,6 +60,7 @@ export function CurrentStatus({
     }, [selectedTeam, today.startOf('minute').toISOString()]);
 
     // Calculate next shift from today
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const nextShift = useMemo((): NextShiftResult | null => {
         if (!selectedTeam) return null;
         return getNextShift(today, selectedTeam);

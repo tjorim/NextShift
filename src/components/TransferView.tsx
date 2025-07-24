@@ -21,6 +21,34 @@ interface TransferInfo {
 }
 
 /**
+ * Helper function to check for transfer between two shifts and create TransferInfo if match is found
+ */
+function checkTransfer(
+    shift1: { code: ShiftType; name: string },
+    shift2: { code: ShiftType; name: string },
+    fromShift: ShiftType,
+    toShift: ShiftType,
+    date: Dayjs,
+    fromTeam: number,
+    toTeam: number,
+    isHandover: boolean,
+): TransferInfo | null {
+    if (shift1.code === fromShift && shift2.code === toShift) {
+        return {
+            date,
+            fromTeam,
+            toTeam,
+            fromShiftType: shift1.code,
+            fromShiftName: shift1.name,
+            toShiftType: shift2.code,
+            toShiftName: shift2.name,
+            isHandover,
+        };
+    }
+    return null;
+}
+
+/**
  * React component that displays shift transfer events between a selected team and another team over a user-defined date range.
  *
  * Users can select a comparison team and a date range (preset or custom) to view up to 20 detected shift transfers. Transfers are identified based on specific shift transitions (Morning to Evening, Evening to Night, Night to next-day Morning) in both directions between the two teams. Each transfer entry shows the date, involved teams, shift types, and whether it is a handover or takeover.
@@ -76,99 +104,89 @@ export function TransferView({ selectedTeam }: TransferViewProps) {
             const compareShift = calculateShift(date, compareTeam);
 
             // Check for same-day transfers (shift-to-shift)
-            // Morning to Evening transfer
-            if (myShift.code === 'M' && compareShift.code === 'E') {
-                transfers.push({
-                    date,
-                    fromTeam: selectedTeam,
-                    toTeam: compareTeam,
-                    fromShiftType: myShift.code,
-                    fromShiftName: myShift.name,
-                    toShiftType: compareShift.code,
-                    toShiftName: compareShift.name,
-                    isHandover: true,
-                });
-            }
-
-            // Evening to Night transfer
-            if (myShift.code === 'E' && compareShift.code === 'N') {
-                transfers.push({
-                    date,
-                    fromTeam: selectedTeam,
-                    toTeam: compareTeam,
-                    fromShiftType: myShift.code,
-                    fromShiftName: myShift.name,
-                    toShiftType: compareShift.code,
-                    toShiftName: compareShift.name,
-                    isHandover: true,
-                });
-            }
-
-            // Night to Morning transfer (next day)
             const nextDate = date.add(1, 'day');
             const myNextShift = calculateShift(nextDate, selectedTeam);
             const compareNextShift = calculateShift(nextDate, compareTeam);
 
-            if (
-                myShift.code === 'N' &&
-                compareNextShift.code === 'M' &&
-                !nextDate.isAfter(endDate)
-            ) {
-                transfers.push({
-                    date: nextDate,
-                    fromTeam: selectedTeam,
-                    toTeam: compareTeam,
-                    fromShiftType: myShift.code,
-                    fromShiftName: myShift.name,
-                    toShiftType: compareNextShift.code,
-                    toShiftName: compareNextShift.name,
-                    isHandover: true,
-                });
-            }
-
-            // Reverse transfers (compare team to my team)
-            if (compareShift.code === 'M' && myShift.code === 'E') {
-                transfers.push({
+            // Check all possible transfer patterns
+            const transferChecks = [
+                // Same-day transfers (my team to compare team)
+                checkTransfer(
+                    myShift,
+                    compareShift,
+                    'M',
+                    'E',
                     date,
-                    fromTeam: compareTeam,
-                    toTeam: selectedTeam,
-                    fromShiftType: compareShift.code,
-                    fromShiftName: compareShift.name,
-                    toShiftType: myShift.code,
-                    toShiftName: myShift.name,
-                    isHandover: false,
-                });
-            }
-
-            if (compareShift.code === 'E' && myShift.code === 'N') {
-                transfers.push({
+                    selectedTeam,
+                    compareTeam,
+                    true,
+                ),
+                checkTransfer(
+                    myShift,
+                    compareShift,
+                    'E',
+                    'N',
                     date,
-                    fromTeam: compareTeam,
-                    toTeam: selectedTeam,
-                    fromShiftType: compareShift.code,
-                    fromShiftName: compareShift.name,
-                    toShiftType: myShift.code,
-                    toShiftName: myShift.name,
-                    isHandover: false,
-                });
-            }
-
-            if (
-                compareShift.code === 'N' &&
-                myNextShift.code === 'M' &&
+                    selectedTeam,
+                    compareTeam,
+                    true,
+                ),
+                // Night to Morning transfer (next day)
                 !nextDate.isAfter(endDate)
-            ) {
-                transfers.push({
-                    date: nextDate,
-                    fromTeam: compareTeam,
-                    toTeam: selectedTeam,
-                    fromShiftType: compareShift.code,
-                    fromShiftName: compareShift.name,
-                    toShiftType: myNextShift.code,
-                    toShiftName: myNextShift.name,
-                    isHandover: false,
-                });
-            }
+                    ? checkTransfer(
+                          myShift,
+                          compareNextShift,
+                          'N',
+                          'M',
+                          nextDate,
+                          selectedTeam,
+                          compareTeam,
+                          true,
+                      )
+                    : null,
+
+                // Reverse transfers (compare team to my team)
+                checkTransfer(
+                    compareShift,
+                    myShift,
+                    'M',
+                    'E',
+                    date,
+                    compareTeam,
+                    selectedTeam,
+                    false,
+                ),
+                checkTransfer(
+                    compareShift,
+                    myShift,
+                    'E',
+                    'N',
+                    date,
+                    compareTeam,
+                    selectedTeam,
+                    false,
+                ),
+                // Night to Morning transfer (next day, reverse)
+                !nextDate.isAfter(endDate)
+                    ? checkTransfer(
+                          compareShift,
+                          myNextShift,
+                          'N',
+                          'M',
+                          nextDate,
+                          compareTeam,
+                          selectedTeam,
+                          false,
+                      )
+                    : null,
+            ];
+
+            // Add valid transfers to the list
+            transferChecks.forEach((transfer) => {
+                if (transfer) {
+                    transfers.push(transfer);
+                }
+            });
         }
 
         return transfers.slice(0, 20); // Limit to 20 transfers
