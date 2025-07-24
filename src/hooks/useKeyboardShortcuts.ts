@@ -18,7 +18,7 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             // Only handle shortcuts when not in input fields or contentEditable elements
-            const target = event.target as any;
+            const target = event.target as HTMLElement;
             if (
                 target instanceof HTMLInputElement ||
                 target instanceof HTMLTextAreaElement ||

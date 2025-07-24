@@ -52,7 +52,7 @@ interface MockModalHeaderProps {
 
 // Mock react-bootstrap components
 vi.mock('react-bootstrap', () => {
-    let globalOnHide: any = null;
+    let globalOnHide: (() => void) | null = null;
 
     const MockModal = ({ show, onHide, children }: MockModalProps) => {
         globalOnHide = onHide;
