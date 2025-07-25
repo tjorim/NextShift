@@ -150,7 +150,7 @@ describe('TodayView', () => {
         it('does not show active badge for off shifts', () => {
             render(<TodayView {...defaultProps} />);
 
-            // Team 4 is off, so should never show active badge
+            // Team 3 is off, so should never show active badge
             const offTeamBadges = screen.getAllByText('Off');
             expect(offTeamBadges.length).toBeGreaterThan(0);
             expect(screen.queryByText('Active')).not.toBeInTheDocument();

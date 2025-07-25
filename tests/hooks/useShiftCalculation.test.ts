@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
 import { describe, expect, it, vi } from 'vitest';
 import { useShiftCalculation } from '../../src/hooks/useShiftCalculation';
+import { CONFIG } from '../../src/utils/config';
 
 // Only mock the localStorage hook since it's an external dependency
 vi.mock('../../src/hooks/useLocalStorage', () => ({
@@ -101,8 +102,8 @@ describe('useShiftCalculation', () => {
 
             const { result } = renderHook(() => useShiftCalculation());
 
-            // Should return shifts for all 5 teams
-            expect(result.current.todayShifts).toHaveLength(5);
+            // Should return shifts for all teams
+            expect(result.current.todayShifts).toHaveLength(CONFIG.TEAMS_COUNT);
             result.current.todayShifts.forEach((shiftResult, index) => {
                 expect(shiftResult.teamNumber).toBe(index + 1);
                 expect(shiftResult.shift).toBeDefined();

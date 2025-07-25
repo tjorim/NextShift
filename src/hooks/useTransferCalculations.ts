@@ -24,6 +24,7 @@ interface UseTransferCalculationsProps {
 
 interface UseTransferCalculationsReturn {
     transfers: TransferInfo[];
+    hasMoreTransfers: boolean;
     availableTeams: number[];
     compareTeam: number;
     setCompareTeam: (team: number) => void;
@@ -39,8 +40,8 @@ interface UseTransferCalculationsReturn {
  * Helper function to check for transfer between two shifts and create TransferInfo if match is found
  */
 function checkTransfer(
-    shift1: { code: ShiftType; name: string },
-    shift2: { code: ShiftType; name: string },
+    currentShift: { code: ShiftType; name: string },
+    nextShift: { code: ShiftType; name: string },
     fromShift: ShiftType,
     toShift: ShiftType,
     date: Dayjs,
@@ -48,15 +49,15 @@ function checkTransfer(
     toTeam: number,
     isHandover: boolean,
 ): TransferInfo | null {
-    if (shift1.code === fromShift && shift2.code === toShift) {
+    if (currentShift.code === fromShift && nextShift.code === toShift) {
         return {
             date,
             fromTeam,
             toTeam,
-            fromShiftType: shift1.code,
-            fromShiftName: shift1.name,
-            toShiftType: shift2.code,
-            toShiftName: shift2.name,
+            fromShiftType: currentShift.code,
+            fromShiftName: currentShift.name,
+            toShiftType: nextShift.code,
+            toShiftName: nextShift.name,
             isHandover,
         };
     }
@@ -108,14 +109,15 @@ export function useTransferCalculations({
     }, [availableTeams, compareTeam, defaultCompareTeam]);
 
     // Calculate transfers based on current parameters
-    const transfers = useMemo((): TransferInfo[] => {
-        if (!selectedTeam) return [];
+    const transfersResult = useMemo(() => {
+        if (!selectedTeam) return { transfers: [], hasMoreTransfers: false };
 
-        const transfers: TransferInfo[] = [];
+        const foundTransfers: TransferInfo[] = [];
         let endDate: Dayjs;
 
         if (dateRange === 'custom') {
-            if (!customStartDate || !customEndDate) return [];
+            if (!customStartDate || !customEndDate)
+                return { transfers: [], hasMoreTransfers: false };
             endDate = dayjs(customEndDate);
         } else {
             endDate = dayjs().add(parseInt(dateRange), 'day');
@@ -213,16 +215,22 @@ export function useTransferCalculations({
             // Add valid transfers to the list
             transferChecks.forEach((transfer) => {
                 if (transfer) {
-                    transfers.push(transfer);
+                    foundTransfers.push(transfer);
                 }
             });
         }
 
-        return transfers.slice(0, CONFIG.MAX_TRANSFERS_DISPLAY);
+        const hasMoreTransfers =
+            foundTransfers.length > CONFIG.MAX_TRANSFERS_DISPLAY;
+        return {
+            transfers: foundTransfers.slice(0, CONFIG.MAX_TRANSFERS_DISPLAY),
+            hasMoreTransfers,
+        };
     }, [selectedTeam, compareTeam, dateRange, customStartDate, customEndDate]);
 
     return {
-        transfers,
+        transfers: transfersResult.transfers,
+        hasMoreTransfers: transfersResult.hasMoreTransfers,
         availableTeams,
         compareTeam,
         setCompareTeam,

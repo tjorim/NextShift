@@ -34,6 +34,7 @@ export function TransferView({
     // Use the transfer calculations hook
     const {
         transfers,
+        hasMoreTransfers,
         availableTeams,
         compareTeam,
         setCompareTeam,
@@ -177,7 +178,7 @@ export function TransferView({
                                     </div>
                                 ))}
                             </div>
-                            {transfers.length > 20 && (
+                            {hasMoreTransfers && (
                                 <div className="text-muted small mt-2">
                                     Showing first 20 transfers. Narrow your date
                                     range to see more specific results.

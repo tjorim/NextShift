@@ -33,21 +33,23 @@ interface CurrentStatusProps {
  * @returns A React component displaying the current and next shift status for the selected team.
  */
 export function CurrentStatus({
-    selectedTeam: inputSelectedTeam,
+    selectedTeam,
     onChangeTeam,
     onShowWhoIsWorking,
     isLoading = false,
 }: CurrentStatusProps) {
     // Validate and sanitize selectedTeam prop
-    let selectedTeam = inputSelectedTeam;
-    if (
+    const validatedTeam =
         typeof selectedTeam === 'number' &&
-        (selectedTeam < 1 || selectedTeam > CONFIG.TEAMS_COUNT)
-    ) {
+        selectedTeam >= 1 &&
+        selectedTeam <= CONFIG.TEAMS_COUNT
+            ? selectedTeam
+            : null;
+
+    if (selectedTeam !== null && validatedTeam === null) {
         console.warn(
             `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
         );
-        selectedTeam = null;
     }
     // Always use today's date for current status
     const today = dayjs();
@@ -55,25 +57,25 @@ export function CurrentStatus({
     // Calculate current shift for today
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const currentShift = useMemo((): ShiftResult | null => {
-        if (!selectedTeam) return null;
+        if (!validatedTeam) return null;
 
         const shiftDay = getCurrentShiftDay(today);
-        const shift = calculateShift(shiftDay, selectedTeam);
+        const shift = calculateShift(shiftDay, validatedTeam);
 
         return {
             date: shiftDay,
             shift,
-            code: getShiftCode(shiftDay, selectedTeam),
-            teamNumber: selectedTeam,
+            code: getShiftCode(shiftDay, validatedTeam),
+            teamNumber: validatedTeam,
         };
-    }, [selectedTeam, today.startOf('minute').toISOString()]);
+    }, [validatedTeam, today.startOf('minute').toISOString()]);
 
     // Calculate next shift from today
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const nextShift = useMemo((): NextShiftResult | null => {
-        if (!selectedTeam) return null;
-        return getNextShift(today, selectedTeam);
-    }, [selectedTeam, today.startOf('minute').toISOString()]);
+        if (!validatedTeam) return null;
+        return getNextShift(today, validatedTeam);
+    }, [validatedTeam, today.startOf('minute').toISOString()]);
 
     // Calculate next shift start time for countdown
     const nextShiftStartTime = useMemo(() => {
@@ -129,12 +131,12 @@ export function CurrentStatus({
                                             Updating...
                                         </span>
                                     </div>
-                                ) : selectedTeam && currentShift ? (
+                                ) : validatedTeam && currentShift ? (
                                     <div>
                                         <Badge
                                             className={`shift-code shift-badge-lg ${getShiftClassName(currentShift.shift.code)}`}
                                         >
-                                            Team {selectedTeam}:{' '}
+                                            Team {validatedTeam}:{' '}
                                             {currentShift.shift.name}
                                         </Badge>
                                         <div className="small text-muted mt-1">
@@ -156,7 +158,7 @@ export function CurrentStatus({
                                         <Spinner animation="border" size="sm" />
                                         <span>Calculating next shift...</span>
                                     </div>
-                                ) : selectedTeam && nextShift ? (
+                                ) : validatedTeam && nextShift ? (
                                     <div>
                                         <strong>Next Shift:</strong>
                                         <br />
@@ -179,7 +181,7 @@ export function CurrentStatus({
                                                 </>
                                             )}
                                     </div>
-                                ) : selectedTeam ? (
+                                ) : validatedTeam ? (
                                     <div>
                                         Next shift information not available
                                     </div>

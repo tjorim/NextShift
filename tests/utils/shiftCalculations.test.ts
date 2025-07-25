@@ -99,13 +99,14 @@ describe('Shift Calculations', () => {
             }
 
             // Ensure we found a night shift date, fail the test if not
-            expect(nightDate).not.toBeNull();
             if (!nightDate) {
                 throw new Error(
                     'No night shift found in test range - test setup is invalid',
                 );
             }
 
+            // Now TypeScript knows nightDate is definitely not null
+            expect(nightDate).not.toBeNull();
             const code = getShiftCode(nightDate, 1);
             const expectedPrevDay = dayjs(nightDate).subtract(1, 'day');
             const expectedCode = `${formatDateCode(expectedPrevDay)}N`;
