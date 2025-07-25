@@ -1,26 +1,29 @@
-# Bootstrap UI Enhancement Plan
+# NextShift Development Roadmap
 
-**Version**: 3.1.0  
+**Current Version**: 3.1.0  
 **Branch**: `feat/bootstrap-ui-enhancements`  
-**Status**: Phase 1 Complete, Ready for Phase 2  
+**Status**: Active Development  
 
 ## Overview
 
-This document outlines the planned Bootstrap UI enhancements to improve the NextShift user experience with modern, interactive components.
+This document serves as a general todo list and development roadmap for NextShift improvements, covering UI enhancements, features, and user experience improvements.
 
-**Phase 1 (v3.1.0) Status**: ✅ **COMPLETED** - All foundation components implemented with comprehensive testing and documentation.
+## Development Todos
 
-## Enhancement Categories
+### 🚀 High Priority Items
+Critical features and improvements that significantly impact user experience.
 
-### 🚀 High Impact, Low Effort (Priority 1)
-Quick wins that significantly improve UX with minimal implementation complexity.
+#### 1. Optional Team Selection
+- **Feature**: Allow users to skip team selection and view generic shift information
+- **Use Cases**: 
+  - New users can explore the app before committing to a team
+  - Managers can view all teams without selecting one
+  - General shift information display without personalization
+- **Implementation**: Add "Skip" or "View All Teams" option in TeamSelector modal
+- **Estimated Effort**: 2–3 hours
+- **Status**: 🔲 Pending
 
-*All Priority 1 items completed in v3.1.0 - see CHANGELOG.md for implementation details.*
-
-### 🎯 Medium Impact, Medium Effort (Priority 2)
-Features that enhance functionality with moderate development time.
-
-#### 4. Offcanvas Settings Panel
+#### 2. Offcanvas Settings Panel
 - **Component**: `react-bootstrap/Offcanvas`
 - **Use Cases**:
   - App preferences (24-hour format, team colors)
@@ -28,16 +31,21 @@ Features that enhance functionality with moderate development time.
   - Changelog viewer
 - **Implementation**: New settings context + panel
 - **Estimated Effort**: 4–5 hours
+- **Status**: 🔲 Planned
 
-#### 5. Modal for Team Details
+#### 3. Modal for Team Details
 - **Component**: `react-bootstrap/Modal`
 - **Use Cases**:
   - Click team card to see detailed 7-day schedule
   - Transfer history for specific team
 - **Implementation**: New TeamDetailModal component
 - **Estimated Effort**: 3–4 hours
+- **Status**: 🔲 Planned
 
-#### 6. Enhanced List Groups
+### 🎯 Medium Priority Items
+Features that enhance functionality with moderate development effort.
+
+#### 4. Enhanced List Groups
 - **Component**: `react-bootstrap/ListGroup`
 - **Use Cases**:
   - Upcoming shifts list
@@ -45,27 +53,30 @@ Features that enhance functionality with moderate development time.
   - Clean, organized data display
 - **Implementation**: New components for data lists
 - **Estimated Effort**: 2–3 hours
+- **Status**: 🔲 Future
 
-### 🎨 High Impact, Higher Effort (Priority 3)
-Advanced features that require significant development but provide major UX improvements.
+### 🎨 Future Enhancements
+Advanced features for future development phases.
 
-#### 7. Carousel for Mobile Team View
+#### 5. Carousel for Mobile Team View
 - **Component**: `react-bootstrap/Carousel`
 - **Use Cases**:
   - Swipe through teams on mobile
   - Better mobile navigation
 - **Implementation**: Responsive team display
 - **Estimated Effort**: 5–6 hours
+- **Status**: 🔲 Future
 
-#### 8. Accordion for Transfer History
+#### 6. Accordion for Transfer History
 - **Component**: `react-bootstrap/Accordion`
 - **Use Cases**:
   - Collapsible transfer sections by date range
   - Organized historical data
 - **Implementation**: Update TransferView component
 - **Estimated Effort**: 3–4 hours
+- **Status**: 🔲 Future
 
-#### 9. Floating Action Button
+#### 7. Floating Action Button
 - **Component**: Custom positioned `react-bootstrap/Button`
 - **Use Cases**:
   - Quick team switch
@@ -74,27 +85,18 @@ Advanced features that require significant development but provide major UX impr
 - **Implementation**: Fixed positioned button system
 - **Estimated Effort**: 2–3 hours
 
-## Implementation Strategy
+## Current Todo Status
 
-### Phase 1: Foundation (v3.1.0) - ✅ COMPLETED
-*All Phase 1 items completed - see CHANGELOG.md for full implementation details*
-- ✅ Enhancement plan and changelog system
-- ✅ Toast notification system with Context API
-- ✅ Progress bars for off-day tracking with accessibility
-- ✅ Tooltips for shift codes with comprehensive explanations
-- ✅ In-app changelog viewer with accordion interface
-- ✅ Bootstrap Icons integration
-- ✅ Code quality improvements and refactoring
+### 🔲 Next Up
+1. **Optional Team Selection** - Allow skipping team selection for generic view
+2. **Offcanvas Settings Panel** - App preferences and settings
+3. **Team Detail Modals** - Detailed team information and schedules
 
-### Phase 2: Interactive Features (v3.2.0) - 🎯 PLANNED
-1. [ ] Offcanvas settings panel
-2. [ ] Team detail modals  
-3. [ ] Enhanced list components
-
-### Phase 3: Advanced UX (v3.3.0) - 🎨 FUTURE
-1. [ ] Mobile carousel
-2. [ ] Transfer history accordion
-3. [ ] Floating action button system
+### 📋 Backlog
+4. **Enhanced List Groups** - Better data organization
+5. **Mobile Carousel** - Improved mobile navigation
+6. **Transfer History Accordion** - Organized historical data
+7. **Floating Action Button** - Quick actions overlay
 
 ## Technical Requirements
 
