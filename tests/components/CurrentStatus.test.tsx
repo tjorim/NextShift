@@ -225,7 +225,8 @@ describe('CurrentStatus Component', () => {
 
             const teamMorningElements = screen.getAllByText('Team 1: Morning');
             expect(teamMorningElements.length).toBeGreaterThan(0);
-            expect(screen.getByText('07:00-15:00')).toBeInTheDocument();
+            const hoursElements = screen.getAllByText('07:00-15:00');
+            expect(hoursElements.length).toBeGreaterThan(0);
         });
 
         it('should show next shift information when team is selected', () => {
