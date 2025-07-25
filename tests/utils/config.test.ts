@@ -6,6 +6,7 @@ describe('config', () => {
         it('has correct constant values', () => {
             expect(CONFIG.TEAMS_COUNT).toBe(5);
             expect(CONFIG.SHIFT_CYCLE_DAYS).toBe(10);
+            expect(CONFIG.MAX_TRANSFERS_DISPLAY).toBe(20);
         });
 
         it('has valid REFERENCE_TEAM value', () => {
@@ -19,9 +20,14 @@ describe('config', () => {
         it('has valid REFERENCE_DATE value', () => {
             expect(CONFIG.REFERENCE_DATE).toBeInstanceOf(Date);
             expect(CONFIG.REFERENCE_DATE.getTime()).not.toBeNaN();
-            // Should be a reasonable date (after 2020, before 2030)
-            expect(CONFIG.REFERENCE_DATE.getFullYear()).toBeGreaterThan(2020);
-            expect(CONFIG.REFERENCE_DATE.getFullYear()).toBeLessThan(2030);
+            // Should be a reasonable date (within 10 years of current year)
+            const currentYear = new Date().getFullYear();
+            expect(CONFIG.REFERENCE_DATE.getFullYear()).toBeGreaterThan(
+                currentYear - 10,
+            );
+            expect(CONFIG.REFERENCE_DATE.getFullYear()).toBeLessThan(
+                currentYear + 10,
+            );
         });
 
         it('CONFIG object is read-only', () => {
@@ -34,6 +40,7 @@ describe('config', () => {
         it('has all expected properties', () => {
             expect(CONFIG).toHaveProperty('TEAMS_COUNT');
             expect(CONFIG).toHaveProperty('SHIFT_CYCLE_DAYS');
+            expect(CONFIG).toHaveProperty('MAX_TRANSFERS_DISPLAY');
             expect(CONFIG).toHaveProperty('REFERENCE_TEAM');
             expect(CONFIG).toHaveProperty('REFERENCE_DATE');
             expect(CONFIG).toHaveProperty('VERSION');
@@ -42,16 +49,19 @@ describe('config', () => {
         it('has correct types for all properties', () => {
             expect(typeof CONFIG.TEAMS_COUNT).toBe('number');
             expect(typeof CONFIG.SHIFT_CYCLE_DAYS).toBe('number');
+            expect(typeof CONFIG.MAX_TRANSFERS_DISPLAY).toBe('number');
             expect(typeof CONFIG.REFERENCE_TEAM).toBe('number');
             expect(CONFIG.REFERENCE_DATE).toBeInstanceOf(Date);
             expect(typeof CONFIG.VERSION).toBe('string');
         });
 
-        it('TEAMS_COUNT and SHIFT_CYCLE_DAYS are positive integers', () => {
+        it('numeric constants are positive integers', () => {
             expect(CONFIG.TEAMS_COUNT).toBeGreaterThan(0);
             expect(CONFIG.SHIFT_CYCLE_DAYS).toBeGreaterThan(0);
+            expect(CONFIG.MAX_TRANSFERS_DISPLAY).toBeGreaterThan(0);
             expect(Number.isInteger(CONFIG.TEAMS_COUNT)).toBe(true);
             expect(Number.isInteger(CONFIG.SHIFT_CYCLE_DAYS)).toBe(true);
+            expect(Number.isInteger(CONFIG.MAX_TRANSFERS_DISPLAY)).toBe(true);
         });
 
         it('REFERENCE_DATE is in UTC', () => {

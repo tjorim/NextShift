@@ -81,19 +81,10 @@ export function CurrentStatus({
 
         // Create datetime for the shift start
         const shiftDate = nextShift.date;
-        let startTime = shiftDate
+        const startTime = shiftDate
             .hour(nextShift.shift.start)
             .minute(0)
             .second(0);
-
-        // If it's night shift (23:00), it starts on the previous day
-        if (nextShift.shift.code === 'N' && nextShift.shift.start === 23) {
-            startTime = shiftDate
-                .subtract(1, 'day')
-                .hour(23)
-                .minute(0)
-                .second(0);
-        }
 
         return startTime;
     }, [nextShift]);

@@ -218,7 +218,7 @@ export function useTransferCalculations({
             });
         }
 
-        return transfers.slice(0, 20); // Limit to 20 transfers
+        return transfers.slice(0, CONFIG.MAX_TRANSFERS_DISPLAY);
     }, [selectedTeam, compareTeam, dateRange, customStartDate, customEndDate]);
 
     return {

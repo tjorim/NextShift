@@ -32,6 +32,7 @@ declare global {
 // Define constants that don't depend on configuration
 const TEAMS_COUNT = 5;
 const SHIFT_CYCLE_DAYS = 10;
+const MAX_TRANSFERS_DISPLAY = 20;
 
 export const CONFIG = {
     VERSION: __APP_VERSION__,
@@ -106,4 +107,5 @@ export const CONFIG = {
     })(),
     SHIFT_CYCLE_DAYS,
     TEAMS_COUNT,
+    MAX_TRANSFERS_DISPLAY,
 } as const;

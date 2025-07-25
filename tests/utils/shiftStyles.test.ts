@@ -20,20 +20,11 @@ describe('shiftStyles', () => {
             expect(getShiftClassName('O')).toBe('shift-off');
         });
 
-        it('returns default shift-off class for invalid shift code', () => {
-            // Test with invalid shift type (casting to bypass TypeScript)
+        it('handles invalid inputs gracefully', () => {
             expect(getShiftClassName('X' as ShiftType)).toBe('shift-off');
-        });
-
-        it('returns default shift-off class for undefined', () => {
-            // Test with undefined (casting to bypass TypeScript)
             expect(getShiftClassName(undefined as unknown as ShiftType)).toBe(
                 'shift-off',
             );
-        });
-
-        it('returns default shift-off class for null', () => {
-            // Test with null (casting to bypass TypeScript)
             expect(getShiftClassName(null as unknown as ShiftType)).toBe(
                 'shift-off',
             );
