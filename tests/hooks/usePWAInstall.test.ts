@@ -12,7 +12,7 @@ const mockBeforeInstallPromptEvent = {
     preventDefault: vi.fn(),
     prompt: vi.fn().mockResolvedValue(undefined),
     userChoice: Promise.resolve({ outcome: 'accepted' as const }),
-} as BeforeInstallPromptEvent;
+} as unknown as BeforeInstallPromptEvent;
 
 describe('usePWAInstall', () => {
     let addEventListenerSpy: ReturnType<typeof vi.spyOn>;

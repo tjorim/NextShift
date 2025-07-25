@@ -17,41 +17,41 @@ const mockTodayShifts: ShiftResult[] = [
     {
         teamNumber: 1,
         shift: {
-            type: 'M',
             code: 'M',
             name: 'Morning',
+            hours: '07:00-15:00',
             start: 7,
             end: 15,
             isWorking: true,
         },
         date: dayjs('2025-01-15'),
-        dateCode: '2503.3M',
+        code: '2503.3M',
     },
     {
         teamNumber: 2,
         shift: {
-            type: 'E',
             code: 'E',
             name: 'Evening',
+            hours: '15:00-23:00',
             start: 15,
             end: 23,
             isWorking: true,
         },
         date: dayjs('2025-01-15'),
-        dateCode: '2503.3E',
+        code: '2503.3E',
     },
     {
         teamNumber: 3,
         shift: {
-            type: 'O',
             code: 'O',
             name: 'Off',
+            hours: '',
             start: null,
             end: null,
             isWorking: false,
         },
         date: dayjs('2025-01-15'),
-        dateCode: '2503.3O',
+        code: '2503.3O',
     },
 ];
 
@@ -75,8 +75,8 @@ describe('TodayView', () => {
         it('displays shift information for working teams', () => {
             render(<TodayView {...defaultProps} />);
 
-            expect(screen.getByText('Morning')).toBeInTheDocument();
-            expect(screen.getByText('Evening')).toBeInTheDocument();
+            expect(screen.getByText(/Morning/)).toBeInTheDocument();
+            expect(screen.getByText(/Evening/)).toBeInTheDocument();
             expect(screen.getByText('Off')).toBeInTheDocument();
         });
 
@@ -133,14 +133,27 @@ describe('TodayView', () => {
             render(<TodayView {...defaultProps} />);
 
             // Should show shift names
-            expect(screen.getByText('Morning')).toBeInTheDocument();
-            expect(screen.getByText('Evening')).toBeInTheDocument();
+            expect(screen.getByText(/Morning/)).toBeInTheDocument();
+            expect(screen.getByText(/Evening/)).toBeInTheDocument();
         });
 
         it('shows off status for non-working teams', () => {
             render(<TodayView {...defaultProps} />);
 
             expect(screen.getByText('Off')).toBeInTheDocument();
+        });
+
+        // Note: Active badge functionality exists but requires complex time mocking
+        // The isCurrentlyActive function in TodayView checks if current time is within shift hours
+        // Testing this would require mocking dayjs() calls throughout the component
+
+        it('does not show active badge for off shifts', () => {
+            render(<TodayView {...defaultProps} />);
+
+            // Team 4 is off, so should never show active badge
+            const offTeamBadges = screen.getAllByText('Off');
+            expect(offTeamBadges.length).toBeGreaterThan(0);
+            expect(screen.queryByText('Active')).not.toBeInTheDocument();
         });
     });
 });

@@ -21,10 +21,21 @@ interface ScheduleViewProps {
  * @param setCurrentDate - Function to update the current date in the schedule view.
  */
 export function ScheduleView({
-    selectedTeam,
+    selectedTeam: inputSelectedTeam,
     currentDate,
     setCurrentDate,
 }: ScheduleViewProps) {
+    // Validate and sanitize selectedTeam prop
+    let selectedTeam = inputSelectedTeam;
+    if (
+        typeof selectedTeam === 'number' &&
+        (selectedTeam < 1 || selectedTeam > CONFIG.TEAMS_COUNT)
+    ) {
+        console.warn(
+            `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+        );
+        selectedTeam = null;
+    }
     const isMyTeam = (teamNumber: number) => {
         return selectedTeam === teamNumber ? 'my-team' : '';
     };

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
-import { CONFIG } from '../src/utils/config';
+import { CONFIG } from '../../src/utils/config';
 import {
     calculateShift,
     formatDateCode,
@@ -9,7 +9,7 @@ import {
     getNextShift,
     getShiftCode,
     SHIFTS,
-} from '../src/utils/shiftCalculations';
+} from '../../src/utils/shiftCalculations';
 
 describe('Shift Calculations', () => {
     describe('Core Business Logic', () => {
@@ -34,7 +34,7 @@ describe('Shift Calculations', () => {
             const team = 1;
 
             // Test 10-day cycle
-            const shifts = [];
+            const shifts: string[] = [];
             for (let i = 0; i < 10; i++) {
                 const date = dayjs(baseDate).add(i, 'day').toDate();
                 const shift = calculateShift(date, team);

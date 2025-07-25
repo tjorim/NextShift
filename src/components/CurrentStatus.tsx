@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import { useCountdown } from '../hooks/useCountdown';
+import { CONFIG } from '../utils/config';
 import type { NextShiftResult, ShiftResult } from '../utils/shiftCalculations';
 import {
     calculateShift,
@@ -32,11 +33,22 @@ interface CurrentStatusProps {
  * @returns A React component displaying the current and next shift status for the selected team.
  */
 export function CurrentStatus({
-    selectedTeam,
+    selectedTeam: inputSelectedTeam,
     onChangeTeam,
     onShowWhoIsWorking,
     isLoading = false,
 }: CurrentStatusProps) {
+    // Validate and sanitize selectedTeam prop
+    let selectedTeam = inputSelectedTeam;
+    if (
+        typeof selectedTeam === 'number' &&
+        (selectedTeam < 1 || selectedTeam > CONFIG.TEAMS_COUNT)
+    ) {
+        console.warn(
+            `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+        );
+        selectedTeam = null;
+    }
     // Always use today's date for current status
     const today = dayjs();
 
@@ -47,9 +59,6 @@ export function CurrentStatus({
 
         const shiftDay = getCurrentShiftDay(today);
         const shift = calculateShift(shiftDay, selectedTeam);
-
-        // Return null if calculateShift returns null
-        if (!shift) return null;
 
         return {
             date: shiftDay,

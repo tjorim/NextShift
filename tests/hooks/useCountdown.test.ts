@@ -182,9 +182,9 @@ describe('useCountdown', () => {
 
     describe('target date changes', () => {
         it('should update countdown when target date changes', () => {
-            let targetDate = dayjs().add(5, 'seconds');
+            let targetDate: Dayjs | null = dayjs().add(5, 'seconds');
             const { result, rerender, unmount } = renderHook(
-                ({ date }: { date: Dayjs }) => useCountdown(date),
+                ({ date }: { date: Dayjs | null }) => useCountdown(date),
                 { initialProps: { date: targetDate } },
             );
 
@@ -201,7 +201,7 @@ describe('useCountdown', () => {
         });
 
         it('should handle changing from valid date to null', () => {
-            let targetDate: Dayjs | null = dayjs().add(5, 'seconds');
+            const targetDate: Dayjs | null = dayjs().add(5, 'seconds');
             const { result, rerender, unmount } = renderHook(
                 ({ date }: { date: Dayjs | null }) => useCountdown(date),
                 { initialProps: { date: targetDate } },
@@ -209,8 +209,8 @@ describe('useCountdown', () => {
 
             expect(result.current.isExpired).toBe(false);
 
-            targetDate = null;
-            rerender({ date: targetDate });
+            const nullDate: Dayjs | null = null;
+            rerender({ date: nullDate });
 
             expect(result.current.isExpired).toBe(true);
             expect(result.current.totalSeconds).toBe(0);

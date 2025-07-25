@@ -1,196 +1,49 @@
-import dayjs, { type Dayjs } from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
 import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
+import { useTransferCalculations } from '../hooks/useTransferCalculations';
 import { CONFIG } from '../utils/config';
-import { calculateShift, type ShiftType } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
 interface TransferViewProps {
     selectedTeam: number | null;
 }
 
-interface TransferInfo {
-    date: Dayjs;
-    fromTeam: number;
-    toTeam: number;
-    fromShiftType: ShiftType;
-    fromShiftName: string;
-    toShiftType: ShiftType;
-    toShiftName: string;
-    isHandover: boolean;
-}
-
-/**
- * Helper function to check for transfer between two shifts and create TransferInfo if match is found
- */
-function checkTransfer(
-    shift1: { code: ShiftType; name: string },
-    shift2: { code: ShiftType; name: string },
-    fromShift: ShiftType,
-    toShift: ShiftType,
-    date: Dayjs,
-    fromTeam: number,
-    toTeam: number,
-    isHandover: boolean,
-): TransferInfo | null {
-    if (shift1.code === fromShift && shift2.code === toShift) {
-        return {
-            date,
-            fromTeam,
-            toTeam,
-            fromShiftType: shift1.code,
-            fromShiftName: shift1.name,
-            toShiftType: shift2.code,
-            toShiftName: shift2.name,
-            isHandover,
-        };
-    }
-    return null;
-}
-
 /**
  * React component that displays shift transfer events between a selected team and another team over a user-defined date range.
  *
- * Users can select a comparison team and a date range (preset or custom) to view up to 20 detected shift transfers. Transfers are identified based on specific shift transitions (Morning to Evening, Evening to Night, Night to next-day Morning) in both directions between the two teams. Each transfer entry shows the date, involved teams, shift types, and whether it is a handover or takeover.
+ * Users can select a comparison team and a date range (preset or custom) to view up to 20 detected shift transfers.
+ * Transfers are identified based on specific shift transitions (Morning to Evening, Evening to Night, Night to next-day Morning)
+ * in both directions between the two teams. Each transfer entry shows the date, involved teams, shift types, and whether it is a handover or takeover.
  *
  * If no team is selected or no transfers are found in the chosen range, an appropriate message is shown.
  */
-export function TransferView({ selectedTeam }: TransferViewProps) {
-    // Get available teams (excluding selected team)
-    const availableTeams = useMemo(() => {
-        const allTeams = Array.from(
-            { length: CONFIG.TEAMS_COUNT },
-            (_, i) => i + 1,
+export function TransferView({
+    selectedTeam: inputSelectedTeam,
+}: TransferViewProps) {
+    // Validate and sanitize selectedTeam prop
+    let selectedTeam = inputSelectedTeam;
+    if (
+        typeof selectedTeam === 'number' &&
+        (selectedTeam < 1 || selectedTeam > CONFIG.TEAMS_COUNT)
+    ) {
+        console.warn(
+            `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
         );
-        return allTeams.filter((team) => team !== selectedTeam);
-    }, [selectedTeam]);
+        selectedTeam = null;
+    }
 
-    // Default to first available team
-    const defaultCompareTeam = availableTeams[0] || 1;
-    const [compareTeam, setCompareTeam] = useState<number>(defaultCompareTeam);
-    const [dateRange, setDateRange] = useState<string>('14');
-    const [customStartDate, setCustomStartDate] = useState<string>('');
-    const [customEndDate, setCustomEndDate] = useState<string>('');
-
-    // Update compareTeam when selectedTeam changes and current compareTeam is not available
-    useEffect(() => {
-        if (!availableTeams.includes(compareTeam)) {
-            setCompareTeam(defaultCompareTeam);
-        }
-    }, [availableTeams, compareTeam, defaultCompareTeam]);
-
-    const transfers = useMemo((): TransferInfo[] => {
-        if (!selectedTeam) return [];
-
-        const transfers: TransferInfo[] = [];
-        let endDate: Dayjs;
-
-        if (dateRange === 'custom') {
-            if (!customStartDate || !customEndDate) return [];
-            endDate = dayjs(customEndDate);
-        } else {
-            endDate = dayjs().add(parseInt(dateRange), 'day');
-        }
-
-        const startDate =
-            dateRange === 'custom' ? dayjs(customStartDate) : dayjs();
-
-        for (
-            let date = startDate;
-            date.isBefore(endDate) || date.isSame(endDate);
-            date = date.add(1, 'day')
-        ) {
-            const myShift = calculateShift(date, selectedTeam);
-            const compareShift = calculateShift(date, compareTeam);
-
-            // Check for same-day transfers (shift-to-shift)
-            const nextDate = date.add(1, 'day');
-            const myNextShift = calculateShift(nextDate, selectedTeam);
-            const compareNextShift = calculateShift(nextDate, compareTeam);
-
-            // Check all possible transfer patterns
-            const transferChecks = [
-                // Same-day transfers (my team to compare team)
-                checkTransfer(
-                    myShift,
-                    compareShift,
-                    'M',
-                    'E',
-                    date,
-                    selectedTeam,
-                    compareTeam,
-                    true,
-                ),
-                checkTransfer(
-                    myShift,
-                    compareShift,
-                    'E',
-                    'N',
-                    date,
-                    selectedTeam,
-                    compareTeam,
-                    true,
-                ),
-                // Night to Morning transfer (next day)
-                !nextDate.isAfter(endDate)
-                    ? checkTransfer(
-                          myShift,
-                          compareNextShift,
-                          'N',
-                          'M',
-                          nextDate,
-                          selectedTeam,
-                          compareTeam,
-                          true,
-                      )
-                    : null,
-
-                // Reverse transfers (compare team to my team)
-                checkTransfer(
-                    compareShift,
-                    myShift,
-                    'M',
-                    'E',
-                    date,
-                    compareTeam,
-                    selectedTeam,
-                    false,
-                ),
-                checkTransfer(
-                    compareShift,
-                    myShift,
-                    'E',
-                    'N',
-                    date,
-                    compareTeam,
-                    selectedTeam,
-                    false,
-                ),
-                // Night to Morning transfer (next day, reverse)
-                !nextDate.isAfter(endDate)
-                    ? checkTransfer(
-                          compareShift,
-                          myNextShift,
-                          'N',
-                          'M',
-                          nextDate,
-                          compareTeam,
-                          selectedTeam,
-                          false,
-                      )
-                    : null,
-            ];
-
-            // Add valid transfers to the list
-            transferChecks.forEach((transfer) => {
-                if (transfer) {
-                    transfers.push(transfer);
-                }
-            });
-        }
-
-        return transfers.slice(0, 20); // Limit to 20 transfers
-    }, [selectedTeam, compareTeam, dateRange, customStartDate, customEndDate]);
+    // Use the transfer calculations hook
+    const {
+        transfers,
+        availableTeams,
+        compareTeam,
+        setCompareTeam,
+        dateRange,
+        setDateRange,
+        customStartDate,
+        setCustomStartDate,
+        customEndDate,
+        setCustomEndDate,
+    } = useTransferCalculations({ selectedTeam });
 
     return (
         <Card>

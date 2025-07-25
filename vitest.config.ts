@@ -13,6 +13,9 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: ['./tests/setup.ts'],
+        typecheck: {
+            tsconfig: './tsconfig.test.json',
+        },
         coverage: {
             reporter: ['text', 'lcov'],
         },

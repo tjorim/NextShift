@@ -38,24 +38,32 @@ describe('CurrentStatus Component', () => {
             dayjs('2024-01-15'),
         );
         vi.mocked(shiftCalculations.calculateShift).mockReturnValue({
-            code: 'D',
-            name: 'Day Shift',
-            hours: '07:00 - 19:00',
+            code: 'M',
+            name: 'Morning',
+            hours: '07:00-15:00',
             start: 7,
-            end: 19,
+            end: 15,
+            isWorking: true,
         });
         vi.mocked(shiftCalculations.getShiftCode).mockReturnValue('D1');
         vi.mocked(shiftCalculations.getNextShift).mockReturnValue({
             date: dayjs('2024-01-16'),
             shift: {
-                code: 'N',
-                name: 'Night Shift',
-                hours: '19:00 - 07:00',
-                start: 19,
-                end: 7,
+                code: 'E',
+                name: 'Evening',
+                hours: '15:00-23:00',
+                start: 15,
+                end: 23,
+                isWorking: true,
             },
+            code: '2404.2E',
         });
         vi.mocked(useCountdownHook.useCountdown).mockReturnValue({
+            days: 0,
+            hours: 2,
+            minutes: 30,
+            seconds: 0,
+            totalSeconds: 9000,
             formatted: '2h 30m',
             isExpired: false,
         });
@@ -181,8 +189,8 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            expect(screen.getByText('Team 1: Day Shift')).toBeInTheDocument();
-            expect(screen.getByText('07:00 - 19:00')).toBeInTheDocument();
+            expect(screen.getByText('Team 1: Morning')).toBeInTheDocument();
+            expect(screen.getByText('07:00-15:00')).toBeInTheDocument();
         });
 
         it('should show next shift information when team is selected', () => {
@@ -194,8 +202,8 @@ describe('CurrentStatus Component', () => {
             );
 
             expect(screen.getByText('Next Shift:')).toBeInTheDocument();
-            expect(screen.getByText(/Jan 16.*Night Shift/)).toBeInTheDocument();
-            expect(screen.getByText('19:00 - 07:00')).toBeInTheDocument();
+            expect(screen.getByText(/Jan 16.*Evening/)).toBeInTheDocument();
+            expect(screen.getByText('15:00-23:00')).toBeInTheDocument();
         });
     });
 
@@ -220,12 +228,14 @@ describe('CurrentStatus Component', () => {
             vi.mocked(shiftCalculations.getNextShift).mockReturnValue({
                 date: dayjs('2024-01-16'),
                 shift: {
-                    code: 'D',
-                    name: 'Day Shift',
-                    hours: '07:00 - 19:00',
+                    code: 'M',
+                    name: 'Morning',
+                    hours: '07:00-15:00',
                     start: 7,
-                    end: 19,
+                    end: 15,
+                    isWorking: true,
                 },
+                code: '2404.2M',
             });
 
             render(
@@ -243,11 +253,13 @@ describe('CurrentStatus Component', () => {
                 date: dayjs('2024-01-16'),
                 shift: {
                     code: 'N',
-                    name: 'Night Shift',
-                    hours: '23:00 - 07:00',
+                    name: 'Night',
+                    hours: '23:00-07:00',
                     start: 23,
                     end: 7,
+                    isWorking: true,
                 },
+                code: '2404.2N',
             });
 
             render(
@@ -263,7 +275,12 @@ describe('CurrentStatus Component', () => {
 
         it('should not show countdown when expired', () => {
             vi.mocked(useCountdownHook.useCountdown).mockReturnValue({
-                formatted: '0h 0m',
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                totalSeconds: 0,
+                formatted: '',
                 isExpired: true,
             });
 
@@ -278,7 +295,15 @@ describe('CurrentStatus Component', () => {
         });
 
         it('should not show countdown when no countdown data', () => {
-            vi.mocked(useCountdownHook.useCountdown).mockReturnValue(null);
+            vi.mocked(useCountdownHook.useCountdown).mockReturnValue({
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                totalSeconds: 0,
+                formatted: '',
+                isExpired: true,
+            });
 
             render(
                 <CurrentStatus
@@ -331,17 +356,15 @@ describe('CurrentStatus Component', () => {
     });
 
     describe('Edge Cases and Error Handling', () => {
-        it('should handle null current shift gracefully', () => {
-            vi.mocked(shiftCalculations.calculateShift).mockReturnValue(null);
-
+        it('should show fallback when no team is selected', () => {
             render(
                 <CurrentStatus
-                    selectedTeam={1}
+                    selectedTeam={null}
                     onChangeTeam={mockOnChangeTeam}
                 />,
             );
 
-            // Should not crash and should show fallback content
+            // Should show team selection prompt
             expect(
                 screen.getByText(
                     'Please select your team to see current status',
@@ -368,12 +391,14 @@ describe('CurrentStatus Component', () => {
             vi.mocked(shiftCalculations.getNextShift).mockReturnValue({
                 date: dayjs('2024-01-16'),
                 shift: {
-                    code: 'D',
-                    name: 'Day Shift',
-                    hours: '07:00 - 19:00',
-                    start: undefined,
-                    end: 19,
+                    code: 'O',
+                    name: 'Off',
+                    hours: '',
+                    start: null,
+                    end: null,
+                    isWorking: false,
                 },
+                code: '2404.2O',
             });
 
             render(
@@ -395,7 +420,7 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            expect(screen.getByText('Team 4: Day Shift')).toBeInTheDocument();
+            expect(screen.getByText('Team 4: Morning')).toBeInTheDocument();
             expect(shiftCalculations.calculateShift).toHaveBeenCalledWith(
                 expect.any(Object),
                 4,
@@ -528,7 +553,7 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            const shiftBadge = screen.getByText('Team 1: Day Shift');
+            const shiftBadge = screen.getByText('Team 1: Morning');
             expect(shiftBadge).toHaveClass('badge');
             expect(shiftBadge).toHaveClass('shift-code');
             expect(shiftBadge).toHaveClass('shift-badge-lg');

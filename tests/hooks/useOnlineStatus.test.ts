@@ -7,7 +7,7 @@ const mockNavigator = {
     onLine: true,
 };
 
-Object.defineProperty(global, 'navigator', {
+Object.defineProperty(globalThis, 'navigator', {
     value: mockNavigator,
     writable: true,
 });
@@ -46,16 +46,16 @@ describe('useOnlineStatus', () => {
         });
 
         it('defaults to true when navigator is undefined', () => {
-            const originalNavigator = global.navigator;
+            const originalNavigator = globalThis.navigator;
             // @ts-ignore
-            delete global.navigator;
+            delete globalThis.navigator;
 
             const { result } = renderHook(() => useOnlineStatus());
 
             expect(result.current).toBe(true);
 
             // Restore navigator
-            global.navigator = originalNavigator;
+            globalThis.navigator = originalNavigator;
         });
     });
 
