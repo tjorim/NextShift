@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Button, Col, Modal, Row, Spinner } from 'react-bootstrap';
 import { CONFIG } from '../utils/config';
 
@@ -35,13 +35,6 @@ export function TeamSelector({
         onHide();
     };
 
-    // Focus first button when modal opens
-    useEffect(() => {
-        if (show && !isLoading && firstButtonRef.current) {
-            setTimeout(() => firstButtonRef.current?.focus(), 100);
-        }
-    }, [show, isLoading]);
-
     return (
         <Modal
             show={show}
@@ -49,6 +42,7 @@ export function TeamSelector({
             backdrop="static"
             keyboard={false}
             centered
+            onEntered={() => !isLoading && firstButtonRef.current?.focus()}
         >
             <Modal.Header>
                 <Modal.Title>Select Your Team</Modal.Title>

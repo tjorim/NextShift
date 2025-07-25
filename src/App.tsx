@@ -39,12 +39,12 @@ function App() {
     const handleTeamSelect = (team: number) => {
         setIsLoading(true);
 
-        // Use requestAnimationFrame to ensure loading state is visible
-        requestAnimationFrame(() => {
+        // Use setTimeout to ensure loading state is visible before heavy operations
+        setTimeout(() => {
             setSelectedTeam(team); // This triggers localStorage write and heavy recalculations
             setShowTeamModal(false);
             setIsLoading(false);
-        });
+        }, 0);
     };
 
     const handleChangeTeam = () => {
