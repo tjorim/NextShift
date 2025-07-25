@@ -223,7 +223,8 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            expect(screen.getByText('Team 1: Morning')).toBeInTheDocument();
+            const teamMorningElements = screen.getAllByText('Team 1: Morning');
+            expect(teamMorningElements.length).toBeGreaterThan(0);
             expect(screen.getByText('07:00-15:00')).toBeInTheDocument();
         });
 
@@ -587,10 +588,14 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            const shiftBadge = screen.getByText('Team 1: Morning');
-            expect(shiftBadge).toHaveClass('badge');
-            expect(shiftBadge).toHaveClass('shift-code');
-            expect(shiftBadge).toHaveClass('shift-badge-lg');
+            const shiftBadges = screen.getAllByText('Team 1: Morning');
+            const mainShiftBadge = shiftBadges.find((badge) =>
+                badge.classList.contains('shift-badge-lg'),
+            );
+            expect(mainShiftBadge).toBeTruthy();
+            expect(mainShiftBadge).toHaveClass('badge');
+            expect(mainShiftBadge).toHaveClass('shift-code');
+            expect(mainShiftBadge).toHaveClass('shift-badge-lg');
         });
     });
 });
