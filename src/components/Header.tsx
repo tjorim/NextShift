@@ -7,6 +7,7 @@ import {
     useServiceWorkerStatus,
 } from '../hooks/useServiceWorkerStatus';
 import { CONFIG } from '../utils/config';
+import { ChangelogModal } from './ChangelogModal';
 
 /**
  * Displays the top navigation bar and About modal for the NextShift application.
@@ -18,6 +19,7 @@ export function Header() {
     const serviceWorkerStatus = useServiceWorkerStatus();
     const { isInstallable, promptInstall } = usePWAInstall();
     const [showAbout, setShowAbout] = useState(false);
+    const [showChangelog, setShowChangelog] = useState(false);
 
     return (
         <>
@@ -32,6 +34,9 @@ export function Header() {
                                 bg={isOnline ? 'success' : 'danger'}
                                 className={`connection-${isOnline ? 'online' : 'offline'}`}
                             >
+                                <i
+                                    className={`bi bi-wifi${isOnline ? '' : '-off'} me-1`}
+                                ></i>
                                 {isOnline ? 'Online' : 'Offline'}
                             </Badge>
                             {isInstallable && (
@@ -41,9 +46,19 @@ export function Header() {
                                     onClick={promptInstall}
                                     aria-label="Install NextShift App"
                                 >
-                                    📱 Install
+                                    <i className="bi bi-phone me-1"></i>
+                                    Install
                                 </Button>
                             )}
+                            <Button
+                                variant="outline-light"
+                                size="sm"
+                                onClick={() => setShowChangelog(true)}
+                                aria-label="What's New"
+                                title="What's New"
+                            >
+                                <i className="bi bi-journal-text"></i>
+                            </Button>
                             <Button
                                 variant="outline-light"
                                 size="sm"
@@ -98,6 +113,12 @@ export function Header() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {/* Changelog Modal */}
+            <ChangelogModal
+                show={showChangelog}
+                onHide={() => setShowChangelog(false)}
+            />
         </>
     );
 }

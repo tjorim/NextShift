@@ -1,4 +1,39 @@
+/* Bootstrap Icons */
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
 /* NextShift Custom Styles */
+
+/* Timeline styles */
+.timeline-small-text {
+    font-size: 0.75rem;
+}
+
+.timeline-current-badge {
+    cursor: help;
+    font-size: 0.9rem;
+}
+
+/* Common utility styles */
+.cursor-help {
+    cursor: help;
+}
+
+.help-underline {
+    cursor: help;
+    text-decoration: underline dotted;
+}
+
+.date-picker-auto {
+    width: auto;
+}
+
+.toast-icon {
+    font-size: 1.2em;
+}
+
+.progress-thin {
+    height: 8px;
+}
 
 :root {
     --shift-morning: #1976d2;

@@ -237,7 +237,7 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            expect(screen.getByText('⏭️ Your Next Shift')).toBeInTheDocument();
+            expect(screen.getByText('Your Next Shift')).toBeInTheDocument();
             expect(
                 screen.getByText(/Tue, Jan 16.*Evening/),
             ).toBeInTheDocument();

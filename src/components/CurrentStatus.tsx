@@ -12,6 +12,7 @@ import {
     Tooltip,
 } from 'react-bootstrap';
 import { useCountdown } from '../hooks/useCountdown';
+import { useLiveTime } from '../hooks/useLiveTime';
 import { CONFIG } from '../utils/config';
 import type {
     NextShiftResult,
@@ -28,6 +29,39 @@ import {
     getShiftCode,
 } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
+
+// Timeline computation helper
+interface TimelineData {
+    prevShift: ShiftResult | null;
+    currentShift: ShiftResult;
+    nextShift: ShiftResult | null;
+}
+
+function computeShiftTimeline(today: dayjs.Dayjs, currentWorkingTeam: ShiftResult): TimelineData {
+    // Get all teams for today to build timeline
+    const allTeamsToday = getAllTeamsShifts(today);
+    const workingTeams = allTeamsToday.filter((team) => team.shift.isWorking);
+
+    // Sort by shift start time to create timeline
+    const timeline = workingTeams.sort((a, b) => {
+        const startA = a.shift.start || 0;
+        const startB = b.shift.start || 0;
+        return startA - startB;
+    });
+
+    const currentIndex = timeline.findIndex(
+        (team) => team.teamNumber === currentWorkingTeam.teamNumber,
+    );
+
+    const prevShift = currentIndex > 0 ? timeline[currentIndex - 1] ?? null : null;
+    const nextShift = currentIndex < timeline.length - 1 ? timeline[currentIndex + 1] ?? null : null;
+
+    return {
+        prevShift,
+        currentShift: currentWorkingTeam,
+        nextShift,
+    };
+}
 
 interface CurrentStatusProps {
     selectedTeam: number | null;
@@ -69,6 +103,8 @@ export function CurrentStatus({
     }
     // Always use today's date for current status
     const today = dayjs();
+    const liveTime = useLiveTime();
+    const todayMinuteKey = today.startOf('minute').toISOString();
 
     // Calculate current shift for today
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
@@ -84,14 +120,14 @@ export function CurrentStatus({
             code: getShiftCode(shiftDay, validatedTeam),
             teamNumber: validatedTeam,
         };
-    }, [validatedTeam, today.startOf('minute').toISOString()]);
+    }, [validatedTeam, todayMinuteKey]);
 
     // Calculate next shift from today
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const nextShift = useMemo((): NextShiftResult | null => {
         if (!validatedTeam) return null;
         return getNextShift(today, validatedTeam);
-    }, [validatedTeam, today.startOf('minute').toISOString()]);
+    }, [validatedTeam, todayMinuteKey]);
 
     // Find which team is currently working
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
@@ -117,14 +153,14 @@ export function CurrentStatus({
         });
 
         return workingTeam || null;
-    }, [today.startOf('minute').toISOString()]);
+    }, [todayMinuteKey]);
 
     // Calculate off-day progress when team is off
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const offDayProgress = useMemo((): OffDayProgress | null => {
         if (!validatedTeam) return null;
         return getOffDayProgress(today, validatedTeam);
-    }, [validatedTeam, today.startOf('minute').toISOString()]);
+    }, [validatedTeam, todayMinuteKey]);
 
     // Calculate next shift start time for countdown
     const nextShiftStartTime = useMemo(() => {
@@ -142,6 +178,14 @@ export function CurrentStatus({
 
     // Countdown to next shift
     const countdown = useCountdown(nextShiftStartTime);
+
+    // Get current time's shift code for live display
+    const currentTimeShiftCode = useMemo(() => {
+        const hour = liveTime.hour();
+        if (hour >= 7 && hour < 15) return 'M';
+        if (hour >= 15 && hour < 23) return 'E';
+        return 'N'; // 23:00-07:00
+    }, [liveTime]);
     return (
         <div className="col-12 mb-4">
             <Card>
@@ -156,13 +200,15 @@ export function CurrentStatus({
                                 title="See who's working right now"
                                 disabled={!onShowWhoIsWorking}
                             >
-                                👥 Who's On?
+                                <i className="bi bi-people me-1"></i>
+                                Who's On?
                             </Button>
                             <Button
                                 variant="outline-secondary"
                                 size="sm"
                                 onClick={onChangeTeam}
                             >
+                                <i className="bi bi-person-gear me-1"></i>
                                 Change Team
                             </Button>
                         </div>
@@ -192,59 +238,22 @@ export function CurrentStatus({
                                             </Tooltip>
                                         }
                                     >
-                                        <span
-                                            style={{
-                                                cursor: 'help',
-                                                textDecoration:
-                                                    'underline dotted',
-                                            }}
-                                        >
-                                            📅 {formatDateCode(today)}
+                                        <span className="help-underline">
+                                            📅 {formatDateCode(today)} •{' '}
+                                            {liveTime.format('HH:mm')} (
+                                            {currentTimeShiftCode})
                                         </span>
                                     </OverlayTrigger>
                                 </div>
                                 {currentWorkingTeam && (
                                     <div className="text-end">
-                                        <div className="small text-muted mb-2">
-                                            ⏱️ Shift Timeline:
+                                        <div className="text-muted mb-2">
+                                            <i className="bi bi-clock me-1"></i>
+                                            <strong>Shift Timeline:</strong>
                                         </div>
-                                        {(() => {
-                                            // Get all teams for today to build timeline
-                                            const allTeamsToday =
-                                                getAllTeamsShifts(today);
-                                            const workingTeams =
-                                                allTeamsToday.filter(
-                                                    (team) =>
-                                                        team.shift.isWorking,
-                                                );
-
-                                            // Sort by shift start time to create timeline
-                                            const timeline = workingTeams.sort(
-                                                (a, b) => {
-                                                    const startA =
-                                                        a.shift.start || 0;
-                                                    const startB =
-                                                        b.shift.start || 0;
-                                                    return startA - startB;
-                                                },
-                                            );
-
-                                            const currentIndex =
-                                                timeline.findIndex(
-                                                    (team) =>
-                                                        team.teamNumber ===
-                                                        currentWorkingTeam.teamNumber,
-                                                );
-                                            const prevShift =
-                                                currentIndex > 0
-                                                    ? timeline[currentIndex - 1]
-                                                    : null;
-                                            const nextShift =
-                                                currentIndex <
-                                                timeline.length - 1
-                                                    ? timeline[currentIndex + 1]
-                                                    : null;
-
+{(() => {
+                                            const { prevShift, nextShift } = computeShiftTimeline(today, currentWorkingTeam);
+                                            
                                             return (
                                                 <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
                                                     {prevShift && (
@@ -253,85 +262,41 @@ export function CurrentStatus({
                                                                 bg="secondary"
                                                                 className="small"
                                                             >
-                                                                T
-                                                                {
-                                                                    prevShift.teamNumber
-                                                                }
+                                                                T{prevShift.teamNumber}
                                                             </Badge>
-                                                            <div
-                                                                className="small text-muted"
-                                                                style={{
-                                                                    fontSize:
-                                                                        '0.75rem',
-                                                                }}
-                                                            >
-                                                                {
-                                                                    prevShift
-                                                                        .shift
-                                                                        .code
-                                                                }
+                                                            <div className="small text-muted timeline-small-text">
+                                                                {prevShift.shift.code}
                                                             </div>
                                                         </div>
                                                     )}
                                                     {prevShift && (
-                                                        <span className="text-muted">
-                                                            →
-                                                        </span>
+                                                        <span className="text-muted">→</span>
                                                     )}
                                                     <div className="text-center">
                                                         <OverlayTrigger
                                                             placement="bottom"
                                                             overlay={
                                                                 <Tooltip id="timeline-current-tooltip">
-                                                                    <strong>
-                                                                        Currently
-                                                                        Active
-                                                                    </strong>
+                                                                    <strong>Currently Active</strong>
                                                                     <br />
-                                                                    {
-                                                                        currentWorkingTeam
-                                                                            .shift
-                                                                            .name
-                                                                    }
+                                                                    {currentWorkingTeam.shift.name}
                                                                     <br />
-                                                                    {
-                                                                        currentWorkingTeam
-                                                                            .shift
-                                                                            .hours
-                                                                    }
+                                                                    {currentWorkingTeam.shift.hours}
                                                                 </Tooltip>
                                                             }
                                                         >
                                                             <Badge
-                                                                className={`${getShiftClassName(currentWorkingTeam.shift.code)}`}
-                                                                style={{
-                                                                    cursor: 'help',
-                                                                }}
+                                                                className={`${getShiftClassName(currentWorkingTeam.shift.code)} px-2 py-1 timeline-current-badge`}
                                                             >
-                                                                T
-                                                                {
-                                                                    currentWorkingTeam.teamNumber
-                                                                }
+                                                                T{currentWorkingTeam.teamNumber}
                                                             </Badge>
                                                         </OverlayTrigger>
-                                                        <div
-                                                            className="small text-muted fw-bold"
-                                                            style={{
-                                                                fontSize:
-                                                                    '0.75rem',
-                                                            }}
-                                                        >
-                                                            {
-                                                                currentWorkingTeam
-                                                                    .shift.code
-                                                            }{' '}
-                                                            🔴
+                                                        <div className="small text-muted fw-bold timeline-small-text">
+                                                            {currentWorkingTeam.shift.code} 🔴
                                                         </div>
                                                     </div>
                                                     {nextShift && (
-                                                        <span className="text-muted">
-                                                            →
-                                                        </span>
+                                                        <span className="text-muted">→</span>
                                                     )}
                                                     {nextShift && (
                                                         <div className="text-center">
@@ -339,23 +304,10 @@ export function CurrentStatus({
                                                                 bg="secondary"
                                                                 className="small"
                                                             >
-                                                                T
-                                                                {
-                                                                    nextShift.teamNumber
-                                                                }
+                                                                T{nextShift.teamNumber}
                                                             </Badge>
-                                                            <div
-                                                                className="small text-muted"
-                                                                style={{
-                                                                    fontSize:
-                                                                        '0.75rem',
-                                                                }}
-                                                            >
-                                                                {
-                                                                    nextShift
-                                                                        .shift
-                                                                        .code
-                                                                }
+                                                            <div className="small text-muted timeline-small-text">
+                                                                {nextShift.shift.code}
                                                             </div>
                                                         </div>
                                                     )}
@@ -371,106 +323,114 @@ export function CurrentStatus({
                     {/* Team Status Row */}
                     <Row>
                         <Col md={6}>
-                            <div className="p-3 border rounded bg-light">
+                            <div className="p-3 border rounded bg-light h-100 d-flex flex-column">
                                 <h6 className="mb-2 text-primary">
                                     🏷️ Your Team Status
                                 </h6>
-                                {isLoading ? (
-                                    <div className="d-flex align-items-center gap-2">
-                                        <Spinner animation="border" size="sm" />
-                                        <span className="text-muted">
-                                            Updating...
-                                        </span>
-                                    </div>
-                                ) : validatedTeam && currentShift ? (
-                                    <div>
-                                        <OverlayTrigger
-                                            placement="bottom"
-                                            overlay={
-                                                <Tooltip id="team-shift-tooltip">
-                                                    <strong>
-                                                        Your Team Today
-                                                    </strong>
-                                                    <br />
-                                                    Code:{' '}
-                                                    <strong>
-                                                        {
-                                                            currentShift.shift
-                                                                .code
-                                                        }
-                                                    </strong>
-                                                    <br />
-                                                    {currentShift.shift.code ===
-                                                        'M' &&
-                                                        'Morning shift (7:00-15:00)'}
-                                                    {currentShift.shift.code ===
-                                                        'E' &&
-                                                        'Evening shift (15:00-23:00)'}
-                                                    {currentShift.shift.code ===
-                                                        'N' &&
-                                                        'Night shift (23:00-7:00)'}
-                                                    {currentShift.shift.code ===
-                                                        'O' &&
-                                                        'Off duty - rest day'}
-                                                    <br />
-                                                    <em>
-                                                        Full code:{' '}
-                                                        {currentShift.code}
-                                                    </em>
-                                                </Tooltip>
-                                            }
-                                        >
-                                            <Badge
-                                                className={`shift-code shift-badge-lg ${getShiftClassName(currentShift.shift.code)}`}
-                                                style={{ cursor: 'help' }}
+                                <div className="flex-grow-1">
+                                    {isLoading ? (
+                                        <div className="d-flex align-items-center gap-2">
+                                            <Spinner
+                                                animation="border"
+                                                size="sm"
+                                            />
+                                            <span className="text-muted">
+                                                Updating...
+                                            </span>
+                                        </div>
+                                    ) : validatedTeam && currentShift ? (
+                                        <div>
+                                            <OverlayTrigger
+                                                placement="bottom"
+                                                overlay={
+                                                    <Tooltip id="team-shift-tooltip">
+                                                        <strong>
+                                                            Your Team Today
+                                                        </strong>
+                                                        <br />
+                                                        Code:{' '}
+                                                        <strong>
+                                                            {
+                                                                currentShift
+                                                                    .shift.code
+                                                            }
+                                                        </strong>
+                                                        <br />
+                                                        {currentShift.shift
+                                                            .code === 'M' &&
+                                                            'Morning shift (7:00-15:00)'}
+                                                        {currentShift.shift
+                                                            .code === 'E' &&
+                                                            'Evening shift (15:00-23:00)'}
+                                                        {currentShift.shift
+                                                            .code === 'N' &&
+                                                            'Night shift (23:00-7:00)'}
+                                                        {currentShift.shift
+                                                            .code === 'O' &&
+                                                            'Off duty - rest day'}
+                                                        <br />
+                                                        <em>
+                                                            Full code:{' '}
+                                                            {currentShift.code}
+                                                        </em>
+                                                    </Tooltip>
+                                                }
                                             >
-                                                Team {validatedTeam}:{' '}
-                                                {currentShift.shift.name}
-                                            </Badge>
-                                        </OverlayTrigger>
-                                        {currentShift.shift.hours && (
-                                            <div className="small text-muted mt-1">
-                                                {currentShift.shift.hours}
-                                            </div>
-                                        )}
-                                        {!currentShift.shift.isWorking &&
-                                            offDayProgress && (
-                                                <div className="mt-2">
-                                                    <div className="small text-muted mb-1">
-                                                        Off Day Progress: Day{' '}
-                                                        {offDayProgress.current}{' '}
-                                                        of{' '}
-                                                        {offDayProgress.total}
-                                                    </div>
-                                                    <ProgressBar
-                                                        now={
-                                                            (offDayProgress.current /
-                                                                offDayProgress.total) *
-                                                            100
-                                                        }
-                                                        variant="info"
-                                                        style={{
-                                                            height: '8px',
-                                                        }}
-                                                        aria-label={`Day ${offDayProgress.current} of ${offDayProgress.total} off days`}
-                                                    />
+                                                <Badge
+                                                    className={`shift-code shift-badge-lg cursor-help ${getShiftClassName(currentShift.shift.code)}`}
+                                                >
+                                                    Team {validatedTeam}:{' '}
+                                                    {currentShift.shift.name}
+                                                </Badge>
+                                            </OverlayTrigger>
+                                            {currentShift.shift.hours && (
+                                                <div className="small text-muted mt-1">
+                                                    {currentShift.shift.hours}
                                                 </div>
                                             )}
-                                    </div>
-                                ) : (
-                                    <div className="text-muted">
-                                        Please select your team to see your
-                                        current status
-                                    </div>
-                                )}
+                                            {!currentShift.shift.isWorking &&
+                                                offDayProgress && (
+                                                    <div className="mt-2">
+                                                        <div className="small text-muted mb-1">
+                                                            Off Day Progress:
+                                                            Day{' '}
+                                                            {
+                                                                offDayProgress.current
+                                                            }{' '}
+                                                            of{' '}
+                                                            {
+                                                                offDayProgress.total
+                                                            }
+                                                        </div>
+                                                        <ProgressBar
+                                                            now={
+                                                                (offDayProgress.current /
+                                                                    offDayProgress.total) *
+                                                                100
+                                                            }
+                                                            variant="info"
+                                                            className="progress-thin"
+                                                            aria-label={`Off day progress: ${offDayProgress.current} of ${offDayProgress.total} days`}
+                                                        />
+                                                    </div>
+                                                )}
+                                        </div>
+                                    ) : (
+                                        <div className="text-muted">
+                                            Please select your team to see your
+                                            current status
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </Col>
                         <Col md={6}>
-                            <div className="p-3 border rounded bg-light">
+                            <div className="p-3 border rounded bg-light h-100 d-flex flex-column">
                                 <h6 className="mb-2 text-success">
-                                    ⏭️ Your Next Shift
+                                    <i className="bi bi-arrow-right-circle me-1"></i>
+                                    Your Next Shift
                                 </h6>
-                                <div className="text-muted">
+                                <div className="text-muted flex-grow-1">
                                     {isLoading ? (
                                         <div className="d-flex align-items-center gap-2">
                                             <Spinner

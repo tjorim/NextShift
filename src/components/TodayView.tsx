@@ -11,6 +11,13 @@ import {
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
+const SHIFT_DESCRIPTIONS = {
+    M: 'Morning (7:00-15:00)',
+    E: 'Evening (15:00-23:00)',
+    N: 'Night (23:00-7:00)',
+    O: 'Off duty'
+} as const;
+
 interface TodayViewProps {
     todayShifts: ShiftResult[];
     selectedTeam: number | null;
@@ -60,6 +67,7 @@ export function TodayView({
                     size="sm"
                     onClick={onTodayClick}
                 >
+                    <i className="bi bi-calendar-check me-1"></i>
                     Today
                 </Button>
             </Card.Header>
@@ -95,22 +103,12 @@ export function TodayView({
                                                     {shiftResult.shift.code}
                                                 </strong>
                                                 <br />
-                                                {shiftResult.shift.code ===
-                                                    'M' &&
-                                                    'Morning (7:00-15:00)'}
-                                                {shiftResult.shift.code ===
-                                                    'E' &&
-                                                    'Evening (15:00-23:00)'}
-                                                {shiftResult.shift.code ===
-                                                    'N' && 'Night (23:00-7:00)'}
-                                                {shiftResult.shift.code ===
-                                                    'O' && 'Off duty'}
+                                                {SHIFT_DESCRIPTIONS[shiftResult.shift.code] || 'Unknown shift'}
                                             </Tooltip>
                                         }
                                     >
                                         <Badge
-                                            className={`shift-code ${getShiftClassName(shiftResult.shift.code)}`}
-                                            style={{ cursor: 'help' }}
+                                            className={`shift-code cursor-help ${getShiftClassName(shiftResult.shift.code)}`}
                                         >
                                             {shiftResult.shift.code}
                                         </Badge>
@@ -146,13 +144,7 @@ export function TodayView({
                                             </Tooltip>
                                         }
                                     >
-                                        <span
-                                            style={{
-                                                cursor: 'help',
-                                                textDecoration:
-                                                    'underline dotted',
-                                            }}
-                                        >
+                                        <span className="help-underline">
                                             {shiftResult.code}
                                         </span>
                                     </OverlayTrigger>

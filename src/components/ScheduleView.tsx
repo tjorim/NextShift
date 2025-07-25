@@ -94,6 +94,7 @@ export function ScheduleView({
                             onClick={handlePrevious}
                             aria-label="Go to previous week"
                         >
+                            <i className="bi bi-chevron-left me-1"></i>
                             Previous
                         </Button>
                         <Button
@@ -102,6 +103,7 @@ export function ScheduleView({
                             onClick={handleCurrent}
                             aria-label="Go to current week"
                         >
+                            <i className="bi bi-house me-1"></i>
                             This Week
                         </Button>
                         <Button
@@ -111,6 +113,7 @@ export function ScheduleView({
                             aria-label="Go to next week"
                         >
                             Next
+                            <i className="bi bi-chevron-right ms-1"></i>
                         </Button>
                     </fieldset>
                 </div>
@@ -120,6 +123,7 @@ export function ScheduleView({
                             htmlFor="datePicker"
                             className="mb-0 small text-muted"
                         >
+                            <i className="bi bi-calendar3 me-1"></i>
                             Jump to date:
                         </Form.Label>
                         <Form.Control
@@ -128,7 +132,7 @@ export function ScheduleView({
                             size="sm"
                             value={currentDate.format('YYYY-MM-DD')}
                             onChange={(e) => handleDateChange(e.target.value)}
-                            style={{ width: 'auto' }}
+                            className="date-picker-auto"
                         />
                     </div>
                     <div className="small text-muted">
@@ -193,13 +197,7 @@ export function ScheduleView({
                                                         </Tooltip>
                                                     }
                                                 >
-                                                    <span
-                                                        style={{
-                                                            cursor: 'help',
-                                                            textDecoration:
-                                                                'underline dotted',
-                                                        }}
-                                                    >
+                                                    <span className="help-underline">
                                                         {formatDateCode(day)}
                                                     </span>
                                                 </OverlayTrigger>
@@ -271,10 +269,7 @@ export function ScheduleView({
                                                         }
                                                     >
                                                         <Badge
-                                                            className={`shift-code ${getShiftClassName(shift.code)}`}
-                                                            style={{
-                                                                cursor: 'help',
-                                                            }}
+                                                            className={`shift-code cursor-help ${getShiftClassName(shift.code)}`}
                                                         >
                                                             {shift.code}
                                                         </Badge>

@@ -61,13 +61,22 @@ export function MainTabs({
                 <div className="col-12 mb-4">
                     <Nav variant="tabs" id="mainTabs">
                         <Nav.Item>
-                            <Nav.Link eventKey="today">Today</Nav.Link>
+                            <Nav.Link eventKey="today">
+                                <i className="bi bi-calendar-day me-1"></i>
+                                Today
+                            </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link eventKey="schedule">Schedule</Nav.Link>
+                            <Nav.Link eventKey="schedule">
+                                <i className="bi bi-calendar-week me-1"></i>
+                                Schedule
+                            </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link eventKey="transfer">Transfers</Nav.Link>
+                            <Nav.Link eventKey="transfer">
+                                <i className="bi bi-arrow-left-right me-1"></i>
+                                Transfers
+                            </Nav.Link>
                         </Nav.Item>
                     </Nav>
                 </div>

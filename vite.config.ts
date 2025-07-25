@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Read version from package.json for injection
-import packageJson from './package.json';
+import * as packageJson from './package.json';
 
 export default defineConfig({
     base: '/NextShift/',
@@ -22,12 +22,19 @@ export default defineConfig({
                 manifestTransforms: [
                     (manifestEntries) => {
                         // Remove duplicate icon entries to prevent cache conflicts
+                        // Only filter out icon entries that have revisions (duplicates)
                         const manifest = manifestEntries.filter((entry) => {
                             const url = entry.url;
-                            return (
-                                !url.includes('assets/icons/') ||
-                                !entry.revision
-                            );
+                            const isIconAsset = url.includes('assets/icons/');
+                            
+                            // Keep all non-icon assets
+                            if (!isIconAsset) {
+                                return true;
+                            }
+                            
+                            // For icon assets, only keep those without revisions
+                            // (this filters out the duplicate revisioned entries)
+                            return !entry.revision;
                         });
                         return { manifest };
                     },

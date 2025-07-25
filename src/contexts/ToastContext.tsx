@@ -37,7 +37,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
     const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
     const addToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
-        const id = Math.random().toString(36).substring(2, 9);
+        const id = crypto.randomUUID();
         const newToast: ToastMessage = {
             id,
             delay: 4000,
@@ -97,7 +97,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
             <ToastContainer
                 position="top-end"
                 className="p-3"
-                style={{ zIndex: 1050 }}
+                style={{ zIndex: 1100 }}
             >
                 {toasts.map((toast) => (
                     <Toast
@@ -110,10 +110,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
                     >
                         <Toast.Body className="d-flex align-items-center">
                             {toast.icon && (
-                                <span
-                                    className="me-2"
-                                    style={{ fontSize: '1.2em' }}
-                                >
+                                <span className="me-2 toast-icon">
                                     {toast.icon}
                                 </span>
                             )}
