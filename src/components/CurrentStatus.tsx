@@ -3,12 +3,18 @@ import { useMemo } from 'react';
 import { Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import { useCountdown } from '../hooks/useCountdown';
 import { CONFIG } from '../utils/config';
-import type { NextShiftResult, ShiftResult } from '../utils/shiftCalculations';
+import type {
+    NextShiftResult,
+    OffDayProgress,
+    ShiftResult,
+} from '../utils/shiftCalculations';
 import {
     calculateShift,
     formatDateCode,
+    getAllTeamsShifts,
     getCurrentShiftDay,
     getNextShift,
+    getOffDayProgress,
     getShiftCode,
 } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
@@ -77,6 +83,39 @@ export function CurrentStatus({
         return getNextShift(today, validatedTeam);
     }, [validatedTeam, today.startOf('minute').toISOString()]);
 
+    // Find which team is currently working
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
+    const currentWorkingTeam = useMemo((): ShiftResult | null => {
+        const allTeamsToday = getAllTeamsShifts(today);
+        const currentHour = today.hour();
+
+        // Find team that is working right now based on current time
+        const workingTeam = allTeamsToday.find((teamShift) => {
+            if (!teamShift.shift.isWorking) return false;
+
+            const { start, end } = teamShift.shift;
+            if (start === null || end === null) return false;
+
+            // Handle night shift that crosses midnight
+            if (start > end) {
+                // Night shift: 23:00 to 07:00 (next day)
+                return currentHour >= start || currentHour < end;
+            } else {
+                // Day/Evening shift: normal range
+                return currentHour >= start && currentHour < end;
+            }
+        });
+
+        return workingTeam || null;
+    }, [today.startOf('minute').toISOString()]);
+
+    // Calculate off-day progress when team is off
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
+    const offDayProgress = useMemo((): OffDayProgress | null => {
+        if (!validatedTeam) return null;
+        return getOffDayProgress(today, validatedTeam);
+    }, [validatedTeam, today.startOf('minute').toISOString()]);
+
     // Calculate next shift start time for countdown
     const nextShiftStartTime = useMemo(() => {
         if (!nextShift || !nextShift.shift.start) return null;
@@ -123,6 +162,25 @@ export function CurrentStatus({
                             <div className="h6 text-muted mb-2">
                                 {formatDateCode(today)}
                             </div>
+
+                            {/* Show which team is currently working */}
+                            {currentWorkingTeam && (
+                                <div className="mb-3 p-2 bg-light rounded">
+                                    <div className="small text-muted mb-1">
+                                        Currently Working:
+                                    </div>
+                                    <Badge
+                                        className={`${getShiftClassName(currentWorkingTeam.shift.code)}`}
+                                    >
+                                        Team {currentWorkingTeam.teamNumber}:{' '}
+                                        {currentWorkingTeam.shift.name}
+                                    </Badge>
+                                    <div className="small text-muted mt-1">
+                                        {currentWorkingTeam.shift.hours}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="mb-3">
                                 {isLoading ? (
                                     <div className="d-flex align-items-center gap-2">
@@ -139,9 +197,19 @@ export function CurrentStatus({
                                             Team {validatedTeam}:{' '}
                                             {currentShift.shift.name}
                                         </Badge>
-                                        <div className="small text-muted mt-1">
-                                            {currentShift.shift.hours}
-                                        </div>
+                                        {currentShift.shift.hours && (
+                                            <div className="small text-muted mt-1">
+                                                {currentShift.shift.hours}
+                                            </div>
+                                        )}
+                                        {!currentShift.shift.isWorking &&
+                                            offDayProgress && (
+                                                <div className="small text-muted mt-1">
+                                                    Day {offDayProgress.current}{' '}
+                                                    of {offDayProgress.total}{' '}
+                                                    off days
+                                                </div>
+                                            )}
                                     </div>
                                 ) : (
                                     <div className="text-muted">

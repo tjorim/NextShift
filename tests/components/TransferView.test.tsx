@@ -218,7 +218,7 @@ describe('TransferView', () => {
             expect(
                 screen.getByText('Transfers between Team 1 and Team 2:'),
             ).toBeInTheDocument();
-            expect(screen.getByText('Jan 15, 2025')).toBeInTheDocument();
+            expect(screen.getByText('Wed, Jan 15, 2025')).toBeInTheDocument();
             expect(screen.getByText('Morning')).toBeInTheDocument();
             expect(screen.getByText('Evening')).toBeInTheDocument();
             expect(screen.getByText('Team 1 → Team 2')).toBeInTheDocument();
@@ -297,8 +297,8 @@ describe('TransferView', () => {
             render(<TransferView {...defaultProps} selectedTeam={1} />);
 
             // Check that both transfers are displayed
-            expect(screen.getByText('Jan 15, 2025')).toBeInTheDocument();
-            expect(screen.getByText('Jan 16, 2025')).toBeInTheDocument();
+            expect(screen.getByText('Wed, Jan 15, 2025')).toBeInTheDocument();
+            expect(screen.getByText('Thu, Jan 16, 2025')).toBeInTheDocument();
 
             // Check shift types
             expect(screen.getAllByText('Morning')).toHaveLength(1);

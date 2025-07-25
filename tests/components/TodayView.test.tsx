@@ -18,7 +18,7 @@ const mockTodayShifts: ShiftResult[] = [
         teamNumber: 1,
         shift: {
             code: 'M',
-            name: 'Morning',
+            name: '🌅 Morning',
             hours: '07:00-15:00',
             start: 7,
             end: 15,
@@ -31,7 +31,7 @@ const mockTodayShifts: ShiftResult[] = [
         teamNumber: 2,
         shift: {
             code: 'E',
-            name: 'Evening',
+            name: '🌆 Evening',
             hours: '15:00-23:00',
             start: 15,
             end: 23,
@@ -44,7 +44,7 @@ const mockTodayShifts: ShiftResult[] = [
         teamNumber: 3,
         shift: {
             code: 'O',
-            name: 'Off',
+            name: '🏠 Off',
             hours: '',
             start: null,
             end: null,
@@ -75,9 +75,10 @@ describe('TodayView', () => {
         it('displays shift information for working teams', () => {
             render(<TodayView {...defaultProps} />);
 
-            expect(screen.getByText(/Morning/)).toBeInTheDocument();
-            expect(screen.getByText(/Evening/)).toBeInTheDocument();
-            expect(screen.getByText('Off')).toBeInTheDocument();
+            expect(screen.getByText(/🌅 Morning/)).toBeInTheDocument();
+            expect(screen.getByText(/🌆 Evening/)).toBeInTheDocument();
+            expect(screen.getByText(/🏠 Off/)).toBeInTheDocument();
+            expect(screen.getByText(/Not working today/)).toBeInTheDocument();
         });
 
         it('shows Today button', () => {
@@ -133,14 +134,15 @@ describe('TodayView', () => {
             render(<TodayView {...defaultProps} />);
 
             // Should show shift names
-            expect(screen.getByText(/Morning/)).toBeInTheDocument();
-            expect(screen.getByText(/Evening/)).toBeInTheDocument();
+            expect(screen.getByText(/🌅 Morning/)).toBeInTheDocument();
+            expect(screen.getByText(/🌆 Evening/)).toBeInTheDocument();
         });
 
         it('shows off status for non-working teams', () => {
             render(<TodayView {...defaultProps} />);
 
-            expect(screen.getByText('Off')).toBeInTheDocument();
+            expect(screen.getByText(/🏠 Off/)).toBeInTheDocument();
+            expect(screen.getByText(/Not working today/)).toBeInTheDocument();
         });
 
         // Note: Active badge functionality exists but requires complex time mocking
@@ -151,7 +153,7 @@ describe('TodayView', () => {
             render(<TodayView {...defaultProps} />);
 
             // Team 3 is off, so should never show active badge
-            const offTeamBadges = screen.getAllByText('Off');
+            const offTeamBadges = screen.getAllByText(/🏠 Off/);
             expect(offTeamBadges.length).toBeGreaterThan(0);
             expect(screen.queryByText('Active')).not.toBeInTheDocument();
         });

@@ -84,12 +84,10 @@ export function TodayView({
                                 </div>
                                 <div className="text-muted small">
                                     {shiftResult.shift.name}
-                                    {shiftResult.shift.isWorking && (
-                                        <>
-                                            <br />
-                                            {shiftResult.shift.hours}
-                                        </>
-                                    )}
+                                    <br />
+                                    {shiftResult.shift.isWorking
+                                        ? shiftResult.shift.hours
+                                        : 'Not working today'}
                                 </div>
                                 <div className="text-muted small mt-1">
                                     {shiftResult.code}

@@ -143,7 +143,7 @@ export function TransferView({
                                             <div className="d-flex justify-content-between align-items-center mb-2">
                                                 <strong>
                                                     {transfer.date.format(
-                                                        'MMM D, YYYY',
+                                                        'ddd, MMM D, YYYY',
                                                     )}
                                                 </strong>
                                                 <div className="d-flex gap-2 align-items-center">

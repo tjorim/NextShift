@@ -29,6 +29,11 @@ export interface NextShiftResult {
     code: string;
 }
 
+export interface OffDayProgress {
+    current: number;
+    total: number;
+}
+
 // Shift definitions
 export const SHIFTS = Object.freeze({
     MORNING: Object.freeze({
@@ -216,4 +221,44 @@ export function getAllTeamsShifts(date: string | Date | Dayjs): ShiftResult[] {
     }
 
     return results;
+}
+
+/**
+ * Calculates which day of an off period a team is currently on
+ * @param date - The date to check
+ * @param teamNumber - The team number
+ * @returns Off-day progress information or null if team is working
+ */
+export function getOffDayProgress(
+    date: string | Date | Dayjs,
+    teamNumber: number,
+): OffDayProgress | null {
+    // Validate team number
+    if (teamNumber < 1 || teamNumber > CONFIG.TEAMS_COUNT) {
+        return null;
+    }
+
+    const currentShift = calculateShift(date, teamNumber);
+
+    // Only calculate for teams that are off
+    if (currentShift.isWorking) {
+        return null;
+    }
+
+    // Team is off, calculate which day of their 4-day break
+    let dayCount = 0;
+    let checkDate = getCurrentShiftDay(dayjs(date));
+
+    // Look backwards to find when this off period started
+    for (let i = 0; i < CONFIG.SHIFT_CYCLE_DAYS; i++) {
+        // Max 10 days to avoid infinite loop
+        const shift = calculateShift(checkDate, teamNumber);
+        if (shift.isWorking) {
+            break; // Found the last working day
+        }
+        dayCount++;
+        checkDate = checkDate.subtract(1, 'day');
+    }
+
+    return dayCount > 0 ? { current: dayCount, total: 4 } : null;
 }

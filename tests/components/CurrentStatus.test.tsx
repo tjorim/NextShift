@@ -10,8 +10,10 @@ import * as shiftCalculations from '../../src/utils/shiftCalculations';
 vi.mock('../../src/utils/shiftCalculations', () => ({
     calculateShift: vi.fn(),
     formatDateCode: vi.fn(),
+    getAllTeamsShifts: vi.fn(),
     getCurrentShiftDay: vi.fn(),
     getNextShift: vi.fn(),
+    getOffDayProgress: vi.fn(),
     getShiftCode: vi.fn(),
 }));
 
@@ -46,6 +48,34 @@ describe('CurrentStatus Component', () => {
             isWorking: true,
         });
         vi.mocked(shiftCalculations.getShiftCode).mockReturnValue('D1');
+        vi.mocked(shiftCalculations.getAllTeamsShifts).mockReturnValue([
+            {
+                teamNumber: 1,
+                shift: {
+                    code: 'M',
+                    name: 'Morning',
+                    hours: '07:00-15:00',
+                    start: 7,
+                    end: 15,
+                    isWorking: true,
+                },
+                date: dayjs('2024-01-15'),
+                code: 'D1M',
+            },
+            {
+                teamNumber: 2,
+                shift: {
+                    code: 'O',
+                    name: 'Off',
+                    hours: '',
+                    start: null,
+                    end: null,
+                    isWorking: false,
+                },
+                date: dayjs('2024-01-15'),
+                code: 'D1O',
+            },
+        ]);
         vi.mocked(shiftCalculations.getNextShift).mockReturnValue({
             date: dayjs('2024-01-16'),
             shift: {
@@ -57,6 +87,10 @@ describe('CurrentStatus Component', () => {
                 isWorking: true,
             },
             code: '2404.2E',
+        });
+        vi.mocked(shiftCalculations.getOffDayProgress).mockReturnValue({
+            current: 2,
+            total: 4,
         });
         vi.mocked(useCountdownHook.useCountdown).mockReturnValue({
             days: 0,
