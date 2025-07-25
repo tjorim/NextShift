@@ -26,12 +26,12 @@ export default defineConfig({
                         const manifest = manifestEntries.filter((entry) => {
                             const url = entry.url;
                             const isIconAsset = url.includes('assets/icons/');
-                            
+
                             // Keep all non-icon assets
                             if (!isIconAsset) {
                                 return true;
                             }
-                            
+
                             // For icon assets, only keep those without revisions
                             // (this filters out the duplicate revisioned entries)
                             return !entry.revision;

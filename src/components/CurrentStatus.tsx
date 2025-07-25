@@ -29,39 +29,7 @@ import {
     getShiftCode,
 } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
-
-// Timeline computation helper
-interface TimelineData {
-    prevShift: ShiftResult | null;
-    currentShift: ShiftResult;
-    nextShift: ShiftResult | null;
-}
-
-function computeShiftTimeline(today: dayjs.Dayjs, currentWorkingTeam: ShiftResult): TimelineData {
-    // Get all teams for today to build timeline
-    const allTeamsToday = getAllTeamsShifts(today);
-    const workingTeams = allTeamsToday.filter((team) => team.shift.isWorking);
-
-    // Sort by shift start time to create timeline
-    const timeline = workingTeams.sort((a, b) => {
-        const startA = a.shift.start || 0;
-        const startB = b.shift.start || 0;
-        return startA - startB;
-    });
-
-    const currentIndex = timeline.findIndex(
-        (team) => team.teamNumber === currentWorkingTeam.teamNumber,
-    );
-
-    const prevShift = currentIndex > 0 ? timeline[currentIndex - 1] ?? null : null;
-    const nextShift = currentIndex < timeline.length - 1 ? timeline[currentIndex + 1] ?? null : null;
-
-    return {
-        prevShift,
-        currentShift: currentWorkingTeam,
-        nextShift,
-    };
-}
+import { ShiftTimeline } from './ShiftTimeline';
 
 interface CurrentStatusProps {
     selectedTeam: number | null;
@@ -191,7 +159,36 @@ export function CurrentStatus({
             <Card>
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <Card.Title className="mb-0">Current Status</Card.Title>
+                        <div className="d-flex align-items-center gap-3">
+                            <Card.Title className="mb-0">
+                                Current Status
+                            </Card.Title>
+                            <div className="text-muted">
+                                <OverlayTrigger
+                                    placement="bottom"
+                                    overlay={
+                                        <Tooltip id="date-code-tooltip-header">
+                                            <strong>Date Format: YYWW.D</strong>
+                                            <br />
+                                            YY = Year (2-digit)
+                                            <br />
+                                            WW = Week number
+                                            <br />D = Weekday (1=Mon, 7=Sun)
+                                            <br />
+                                            <em>
+                                                Today: {formatDateCode(today)}
+                                            </em>
+                                        </Tooltip>
+                                    }
+                                >
+                                    <small className="help-underline">
+                                        📅 {formatDateCode(today)} •{' '}
+                                        {liveTime.format('HH:mm')} (
+                                        {currentTimeShiftCode})
+                                    </small>
+                                </OverlayTrigger>
+                            </div>
+                        </div>
                         <div className="d-flex gap-2">
                             <Button
                                 variant="outline-primary"
@@ -213,112 +210,18 @@ export function CurrentStatus({
                             </Button>
                         </div>
                     </div>
-                    {/* Date and Global Status Row */}
-                    <Row className="mb-3">
-                        <Col>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div className="h6 text-muted mb-0">
-                                    <OverlayTrigger
-                                        placement="bottom"
-                                        overlay={
-                                            <Tooltip id="date-code-tooltip">
-                                                <strong>
-                                                    Date Format: YYWW.D
-                                                </strong>
-                                                <br />
-                                                YY = Year (2-digit)
-                                                <br />
-                                                WW = Week number
-                                                <br />D = Weekday (1=Mon, 7=Sun)
-                                                <br />
-                                                <em>
-                                                    Today:{' '}
-                                                    {formatDateCode(today)}
-                                                </em>
-                                            </Tooltip>
-                                        }
-                                    >
-                                        <span className="help-underline">
-                                            📅 {formatDateCode(today)} •{' '}
-                                            {liveTime.format('HH:mm')} (
-                                            {currentTimeShiftCode})
-                                        </span>
-                                    </OverlayTrigger>
-                                </div>
-                                {currentWorkingTeam && (
-                                    <div className="text-end">
-                                        <div className="text-muted mb-2">
-                                            <i className="bi bi-clock me-1"></i>
-                                            <strong>Shift Timeline:</strong>
-                                        </div>
-{(() => {
-                                            const { prevShift, nextShift } = computeShiftTimeline(today, currentWorkingTeam);
-                                            
-                                            return (
-                                                <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                                                    {prevShift && (
-                                                        <div className="text-center">
-                                                            <Badge
-                                                                bg="secondary"
-                                                                className="small"
-                                                            >
-                                                                T{prevShift.teamNumber}
-                                                            </Badge>
-                                                            <div className="small text-muted timeline-small-text">
-                                                                {prevShift.shift.code}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {prevShift && (
-                                                        <span className="text-muted">→</span>
-                                                    )}
-                                                    <div className="text-center">
-                                                        <OverlayTrigger
-                                                            placement="bottom"
-                                                            overlay={
-                                                                <Tooltip id="timeline-current-tooltip">
-                                                                    <strong>Currently Active</strong>
-                                                                    <br />
-                                                                    {currentWorkingTeam.shift.name}
-                                                                    <br />
-                                                                    {currentWorkingTeam.shift.hours}
-                                                                </Tooltip>
-                                                            }
-                                                        >
-                                                            <Badge
-                                                                className={`${getShiftClassName(currentWorkingTeam.shift.code)} px-2 py-1 timeline-current-badge`}
-                                                            >
-                                                                T{currentWorkingTeam.teamNumber}
-                                                            </Badge>
-                                                        </OverlayTrigger>
-                                                        <div className="small text-muted fw-bold timeline-small-text">
-                                                            {currentWorkingTeam.shift.code} 🔴
-                                                        </div>
-                                                    </div>
-                                                    {nextShift && (
-                                                        <span className="text-muted">→</span>
-                                                    )}
-                                                    {nextShift && (
-                                                        <div className="text-center">
-                                                            <Badge
-                                                                bg="secondary"
-                                                                className="small"
-                                                            >
-                                                                T{nextShift.teamNumber}
-                                                            </Badge>
-                                                            <div className="small text-muted timeline-small-text">
-                                                                {nextShift.shift.code}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
-                                )}
+
+                    {/* Timeline Row */}
+                    {currentWorkingTeam && (
+                        <Row className="mb-3">
+                            <div className="col-12">
+                                <ShiftTimeline
+                                    currentWorkingTeam={currentWorkingTeam}
+                                    today={today}
+                                />
                             </div>
-                        </Col>
-                    </Row>
+                        </Row>
+                    )}
 
                     {/* Team Status Row */}
                     <Row>

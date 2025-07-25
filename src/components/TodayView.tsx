@@ -15,7 +15,7 @@ const SHIFT_DESCRIPTIONS = {
     M: 'Morning (7:00-15:00)',
     E: 'Evening (15:00-23:00)',
     N: 'Night (23:00-7:00)',
-    O: 'Off duty'
+    O: 'Off duty',
 } as const;
 
 interface TodayViewProps {
@@ -103,7 +103,9 @@ export function TodayView({
                                                     {shiftResult.shift.code}
                                                 </strong>
                                                 <br />
-                                                {SHIFT_DESCRIPTIONS[shiftResult.shift.code] || 'Unknown shift'}
+                                                {SHIFT_DESCRIPTIONS[
+                                                    shiftResult.shift.code
+                                                ] || 'Unknown shift'}
                                             </Tooltip>
                                         }
                                     >
