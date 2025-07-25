@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useLocalStorage } from '../../src/hooks/useLocalStorage';
 
 describe('useLocalStorage Hook', () => {
@@ -57,6 +57,9 @@ describe('useLocalStorage Hook', () => {
     });
 
     it('should handle malformed JSON gracefully', () => {
+        const consoleSpy = vi
+            .spyOn(console, 'warn')
+            .mockImplementation(() => {});
         localStorage.setItem('test-key', 'invalid-json');
 
         const { result } = renderHook(() =>
@@ -64,5 +67,6 @@ describe('useLocalStorage Hook', () => {
         );
 
         expect(result.current[0]).toBe('fallback');
+        consoleSpy.mockRestore();
     });
 });

@@ -75,6 +75,13 @@ export function calculateShift(
     date: string | Date | Dayjs,
     teamNumber: number,
 ): Shift {
+    // Validate team number
+    if (teamNumber < 1 || teamNumber > CONFIG.TEAMS_COUNT) {
+        throw new Error(
+            `Invalid team number: ${teamNumber}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+        );
+    }
+
     const targetDate = dayjs(date).startOf('day');
     const referenceDate = dayjs(CONFIG.REFERENCE_DATE).startOf('day');
 

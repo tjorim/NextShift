@@ -374,19 +374,25 @@ describe('Error Handling and Robustness', () => {
         expect(() => getCurrentShiftDay(nanDate)).not.toThrow();
     });
 
-    it('should handle extreme team numbers without crashing', () => {
+    it('should validate team numbers and throw errors for invalid values', () => {
         const testDate = new Date('2025-07-16');
-        const extremeTeams = [
+        const invalidTeams = [
             Number.MAX_SAFE_INTEGER,
             Number.MIN_SAFE_INTEGER,
             0,
             -1000,
             1000,
+            6, // Above max teams
+            -1, // Below min teams
         ];
 
-        extremeTeams.forEach((team) => {
-            expect(() => calculateShift(testDate, team)).not.toThrow();
-            expect(() => getShiftCode(testDate, team)).not.toThrow();
+        invalidTeams.forEach((team) => {
+            expect(() => calculateShift(testDate, team)).toThrow(
+                /Invalid team number/,
+            );
+            expect(() => getShiftCode(testDate, team)).toThrow(
+                /Invalid team number/,
+            );
         });
     });
 

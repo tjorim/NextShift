@@ -20,7 +20,7 @@ interface CountdownResult {
  * @returns An object containing the breakdown of time left, expiration status, total seconds remaining, and a formatted string
  */
 function calculateTimeLeft(targetDate: Dayjs | null): CountdownResult {
-    if (!targetDate) {
+    if (!targetDate || !targetDate.isValid()) {
         return {
             days: 0,
             hours: 0,
@@ -92,18 +92,17 @@ export function useCountdown(
     );
 
     useEffect(() => {
+        // Update immediately when targetDate changes
+        setTimeLeft(calculateTimeLeft(targetDate));
+
         const updateCountdown = () => {
             setTimeLeft(calculateTimeLeft(targetDate));
         };
 
-        // Update immediately
-        updateCountdown();
-
-        // Set up interval
         const interval = setInterval(updateCountdown, updateInterval);
 
         return () => clearInterval(interval);
-    }, [targetDate, updateInterval]); // targetDate is stable now
+    }, [targetDate, updateInterval]);
 
     return timeLeft;
 }
