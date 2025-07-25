@@ -19,8 +19,19 @@ export default defineConfig({
             strategies: 'injectManifest',
             injectManifest: {
                 globPatterns: [
-                    '**/*.{js,css,html,ico,png,svg,webmanifest,json}',
+                    '**/*.{js,css,html,webmanifest}',
                 ],
+                manifestTransforms: [
+                    (manifestEntries) => {
+                        // Remove duplicate icon entries to prevent cache conflicts
+                        const manifest = manifestEntries.filter((entry) => {
+                            const url = entry.url;
+                            return !url.includes('assets/icons/') || !entry.revision;
+                        });
+                        return { manifest };
+                    },
+                ],
+                dontCacheBustURLsMatching: /assets\/icons\/.*\.png$/,
             },
             manifest: {
                 name: 'NextShift - Team Shift Tracker',
