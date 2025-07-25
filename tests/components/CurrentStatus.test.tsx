@@ -176,7 +176,7 @@ describe('CurrentStatus Component', () => {
 
             expect(screen.getByText('Updating...')).toBeInTheDocument();
             expect(
-                screen.getByText('Calculating next shift...'),
+                screen.getByText('Calculating your next shift...'),
             ).toBeInTheDocument();
         });
 
@@ -191,7 +191,7 @@ describe('CurrentStatus Component', () => {
 
             expect(screen.queryByText('Updating...')).not.toBeInTheDocument();
             expect(
-                screen.queryByText('Calculating next shift...'),
+                screen.queryByText('Calculating your next shift...'),
             ).not.toBeInTheDocument();
         });
     });
@@ -207,11 +207,11 @@ describe('CurrentStatus Component', () => {
 
             expect(
                 screen.getByText(
-                    'Please select your team to see current status',
+                    'Please select your team to see your current status',
                 ),
             ).toBeInTheDocument();
             expect(
-                screen.getByText('Select your team to see next shift'),
+                screen.getByText('Select your team to see your next shift'),
             ).toBeInTheDocument();
         });
 
@@ -237,8 +237,10 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            expect(screen.getByText('Next Shift:')).toBeInTheDocument();
-            expect(screen.getByText(/Jan 16.*Evening/)).toBeInTheDocument();
+            expect(screen.getByText('⏭️ Your Next Shift')).toBeInTheDocument();
+            expect(
+                screen.getByText(/Tue, Jan 16.*Evening/),
+            ).toBeInTheDocument();
             expect(screen.getByText('15:00-23:00')).toBeInTheDocument();
         });
     });
@@ -252,7 +254,7 @@ describe('CurrentStatus Component', () => {
                 />,
             );
 
-            expect(screen.getByText('Mon 15 Jan')).toBeInTheDocument();
+            expect(screen.getByText(/📅.*Mon 15 Jan/)).toBeInTheDocument();
             expect(shiftCalculations.formatDateCode).toHaveBeenCalledWith(
                 expect.any(Object),
             );
@@ -403,7 +405,7 @@ describe('CurrentStatus Component', () => {
             // Should show team selection prompt
             expect(
                 screen.getByText(
-                    'Please select your team to see current status',
+                    'Please select your team to see your current status',
                 ),
             ).toBeInTheDocument();
         });
