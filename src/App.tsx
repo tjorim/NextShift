@@ -1,6 +1,8 @@
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Container, Row } from 'react-bootstrap';
 import { CurrentStatus } from './components/CurrentStatus';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { TeamSelector } from './components/TeamSelector';
@@ -8,15 +10,22 @@ import { useShiftCalculation } from './hooks/useShiftCalculation';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.css';
 
+/**
+ * The main application component for team selection and shift management.
+ *
+ * Coordinates team selection, loading state, and tab navigation, and renders the primary UI for viewing and managing shift information.
+ *
+ * @returns The application's rendered user interface.
+ */
 function App() {
     const [showTeamModal, setShowTeamModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState('today');
     const {
         selectedTeam,
         setSelectedTeam,
         currentDate,
         setCurrentDate,
-        currentShift,
-        nextShift,
         todayShifts,
     } = useShiftCalculation();
 
@@ -28,8 +37,14 @@ function App() {
     }, [selectedTeam]); // setShowTeamModal is stable from useState
 
     const handleTeamSelect = (team: number) => {
-        setSelectedTeam(team);
-        setShowTeamModal(false);
+        setIsLoading(true);
+
+        // Use setTimeout to ensure loading state is visible before heavy operations
+        setTimeout(() => {
+            setSelectedTeam(team); // This triggers localStorage write and heavy recalculations
+            setShowTeamModal(false);
+            setIsLoading(false);
+        }, 0);
     };
 
     const handleChangeTeam = () => {
@@ -43,35 +58,49 @@ function App() {
         }
     };
 
+    const handleShowWhoIsWorking = () => {
+        // Switch to Today tab to show who's working
+        setActiveTab('today');
+        setCurrentDate(dayjs());
+    };
+
     return (
-        <div className="bg-light min-vh-100">
-            <Container fluid>
-                <Header />
+        <ErrorBoundary>
+            <div className="bg-light min-vh-100">
+                <Container fluid>
+                    <Header />
 
-                <CurrentStatus
-                    selectedTeam={selectedTeam}
-                    currentShift={currentShift}
-                    nextShift={nextShift}
-                    currentDate={currentDate}
-                    onChangeTeam={handleChangeTeam}
-                />
+                    <ErrorBoundary>
+                        <CurrentStatus
+                            selectedTeam={selectedTeam}
+                            onChangeTeam={handleChangeTeam}
+                            onShowWhoIsWorking={handleShowWhoIsWorking}
+                            isLoading={isLoading}
+                        />
+                    </ErrorBoundary>
 
-                <Row>
-                    <MainTabs
-                        selectedTeam={selectedTeam}
-                        currentDate={currentDate}
-                        setCurrentDate={setCurrentDate}
-                        todayShifts={todayShifts}
+                    <Row>
+                        <ErrorBoundary>
+                            <MainTabs
+                                selectedTeam={selectedTeam}
+                                currentDate={currentDate}
+                                setCurrentDate={setCurrentDate}
+                                todayShifts={todayShifts}
+                                activeTab={activeTab}
+                                onTabChange={setActiveTab}
+                            />
+                        </ErrorBoundary>
+                    </Row>
+
+                    <TeamSelector
+                        show={showTeamModal}
+                        onTeamSelect={handleTeamSelect}
+                        onHide={handleTeamModalHide}
+                        isLoading={isLoading}
                     />
-                </Row>
-
-                <TeamSelector
-                    show={showTeamModal}
-                    onTeamSelect={handleTeamSelect}
-                    onHide={handleTeamModalHide}
-                />
-            </Container>
-        </div>
+                </Container>
+            </div>
+        </ErrorBoundary>
     );
 }
 

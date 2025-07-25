@@ -1,8 +1,10 @@
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import utc from 'dayjs/plugin/utc';
 
-// Ensure UTC plugin is loaded for consistent date parsing
+// Ensure plugins are loaded for consistent date parsing and week handling
 dayjs.extend(utc);
+dayjs.extend(isoWeek);
 
 /**
  * Parse date string in UTC to avoid timezone interpretation issues
@@ -30,6 +32,7 @@ declare global {
 // Define constants that don't depend on configuration
 const TEAMS_COUNT = 5;
 const SHIFT_CYCLE_DAYS = 10;
+const MAX_TRANSFERS_DISPLAY = 20;
 
 export const CONFIG = {
     VERSION: __APP_VERSION__,
@@ -69,8 +72,8 @@ export const CONFIG = {
             );
         }
 
-        // Fallback to default date
-        return parseUTCDate('2025-01-06');
+        // Fallback to default date (aligned with Team 1 starting August 1, 2022)
+        return parseUTCDate('2025-07-16');
     })(),
     REFERENCE_TEAM: (() => {
         // Try to load from environment variable first
@@ -104,4 +107,5 @@ export const CONFIG = {
     })(),
     SHIFT_CYCLE_DAYS,
     TEAMS_COUNT,
+    MAX_TRANSFERS_DISPLAY,
 } as const;

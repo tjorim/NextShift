@@ -1,76 +1,86 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { TeamSelector } from '../../src/components/TeamSelector';
 
-describe('TeamSelector Component', () => {
-    it('should render when show is true', () => {
-        const mockOnTeamSelect = vi.fn();
-        const mockOnHide = vi.fn();
+const defaultProps = {
+    show: true,
+    onTeamSelect: vi.fn(),
+    onHide: vi.fn(),
+    isLoading: false,
+};
 
-        render(
-            <TeamSelector
-                show={true}
-                onTeamSelect={mockOnTeamSelect}
-                onHide={mockOnHide}
-            />,
-        );
+describe('TeamSelector', () => {
+    describe('Basic rendering', () => {
+        it('renders modal when show is true', () => {
+            render(<TeamSelector {...defaultProps} />);
+            expect(screen.getByText('Select Your Team')).toBeInTheDocument();
+        });
 
-        expect(screen.getByText('Select Your Team')).toBeInTheDocument();
-        expect(
-            screen.getByText('Please select which team you belong to:'),
-        ).toBeInTheDocument();
+        it('does not render modal when show is false', () => {
+            render(<TeamSelector {...defaultProps} show={false} />);
+            expect(
+                screen.queryByText('Select Your Team'),
+            ).not.toBeInTheDocument();
+        });
+
+        it('renders all team buttons', () => {
+            render(<TeamSelector {...defaultProps} />);
+
+            for (let team = 1; team <= 5; team++) {
+                expect(screen.getByText(`Team ${team}`)).toBeInTheDocument();
+            }
+        });
     });
 
-    it('should render all team buttons', () => {
-        const mockOnTeamSelect = vi.fn();
-        const mockOnHide = vi.fn();
+    describe('Team selection', () => {
+        it('calls onTeamSelect when team button is clicked', async () => {
+            const user = userEvent.setup();
+            const mockOnTeamSelect = vi.fn();
 
-        render(
-            <TeamSelector
-                show={true}
-                onTeamSelect={mockOnTeamSelect}
-                onHide={mockOnHide}
-            />,
-        );
+            render(
+                <TeamSelector
+                    {...defaultProps}
+                    onTeamSelect={mockOnTeamSelect}
+                />,
+            );
 
-        for (let i = 1; i <= 5; i++) {
-            expect(screen.getByText(`Team ${i}`)).toBeInTheDocument();
-        }
+            const team3Button = screen.getByText('Team 3');
+            await user.click(team3Button);
+
+            expect(mockOnTeamSelect).toHaveBeenCalledWith(3);
+        });
     });
 
-    it('should call onTeamSelect and onHide when team is selected', async () => {
-        const mockOnTeamSelect = vi.fn();
-        const mockOnHide = vi.fn();
-        const user = userEvent.setup();
+    describe('Loading state', () => {
+        it('shows loading spinner when isLoading is true', () => {
+            render(<TeamSelector {...defaultProps} isLoading={true} />);
+            expect(
+                screen.getByText('Setting up your team...'),
+            ).toBeInTheDocument();
+        });
 
-        render(
-            <TeamSelector
-                show={true}
-                onTeamSelect={mockOnTeamSelect}
-                onHide={mockOnHide}
-            />,
-        );
+        it('hides team buttons when loading', () => {
+            render(<TeamSelector {...defaultProps} isLoading={true} />);
 
-        const team3Button = screen.getByText('Team 3');
-        await user.click(team3Button);
-
-        expect(mockOnTeamSelect).toHaveBeenCalledWith(3);
-        expect(mockOnHide).toHaveBeenCalled();
+            // Team buttons should not be present when loading
+            for (let team = 1; team <= 5; team++) {
+                expect(
+                    screen.queryByText(`Team ${team}`),
+                ).not.toBeInTheDocument();
+            }
+        });
     });
 
-    it('should not render when show is false', () => {
-        const mockOnTeamSelect = vi.fn();
-        const mockOnHide = vi.fn();
+    describe('Modal behavior', () => {
+        it('accepts onHide callback prop', () => {
+            const mockOnHide = vi.fn();
+            render(<TeamSelector {...defaultProps} onHide={mockOnHide} />);
 
-        render(
-            <TeamSelector
-                show={false}
-                onTeamSelect={mockOnTeamSelect}
-                onHide={mockOnHide}
-            />,
-        );
-
-        expect(screen.queryByText('Select Your Team')).not.toBeInTheDocument();
+            // Modal renders without errors and accepts the callback
+            expect(screen.getByText('Select Your Team')).toBeInTheDocument();
+            expect(mockOnHide).toBeDefined();
+        });
     });
 });

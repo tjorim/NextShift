@@ -1,27 +1,31 @@
 import { useState } from 'react';
-import { Badge, Button, Col, Modal } from 'react-bootstrap';
+import { Badge, Button, Modal } from 'react-bootstrap';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 import {
     getServiceWorkerStatusText,
     useServiceWorkerStatus,
 } from '../hooks/useServiceWorkerStatus';
 import { CONFIG } from '../utils/config';
 
+/**
+ * Displays the top navigation bar and About modal for the NextShift application.
+ *
+ * The header shows the app title, online/offline status, a PWA install button when available, and an About button. The About modal presents version information, service worker status, feature highlights, and licensing details.
+ */
 export function Header() {
     const isOnline = useOnlineStatus();
     const serviceWorkerStatus = useServiceWorkerStatus();
+    const { isInstallable, promptInstall } = usePWAInstall();
     const [showAbout, setShowAbout] = useState(false);
 
     return (
         <>
-            <header className="row bg-primary text-white py-3 mb-4">
-                <Col>
+            <header className="sticky-top bg-primary text-white py-2 mb-3 shadow-sm">
+                <div className="container-fluid">
                     <div className="d-flex justify-content-between align-items-center">
                         <div>
-                            <h1 className="h3 mb-0">NextShift</h1>
-                            <small className="text-white-50">
-                                v{CONFIG.VERSION}
-                            </small>
+                            <h1 className="h4 mb-0">NextShift</h1>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             <Badge
@@ -30,6 +34,16 @@ export function Header() {
                             >
                                 {isOnline ? 'Online' : 'Offline'}
                             </Badge>
+                            {isInstallable && (
+                                <Button
+                                    variant="outline-light"
+                                    size="sm"
+                                    onClick={promptInstall}
+                                    aria-label="Install NextShift App"
+                                >
+                                    📱 Install
+                                </Button>
+                            )}
                             <Button
                                 variant="outline-light"
                                 size="sm"
@@ -40,7 +54,7 @@ export function Header() {
                             </Button>
                         </div>
                     </div>
-                </Col>
+                </div>
             </header>
 
             {/* About Modal */}
@@ -52,7 +66,7 @@ export function Header() {
                     <div className="text-center mb-3">
                         <h6>NextShift - Team Shift Tracker</h6>
                         <p className="text-muted mb-1">
-                            Version {CONFIG.VERSION}
+                            <strong>Version {CONFIG.VERSION}</strong>
                         </p>
                         <p className="text-muted small">
                             {getServiceWorkerStatusText(serviceWorkerStatus)}

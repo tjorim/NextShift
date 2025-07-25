@@ -1,5 +1,5 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Nav, Tab } from 'react-bootstrap';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { ScheduleView } from './ScheduleView';
@@ -11,15 +11,37 @@ interface MainTabsProps {
     currentDate: Dayjs;
     setCurrentDate: (date: Dayjs) => void;
     todayShifts: ShiftResult[];
+    activeTab?: string;
+    onTabChange?: (tab: string) => void;
 }
 
+/**
+ * Displays a tabbed interface for viewing today's shifts, the team schedule, or transfer information.
+ *
+ * Supports both internal and external control of the active tab, and notifies when the tab changes. Each tab presents a different view relevant to the selected team and date.
+ *
+ * @param selectedTeam - The currently selected team number or null
+ * @param currentDate - The current date being viewed
+ * @param setCurrentDate - Function to update the current date
+ * @param todayShifts - Array of shift results for today
+ * @param activeTab - The currently active tab (defaults to 'today')
+ * @param onTabChange - Callback invoked when the active tab changes
+ * @returns The rendered tabbed interface component.
+ */
 export function MainTabs({
     selectedTeam,
     currentDate,
     setCurrentDate,
     todayShifts,
+    activeTab = 'today',
+    onTabChange,
 }: MainTabsProps) {
-    const [activeKey, setActiveKey] = useState<string>('today');
+    const [activeKey, setActiveKey] = useState<string>(activeTab);
+
+    // Sync with external tab changes
+    useEffect(() => {
+        setActiveKey(activeTab);
+    }, [activeTab]);
 
     const handleTodayClick = () => {
         setCurrentDate(dayjs());
@@ -29,7 +51,11 @@ export function MainTabs({
         <div className="col-12">
             <Tab.Container
                 activeKey={activeKey}
-                onSelect={(k) => setActiveKey(k || 'today')}
+                onSelect={(k) => {
+                    const newKey = k || 'today';
+                    setActiveKey(newKey);
+                    onTabChange?.(newKey);
+                }}
             >
                 {/* Navigation Tabs */}
                 <div className="col-12 mb-4">

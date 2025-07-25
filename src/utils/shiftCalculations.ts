@@ -29,41 +29,46 @@ export interface NextShiftResult {
     code: string;
 }
 
+export interface OffDayProgress {
+    current: number;
+    total: number;
+}
+
 // Shift definitions
-export const SHIFTS = {
-    MORNING: {
+export const SHIFTS = Object.freeze({
+    MORNING: Object.freeze({
         code: 'M',
-        name: 'Morning',
+        name: '🌅 Morning',
         hours: '07:00-15:00',
         start: 7,
         end: 15,
         isWorking: true,
-    },
-    EVENING: {
+    }),
+    EVENING: Object.freeze({
         code: 'E',
-        name: 'Evening',
+        name: '🌆 Evening',
         hours: '15:00-23:00',
         start: 15,
         end: 23,
         isWorking: true,
-    },
-    NIGHT: {
+    }),
+    NIGHT: Object.freeze({
         code: 'N',
-        name: 'Night',
+        name: '🌙 Night',
         hours: '23:00-07:00',
         start: 23,
         end: 7,
         isWorking: true,
-    },
-    OFF: {
+    }),
+    OFF: Object.freeze({
         code: 'O',
-        name: 'Off',
+        name: '🏠 Off',
         hours: 'Not working',
         start: null,
         end: null,
         isWorking: false,
-    },
-} as const;
+    }),
+});
 
 /**
  * Calculates the shift for a given team on a specific date.
@@ -75,6 +80,13 @@ export function calculateShift(
     date: string | Date | Dayjs,
     teamNumber: number,
 ): Shift {
+    // Validate team number
+    if (teamNumber < 1 || teamNumber > CONFIG.TEAMS_COUNT) {
+        throw new Error(
+            `Invalid team number: ${teamNumber}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+        );
+    }
+
     const targetDate = dayjs(date).startOf('day');
     const referenceDate = dayjs(CONFIG.REFERENCE_DATE).startOf('day');
 
@@ -209,4 +221,44 @@ export function getAllTeamsShifts(date: string | Date | Dayjs): ShiftResult[] {
     }
 
     return results;
+}
+
+/**
+ * Calculates which day of an off period a team is currently on
+ * @param date - The date to check
+ * @param teamNumber - The team number
+ * @returns Off-day progress information or null if team is working
+ */
+export function getOffDayProgress(
+    date: string | Date | Dayjs,
+    teamNumber: number,
+): OffDayProgress | null {
+    // Validate team number
+    if (teamNumber < 1 || teamNumber > CONFIG.TEAMS_COUNT) {
+        return null;
+    }
+
+    const currentShift = calculateShift(date, teamNumber);
+
+    // Only calculate for teams that are off
+    if (currentShift.isWorking) {
+        return null;
+    }
+
+    // Team is off, calculate which day of their 4-day break
+    let dayCount = 0;
+    let checkDate = getCurrentShiftDay(dayjs(date));
+
+    // Look backwards to find when this off period started
+    for (let i = 0; i < CONFIG.SHIFT_CYCLE_DAYS; i++) {
+        // Max 10 days to avoid infinite loop
+        const shift = calculateShift(checkDate, teamNumber);
+        if (shift.isWorking) {
+            break; // Found the last working day
+        }
+        dayCount++;
+        checkDate = checkDate.subtract(1, 'day');
+    }
+
+    return dayCount > 0 ? { current: dayCount, total: 4 } : null;
 }
