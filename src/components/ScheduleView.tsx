@@ -1,5 +1,13 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import { Badge, Button, Card, Form, Table } from 'react-bootstrap';
+import {
+    Badge,
+    Button,
+    Card,
+    Form,
+    OverlayTrigger,
+    Table,
+    Tooltip,
+} from 'react-bootstrap';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { CONFIG } from '../utils/config';
 import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
@@ -159,7 +167,42 @@ export function ScheduleView({
                                                 {day.format('ddd')}
                                             </div>
                                             <div className="small text-muted">
-                                                {formatDateCode(day)}
+                                                <OverlayTrigger
+                                                    placement="bottom"
+                                                    overlay={
+                                                        <Tooltip
+                                                            id={`date-tooltip-${day.format('YYYY-MM-DD')}`}
+                                                        >
+                                                            <strong>
+                                                                Date Code:{' '}
+                                                                {formatDateCode(
+                                                                    day,
+                                                                )}
+                                                            </strong>
+                                                            <br />
+                                                            Format: YYWW.D
+                                                            <br />
+                                                            YY = Year{' '}
+                                                            {day.format('YY')}
+                                                            <br />
+                                                            WW = Week{' '}
+                                                            {day.format('WW')}
+                                                            <br />D = Day{' '}
+                                                            {day.format('d')} (
+                                                            {day.format('ddd')})
+                                                        </Tooltip>
+                                                    }
+                                                >
+                                                    <span
+                                                        style={{
+                                                            cursor: 'help',
+                                                            textDecoration:
+                                                                'underline dotted',
+                                                        }}
+                                                    >
+                                                        {formatDateCode(day)}
+                                                    </span>
+                                                </OverlayTrigger>
                                             </div>
                                         </th>
                                     );
@@ -196,11 +239,46 @@ export function ScheduleView({
                                                 aria-label={`Team ${teamNumber} on ${day.format('dddd')}: ${shift.isWorking ? shift.name : 'Off'}`}
                                             >
                                                 {shift.isWorking && (
-                                                    <Badge
-                                                        className={`shift-code ${getShiftClassName(shift.code)}`}
+                                                    <OverlayTrigger
+                                                        placement="bottom"
+                                                        overlay={
+                                                            <Tooltip
+                                                                id={`schedule-tooltip-${teamNumber}-${day.format('YYYY-MM-DD')}`}
+                                                            >
+                                                                <strong>
+                                                                    Shift:{' '}
+                                                                    {shift.code}
+                                                                </strong>
+                                                                <br />
+                                                                {shift.code ===
+                                                                    'M' &&
+                                                                    'Morning shift (7:00-15:00)'}
+                                                                {shift.code ===
+                                                                    'E' &&
+                                                                    'Evening shift (15:00-23:00)'}
+                                                                {shift.code ===
+                                                                    'N' &&
+                                                                    'Night shift (23:00-7:00)'}
+                                                                <br />
+                                                                <em>
+                                                                    {shift.name}{' '}
+                                                                    -{' '}
+                                                                    {
+                                                                        shift.hours
+                                                                    }
+                                                                </em>
+                                                            </Tooltip>
+                                                        }
                                                     >
-                                                        {shift.code}
-                                                    </Badge>
+                                                        <Badge
+                                                            className={`shift-code ${getShiftClassName(shift.code)}`}
+                                                            style={{
+                                                                cursor: 'help',
+                                                            }}
+                                                        >
+                                                            {shift.code}
+                                                        </Badge>
+                                                    </OverlayTrigger>
                                                 )}
                                             </td>
                                         );

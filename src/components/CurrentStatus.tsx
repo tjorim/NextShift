@@ -1,6 +1,16 @@
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-import { Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
+import {
+    Badge,
+    Button,
+    Card,
+    Col,
+    OverlayTrigger,
+    ProgressBar,
+    Row,
+    Spinner,
+    Tooltip,
+} from 'react-bootstrap';
 import { useCountdown } from '../hooks/useCountdown';
 import { CONFIG } from '../utils/config';
 import type {
@@ -160,7 +170,32 @@ export function CurrentStatus({
                     <Row>
                         <Col md={6}>
                             <div className="h6 text-muted mb-2">
-                                {formatDateCode(today)}
+                                <OverlayTrigger
+                                    placement="bottom"
+                                    overlay={
+                                        <Tooltip id="date-code-tooltip">
+                                            <strong>Date Format: YYWW.D</strong>
+                                            <br />
+                                            YY = Year (2-digit)
+                                            <br />
+                                            WW = Week number
+                                            <br />D = Weekday (1=Mon, 7=Sun)
+                                            <br />
+                                            <em>
+                                                Today: {formatDateCode(today)}
+                                            </em>
+                                        </Tooltip>
+                                    }
+                                >
+                                    <span
+                                        style={{
+                                            cursor: 'help',
+                                            textDecoration: 'underline dotted',
+                                        }}
+                                    >
+                                        {formatDateCode(today)}
+                                    </span>
+                                </OverlayTrigger>
                             </div>
 
                             {/* Show which team is currently working */}
@@ -169,12 +204,32 @@ export function CurrentStatus({
                                     <div className="small text-muted mb-1">
                                         Currently Working:
                                     </div>
-                                    <Badge
-                                        className={`${getShiftClassName(currentWorkingTeam.shift.code)}`}
+                                    <OverlayTrigger
+                                        placement="bottom"
+                                        overlay={
+                                            <Tooltip id="working-team-tooltip">
+                                                <strong>
+                                                    Shift Code:{' '}
+                                                    {
+                                                        currentWorkingTeam.shift
+                                                            .code
+                                                    }
+                                                </strong>
+                                                <br />M = Morning (7:00-15:00)
+                                                <br />E = Evening (15:00-23:00)
+                                                <br />N = Night (23:00-7:00)
+                                                <br />O = Off duty
+                                            </Tooltip>
+                                        }
                                     >
-                                        Team {currentWorkingTeam.teamNumber}:{' '}
-                                        {currentWorkingTeam.shift.name}
-                                    </Badge>
+                                        <Badge
+                                            className={`${getShiftClassName(currentWorkingTeam.shift.code)}`}
+                                            style={{ cursor: 'help' }}
+                                        >
+                                            Team {currentWorkingTeam.teamNumber}
+                                            : {currentWorkingTeam.shift.name}
+                                        </Badge>
+                                    </OverlayTrigger>
                                     <div className="small text-muted mt-1">
                                         {currentWorkingTeam.shift.hours}
                                     </div>
@@ -191,12 +246,50 @@ export function CurrentStatus({
                                     </div>
                                 ) : validatedTeam && currentShift ? (
                                     <div>
-                                        <Badge
-                                            className={`shift-code shift-badge-lg ${getShiftClassName(currentShift.shift.code)}`}
+                                        <OverlayTrigger
+                                            placement="bottom"
+                                            overlay={
+                                                <Tooltip id="team-shift-tooltip">
+                                                    <strong>
+                                                        Your Team Shift
+                                                    </strong>
+                                                    <br />
+                                                    Code:{' '}
+                                                    <strong>
+                                                        {
+                                                            currentShift.shift
+                                                                .code
+                                                        }
+                                                    </strong>
+                                                    <br />
+                                                    {currentShift.shift.code ===
+                                                        'M' &&
+                                                        'Morning shift (7:00-15:00)'}
+                                                    {currentShift.shift.code ===
+                                                        'E' &&
+                                                        'Evening shift (15:00-23:00)'}
+                                                    {currentShift.shift.code ===
+                                                        'N' &&
+                                                        'Night shift (23:00-7:00)'}
+                                                    {currentShift.shift.code ===
+                                                        'O' &&
+                                                        'Off duty - rest day'}
+                                                    <br />
+                                                    <em>
+                                                        Full code:{' '}
+                                                        {currentShift.code}
+                                                    </em>
+                                                </Tooltip>
+                                            }
                                         >
-                                            Team {validatedTeam}:{' '}
-                                            {currentShift.shift.name}
-                                        </Badge>
+                                            <Badge
+                                                className={`shift-code shift-badge-lg ${getShiftClassName(currentShift.shift.code)}`}
+                                                style={{ cursor: 'help' }}
+                                            >
+                                                Team {validatedTeam}:{' '}
+                                                {currentShift.shift.name}
+                                            </Badge>
+                                        </OverlayTrigger>
                                         {currentShift.shift.hours && (
                                             <div className="small text-muted mt-1">
                                                 {currentShift.shift.hours}
@@ -204,10 +297,25 @@ export function CurrentStatus({
                                         )}
                                         {!currentShift.shift.isWorking &&
                                             offDayProgress && (
-                                                <div className="small text-muted mt-1">
-                                                    Day {offDayProgress.current}{' '}
-                                                    of {offDayProgress.total}{' '}
-                                                    off days
+                                                <div className="mt-2">
+                                                    <div className="small text-muted mb-1">
+                                                        Off Day Progress: Day{' '}
+                                                        {offDayProgress.current}{' '}
+                                                        of{' '}
+                                                        {offDayProgress.total}
+                                                    </div>
+                                                    <ProgressBar
+                                                        now={
+                                                            (offDayProgress.current /
+                                                                offDayProgress.total) *
+                                                            100
+                                                        }
+                                                        variant="info"
+                                                        style={{
+                                                            height: '8px',
+                                                        }}
+                                                        aria-label={`Day ${offDayProgress.current} of ${offDayProgress.total} off days`}
+                                                    />
                                                 </div>
                                             )}
                                     </div>

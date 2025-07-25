@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { TeamSelector } from './components/TeamSelector';
+import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.css';
@@ -17,10 +18,11 @@ import './styles/main.css';
  *
  * @returns The application's rendered user interface.
  */
-function App() {
+function AppContent() {
     const [showTeamModal, setShowTeamModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('today');
+    const { showSuccess, showInfo } = useToast();
     const {
         selectedTeam,
         setSelectedTeam,
@@ -44,6 +46,10 @@ function App() {
             setSelectedTeam(team); // This triggers localStorage write and heavy recalculations
             setShowTeamModal(false);
             setIsLoading(false);
+            showSuccess(
+                `Team ${team} selected! Your shifts are now personalized.`,
+                '🎯',
+            );
         }, 0);
     };
 
@@ -62,6 +68,7 @@ function App() {
         // Switch to Today tab to show who's working
         setActiveTab('today');
         setCurrentDate(dayjs());
+        showInfo("Switched to Today view to see who's working", '👥');
     };
 
     return (
@@ -101,6 +108,14 @@ function App() {
                 </Container>
             </div>
         </ErrorBoundary>
+    );
+}
+
+function App() {
+    return (
+        <ToastProvider>
+            <AppContent />
+        </ToastProvider>
     );
 }
 
