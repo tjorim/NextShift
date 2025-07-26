@@ -1,9 +1,11 @@
 import dayjs, { type Dayjs } from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { CONFIG } from './config';
 
 // Initialize dayjs plugins
 dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
 
 export type ShiftType = 'M' | 'E' | 'N' | 'O';
 
@@ -116,15 +118,16 @@ export function calculateShift(
 }
 
 /**
- * Formats a date into the YYWW.D format
+ * Formats a date into the YYWW.D format using ISO week numbering
  * Note: Year is represented as 2 digits (00-99), valid for years 2000-2099
+ * Uses ISO week numbering to be consistent with Monday-Sunday week display
  * @param date - The date to format
  * @returns The formatted date code (e.g., "2520.2")
  */
 export function formatDateCode(date: string | Date | Dayjs): string {
     const d = dayjs(date);
     const year = d.year().toString().slice(-2);
-    const week = d.week().toString().padStart(2, '0');
+    const week = d.isoWeek().toString().padStart(2, '0');
     const day = d.day() === 0 ? 7 : d.day(); // Sunday = 7, Monday = 1, etc.
     return `${year}${week}.${day}`;
 }
