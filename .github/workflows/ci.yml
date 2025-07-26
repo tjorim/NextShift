@@ -61,16 +61,16 @@ jobs:
           [ -f "dist/index.html" ] && echo "✅ Built index.html found" || { echo "❌ Built index.html missing"; exit 1; }
           [ -f "dist/manifest.webmanifest" ] && echo "✅ Auto-generated manifest found" || { echo "❌ Manifest missing"; exit 1; }
 
-          # Check for built CSS (Vite generates hashed filenames)
-          if ls dist/assets/*.css 1> /dev/null 2>&1; then
+          # Check for built CSS (Vite generates hashed filenames in subdirectories)
+          if ls dist/assets/css/*.css 1> /dev/null 2>&1; then
             echo "✅ Built CSS files found"
           else
             echo "❌ Built CSS files missing"
             exit 1
           fi
 
-          # Check for built JS (Vite generates hashed filenames)
-          if ls dist/assets/*.js 1> /dev/null 2>&1; then
+          # Check for built JS (Vite generates hashed filenames in subdirectories)
+          if ls dist/assets/js/*.js 1> /dev/null 2>&1; then
             echo "✅ Built JS files found"
           else
             echo "❌ Built JS files missing"
