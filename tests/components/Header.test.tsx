@@ -90,7 +90,7 @@ describe('Header', () => {
             });
 
             render(<Header />);
-            expect(screen.getByText('📱 Install')).toBeInTheDocument();
+            expect(screen.getByText('Install')).toBeInTheDocument();
         });
 
         it('does not show install button when not installable', () => {
@@ -100,7 +100,7 @@ describe('Header', () => {
             });
 
             render(<Header />);
-            expect(screen.queryByText('📱 Install')).not.toBeInTheDocument();
+            expect(screen.queryByText('Install')).not.toBeInTheDocument();
         });
     });
 

@@ -1,6 +1,7 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
-import { Nav, Tab } from 'react-bootstrap';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { ScheduleView } from './ScheduleView';
 import { TodayView } from './TodayView';
@@ -48,53 +49,68 @@ export function MainTabs({
     };
 
     return (
-        <div className="col-12">
-            <Tab.Container
-                activeKey={activeKey}
-                onSelect={(k) => {
-                    const newKey = k || 'today';
-                    setActiveKey(newKey);
-                    onTabChange?.(newKey);
-                }}
+        <Tabs
+            activeKey={activeKey}
+            onSelect={(k) => {
+                const newKey = k || 'today';
+                setActiveKey(newKey);
+                onTabChange?.(newKey);
+            }}
+            id="mainTabs"
+            className="mb-3"
+        >
+            <Tab
+                eventKey="today"
+                title={
+                    <>
+                        <i
+                            className="bi bi-calendar-day me-1"
+                            aria-hidden="true"
+                        ></i>
+                        Today
+                    </>
+                }
             >
-                {/* Navigation Tabs */}
-                <div className="col-12 mb-4">
-                    <Nav variant="tabs" id="mainTabs">
-                        <Nav.Item>
-                            <Nav.Link eventKey="today">Today</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <Nav.Link eventKey="schedule">Schedule</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <Nav.Link eventKey="transfer">Transfers</Nav.Link>
-                        </Nav.Item>
-                    </Nav>
-                </div>
+                <TodayView
+                    todayShifts={todayShifts}
+                    selectedTeam={selectedTeam}
+                    onTodayClick={handleTodayClick}
+                />
+            </Tab>
 
-                {/* Tab Content */}
-                <Tab.Content>
-                    <Tab.Pane eventKey="today">
-                        <TodayView
-                            todayShifts={todayShifts}
-                            selectedTeam={selectedTeam}
-                            onTodayClick={handleTodayClick}
-                        />
-                    </Tab.Pane>
+            <Tab
+                eventKey="schedule"
+                title={
+                    <>
+                        <i
+                            className="bi bi-calendar-week me-1"
+                            aria-hidden="true"
+                        ></i>
+                        Schedule
+                    </>
+                }
+            >
+                <ScheduleView
+                    selectedTeam={selectedTeam}
+                    currentDate={currentDate}
+                    setCurrentDate={setCurrentDate}
+                />
+            </Tab>
 
-                    <Tab.Pane eventKey="schedule">
-                        <ScheduleView
-                            selectedTeam={selectedTeam}
-                            currentDate={currentDate}
-                            setCurrentDate={setCurrentDate}
-                        />
-                    </Tab.Pane>
-
-                    <Tab.Pane eventKey="transfer">
-                        <TransferView selectedTeam={selectedTeam} />
-                    </Tab.Pane>
-                </Tab.Content>
-            </Tab.Container>
-        </div>
+            <Tab
+                eventKey="transfer"
+                title={
+                    <>
+                        <i
+                            className="bi bi-arrow-left-right me-1"
+                            aria-hidden="true"
+                        ></i>
+                        Transfers
+                    </>
+                }
+            >
+                <TransferView selectedTeam={selectedTeam} />
+            </Tab>
+        </Tabs>
     );
 }

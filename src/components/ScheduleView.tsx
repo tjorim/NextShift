@@ -1,5 +1,11 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import { Badge, Button, Card, Form, Table } from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Table from 'react-bootstrap/Table';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { CONFIG } from '../utils/config';
 import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
@@ -86,6 +92,7 @@ export function ScheduleView({
                             onClick={handlePrevious}
                             aria-label="Go to previous week"
                         >
+                            <i className="bi bi-chevron-left me-1"></i>
                             Previous
                         </Button>
                         <Button
@@ -94,6 +101,7 @@ export function ScheduleView({
                             onClick={handleCurrent}
                             aria-label="Go to current week"
                         >
+                            <i className="bi bi-house me-1"></i>
                             This Week
                         </Button>
                         <Button
@@ -103,6 +111,7 @@ export function ScheduleView({
                             aria-label="Go to next week"
                         >
                             Next
+                            <i className="bi bi-chevron-right ms-1"></i>
                         </Button>
                     </fieldset>
                 </div>
@@ -112,6 +121,7 @@ export function ScheduleView({
                             htmlFor="datePicker"
                             className="mb-0 small text-muted"
                         >
+                            <i className="bi bi-calendar3 me-1"></i>
                             Jump to date:
                         </Form.Label>
                         <Form.Control
@@ -120,7 +130,7 @@ export function ScheduleView({
                             size="sm"
                             value={currentDate.format('YYYY-MM-DD')}
                             onChange={(e) => handleDateChange(e.target.value)}
-                            style={{ width: 'auto' }}
+                            className="date-picker-auto"
                         />
                     </div>
                     <div className="small text-muted">
@@ -159,7 +169,36 @@ export function ScheduleView({
                                                 {day.format('ddd')}
                                             </div>
                                             <div className="small text-muted">
-                                                {formatDateCode(day)}
+                                                <OverlayTrigger
+                                                    placement="bottom"
+                                                    overlay={
+                                                        <Tooltip
+                                                            id={`date-tooltip-${day.format('YYYY-MM-DD')}`}
+                                                        >
+                                                            <strong>
+                                                                Date Code:{' '}
+                                                                {formatDateCode(
+                                                                    day,
+                                                                )}
+                                                            </strong>
+                                                            <br />
+                                                            Format: YYWW.D
+                                                            <br />
+                                                            YY = Year{' '}
+                                                            {day.format('YY')}
+                                                            <br />
+                                                            WW = Week{' '}
+                                                            {day.format('WW')}
+                                                            <br />D = Day{' '}
+                                                            {day.format('d')} (
+                                                            {day.format('ddd')})
+                                                        </Tooltip>
+                                                    }
+                                                >
+                                                    <span className="help-underline">
+                                                        {formatDateCode(day)}
+                                                    </span>
+                                                </OverlayTrigger>
                                             </div>
                                         </th>
                                     );
@@ -196,11 +235,43 @@ export function ScheduleView({
                                                 aria-label={`Team ${teamNumber} on ${day.format('dddd')}: ${shift.isWorking ? shift.name : 'Off'}`}
                                             >
                                                 {shift.isWorking && (
-                                                    <Badge
-                                                        className={`shift-code ${getShiftClassName(shift.code)}`}
+                                                    <OverlayTrigger
+                                                        placement="bottom"
+                                                        overlay={
+                                                            <Tooltip
+                                                                id={`schedule-tooltip-${teamNumber}-${day.format('YYYY-MM-DD')}`}
+                                                            >
+                                                                <strong>
+                                                                    Shift:{' '}
+                                                                    {shift.code}
+                                                                </strong>
+                                                                <br />
+                                                                {shift.code ===
+                                                                    'M' &&
+                                                                    'Morning shift (7:00-15:00)'}
+                                                                {shift.code ===
+                                                                    'E' &&
+                                                                    'Evening shift (15:00-23:00)'}
+                                                                {shift.code ===
+                                                                    'N' &&
+                                                                    'Night shift (23:00-7:00)'}
+                                                                <br />
+                                                                <em>
+                                                                    {shift.name}{' '}
+                                                                    -{' '}
+                                                                    {
+                                                                        shift.hours
+                                                                    }
+                                                                </em>
+                                                            </Tooltip>
+                                                        }
                                                     >
-                                                        {shift.code}
-                                                    </Badge>
+                                                        <Badge
+                                                            className={`shift-code cursor-help ${getShiftClassName(shift.code)}`}
+                                                        >
+                                                            {shift.code}
+                                                        </Badge>
+                                                    </OverlayTrigger>
                                                 )}
                                             </td>
                                         );

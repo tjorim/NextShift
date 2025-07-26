@@ -1,4 +1,96 @@
+// Bootstrap Icons
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
 /* NextShift Custom Styles */
+
+/* Timeline styles */
+.timeline-small-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.timeline-current-badge {
+    cursor: help;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.timeline-header {
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.timeline-flow {
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timeline-arrow {
+    color: #6c757d;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.timeline-badge {
+    min-width: 2.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.timeline-code {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Common utility styles */
+.cursor-help {
+    cursor: help;
+}
+
+.help-underline {
+    cursor: help;
+    text-decoration: underline dotted;
+}
+
+.date-picker-auto {
+    width: auto;
+}
+
+.toast-icon {
+    font-size: 1.2em;
+}
+
+.progress-thin {
+    height: 8px;
+}
+
+.card-timeline {
+    background: #ffffff;
+    border: 2px solid #e3f2fd;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 
 :root {
     --shift-morning: #1976d2;
@@ -143,4 +235,18 @@
         right: 1rem;
         max-width: 300px;
     }
+}
+
+/* Header styling */
+.header-icon {
+    font-size: 1.25rem;
+}
+
+.header-button {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.header-button-spacing {
+    gap: 0.25rem;
 }

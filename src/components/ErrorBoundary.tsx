@@ -1,5 +1,8 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Alert, Button, Card, Container } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Container from 'react-bootstrap/Container';
 
 interface Props {
     children: ReactNode;

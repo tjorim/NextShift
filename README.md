@@ -1,5 +1,7 @@
 # NextShift - Team Shift Tracker
 
+**Created by [Jorim Tielemans](https://github.com/tjorim)** 
+
 A lightweight, offline-capable Progressive Web App (PWA) for tracking 5-team continuous (24/7) shift schedules.
 
 ## Overview
@@ -175,6 +177,46 @@ npm run test         # Run test suite
 - **Static Hosting**: Deployable to any static hosting service
 - **Caching**: Optimized service worker with asset caching
 - **Performance**: Lighthouse monitoring and optimization
+
+## What's New in v3.1+
+
+### 🚀 Performance & Accuracy
+- **60x Faster Updates**: Live time now updates every minute instead of every second for better performance
+- **Accurate Night Shifts**: Date codes now correctly show shift day (2530.5N) instead of calendar day (2530.6N)
+- **Smart Timeline**: Timeline now shows next shift from tomorrow when current shift is the last of the day
+
+### 🎨 Enhanced UI
+- **Timeline Component**: Extracted shift timeline into dedicated component with cleaner design
+- **Improved Layout**: Current status header optimized with better spacing and information display
+- **Interactive Changelog**: In-app changelog viewer with accordion interface
+- **Toast Notifications**: Global notification system for better user feedback
+
+### 🔧 Developer Experience
+- **Component Architecture**: Better separation of concerns with dedicated timeline component
+- **Enhanced Testing**: Data-driven tests for better maintainability
+- **Error Boundaries**: Graceful error handling and recovery
+- **TypeScript**: Improved type safety and documentation
+
+### 📱 User Experience
+- **Clearer Date Display**: Shows both calendar day and shift day in tooltips for clarity
+- **Contextual Information**: Enhanced date format "2530.5N • Saturday, Jul 26 • 02:24"
+- **Better Performance**: Reduced re-renders and smoother interactions
+
+## 🤝 Contributing & Support
+
+### 📞 Get Help & Report Issues
+- **🐛 Bug Reports**: [Create an issue](https://github.com/tjorim/NextShift/issues/new?template=bug_report.md)
+- **💡 Feature Requests**: [Request a feature](https://github.com/tjorim/NextShift/issues/new?template=feature_request.md)
+- **❓ Questions & Discussion**: [GitHub Discussions](https://github.com/tjorim/NextShift/discussions)
+
+### 🛠️ Development
+- **Fork the repo**: [https://github.com/tjorim/NextShift](https://github.com/tjorim/NextShift)
+- **Submit Pull Requests**: All contributions welcome!
+- **Follow the code style**: Uses Biome for consistent formatting
+
+### 📬 Contact
+- **Author**: [Jorim Tielemans](https://github.com/tjorim)
+- **Repository**: [https://github.com/tjorim/NextShift](https://github.com/tjorim/NextShift)
 
 ## Browser Support
 

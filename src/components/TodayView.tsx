@@ -1,7 +1,20 @@
 import dayjs from 'dayjs';
-import { Badge, Button, Card, Col, Row } from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Row from 'react-bootstrap/Row';
+import Tooltip from 'react-bootstrap/Tooltip';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
+
+const SHIFT_DESCRIPTIONS = {
+    M: 'Morning (7:00-15:00)',
+    E: 'Evening (15:00-23:00)',
+    N: 'Night (23:00-7:00)',
+    O: 'Off duty',
+} as const;
 
 interface TodayViewProps {
     todayShifts: ShiftResult[];
@@ -52,6 +65,7 @@ export function TodayView({
                     size="sm"
                     onClick={onTodayClick}
                 >
+                    <i className="bi bi-calendar-check me-1"></i>
                     Today
                 </Button>
             </Card.Header>
@@ -76,11 +90,29 @@ export function TodayView({
                                             </Badge>
                                         )}
                                     </div>
-                                    <Badge
-                                        className={`shift-code ${getShiftClassName(shiftResult.shift.code)}`}
+                                    <OverlayTrigger
+                                        placement="bottom"
+                                        overlay={
+                                            <Tooltip
+                                                id={`shift-tooltip-${shiftResult.teamNumber}`}
+                                            >
+                                                <strong>
+                                                    Shift Code:{' '}
+                                                    {shiftResult.shift.code}
+                                                </strong>
+                                                <br />
+                                                {SHIFT_DESCRIPTIONS[
+                                                    shiftResult.shift.code
+                                                ] || 'Unknown shift'}
+                                            </Tooltip>
+                                        }
                                     >
-                                        {shiftResult.shift.code}
-                                    </Badge>
+                                        <Badge
+                                            className={`shift-code cursor-help ${getShiftClassName(shiftResult.shift.code)}`}
+                                        >
+                                            {shiftResult.shift.code}
+                                        </Badge>
+                                    </OverlayTrigger>
                                 </div>
                                 <div className="text-muted small">
                                     {shiftResult.shift.name}
@@ -90,7 +122,32 @@ export function TodayView({
                                         : 'Not working today'}
                                 </div>
                                 <div className="text-muted small mt-1">
-                                    {shiftResult.code}
+                                    <OverlayTrigger
+                                        placement="bottom"
+                                        overlay={
+                                            <Tooltip
+                                                id={`code-tooltip-${shiftResult.teamNumber}`}
+                                            >
+                                                <strong>Full Shift Code</strong>
+                                                <br />
+                                                Format: YYWW.D + Shift
+                                                <br />
+                                                <em>{shiftResult.code}</em> =
+                                                Year{' '}
+                                                {shiftResult.date.format('YY')},
+                                                Week{' '}
+                                                {shiftResult.date.format('WW')},{' '}
+                                                {shiftResult.date.format(
+                                                    'dddd',
+                                                )}
+                                                , {shiftResult.shift.name}
+                                            </Tooltip>
+                                        }
+                                    >
+                                        <span className="help-underline">
+                                            {shiftResult.code}
+                                        </span>
+                                    </OverlayTrigger>
                                 </div>
                             </div>
                         </Col>

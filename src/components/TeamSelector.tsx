@@ -1,5 +1,9 @@
 import { useRef } from 'react';
-import { Button, Col, Modal, Row, Spinner } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
+import Spinner from 'react-bootstrap/Spinner';
 import { CONFIG } from '../utils/config';
 
 interface TeamSelectorProps {
