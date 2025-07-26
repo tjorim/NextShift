@@ -6,20 +6,31 @@
 
 ## Overview
 
-This document serves as a general todo list and development roadmap for NextShift improvements, covering UI enhancements, features, and user experience improvements.
+This document serves as a general to-do list and development roadmap for NextShift improvements, covering UI enhancements, features, and user experience improvements.
 
-## Development Todos
+## Development To-dos
 
-### 🚀 High Priority Items
+### 🚀 High-Priority Items
 Critical features and improvements that significantly impact user experience.
 
 #### 1. Optional Team Selection
 - **Feature**: Allow users to skip team selection and view generic shift information
 - **Use Cases**: 
   - New users can explore the app before committing to a team
-  - Managers can view all teams without selecting one
+  - A manager can view all teams without selecting one
   - General shift information display without personalization
-- **Implementation**: Add "Skip" or "View All Teams" option in TeamSelector modal
+  - Temporary users who don't want to store team preference
+- **Implementation Details**: 
+  - Add "Skip" or "View All Teams" button in TeamSelector modal
+  - Modify CurrentStatus component to handle null selectedTeam gracefully
+  - Show generic "Who's Working Today" instead of personalized status
+  - Timeline should still show current working team
+  - Disable team-specific features (next shift, off-day progress)
+  - Add subtle prompt to select team for personalized experience
+- **Files to Modify**: 
+  - `src/components/TeamSelector.tsx` - Add skip option
+  - `src/components/CurrentStatus.tsx` - Handle null team state
+  - `src/components/App.tsx` - Update team selection logic
 - **Estimated Effort**: 2–3 hours
 - **Status**: 🔲 Pending
 
@@ -42,7 +53,7 @@ Critical features and improvements that significantly impact user experience.
 - **Estimated Effort**: 3–4 hours
 - **Status**: 🔲 Planned
 
-### 🎯 Medium Priority Items
+### 🎯 Medium-Priority Items
 Features that enhance functionality with moderate development effort.
 
 #### 4. Enhanced List Groups
@@ -85,7 +96,7 @@ Advanced features for future development phases.
 - **Implementation**: Fixed positioned button system
 - **Estimated Effort**: 2–3 hours
 
-## Current Todo Status
+## Current To-do Status
 
 ### 🔲 Next Up
 1. **Optional Team Selection** - Allow skipping team selection for generic view
@@ -148,7 +159,7 @@ Advanced features for future development phases.
 
 ## Risk Assessment
 
-### Low Risk
+### Low-Risk
 - Toast notifications (isolated feature)
 - Progress bars (simple UI update)
 - Tooltips (non-intrusive enhancement)
@@ -157,7 +168,7 @@ Advanced features for future development phases.
 - Offcanvas settings (new navigation pattern)
 - Modal components (focus management)
 
-### High Risk
+### High-Risk
 - Carousel implementation (complex touch handling)
 - Major layout changes (potential responsive issues)
 

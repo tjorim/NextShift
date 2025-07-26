@@ -31,10 +31,30 @@ function computeShiftTimeline(
 
     const prevShift =
         currentIndex > 0 ? (timeline[currentIndex - 1] ?? null) : null;
-    const nextShift =
-        currentIndex < timeline.length - 1
-            ? (timeline[currentIndex + 1] ?? null)
-            : null;
+
+    let nextShift: ShiftResult | null = null;
+
+    // Check if there's a next shift in today's timeline
+    if (currentIndex < timeline.length - 1) {
+        nextShift = timeline[currentIndex + 1] ?? null;
+    } else {
+        // Current shift is the last of the day, look at tomorrow's first shift
+        const tomorrow = today.add(1, 'day');
+        const allTeamsTomorrow = getAllTeamsShifts(tomorrow);
+        const workingTeamsTomorrow = allTeamsTomorrow.filter(
+            (team) => team.shift.isWorking,
+        );
+
+        if (workingTeamsTomorrow.length > 0) {
+            // Sort tomorrow's shifts and get the first one (earliest start time)
+            const tomorrowTimeline = workingTeamsTomorrow.sort((a, b) => {
+                const startA = a.shift.start || 0;
+                const startB = b.shift.start || 0;
+                return startA - startB;
+            });
+            nextShift = tomorrowTimeline[0] ?? null;
+        }
+    }
 
     return {
         prevShift,

@@ -154,6 +154,11 @@ export function CurrentStatus({
         if (hour >= 15 && hour < 23) return 'E';
         return 'N'; // 23:00-07:00
     }, [liveTime]);
+
+    // Get the proper shift day for date code display (previous day for night shifts)
+    const currentShiftDay = useMemo(() => {
+        return getCurrentShiftDay(liveTime);
+    }, [liveTime]);
     return (
         <div className="col-12 mb-4">
             <Card>
@@ -177,14 +182,20 @@ export function CurrentStatus({
                                             <br />
                                             <em>
                                                 Today: {formatDateCode(today)}
+                                                <br />
+                                                Shift Day:{' '}
+                                                {formatDateCode(
+                                                    currentShiftDay,
+                                                )}
                                             </em>
                                         </Tooltip>
                                     }
                                 >
                                     <small className="help-underline">
-                                        📅 {formatDateCode(today)} •{' '}
-                                        {liveTime.format('HH:mm')} (
-                                        {currentTimeShiftCode})
+                                        📅 {formatDateCode(currentShiftDay)}
+                                        {currentTimeShiftCode} •{' '}
+                                        {liveTime.format('dddd, MMM D')} •{' '}
+                                        {liveTime.format('HH:mm')}
                                     </small>
                                 </OverlayTrigger>
                             </div>

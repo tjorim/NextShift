@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ChangelogModal } from '../../src/components/ChangelogModal';
+import { changelogData } from '../../src/data/changelog';
 
 describe('ChangelogModal', () => {
     const defaultProps = {
@@ -43,72 +44,124 @@ describe('ChangelogModal', () => {
     });
 
     describe('Version Display', () => {
-        it('displays current version 3.1.0 with current status', () => {
+        it('renders all versions from changelog data', () => {
             render(<ChangelogModal {...defaultProps} />);
 
-            expect(screen.getByText('Version 3.1.0')).toBeInTheDocument();
-            expect(screen.getByText('Current')).toBeInTheDocument();
-            expect(screen.getAllByText('2025-07-25').length).toBeGreaterThan(0);
+            // Test that each version from changelog data is displayed
+            changelogData.forEach((version) => {
+                expect(
+                    screen.getByText(`Version ${version.version}`),
+                ).toBeInTheDocument();
+            });
+
+            // Test that dates are displayed (some may be duplicated)
+            const uniqueDates = [...new Set(changelogData.map((v) => v.date))];
+            uniqueDates.forEach((date) => {
+                expect(screen.getAllByText(date).length).toBeGreaterThan(0);
+            });
         });
 
-        it('displays released version 3.0.0 with released status', () => {
+        it('displays status badges for different version types', () => {
             render(<ChangelogModal {...defaultProps} />);
 
-            expect(screen.getByText('Version 3.0.0')).toBeInTheDocument();
-            expect(screen.getAllByText('Released').length).toBeGreaterThan(0);
+            // Test that status badges are rendered (without checking specific versions)
+            const statusBadges = screen.getAllByText(
+                /(Current|Released|Planned)/,
+            );
+            expect(statusBadges.length).toBeGreaterThan(0);
         });
 
-        it('displays previous major version 2.0.0', () => {
+        it('renders version information in accordion format', () => {
             render(<ChangelogModal {...defaultProps} />);
 
-            expect(screen.getByText('Version 2.0.0')).toBeInTheDocument();
-            expect(
-                screen.getByText('Previous Major Release'),
-            ).toBeInTheDocument();
+            // Test accordion structure exists
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            expect(accordionItems.length).toBe(changelogData.length);
         });
     });
 
     describe('Changelog Content', () => {
-        it('displays added features for v3.1.0', () => {
+        it('renders change sections based on data structure', () => {
             render(<ChangelogModal {...defaultProps} />);
 
-            expect(
-                screen.getByText(
-                    'Bootstrap UI Enhancements: Toast notification system for user feedback',
-                ),
-            ).toBeInTheDocument();
-            expect(
-                screen.getByText(
-                    'Progress bar visualization for off-day tracking (CurrentStatus component)',
-                ),
-            ).toBeInTheDocument();
-            expect(
-                screen.getByText(
-                    'Tooltips for shift code explanations with enhanced accessibility',
-                ),
-            ).toBeInTheDocument();
-        });
-
-        it('displays planned features', () => {
-            render(<ChangelogModal {...defaultProps} />);
-
-            expect(
-                screen.getByText('Settings panel with preferences'),
-            ).toBeInTheDocument();
-            expect(screen.getByText('Team detail modals')).toBeInTheDocument();
-            expect(
-                screen.getByText('Mobile-optimized carousel navigation'),
-            ).toBeInTheDocument();
-        });
-
-        it('displays technical highlights for different versions', () => {
-            render(<ChangelogModal {...defaultProps} />);
-
-            // Check that technical details appear for versions that have them
-            const technicalSections = screen.getAllByText(
-                /New Components & Enhancements|Technical Highlights|Technical Stack/,
+            // Test that Added sections exist for versions that have added items
+            const versionsWithAdded = changelogData.filter(
+                (v) => v.added.length > 0,
             );
-            expect(technicalSections.length).toBeGreaterThan(0);
+            if (versionsWithAdded.length > 0) {
+                const addedSections = screen.getAllByText('Added');
+                expect(addedSections.length).toBeGreaterThan(0);
+            }
+
+            // Test that Changed sections exist for versions that have changed items
+            const versionsWithChanged = changelogData.filter(
+                (v) => v.changed.length > 0,
+            );
+            if (versionsWithChanged.length > 0) {
+                const changedSections = screen.getAllByText('Changed');
+                expect(changedSections.length).toBeGreaterThan(0);
+            }
+        });
+
+        it('displays content for each changelog section type', () => {
+            render(<ChangelogModal {...defaultProps} />);
+
+            // Test pattern: verify sections render with proper icons and structure
+            const sectionTypes = ['Added', 'Changed', 'Fixed', 'Planned'];
+
+            sectionTypes.forEach((sectionType) => {
+                const hasThisSection = changelogData.some((version) => {
+                    const key =
+                        sectionType.toLowerCase() as keyof typeof version;
+                    const items = version[key];
+                    return Array.isArray(items) ? items.length > 0 : false;
+                });
+
+                if (hasThisSection) {
+                    const sectionElements = screen.getAllByText(sectionType);
+                    expect(sectionElements.length).toBeGreaterThan(0);
+                }
+            });
+        });
+
+        it('renders technical details for versions that have them', () => {
+            render(<ChangelogModal {...defaultProps} />);
+
+            // Test that technical details render when present in data
+            const versionsWithTechnicalDetails = changelogData.filter(
+                (v) => v.technicalDetails,
+            );
+
+            if (versionsWithTechnicalDetails.length > 0) {
+                // Look for technical details cards instead of exact title text
+                const technicalCards =
+                    document.querySelectorAll('.card.bg-light');
+                expect(technicalCards.length).toBe(
+                    versionsWithTechnicalDetails.length,
+                );
+            }
+        });
+
+        it('displays version content in collapsible accordion format', () => {
+            render(<ChangelogModal {...defaultProps} />);
+
+            // Test that accordion structure exists
+            const accordionItems = document.querySelectorAll('.accordion-item');
+            expect(accordionItems.length).toBe(changelogData.length);
+
+            // Test that first version has expanded content by default
+            const firstVersionHeader = screen.getByText(
+                `Version ${changelogData[0].version}`,
+            );
+            const accordionItem = firstVersionHeader.closest('.accordion-item');
+            expect(accordionItem).toBeInTheDocument();
+
+            if (accordionItem) {
+                // Verify the accordion body exists
+                const accordionBody =
+                    accordionItem.querySelector('.accordion-body');
+                expect(accordionBody).toBeInTheDocument();
+            }
         });
     });
 

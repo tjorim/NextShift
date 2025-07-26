@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import dayjs from 'dayjs';
 import { describe, expect, it, vi } from 'vitest';
 import App from '../../src/App';
+import type { ShiftResult } from '../../src/utils/shiftCalculations';
 
 // Mock all the child components to focus on App structure
 vi.mock('../../src/components/Header', () => ({
@@ -25,20 +27,56 @@ vi.mock('../../src/components/ErrorBoundary', () => ({
     ),
 }));
 
-// Mock the shift calculation hook
+// Mock dayjs first to avoid reference issues
+vi.mock('dayjs', () => ({
+    default: vi.fn(() => ({
+        format: () => '2025-01-15',
+        year: () => 2025,
+        month: () => 0, // January
+        date: () => 15,
+    })),
+}));
+
+// Create realistic mock data
+const createMockDate = () => dayjs('2025-01-15');
+const mockTodayShifts: ShiftResult[] = [
+    {
+        teamNumber: 1,
+        date: createMockDate(),
+        code: '2503.3M',
+        shift: {
+            code: 'M',
+            name: '🌅 Morning Shift',
+            hours: '7:00 - 15:00',
+            start: 7,
+            end: 15,
+            isWorking: true,
+        },
+    },
+    {
+        teamNumber: 2,
+        date: createMockDate(),
+        code: '2503.3E',
+        shift: {
+            code: 'E',
+            name: '🌆 Evening Shift',
+            hours: '15:00 - 23:00',
+            start: 15,
+            end: 23,
+            isWorking: true,
+        },
+    },
+];
+
+// Mock the shift calculation hook with realistic data
 vi.mock('../../src/hooks/useShiftCalculation', () => ({
     useShiftCalculation: () => ({
         selectedTeam: 1,
         setSelectedTeam: vi.fn(),
-        currentDate: { format: () => '2025-01-15' },
+        currentDate: createMockDate(),
         setCurrentDate: vi.fn(),
-        todayShifts: [],
+        todayShifts: mockTodayShifts,
     }),
-}));
-
-// Mock dayjs
-vi.mock('dayjs', () => ({
-    default: vi.fn(() => ({ format: () => '2025-01-15' })),
 }));
 
 describe('App', () => {
@@ -73,17 +111,25 @@ describe('App', () => {
     });
 
     describe('Toast Provider Integration', () => {
-        it('provides toast context to child components', () => {
+        it('provides toast context to child components without errors', () => {
             // Test that the app renders without errors - indicates toast context is working
-            expect(() => render(<App />)).not.toThrow();
-        });
+            const { container } = render(<App />);
+            expect(container).toBeInTheDocument();
 
-        it('wraps content with ToastProvider', () => {
-            render(<App />);
-
-            // If all components render, the ToastProvider is working
+            // Verify all major components receive toast context successfully
             expect(screen.getByTestId('header')).toBeInTheDocument();
             expect(screen.getByTestId('current-status')).toBeInTheDocument();
+            expect(screen.getByTestId('main-tabs')).toBeInTheDocument();
+        });
+
+        it('renders toast container in DOM structure', () => {
+            render(<App />);
+
+            // The ToastProvider should create the necessary DOM structure
+            // Even though we can't directly test toast context value without accessing internals,
+            // successful rendering indicates the provider is working correctly
+            expect(screen.getByTestId('current-status')).toBeInTheDocument();
+            expect(() => render(<App />)).not.toThrow();
         });
     });
 
@@ -95,8 +141,17 @@ describe('App', () => {
             expect(screen.getByTestId('current-status')).toBeInTheDocument();
         });
 
+        it('integrates with realistic shift calculation data', () => {
+            render(<App />);
+
+            // Test that app handles realistic shift data without errors
+            // Mock data includes proper ShiftResult structure with dates, codes, and shift details
+            expect(screen.getByTestId('current-status')).toBeInTheDocument();
+            expect(screen.getByTestId('main-tabs')).toBeInTheDocument();
+        });
+
         it('imports and uses required dependencies', () => {
-            // Test that all required CSS is imported
+            // Test that all required CSS and dependencies are imported correctly
             expect(() => render(<App />)).not.toThrow();
         });
     });

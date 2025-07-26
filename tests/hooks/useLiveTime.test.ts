@@ -31,7 +31,33 @@ describe('useLiveTime', () => {
         expect(dayjs).toHaveBeenCalled();
     });
 
-    it('updates time every second', () => {
+    it('updates time every minute by default for better performance', () => {
+        const mockTime1 = {
+            format: vi.fn(() => '14:30'),
+        } as unknown as Dayjs;
+        const mockTime2 = {
+            format: vi.fn(() => '14:31'),
+        } as unknown as Dayjs;
+
+        vi.mocked(dayjs)
+            .mockReturnValueOnce(mockTime1)
+            .mockReturnValue(mockTime2);
+
+        const { result } = renderHook(() => useLiveTime());
+
+        expect(result.current).toBe(mockTime1);
+
+        // Fast-forward 1 minute (default interval)
+        act(() => {
+            vi.advanceTimersByTime(60000);
+        });
+
+        expect(result.current).toBe(mockTime2);
+        // Should be called 3 times (initial state + mount + interval)
+        expect(dayjs).toHaveBeenCalledTimes(3);
+    });
+
+    it('updates every second when precision is set to "second"', () => {
         const mockTime1 = {
             format: vi.fn(() => '14:30:00'),
         } as unknown as Dayjs;
@@ -43,7 +69,9 @@ describe('useLiveTime', () => {
             .mockReturnValueOnce(mockTime1)
             .mockReturnValue(mockTime2);
 
-        const { result } = renderHook(() => useLiveTime());
+        const { result } = renderHook(() =>
+            useLiveTime({ precision: 'second' }),
+        );
 
         expect(result.current).toBe(mockTime1);
 
@@ -53,11 +81,37 @@ describe('useLiveTime', () => {
         });
 
         expect(result.current).toBe(mockTime2);
-        // Should be called at least twice (mount + interval)
         expect(dayjs).toHaveBeenCalledTimes(3);
     });
 
-    it('updates multiple times as time progresses', () => {
+    it('uses custom update interval when specified', () => {
+        const mockTime1 = {
+            format: vi.fn(() => '14:30:00'),
+        } as unknown as Dayjs;
+        const mockTime2 = {
+            format: vi.fn(() => '14:30:05'),
+        } as unknown as Dayjs;
+
+        vi.mocked(dayjs)
+            .mockReturnValueOnce(mockTime1)
+            .mockReturnValue(mockTime2);
+
+        const { result } = renderHook(() =>
+            useLiveTime({ updateInterval: 5000 }),
+        );
+
+        expect(result.current).toBe(mockTime1);
+
+        // Fast-forward 5 seconds
+        act(() => {
+            vi.advanceTimersByTime(5000);
+        });
+
+        expect(result.current).toBe(mockTime2);
+        expect(dayjs).toHaveBeenCalledTimes(3);
+    });
+
+    it('updates multiple times as time progresses with second precision', () => {
         const times = [
             { format: vi.fn(() => '14:30:00') } as unknown as Dayjs,
             { format: vi.fn(() => '14:30:01') } as unknown as Dayjs,
@@ -72,7 +126,9 @@ describe('useLiveTime', () => {
             return result;
         });
 
-        const { result } = renderHook(() => useLiveTime());
+        const { result } = renderHook(() =>
+            useLiveTime({ precision: 'second' }),
+        );
 
         expect(result.current).toBe(times[0]);
 
@@ -81,7 +137,7 @@ describe('useLiveTime', () => {
             vi.advanceTimersByTime(3000);
         });
 
-        // Should have updated to a later time
+        // Should have been called multiple times (mount + interval calls)
         expect(dayjs).toHaveBeenCalledTimes(5);
     });
 
@@ -110,7 +166,9 @@ describe('useLiveTime', () => {
             return result;
         });
 
-        const { result, rerender } = renderHook(() => useLiveTime());
+        const { result, rerender } = renderHook(() =>
+            useLiveTime({ precision: 'second' }),
+        );
 
         expect(result.current).toBe(times[0]);
 
@@ -130,11 +188,15 @@ describe('useLiveTime', () => {
         const mockTime = { format: vi.fn(() => '14:30') } as unknown as Dayjs;
         vi.mocked(dayjs).mockReturnValue(mockTime);
 
-        const { unmount } = renderHook(() => useLiveTime());
+        const { unmount } = renderHook(() =>
+            useLiveTime({ precision: 'second' }),
+        );
         unmount();
 
         // Mount again
-        const { result } = renderHook(() => useLiveTime());
+        const { result } = renderHook(() =>
+            useLiveTime({ precision: 'second' }),
+        );
 
         expect(result.current).toBe(mockTime);
 

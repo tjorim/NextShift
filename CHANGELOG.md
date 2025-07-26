@@ -63,7 +63,7 @@ Added ChangelogModal.tsx - Interactive changelog viewer with accordion layout, T
 
 ### Changed
 - TodayView component now shows consistent content for all teams
-- Off teams display "Not working today" instead of space
+- Off teams display "Not working today" instead of empty space
 - Transfer dates include weekday context for better planning
 - CurrentStatus component shows both working team and user's team status
 
@@ -105,12 +105,6 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 ---
 
 ## Version Planning
-
-### v3.1.0 - Interactive Features Phase 2
-- Settings panel with preferences
-- Team detail modals
-- Enhanced data presentation
-- Advanced navigation options
 
 ### v3.2.0 - Interactive Features Phase 2
 - Settings panel with preferences

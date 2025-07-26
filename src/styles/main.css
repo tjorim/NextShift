@@ -236,3 +236,17 @@
         max-width: 300px;
     }
 }
+
+/* Header styling */
+.header-icon {
+    font-size: 1.25rem;
+}
+
+.header-button {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.header-button-spacing {
+    gap: 0.25rem;
+}

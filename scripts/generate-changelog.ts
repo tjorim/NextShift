@@ -69,9 +69,6 @@ ${futurePlans['v3.3.0'].features.map((feature) => `- ${feature}`).join('\n')}
 
 ## Version Planning
 
-### v3.1.0 - ${futurePlans['v3.2.0'].title}
-${futurePlans['v3.2.0'].features.map((feature) => `- ${feature}`).join('\n')}
-
 ### v3.2.0 - ${futurePlans['v3.2.0'].title}
 ${futurePlans['v3.2.0'].features.map((feature) => `- ${feature}`).join('\n')}
 

@@ -48,62 +48,58 @@ export function MainTabs({
     };
 
     return (
-        <div className="col-12">
-            <Tab.Container
-                activeKey={activeKey}
-                onSelect={(k) => {
-                    const newKey = k || 'today';
-                    setActiveKey(newKey);
-                    onTabChange?.(newKey);
-                }}
-            >
-                {/* Navigation Tabs */}
-                <div className="col-12 mb-4">
-                    <Nav variant="tabs" id="mainTabs">
-                        <Nav.Item>
-                            <Nav.Link eventKey="today">
-                                <i className="bi bi-calendar-day me-1"></i>
-                                Today
-                            </Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <Nav.Link eventKey="schedule">
-                                <i className="bi bi-calendar-week me-1"></i>
-                                Schedule
-                            </Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <Nav.Link eventKey="transfer">
-                                <i className="bi bi-arrow-left-right me-1"></i>
-                                Transfers
-                            </Nav.Link>
-                        </Nav.Item>
-                    </Nav>
-                </div>
+        <Tab.Container
+            activeKey={activeKey}
+            onSelect={(k) => {
+                const newKey = k || 'today';
+                setActiveKey(newKey);
+                onTabChange?.(newKey);
+            }}
+        >
+            {/* Navigation Tabs */}
+            <Nav variant="tabs" className="mb-4" id="mainTabs">
+                <Nav.Item>
+                    <Nav.Link eventKey="today">
+                        <i className="bi bi-calendar-day me-1"></i>
+                        Today
+                    </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="schedule">
+                        <i className="bi bi-calendar-week me-1"></i>
+                        Schedule
+                    </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="transfer">
+                        <i className="bi bi-arrow-left-right me-1"></i>
+                        Transfers
+                    </Nav.Link>
+                </Nav.Item>
+            </Nav>
 
-                {/* Tab Content */}
-                <Tab.Content>
-                    <Tab.Pane eventKey="today">
-                        <TodayView
-                            todayShifts={todayShifts}
-                            selectedTeam={selectedTeam}
-                            onTodayClick={handleTodayClick}
-                        />
-                    </Tab.Pane>
+            {/* Tab Content */}
+            <Tab.Content>
+                <Tab.Pane eventKey="today">
+                    <TodayView
+                        todayShifts={todayShifts}
+                        selectedTeam={selectedTeam}
+                        onTodayClick={handleTodayClick}
+                    />
+                </Tab.Pane>
 
-                    <Tab.Pane eventKey="schedule">
-                        <ScheduleView
-                            selectedTeam={selectedTeam}
-                            currentDate={currentDate}
-                            setCurrentDate={setCurrentDate}
-                        />
-                    </Tab.Pane>
+                <Tab.Pane eventKey="schedule">
+                    <ScheduleView
+                        selectedTeam={selectedTeam}
+                        currentDate={currentDate}
+                        setCurrentDate={setCurrentDate}
+                    />
+                </Tab.Pane>
 
-                    <Tab.Pane eventKey="transfer">
-                        <TransferView selectedTeam={selectedTeam} />
-                    </Tab.Pane>
-                </Tab.Content>
-            </Tab.Container>
-        </div>
+                <Tab.Pane eventKey="transfer">
+                    <TransferView selectedTeam={selectedTeam} />
+                </Tab.Pane>
+            </Tab.Content>
+        </Tab.Container>
     );
 }

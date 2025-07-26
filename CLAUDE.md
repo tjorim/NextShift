@@ -4,7 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
+**NextShift** - Created by **[Jorim Tielemans](https://github.com/tjorim)**
+
 NextShift is a Team Shift Tracker PWA for a continuous (24/7) 5-team shift schedule. This lightweight, offline-capable Progressive Web App allows users to quickly check which teams are working on any given day, see when their team's next shift is, and identify transfer/handover points between teams.
+
+**Repository**: [https://github.com/tjorim/NextShift](https://github.com/tjorim/NextShift)  
+**Issues & Feature Requests**: [GitHub Issues](https://github.com/tjorim/NextShift/issues)
 
 ## File Structure
 
@@ -16,18 +21,30 @@ NextShift/
 │   ├── main.tsx           # React app entry point and initialization
 │   ├── vite-env.d.ts      # TypeScript environment declarations
 │   ├── components/        # React components
-│   │   ├── CurrentStatus.tsx    # Current team shift and status display
+│   │   ├── ChangelogModal.tsx   # Interactive changelog viewer with accordion layout
+│   │   ├── CurrentStatus.tsx    # Current team shift and status display with timeline
+│   │   ├── ErrorBoundary.tsx    # Error boundary wrapper for graceful error handling
 │   │   ├── Header.tsx           # App header with title and controls
 │   │   ├── MainTabs.tsx         # Main tabbed interface container
 │   │   ├── ScheduleView.tsx     # Weekly schedule overview
+│   │   ├── ShiftTimeline.tsx    # Today's shift timeline component (extracted from CurrentStatus)
 │   │   ├── TeamSelector.tsx     # Team selection modal
 │   │   ├── TodayView.tsx        # Today's schedule for all teams
 │   │   └── TransferView.tsx     # Team handover/transfer analysis
+│   ├── contexts/          # React contexts for global state
+│   │   └── ToastContext.tsx        # Global toast notification system with React Context
+│   ├── data/              # Static data and configurations
+│   │   └── changelog.ts            # Changelog data structure for in-app viewer
 │   ├── hooks/             # Custom React hooks
+│   │   ├── useCountdown.ts         # Countdown timer hook for next shift timing
+│   │   ├── useKeyboardShortcuts.ts # Keyboard shortcuts functionality
+│   │   ├── useLiveTime.ts          # Live updating time with configurable frequency
 │   │   ├── useLocalStorage.ts      # LocalStorage persistence hook
 │   │   ├── useOnlineStatus.ts      # Online/offline status hook
+│   │   ├── usePWAInstall.ts        # PWA installation prompt hook
 │   │   ├── useServiceWorkerStatus.ts # Service worker status hook
-│   │   └── useShiftCalculation.ts  # Shift calculation logic hook
+│   │   ├── useShiftCalculation.ts  # Shift calculation logic hook
+│   │   └── useTransferCalculations.ts # Team transfer analysis hook
 │   ├── utils/             # TypeScript utilities and business logic
 │   │   ├── config.ts           # App configuration and constants
 │   │   ├── shiftCalculations.ts # Core shift calculation functions
@@ -42,7 +59,9 @@ NextShift/
 ├── public/
 │   ├── assets/icons/      # PWA and favicon icons
 │   └── sw.js             # Custom service worker
-├── create-icons.html      # Icon generator utility
+├── scripts/               # Build and utility scripts
+│   ├── generate-changelog.ts   # Automatic changelog generation from data
+│   └── generate-icons.js       # PWA icon generator script
 ├── vite.config.ts         # Vite build configuration with React and PWA
 ├── vitest.config.ts       # Vitest testing configuration
 ├── tsconfig.json          # TypeScript project references
@@ -121,6 +140,29 @@ These variables anchor all shift calculations. If not configured, defaults to `2
 - **Date Format**: Display in YYWW.D format (e.g., 2520.2M = year 2025, week 20, Tuesday Morning)
 - **Offline Support**: Full PWA functionality without internet connection
 
+## Recent Improvements (v3.1+)
+
+### Component Architecture Enhancements
+- **ShiftTimeline Component**: Extracted timeline logic from CurrentStatus into dedicated component for better separation of concerns
+- **Enhanced CurrentStatus**: Optimized layout with datetime moved to header area and improved timeline display
+- **Cross-day Timeline**: Fixed timeline to show next shift from tomorrow when current shift is last of day (e.g., T1 M after T4 N)
+
+### Performance Optimizations
+- **useLiveTime Hook**: Configurable update frequency with minute-level default (60x fewer re-renders)
+- **Precision Control**: Second-level updates available when needed for precise timing
+- **Memoized Calculations**: Better performance for shift day computations
+
+### Date Code Accuracy
+- **Night Shift Fix**: Date codes now correctly use shift day instead of calendar day (2530.5N instead of 2530.6N)
+- **Enhanced Display**: Current status shows combined format "2530.5N • Saturday, Jul 26 • 02:24"
+- **Tooltip Context**: Shows both calendar day and shift day for user clarity
+
+### User Experience
+- **Interactive Changelog**: In-app changelog viewer with accordion interface
+- **Toast Notifications**: Global notification system with React Context
+- **Error Boundaries**: Graceful error handling and recovery
+- **Enhanced Testing**: Comprehensive test coverage with data-driven patterns
+
 ## Technology Stack
 
 - **Frontend**: React 19 with TypeScript and modern JSX transform
@@ -156,7 +198,13 @@ This PWA uses Vite for modern development and build processes:
    npm run test         # Run Vitest test suite
    ```
 
-4. **PWA Testing**: 
+4. **Utility Scripts**: Development and build utilities
+   ```bash
+   npm run generate-changelog  # Generate CHANGELOG.md from data
+   npm run generate-icons      # Generate all PWA and favicon icons
+   ```
+
+5. **PWA Testing**: 
    - Use development server for service worker testing
    - Test offline functionality with built version
    - Verify PWA installability in browser dev tools
