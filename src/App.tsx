@@ -5,8 +5,9 @@ import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
-import { TeamSelector } from './components/TeamSelector';
+import { WelcomeWizard } from './components/WelcomeWizard';
 import { ToastProvider, useToast } from './contexts/ToastContext';
+import { useLocalStorage } from './hooks/useLocalStorage';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
@@ -30,13 +31,19 @@ function AppContent() {
         setCurrentDate,
         todayShifts,
     } = useShiftCalculation();
+    
+    // Track whether user has completed onboarding (seen the welcome wizard)
+    const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage(
+        'hasCompletedOnboarding',
+        false
+    );
 
-    // Show team modal if no team is selected
+    // Show welcome wizard only on first visit (never completed onboarding)
     useEffect(() => {
-        if (!selectedTeam) {
+        if (!hasCompletedOnboarding) {
             setShowTeamModal(true);
         }
-    }, [selectedTeam]); // setShowTeamModal is stable from useState
+    }, []); // Only run on mount
 
     const handleTeamSelect = (team: number) => {
         setIsLoading(true);
@@ -44,6 +51,7 @@ function AppContent() {
         // Use setTimeout to ensure loading state is visible before heavy operations
         setTimeout(() => {
             setSelectedTeam(team); // This triggers localStorage write and heavy recalculations
+            setHasCompletedOnboarding(true); // Mark onboarding as completed
             setShowTeamModal(false);
             setIsLoading(false);
             showSuccess(
@@ -57,11 +65,26 @@ function AppContent() {
         setShowTeamModal(true);
     };
 
-    const handleTeamModalHide = () => {
-        // Only allow hiding if a team is already selected
-        if (selectedTeam) {
+    const handleSkipTeamSelection = () => {
+        setIsLoading(true);
+        
+        // Use setTimeout to ensure loading state is visible
+        setTimeout(() => {
+            // Keep selectedTeam as null but mark onboarding as completed
+            setHasCompletedOnboarding(true); // Mark onboarding as completed
             setShowTeamModal(false);
-        }
+            setIsLoading(false);
+            showInfo(
+                "Browsing all teams. Select a team anytime for personalized features!",
+                '👀',
+            );
+        }, 0);
+    };
+
+    const handleTeamModalHide = () => {
+        // If user closes modal (Maybe Later), don't mark onboarding as completed
+        // They should see the wizard again on next visit
+        setShowTeamModal(false);
     };
 
     const handleShowWhoIsWorking = () => {
@@ -97,9 +120,10 @@ function AppContent() {
                         />
                     </ErrorBoundary>
 
-                    <TeamSelector
+                    <WelcomeWizard
                         show={showTeamModal}
                         onTeamSelect={handleTeamSelect}
+                        onSkip={handleSkipTeamSelection}
                         onHide={handleTeamModalHide}
                         isLoading={isLoading}
                     />

@@ -190,6 +190,8 @@ This PWA uses Vite for modern development and build processes:
    npm run preview      # Preview production build locally
    ```
 
+   **⚠️ IMPORTANT**: ALWAYS run `npm run build` BEFORE `npm run preview`. The preview command serves the built files from the dist/ directory, so any code changes won't be visible until you build first.
+
 3. **Code Quality**: Modern linting with Biome
    ```bash
    npm run lint         # Lint JavaScript, CSS, and JSON with Biome

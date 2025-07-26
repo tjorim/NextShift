@@ -129,7 +129,7 @@ describe('CurrentStatus Component', () => {
 
             expect(screen.getByText('Current Status')).toBeInTheDocument();
             expect(
-                screen.getByRole('button', { name: /change team/i }),
+                screen.getByRole('button', { name: /select team/i }),
             ).toBeInTheDocument();
         });
 
@@ -207,11 +207,11 @@ describe('CurrentStatus Component', () => {
 
             expect(
                 screen.getByText(
-                    'Please select your team to see your current status',
+                    '💡 Select your team above for personalized shift tracking and countdown timers',
                 ),
             ).toBeInTheDocument();
             expect(
-                screen.getByText('Select your team to see your next shift'),
+                screen.getByText('Select your team for countdown timers and personalized notifications'),
             ).toBeInTheDocument();
         });
 
@@ -405,7 +405,7 @@ describe('CurrentStatus Component', () => {
             // Should show team selection prompt
             expect(
                 screen.getByText(
-                    'Please select your team to see your current status',
+                    '💡 Select your team above for personalized shift tracking and countdown timers',
                 ),
             ).toBeInTheDocument();
         });
