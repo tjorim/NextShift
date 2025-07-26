@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useState } from 'react';
-import { Toast, ToastContainer } from 'react-bootstrap';
+import Toast from 'react-bootstrap/Toast';
+import ToastContainer from 'react-bootstrap/ToastContainer';
 
 export interface ToastMessage {
     id: string;

@@ -1,13 +1,11 @@
 import dayjs from 'dayjs';
-import {
-    Badge,
-    Button,
-    Card,
-    Col,
-    OverlayTrigger,
-    Row,
-    Tooltip,
-} from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Row from 'react-bootstrap/Row';
+import Tooltip from 'react-bootstrap/Tooltip';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 

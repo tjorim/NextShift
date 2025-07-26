@@ -1,4 +1,8 @@
-import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
 import { useTransferCalculations } from '../hooks/useTransferCalculations';
 import { CONFIG } from '../utils/config';
 import { getShiftClassName } from '../utils/shiftStyles';
@@ -133,11 +137,12 @@ export function TransferView({
                                 Transfers between Team {selectedTeam} and Team{' '}
                                 {compareTeam}:
                             </h6>
-                            <div className="row g-2">
+                            <Row className="g-2">
                                 {transfers.map((transfer) => (
-                                    <div
+                                    <Col
                                         key={`${transfer.date.toISOString()}-${transfer.fromTeam}-${transfer.toTeam}`}
-                                        className="col-12 col-md-6"
+                                        xs={12}
+                                        md={6}
                                     >
                                         <div className="border rounded p-3">
                                             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -175,9 +180,9 @@ export function TransferView({
                                                 </em>
                                             </div>
                                         </div>
-                                    </div>
+                                    </Col>
                                 ))}
-                            </div>
+                            </Row>
                             {hasMoreTransfers && (
                                 <div className="text-muted small mt-2">
                                     Showing first 20 transfers. Narrow your date

@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { Badge, Button, Modal } from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import {
@@ -24,7 +29,7 @@ export function Header() {
     return (
         <>
             <header className="sticky-top bg-primary text-white py-2 mb-3 shadow-sm">
-                <div className="container-fluid">
+                <Container fluid>
                     <div className="d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center">
                             <i className="bi bi-clock-history me-2 header-icon"></i>
@@ -81,7 +86,7 @@ export function Header() {
                             </Button>
                         </div>
                     </div>
-                </div>
+                </Container>
             </header>
 
             {/* About Modal */}
@@ -139,32 +144,32 @@ export function Header() {
                             <i className="bi bi-star me-2 text-warning"></i>Key
                             Features
                         </h6>
-                        <div className="row g-2">
-                            <div className="col-6">
+                        <Row className="g-2">
+                            <Col xs={6}>
                                 <div className="d-flex align-items-center small">
                                     <i className="bi bi-people text-primary me-2"></i>
                                     <span>5-team shift tracking</span>
                                 </div>
-                            </div>
-                            <div className="col-6">
+                            </Col>
+                            <Col xs={6}>
                                 <div className="d-flex align-items-center small">
                                     <i className="bi bi-wifi-off text-success me-2"></i>
                                     <span>Offline PWA support</span>
                                 </div>
-                            </div>
-                            <div className="col-6">
+                            </Col>
+                            <Col xs={6}>
                                 <div className="d-flex align-items-center small">
                                     <i className="bi bi-arrow-left-right text-info me-2"></i>
                                     <span>Transfer detection</span>
                                 </div>
-                            </div>
-                            <div className="col-6">
+                            </Col>
+                            <Col xs={6}>
                                 <div className="d-flex align-items-center small">
                                     <i className="bi bi-calendar-date text-secondary me-2"></i>
                                     <span>YYWW.D date format</span>
                                 </div>
-                            </div>
-                        </div>
+                            </Col>
+                        </Row>
                     </div>
 
                     <hr />
@@ -176,8 +181,8 @@ export function Header() {
                             Quick Links
                         </h6>
                         <div className="d-grid gap-2">
-                            <div className="row g-2">
-                                <div className="col-6">
+                            <Row className="g-2">
+                                <Col xs={6}>
                                     <a
                                         href="https://github.com/tjorim/NextShift#readme"
                                         target="_blank"
@@ -187,8 +192,8 @@ export function Header() {
                                         <i className="bi bi-book me-1"></i>
                                         Documentation
                                     </a>
-                                </div>
-                                <div className="col-6">
+                                </Col>
+                                <Col xs={6}>
                                     <a
                                         href="https://github.com/tjorim/NextShift"
                                         target="_blank"
@@ -198,8 +203,8 @@ export function Header() {
                                         <i className="bi bi-code-slash me-1"></i>
                                         Source Code
                                     </a>
-                                </div>
-                            </div>
+                                </Col>
+                            </Row>
                         </div>
                     </div>
 
@@ -210,8 +215,8 @@ export function Header() {
                             Support & Feedback
                         </h6>
                         <div className="d-grid gap-2">
-                            <div className="row g-2">
-                                <div className="col-6">
+                            <Row className="g-2">
+                                <Col xs={6}>
                                     <a
                                         href="https://github.com/tjorim/NextShift/issues/new?template=bug_report.md"
                                         target="_blank"
@@ -221,8 +226,8 @@ export function Header() {
                                         <i className="bi bi-bug me-1"></i>Report
                                         Bug
                                     </a>
-                                </div>
-                                <div className="col-6">
+                                </Col>
+                                <Col xs={6}>
                                     <a
                                         href="https://github.com/tjorim/NextShift/issues/new?template=feature_request.md"
                                         target="_blank"
@@ -232,8 +237,8 @@ export function Header() {
                                         <i className="bi bi-lightbulb me-1"></i>
                                         Request Feature
                                     </a>
-                                </div>
-                            </div>
+                                </Col>
+                            </Row>
                         </div>
                     </div>
 

@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { Accordion, Badge, Button, Card, Modal } from 'react-bootstrap';
+import Accordion from 'react-bootstrap/Accordion';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Modal from 'react-bootstrap/Modal';
 import {
     type ChangelogVersion,
     changelogData,

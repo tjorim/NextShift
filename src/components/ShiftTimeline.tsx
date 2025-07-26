@@ -1,5 +1,8 @@
 import type dayjs from 'dayjs';
-import { Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useId } from 'react';
+import Badge from 'react-bootstrap/Badge';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { getAllTeamsShifts } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
@@ -78,6 +81,8 @@ export function ShiftTimeline({
     currentWorkingTeam,
     today,
 }: ShiftTimelineProps) {
+    // Generate unique ID for tooltip to avoid HTML ID conflicts
+    const timelineTooltipId = useId();
     const { prevShift, nextShift } = computeShiftTimeline(
         today,
         currentWorkingTeam,
@@ -109,7 +114,7 @@ export function ShiftTimeline({
                     <OverlayTrigger
                         placement="bottom"
                         overlay={
-                            <Tooltip id="timeline-current-tooltip">
+                            <Tooltip id={timelineTooltipId}>
                                 <strong>Currently Active</strong>
                                 <br />
                                 {currentWorkingTeam.shift.name}

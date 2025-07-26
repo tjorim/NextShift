@@ -15,8 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - Future Enhancements
 
 ### Planned
-${futurePlans['v3.2.0'].features.map((feature) => `- ${feature}`).join('\n')}
-${futurePlans['v3.3.0'].features.map((feature) => `- ${feature}`).join('\n')}
+${Object.entries(futurePlans)
+    .filter(([key]) => key.startsWith('v'))
+    .flatMap(([_, plan]) => plan.features)
+    .map((feature) => `- ${feature}`)
+    .join('\n')}
 
 `;
 
@@ -69,11 +72,13 @@ ${futurePlans['v3.3.0'].features.map((feature) => `- ${feature}`).join('\n')}
 
 ## Version Planning
 
-### v3.2.0 - ${futurePlans['v3.2.0'].title}
-${futurePlans['v3.2.0'].features.map((feature) => `- ${feature}`).join('\n')}
-
-### v3.3.0 - ${futurePlans['v3.3.0'].title}
-${futurePlans['v3.3.0'].features.map((feature) => `- ${feature}`).join('\n')}
+${Object.entries(futurePlans)
+    .filter(([key]) => key.startsWith('v'))
+    .map(
+        ([version, plan]) =>
+            `### ${version} - ${plan.title}\n${plan.features.map((feature) => `- ${feature}`).join('\n')}`,
+    )
+    .join('\n\n')}
 
 ### ${futurePlans.future.title}
 ${futurePlans.future.features.map((feature) => `- ${feature}`).join('\n')}

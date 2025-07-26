@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { Container, Row } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
 import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
@@ -9,7 +9,7 @@ import { TeamSelector } from './components/TeamSelector';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/main.css';
+import './styles/main.scss';
 
 /**
  * The main application component for team selection and shift management.
@@ -86,18 +86,16 @@ function AppContent() {
                         />
                     </ErrorBoundary>
 
-                    <Row>
-                        <ErrorBoundary>
-                            <MainTabs
-                                selectedTeam={selectedTeam}
-                                currentDate={currentDate}
-                                setCurrentDate={setCurrentDate}
-                                todayShifts={todayShifts}
-                                activeTab={activeTab}
-                                onTabChange={setActiveTab}
-                            />
-                        </ErrorBoundary>
-                    </Row>
+                    <ErrorBoundary>
+                        <MainTabs
+                            selectedTeam={selectedTeam}
+                            currentDate={currentDate}
+                            setCurrentDate={setCurrentDate}
+                            todayShifts={todayShifts}
+                            activeTab={activeTab}
+                            onTabChange={setActiveTab}
+                        />
+                    </ErrorBoundary>
 
                     <TeamSelector
                         show={showTeamModal}

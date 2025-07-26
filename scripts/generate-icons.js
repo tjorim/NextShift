@@ -122,7 +122,8 @@ function generateIcons() {
         const filePath = path.join(ICONS_DIR, filename);
 
         fs.writeFileSync(filePath, buffer);
-        console.log(`✅ Generated ${name}: ${filename}`);
+        const sizeKB = (buffer.length / 1024).toFixed(1);
+        console.log(`✅ Generated ${name}: ${filename} (${sizeKB}KB)`);
     });
 
     console.log(`\n🎉 All icons generated successfully in ${ICONS_DIR}`);

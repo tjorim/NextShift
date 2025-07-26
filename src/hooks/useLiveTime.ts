@@ -1,6 +1,11 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 
+const DEFAULT_INTERVALS = {
+    SECOND: 1000,
+    MINUTE: 60000,
+} as const;
+
 export type LiveTimeOptions = {
     /** Update interval in milliseconds. Defaults to 60000 (1 minute) for better performance */
     updateInterval?: number;
@@ -30,7 +35,10 @@ export function useLiveTime(options: LiveTimeOptions = {}): Dayjs {
     const { precision = 'minute', updateInterval } = options;
 
     // Default intervals based on precision
-    const defaultInterval = precision === 'second' ? 1000 : 60000;
+    const defaultInterval =
+        precision === 'second'
+            ? DEFAULT_INTERVALS.SECOND
+            : DEFAULT_INTERVALS.MINUTE;
     const interval = updateInterval ?? defaultInterval;
 
     const [currentTime, setCurrentTime] = useState(dayjs());

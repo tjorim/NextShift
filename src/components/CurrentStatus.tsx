@@ -1,16 +1,14 @@
 import dayjs from 'dayjs';
-import { useMemo } from 'react';
-import {
-    Badge,
-    Button,
-    Card,
-    Col,
-    OverlayTrigger,
-    ProgressBar,
-    Row,
-    Spinner,
-    Tooltip,
-} from 'react-bootstrap';
+import { useId, useMemo } from 'react';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import ProgressBar from 'react-bootstrap/ProgressBar';
+import Row from 'react-bootstrap/Row';
+import Spinner from 'react-bootstrap/Spinner';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { useCountdown } from '../hooks/useCountdown';
 import { useLiveTime } from '../hooks/useLiveTime';
 import { CONFIG } from '../utils/config';
@@ -56,6 +54,10 @@ export function CurrentStatus({
     onShowWhoIsWorking,
     isLoading = false,
 }: CurrentStatusProps) {
+    // Generate unique IDs for tooltips to avoid HTML ID conflicts
+    const dateTooltipId = useId();
+    const teamTooltipId = useId();
+
     // Validate and sanitize selectedTeam prop
     const validatedTeam =
         typeof selectedTeam === 'number' &&
@@ -160,7 +162,7 @@ export function CurrentStatus({
         return getCurrentShiftDay(liveTime);
     }, [liveTime]);
     return (
-        <div className="col-12 mb-4">
+        <Col className="mb-4">
             <Card>
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
@@ -172,7 +174,7 @@ export function CurrentStatus({
                                 <OverlayTrigger
                                     placement="bottom"
                                     overlay={
-                                        <Tooltip id="date-code-tooltip-header">
+                                        <Tooltip id={dateTooltipId}>
                                             <strong>Date Format: YYWW.D</strong>
                                             <br />
                                             YY = Year (2-digit)
@@ -225,12 +227,12 @@ export function CurrentStatus({
                     {/* Timeline Row */}
                     {currentWorkingTeam && (
                         <Row className="mb-3">
-                            <div className="col-12">
+                            <Col>
                                 <ShiftTimeline
                                     currentWorkingTeam={currentWorkingTeam}
                                     today={today}
                                 />
-                            </div>
+                            </Col>
                         </Row>
                     )}
 
@@ -257,7 +259,7 @@ export function CurrentStatus({
                                             <OverlayTrigger
                                                 placement="bottom"
                                                 overlay={
-                                                    <Tooltip id="team-shift-tooltip">
+                                                    <Tooltip id={teamTooltipId}>
                                                         <strong>
                                                             Your Team Today
                                                         </strong>
@@ -394,6 +396,6 @@ export function CurrentStatus({
                     </Row>
                 </Card.Body>
             </Card>
-        </div>
+        </Col>
     );
 }

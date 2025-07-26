@@ -48,4 +48,4 @@ Any other information that might help answer your question:
 - 🔍 Browse [existing issues](https://github.com/tjorim/NextShift/issues) to see if your question was answered
 - 🔧 Use the About modal in the app for version and feature info
 
-**Thank you for using NextShift! 🚀**
+## Thank you for using NextShift! 🚀

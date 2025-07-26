@@ -1,17 +1,26 @@
 import reactPlugin from '@vitejs/plugin-react';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Read version from package.json for injection
 import * as packageJson from './package.json';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     base: '/NextShift/',
     define: {
         __APP_VERSION__: JSON.stringify(packageJson.version),
     },
     plugins: [
         reactPlugin(),
+        // Add bundle analyzer in analyze mode
+        mode === 'analyze' &&
+            visualizer({
+                open: true,
+                filename: 'dist/stats.html',
+                gzipSize: true,
+                brotliSize: true,
+            }),
         VitePWA({
             registerType: 'autoUpdate',
             srcDir: 'public',
@@ -106,14 +115,44 @@ export default defineConfig({
                 ],
             },
         }),
-    ],
+    ].filter(Boolean),
+    css: {
+        transformer: 'lightningcss',
+    },
     build: {
         outDir: 'dist',
         assetsDir: 'assets',
         sourcemap: false,
+        minify: 'terser',
+        cssMinify: 'lightningcss',
+        terserOptions: {
+            compress: {
+                drop_console: true,
+                drop_debugger: true,
+                pure_funcs: ['console.log', 'console.info', 'console.debug'],
+            },
+            mangle: {
+                toplevel: true,
+            },
+        },
         rollupOptions: {
             input: {
                 main: 'index.html',
+            },
+            treeshake: {
+                preset: 'smallest',
+                moduleSideEffects: false,
+            },
+            output: {
+                // Better file organization
+                chunkFileNames: 'assets/js/[name]-[hash].js',
+                entryFileNames: 'assets/js/[name]-[hash].js',
+                assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+                manualChunks: {
+                    'vendor-react': ['react', 'react-dom'],
+                    'vendor-ui': ['react-bootstrap', 'bootstrap'],
+                    'vendor-utils': ['dayjs'],
+                },
             },
         },
     },
@@ -122,4 +161,4 @@ export default defineConfig({
         open: true,
         cors: true,
     },
-});
+}));

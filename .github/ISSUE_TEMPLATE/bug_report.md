@@ -61,4 +61,4 @@ How critical is this bug for your use?
 
 ---
 
-**Thank you for helping improve NextShift! 🚀**
+## Thank you for helping improve NextShift! 🚀

@@ -59,7 +59,7 @@ How important is this feature to your workflow?
 - [ ] Must-have - Critical for daily use
 - [ ] Should-have - Would significantly improve experience  
 - [ ] Could-have - Nice to have enhancement
-- [ ] Won't-have - Low priority suggestion
+- [ ] Won't-have - Low-priority suggestion
 
 ## 🎯 Impact
 Who would benefit from this feature?
@@ -70,4 +70,4 @@ Who would benefit from this feature?
 
 ---
 
-**Thank you for helping make NextShift better! 🚀**
+## Thank you for helping make NextShift better! 🚀

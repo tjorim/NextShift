@@ -1,13 +1,11 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import {
-    Badge,
-    Button,
-    Card,
-    Form,
-    OverlayTrigger,
-    Table,
-    Tooltip,
-} from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Table from 'react-bootstrap/Table';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { CONFIG } from '../utils/config';
 import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
