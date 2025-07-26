@@ -20,12 +20,14 @@ interface TodayViewProps {
     todayShifts: ShiftResult[];
     selectedTeam: number | null;
     onTodayClick: () => void;
+    onTeamClick?: (teamNumber: number) => void;
 }
 
 export function TodayView({
     todayShifts,
     selectedTeam,
     onTodayClick,
+    onTeamClick,
 }: TodayViewProps) {
     const isMyTeam = (teamNumber: number) => {
         return selectedTeam === teamNumber ? 'my-team' : '';
@@ -74,13 +76,30 @@ export function TodayView({
                     {todayShifts.map((shiftResult) => (
                         <Col key={shiftResult.teamNumber} xs={12} sm={6} lg={4}>
                             <div
-                                className={`border rounded p-3 ${isMyTeam(shiftResult.teamNumber)}`}
+                                className={`border rounded p-3 ${isMyTeam(shiftResult.teamNumber)} ${onTeamClick ? 'cursor-pointer' : ''}`}
+                                onClick={() => onTeamClick?.(shiftResult.teamNumber)}
+                                style={onTeamClick ? { transition: 'all 0.2s ease' } : {}}
+                                onMouseEnter={(e) => {
+                                    if (onTeamClick) {
+                                        e.currentTarget.style.backgroundColor = '#f8f9fa';
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (onTeamClick) {
+                                        e.currentTarget.style.backgroundColor = '';
+                                        e.currentTarget.style.transform = '';
+                                    }
+                                }}
                             >
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <div className="d-flex align-items-center gap-2">
                                         <h6 className="mb-0">
                                             Team {shiftResult.teamNumber}
                                         </h6>
+                                        {onTeamClick && (
+                                            <i className="bi bi-chevron-right text-muted small"></i>
+                                        )}
                                         {isCurrentlyActive(shiftResult) && (
                                             <Badge
                                                 bg="success"

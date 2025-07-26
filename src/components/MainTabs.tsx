@@ -4,6 +4,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { ScheduleView } from './ScheduleView';
+import { TeamDetailModal } from './TeamDetailModal';
 import { TodayView } from './TodayView';
 import { TransferView } from './TransferView';
 
@@ -38,6 +39,8 @@ export function MainTabs({
     onTabChange,
 }: MainTabsProps) {
     const [activeKey, setActiveKey] = useState<string>(activeTab);
+    const [showTeamDetail, setShowTeamDetail] = useState(false);
+    const [selectedTeamForDetail, setSelectedTeamForDetail] = useState<number>(1);
 
     // Sync with external tab changes
     useEffect(() => {
@@ -48,9 +51,19 @@ export function MainTabs({
         setCurrentDate(dayjs());
     };
 
+    const handleTeamClick = (teamNumber: number) => {
+        setSelectedTeamForDetail(teamNumber);
+        setShowTeamDetail(true);
+    };
+
+    const handleCloseTeamDetail = () => {
+        setShowTeamDetail(false);
+    };
+
     return (
-        <Tabs
-            activeKey={activeKey}
+        <>
+            <Tabs
+                activeKey={activeKey}
             onSelect={(k) => {
                 const newKey = k || 'today';
                 setActiveKey(newKey);
@@ -75,6 +88,7 @@ export function MainTabs({
                     todayShifts={todayShifts}
                     selectedTeam={selectedTeam}
                     onTodayClick={handleTodayClick}
+                    onTeamClick={handleTeamClick}
                 />
             </Tab>
 
@@ -112,5 +126,13 @@ export function MainTabs({
                 <TransferView selectedTeam={selectedTeam} />
             </Tab>
         </Tabs>
+        
+        {/* Team Detail Modal */}
+        <TeamDetailModal
+            show={showTeamDetail}
+            onHide={handleCloseTeamDetail}
+            teamNumber={selectedTeamForDetail}
+        />
+        </>
     );
 }

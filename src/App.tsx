@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { WelcomeWizard } from './components/WelcomeWizard';
 import { ToastProvider, useToast } from './contexts/ToastContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -135,9 +136,11 @@ function AppContent() {
 
 function App() {
     return (
-        <ToastProvider>
-            <AppContent />
-        </ToastProvider>
+        <SettingsProvider>
+            <ToastProvider>
+                <AppContent />
+            </ToastProvider>
+        </SettingsProvider>
     );
 }
 

@@ -12,7 +12,7 @@ import {
     useServiceWorkerStatus,
 } from '../hooks/useServiceWorkerStatus';
 import { CONFIG } from '../utils/config';
-import { ChangelogModal } from './ChangelogModal';
+import { SettingsPanel } from './SettingsPanel';
 
 /**
  * Displays the top navigation bar and About modal for the NextShift application.
@@ -24,7 +24,7 @@ export function Header() {
     const serviceWorkerStatus = useServiceWorkerStatus();
     const { isInstallable, promptInstall } = usePWAInstall();
     const [showAbout, setShowAbout] = useState(false);
-    const [showChangelog, setShowChangelog] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
 
     return (
         <>
@@ -62,19 +62,6 @@ export function Header() {
                             <Button
                                 variant="outline-light"
                                 size="sm"
-                                onClick={() => setShowChangelog(true)}
-                                aria-label="What's New"
-                                title="What's New"
-                                className="header-button"
-                            >
-                                <i className="bi bi-journal-text"></i>
-                                <span className="d-none d-lg-inline ms-1">
-                                    New
-                                </span>
-                            </Button>
-                            <Button
-                                variant="outline-light"
-                                size="sm"
                                 onClick={() => setShowAbout(true)}
                                 aria-label="About NextShift"
                                 className="header-button"
@@ -82,6 +69,18 @@ export function Header() {
                                 <i className="bi bi-info-circle"></i>
                                 <span className="d-none d-lg-inline ms-1">
                                     About
+                                </span>
+                            </Button>
+                            <Button
+                                variant="outline-light"
+                                size="sm"
+                                onClick={() => setShowSettings(true)}
+                                aria-label="Settings"
+                                className="header-button"
+                            >
+                                <i className="bi bi-gear"></i>
+                                <span className="d-none d-lg-inline ms-1">
+                                    Settings
                                 </span>
                             </Button>
                         </div>
@@ -266,10 +265,10 @@ export function Header() {
                 </Modal.Footer>
             </Modal>
 
-            {/* Changelog Modal */}
-            <ChangelogModal
-                show={showChangelog}
-                onHide={() => setShowChangelog(false)}
+            {/* Settings Panel */}
+            <SettingsPanel
+                show={showSettings}
+                onHide={() => setShowSettings(false)}
             />
         </>
     );
