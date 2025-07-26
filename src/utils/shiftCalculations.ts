@@ -1,10 +1,8 @@
 import dayjs, { type Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { CONFIG } from './config';
 
 // Initialize dayjs plugins
-dayjs.extend(weekOfYear);
 dayjs.extend(isoWeek);
 
 export type ShiftType = 'M' | 'E' | 'N' | 'O';
