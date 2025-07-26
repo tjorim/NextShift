@@ -6,8 +6,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { WelcomeWizard } from './components/WelcomeWizard';
-import { ToastProvider, useToast } from './contexts/ToastContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -32,11 +32,11 @@ function AppContent() {
         setCurrentDate,
         todayShifts,
     } = useShiftCalculation();
-    
+
     // Track whether user has completed onboarding (seen the welcome wizard)
     const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage(
         'hasCompletedOnboarding',
-        false
+        false,
     );
 
     // Show welcome wizard only on first visit (never completed onboarding)
@@ -44,7 +44,7 @@ function AppContent() {
         if (!hasCompletedOnboarding) {
             setShowTeamModal(true);
         }
-    }, []); // Only run on mount
+    }, [hasCompletedOnboarding]); // Only run on mount
 
     const handleTeamSelect = (team: number) => {
         setIsLoading(true);
@@ -68,7 +68,7 @@ function AppContent() {
 
     const handleSkipTeamSelection = () => {
         setIsLoading(true);
-        
+
         // Use setTimeout to ensure loading state is visible
         setTimeout(() => {
             // Keep selectedTeam as null but mark onboarding as completed
@@ -76,7 +76,7 @@ function AppContent() {
             setShowTeamModal(false);
             setIsLoading(false);
             showInfo(
-                "Browsing all teams. Select a team anytime for personalized features!",
+                'Browsing all teams. Select a team anytime for personalized features!',
                 '👀',
             );
         }, 0);

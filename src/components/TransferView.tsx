@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
@@ -56,9 +56,6 @@ export function TransferView({
         setCustomEndDate,
     } = useTransferCalculations({ selectedTeam });
 
-    // Reset to page 1 when transfers change
-    const resetPagination = () => setCurrentPage(1);
-
     // Calculate pagination
     const totalPages = Math.ceil(transfers.length / transfersPerPage);
     const startIndex = (currentPage - 1) * transfersPerPage;
@@ -66,8 +63,9 @@ export function TransferView({
     const currentTransfers = transfers.slice(startIndex, endIndex);
 
     // Reset pagination when transfers change
+    // biome-ignore lint/correctness/useExhaustiveDependencies: We want to reset when these specific values change
     useEffect(() => {
-        resetPagination();
+        setCurrentPage(1);
     }, [transfers.length, compareTeam, dateRange]);
 
     return (
@@ -155,17 +153,23 @@ export function TransferView({
                         <div>
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <h6 className="mb-0">
-                                    Transfers between Team {selectedTeam} and Team{' '}
-                                    {compareTeam}
+                                    Transfers between Team {selectedTeam} and
+                                    Team {compareTeam}
                                 </h6>
                                 <small className="text-muted">
-                                    {transfers.length} {transfers.length === 1 ? 'transfer' : 'transfers'} found
+                                    {transfers.length}{' '}
+                                    {transfers.length === 1
+                                        ? 'transfer'
+                                        : 'transfers'}{' '}
+                                    found
                                     {totalPages > 1 && (
-                                        <span className="ms-2">• Page {currentPage} of {totalPages}</span>
+                                        <span className="ms-2">
+                                            • Page {currentPage} of {totalPages}
+                                        </span>
                                     )}
                                 </small>
                             </div>
-                            
+
                             <Row className="g-3">
                                 {currentTransfers.map((transfer) => (
                                     <Col
@@ -176,35 +180,47 @@ export function TransferView({
                                         <Card className="h-100 transfer-card">
                                             <Card.Body className="p-3">
                                                 <div className="d-flex align-items-center gap-2 mb-2">
-                                                    <i 
+                                                    <i
                                                         className={`bi ${transfer.isHandover ? 'bi-arrow-right-circle' : 'bi-arrow-left-circle'} text-${transfer.isHandover ? 'success' : 'info'}`}
                                                         aria-hidden="true"
                                                     ></i>
                                                     <strong className="fw-semibold">
-                                                        {transfer.date.format('ddd, MMM D')}
+                                                        {transfer.date.format(
+                                                            'ddd, MMM D',
+                                                        )}
                                                     </strong>
                                                 </div>
                                                 <div className="text-muted small mb-2">
-                                                    Team {transfer.fromTeam} → Team {transfer.toTeam}
+                                                    Team {transfer.fromTeam} →
+                                                    Team {transfer.toTeam}
                                                 </div>
                                                 <div className="mb-2">
-                                                    <Badge 
+                                                    <Badge
                                                         className={`${transfer.isHandover ? 'bg-success' : 'bg-info'} text-white`}
                                                         pill
                                                     >
-                                                        {transfer.isHandover ? 'Handover' : 'Takeover'}
+                                                        {transfer.isHandover
+                                                            ? 'Handover'
+                                                            : 'Takeover'}
                                                     </Badge>
                                                 </div>
                                                 <div className="d-flex gap-2 align-items-center">
                                                     <Badge
-                                                        className={getShiftClassName(transfer.fromShiftType)}
+                                                        className={getShiftClassName(
+                                                            transfer.fromShiftType,
+                                                        )}
                                                         pill
                                                     >
                                                         {transfer.fromShiftName}
                                                     </Badge>
-                                                    <i className="bi bi-arrow-right text-muted" aria-hidden="true"></i>
+                                                    <i
+                                                        className="bi bi-arrow-right text-muted"
+                                                        aria-hidden="true"
+                                                    ></i>
                                                     <Badge
-                                                        className={getShiftClassName(transfer.toShiftType)}
+                                                        className={getShiftClassName(
+                                                            transfer.toShiftType,
+                                                        )}
                                                         pill
                                                     >
                                                         {transfer.toShiftName}
@@ -215,85 +231,124 @@ export function TransferView({
                                     </Col>
                                 ))}
                             </Row>
-                            
+
                             {/* Pagination */}
                             {totalPages > 1 && (
                                 <div className="d-flex justify-content-center mt-4">
                                     <Pagination size="sm">
-                                        <Pagination.First 
+                                        <Pagination.First
                                             onClick={() => setCurrentPage(1)}
                                             disabled={currentPage === 1}
                                         />
-                                        <Pagination.Prev 
-                                            onClick={() => setCurrentPage(currentPage - 1)}
+                                        <Pagination.Prev
+                                            onClick={() =>
+                                                setCurrentPage(currentPage - 1)
+                                            }
                                             disabled={currentPage === 1}
                                         />
-                                        
+
                                         {/* Page 1 */}
                                         {totalPages > 1 && (
                                             <Pagination.Item
                                                 active={currentPage === 1}
-                                                onClick={() => setCurrentPage(1)}
+                                                onClick={() =>
+                                                    setCurrentPage(1)
+                                                }
                                             >
                                                 1
                                             </Pagination.Item>
                                         )}
-                                        
+
                                         {/* Ellipsis before current page range */}
                                         {currentPage > 3 && totalPages > 5 && (
                                             <Pagination.Ellipsis />
                                         )}
-                                        
+
                                         {/* Current page range */}
-                                        {Array.from({ length: totalPages }, (_, i) => i + 1)
-                                            .filter(page => {
-                                                if (totalPages <= 5) return page > 1 && page < totalPages;
-                                                if (page === 1 || page === totalPages) return false;
-                                                return Math.abs(page - currentPage) <= 1;
+                                        {Array.from(
+                                            { length: totalPages },
+                                            (_, i) => i + 1,
+                                        )
+                                            .filter((page) => {
+                                                if (totalPages <= 5)
+                                                    return (
+                                                        page > 1 &&
+                                                        page < totalPages
+                                                    );
+                                                if (
+                                                    page === 1 ||
+                                                    page === totalPages
+                                                )
+                                                    return false;
+                                                return (
+                                                    Math.abs(
+                                                        page - currentPage,
+                                                    ) <= 1
+                                                );
                                             })
-                                            .map(page => (
+                                            .map((page) => (
                                                 <Pagination.Item
                                                     key={page}
-                                                    active={page === currentPage}
-                                                    onClick={() => setCurrentPage(page)}
+                                                    active={
+                                                        page === currentPage
+                                                    }
+                                                    onClick={() =>
+                                                        setCurrentPage(page)
+                                                    }
                                                 >
                                                     {page}
                                                 </Pagination.Item>
-                                            ))
-                                        }
-                                        
+                                            ))}
+
                                         {/* Ellipsis after current page range */}
-                                        {currentPage < totalPages - 2 && totalPages > 5 && (
-                                            <Pagination.Ellipsis />
-                                        )}
-                                        
+                                        {currentPage < totalPages - 2 &&
+                                            totalPages > 5 && (
+                                                <Pagination.Ellipsis />
+                                            )}
+
                                         {/* Last page */}
                                         {totalPages > 1 && (
                                             <Pagination.Item
-                                                active={currentPage === totalPages}
-                                                onClick={() => setCurrentPage(totalPages)}
+                                                active={
+                                                    currentPage === totalPages
+                                                }
+                                                onClick={() =>
+                                                    setCurrentPage(totalPages)
+                                                }
                                             >
                                                 {totalPages}
                                             </Pagination.Item>
                                         )}
-                                        
-                                        <Pagination.Next 
-                                            onClick={() => setCurrentPage(currentPage + 1)}
-                                            disabled={currentPage === totalPages}
+
+                                        <Pagination.Next
+                                            onClick={() =>
+                                                setCurrentPage(currentPage + 1)
+                                            }
+                                            disabled={
+                                                currentPage === totalPages
+                                            }
                                         />
-                                        <Pagination.Last 
-                                            onClick={() => setCurrentPage(totalPages)}
-                                            disabled={currentPage === totalPages}
+                                        <Pagination.Last
+                                            onClick={() =>
+                                                setCurrentPage(totalPages)
+                                            }
+                                            disabled={
+                                                currentPage === totalPages
+                                            }
                                         />
                                     </Pagination>
                                 </div>
                             )}
-                            
+
                             {hasMoreTransfers && (
                                 <div className="d-flex align-items-center gap-2 text-muted small mt-3">
-                                    <i className="bi bi-info-circle" aria-hidden="true"></i>
+                                    <i
+                                        className="bi bi-info-circle"
+                                        aria-hidden="true"
+                                    ></i>
                                     <span>
-                                        Some transfers may not be shown. Narrow your date range for complete results.
+                                        Some transfers may not be shown. Narrow
+                                        your date range for complete results.
                                     </span>
                                 </div>
                             )}

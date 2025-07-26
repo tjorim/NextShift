@@ -18,18 +18,18 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 
 /**
  * Hook for managing user preferences with future account-sync compatibility
- * 
+ *
  * Current: localStorage only
  * Future: Can be extended to sync with user accounts
  */
 export function useUserPreferences() {
     const [preferences, setPreferences] = useLocalStorage<UserPreferences>(
-        'nextshift_user_preferences', 
-        DEFAULT_PREFERENCES
+        'nextshift_user_preferences',
+        DEFAULT_PREFERENCES,
     );
 
     const updateTeam = (team: number | null) => {
-        setPreferences(prev => ({ ...prev, selectedTeam: team }));
+        setPreferences((prev) => ({ ...prev, selectedTeam: team }));
     };
 
     // Future: Add methods for other preferences

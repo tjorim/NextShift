@@ -3,8 +3,8 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import { ChangelogModal } from './ChangelogModal';
 import { useSettings } from '../contexts/SettingsContext';
+import { ChangelogModal } from './ChangelogModal';
 
 interface SettingsPanelProps {
     show: boolean;
@@ -13,10 +13,10 @@ interface SettingsPanelProps {
 
 /**
  * Settings panel component that provides access to app preferences, information, and features.
- * 
+ *
  * Features an offcanvas sidebar with organized sections for:
  * - App preferences and configuration
- * - About and help information  
+ * - About and help information
  * - Changelog and version history
  * - Quick actions and utilities
  *
@@ -26,7 +26,13 @@ interface SettingsPanelProps {
  */
 export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
-    const { settings, updateTimeFormat, updateTheme, updateNotifications, resetSettings } = useSettings();
+    const {
+        settings,
+        updateTimeFormat,
+        updateTheme,
+        updateNotifications,
+        resetSettings,
+    } = useSettings();
 
     const handleChangelogClick = () => {
         setShowChangelog(true);
@@ -37,7 +43,9 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
     };
 
     const handleResetSettings = () => {
-        if (confirm('Are you sure you want to reset all settings to defaults?')) {
+        if (
+            confirm('Are you sure you want to reset all settings to defaults?')
+        ) {
             resetSettings();
         }
     };
@@ -63,19 +71,37 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">Time Format</div>
-                                            <small className="text-muted">24-hour or 12-hour display</small>
+                                            <div className="fw-medium">
+                                                Time Format
+                                            </div>
+                                            <small className="text-muted">
+                                                24-hour or 12-hour display
+                                            </small>
                                         </div>
                                         <ButtonGroup size="sm">
                                             <Button
-                                                variant={settings.timeFormat === '24h' ? 'primary' : 'outline-secondary'}
-                                                onClick={() => updateTimeFormat('24h')}
+                                                variant={
+                                                    settings.timeFormat ===
+                                                    '24h'
+                                                        ? 'primary'
+                                                        : 'outline-secondary'
+                                                }
+                                                onClick={() =>
+                                                    updateTimeFormat('24h')
+                                                }
                                             >
                                                 24h
                                             </Button>
                                             <Button
-                                                variant={settings.timeFormat === '12h' ? 'primary' : 'outline-secondary'}
-                                                onClick={() => updateTimeFormat('12h')}
+                                                variant={
+                                                    settings.timeFormat ===
+                                                    '12h'
+                                                        ? 'primary'
+                                                        : 'outline-secondary'
+                                                }
+                                                onClick={() =>
+                                                    updateTimeFormat('12h')
+                                                }
                                             >
                                                 12h
                                             </Button>
@@ -85,21 +111,39 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">Theme</div>
-                                            <small className="text-muted">App appearance</small>
+                                            <div className="fw-medium">
+                                                Theme
+                                            </div>
+                                            <small className="text-muted">
+                                                App appearance
+                                            </small>
                                         </div>
                                         <ButtonGroup size="sm">
                                             <Button
-                                                variant={settings.theme === 'light' ? 'primary' : 'outline-secondary'}
-                                                onClick={() => updateTheme('light')}
+                                                variant={
+                                                    settings.theme === 'light'
+                                                        ? 'primary'
+                                                        : 'outline-secondary'
+                                                }
+                                                onClick={() =>
+                                                    updateTheme('light')
+                                                }
                                             >
-                                                <i className="bi bi-sun me-1"></i>Light
+                                                <i className="bi bi-sun me-1"></i>
+                                                Light
                                             </Button>
                                             <Button
-                                                variant={settings.theme === 'dark' ? 'primary' : 'outline-secondary'}
-                                                onClick={() => updateTheme('dark')}
+                                                variant={
+                                                    settings.theme === 'dark'
+                                                        ? 'primary'
+                                                        : 'outline-secondary'
+                                                }
+                                                onClick={() =>
+                                                    updateTheme('dark')
+                                                }
                                             >
-                                                <i className="bi bi-moon me-1"></i>Dark
+                                                <i className="bi bi-moon me-1"></i>
+                                                Dark
                                             </Button>
                                         </ButtonGroup>
                                     </div>
@@ -107,21 +151,41 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">Notifications</div>
-                                            <small className="text-muted">Shift reminders and alerts</small>
+                                            <div className="fw-medium">
+                                                Notifications
+                                            </div>
+                                            <small className="text-muted">
+                                                Shift reminders and alerts
+                                            </small>
                                         </div>
                                         <ButtonGroup size="sm">
                                             <Button
-                                                variant={settings.notifications === 'on' ? 'success' : 'outline-secondary'}
-                                                onClick={() => updateNotifications('on')}
+                                                variant={
+                                                    settings.notifications ===
+                                                    'on'
+                                                        ? 'success'
+                                                        : 'outline-secondary'
+                                                }
+                                                onClick={() =>
+                                                    updateNotifications('on')
+                                                }
                                             >
-                                                <i className="bi bi-bell me-1"></i>On
+                                                <i className="bi bi-bell me-1"></i>
+                                                On
                                             </Button>
                                             <Button
-                                                variant={settings.notifications === 'off' ? 'secondary' : 'outline-secondary'}
-                                                onClick={() => updateNotifications('off')}
+                                                variant={
+                                                    settings.notifications ===
+                                                    'off'
+                                                        ? 'secondary'
+                                                        : 'outline-secondary'
+                                                }
+                                                onClick={() =>
+                                                    updateNotifications('off')
+                                                }
                                             >
-                                                <i className="bi bi-bell-slash me-1"></i>Off
+                                                <i className="bi bi-bell-slash me-1"></i>
+                                                Off
                                             </Button>
                                         </ButtonGroup>
                                     </div>
@@ -138,15 +202,19 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 Information
                             </h6>
                             <ListGroup variant="flush">
-                                <ListGroup.Item 
-                                    action 
+                                <ListGroup.Item
+                                    action
                                     className="px-0 py-2"
                                     onClick={handleChangelogClick}
                                 >
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">What's New</div>
-                                            <small className="text-muted">Recent updates and changes</small>
+                                            <div className="fw-medium">
+                                                What's New
+                                            </div>
+                                            <small className="text-muted">
+                                                Recent updates and changes
+                                            </small>
                                         </div>
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
@@ -154,8 +222,12 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item action className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">About NextShift</div>
-                                            <small className="text-muted">Version info and credits</small>
+                                            <div className="fw-medium">
+                                                About NextShift
+                                            </div>
+                                            <small className="text-muted">
+                                                Version info and credits
+                                            </small>
                                         </div>
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
@@ -163,8 +235,12 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item action className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">Help & Support</div>
-                                            <small className="text-muted">User guide and documentation</small>
+                                            <div className="fw-medium">
+                                                Help & Support
+                                            </div>
+                                            <small className="text-muted">
+                                                User guide and documentation
+                                            </small>
                                         </div>
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
@@ -184,8 +260,12 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item action className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">Export Schedule</div>
-                                            <small className="text-muted">Download as calendar file</small>
+                                            <div className="fw-medium">
+                                                Export Schedule
+                                            </div>
+                                            <small className="text-muted">
+                                                Download as calendar file
+                                            </small>
                                         </div>
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
@@ -193,21 +273,29 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item action className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">Share App</div>
-                                            <small className="text-muted">Send NextShift to colleagues</small>
+                                            <div className="fw-medium">
+                                                Share App
+                                            </div>
+                                            <small className="text-muted">
+                                                Send NextShift to colleagues
+                                            </small>
                                         </div>
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
-                                <ListGroup.Item 
-                                    action 
+                                <ListGroup.Item
+                                    action
                                     className="px-0 py-2"
                                     onClick={handleResetSettings}
                                 >
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium text-danger">Reset Data</div>
-                                            <small className="text-muted">Clear all preferences</small>
+                                            <div className="fw-medium text-danger">
+                                                Reset Data
+                                            </div>
+                                            <small className="text-muted">
+                                                Clear all preferences
+                                            </small>
                                         </div>
                                         <i className="bi bi-trash text-danger"></i>
                                     </div>
@@ -229,8 +317,8 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
             </Offcanvas>
 
             {/* Changelog Modal */}
-            <ChangelogModal 
-                show={showChangelog} 
+            <ChangelogModal
+                show={showChangelog}
                 onHide={handleChangelogClose}
             />
         </>

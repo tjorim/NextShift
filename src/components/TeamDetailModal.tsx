@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
@@ -7,7 +8,6 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
-import dayjs from 'dayjs';
 import { calculateShift, getCurrentShiftDay } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
@@ -19,7 +19,7 @@ interface TeamDetailModalProps {
 
 /**
  * Team detail modal component that displays comprehensive information about a specific team.
- * 
+ *
  * Features detailed views of:
  * - 7-day schedule overview with shift types and times
  * - Current status and next shift information
@@ -31,17 +31,21 @@ interface TeamDetailModalProps {
  * @param teamNumber - The team number to display details for (1-5)
  * @returns The team detail modal component
  */
-export function TeamDetailModal({ show, onHide, teamNumber }: TeamDetailModalProps) {
+export function TeamDetailModal({
+    show,
+    onHide,
+    teamNumber,
+}: TeamDetailModalProps) {
     // Generate 7-day schedule for the team
     const weekSchedule = useMemo(() => {
         const today = dayjs();
         const schedule = [];
-        
+
         for (let i = 0; i < 7; i++) {
             const date = today.add(i, 'day');
             const shiftDay = getCurrentShiftDay(date);
             const shift = calculateShift(shiftDay, teamNumber);
-            
+
             schedule.push({
                 date,
                 shift,
@@ -49,18 +53,26 @@ export function TeamDetailModal({ show, onHide, teamNumber }: TeamDetailModalPro
                 isTomorrow: i === 1,
             });
         }
-        
+
         return schedule;
     }, [teamNumber]);
 
     // Calculate team statistics
     const stats = useMemo(() => {
-        const workingDays = weekSchedule.filter(day => day.shift.code !== 'O').length;
+        const workingDays = weekSchedule.filter(
+            (day) => day.shift.code !== 'O',
+        ).length;
         const offDays = 7 - workingDays;
-        const morningShifts = weekSchedule.filter(day => day.shift.code === 'M').length;
-        const eveningShifts = weekSchedule.filter(day => day.shift.code === 'E').length;
-        const nightShifts = weekSchedule.filter(day => day.shift.code === 'N').length;
-        
+        const morningShifts = weekSchedule.filter(
+            (day) => day.shift.code === 'M',
+        ).length;
+        const eveningShifts = weekSchedule.filter(
+            (day) => day.shift.code === 'E',
+        ).length;
+        const nightShifts = weekSchedule.filter(
+            (day) => day.shift.code === 'N',
+        ).length;
+
         return {
             workingDays,
             offDays,
@@ -72,7 +84,9 @@ export function TeamDetailModal({ show, onHide, teamNumber }: TeamDetailModalPro
 
     // Find current status
     const currentStatus = weekSchedule[0];
-    const nextShift = weekSchedule.find(day => day.shift.code !== 'O' && !day.isToday);
+    const nextShift = weekSchedule.find(
+        (day) => day.shift.code !== 'O' && !day.isToday,
+    );
 
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
@@ -99,20 +113,36 @@ export function TeamDetailModal({ show, onHide, teamNumber }: TeamDetailModalPro
                                             Off Duty
                                         </Badge>
                                     ) : (
-                                        <Badge className={getShiftClassName(currentStatus?.shift.code || 'O')} pill>
+                                        <Badge
+                                            className={getShiftClassName(
+                                                currentStatus?.shift.code ||
+                                                    'O',
+                                            )}
+                                            pill
+                                        >
                                             <i className="bi bi-briefcase me-1"></i>
-                                            {currentStatus?.shift.name || 'Unknown'}
+                                            {currentStatus?.shift.name ||
+                                                'Unknown'}
                                         </Badge>
                                     )}
                                     <small className="text-muted">
-                                        {currentStatus?.date.format('dddd, MMM D') || 'Unknown date'}
+                                        {currentStatus?.date.format(
+                                            'dddd, MMM D',
+                                        ) || 'Unknown date'}
                                     </small>
                                 </div>
                             </div>
                             {nextShift && (
                                 <div className="text-end">
-                                    <small className="text-muted d-block">Next Shift</small>
-                                    <Badge className={getShiftClassName(nextShift.shift.code)} pill>
+                                    <small className="text-muted d-block">
+                                        Next Shift
+                                    </small>
+                                    <Badge
+                                        className={getShiftClassName(
+                                            nextShift.shift.code,
+                                        )}
+                                        pill
+                                    >
                                         {nextShift.shift.name}
                                     </Badge>
                                     <small className="text-muted d-block">
@@ -142,40 +172,68 @@ export function TeamDetailModal({ show, onHide, teamNumber }: TeamDetailModalPro
                                 </tr>
                             </thead>
                             <tbody>
-                                {weekSchedule.map((day, index) => (
-                                    <tr key={index} className={day.isToday ? 'table-primary' : ''}>
+                                {weekSchedule.map((day) => (
+                                    <tr
+                                        key={day.date.format('YYYY-MM-DD')}
+                                        className={
+                                            day.isToday ? 'table-primary' : ''
+                                        }
+                                    >
                                         <td>
-                                            <strong>{day.date.format('MMM D')}</strong>
+                                            <strong>
+                                                {day.date.format('MMM D')}
+                                            </strong>
                                             {day.isToday && (
-                                                <Badge bg="primary" className="ms-2">Today</Badge>
+                                                <Badge
+                                                    bg="primary"
+                                                    className="ms-2"
+                                                >
+                                                    Today
+                                                </Badge>
                                             )}
                                             {day.isTomorrow && (
-                                                <Badge bg="info" className="ms-2">Tomorrow</Badge>
+                                                <Badge
+                                                    bg="info"
+                                                    className="ms-2"
+                                                >
+                                                    Tomorrow
+                                                </Badge>
                                             )}
                                         </td>
                                         <td>{day.date.format('ddd')}</td>
                                         <td>
                                             {day.shift.code === 'O' ? (
-                                                <Badge bg="secondary" pill>Off</Badge>
+                                                <Badge bg="secondary" pill>
+                                                    Off
+                                                </Badge>
                                             ) : (
-                                                <Badge className={getShiftClassName(day.shift.code)} pill>
+                                                <Badge
+                                                    className={getShiftClassName(
+                                                        day.shift.code,
+                                                    )}
+                                                    pill
+                                                >
                                                     {day.shift.name}
                                                 </Badge>
                                             )}
                                         </td>
                                         <td>
                                             <small className="text-muted">
-                                                {day.shift.code === 'O' ? '—' : day.shift.hours}
+                                                {day.shift.code === 'O'
+                                                    ? '—'
+                                                    : day.shift.hours}
                                             </small>
                                         </td>
                                         <td>
                                             {day.shift.code === 'O' ? (
                                                 <small className="text-muted">
-                                                    <i className="bi bi-house me-1"></i>Rest Day
+                                                    <i className="bi bi-house me-1"></i>
+                                                    Rest Day
                                                 </small>
                                             ) : (
                                                 <small className="text-success">
-                                                    <i className="bi bi-briefcase me-1"></i>Working
+                                                    <i className="bi bi-briefcase me-1"></i>
+                                                    Working
                                                 </small>
                                             )}
                                         </td>
@@ -198,11 +256,15 @@ export function TeamDetailModal({ show, onHide, teamNumber }: TeamDetailModalPro
                                 <ListGroup variant="flush">
                                     <ListGroup.Item className="px-0 py-2 d-flex justify-content-between">
                                         <span>Working Days</span>
-                                        <Badge bg="success">{stats.workingDays}/7</Badge>
+                                        <Badge bg="success">
+                                            {stats.workingDays}/7
+                                        </Badge>
                                     </ListGroup.Item>
                                     <ListGroup.Item className="px-0 py-2 d-flex justify-content-between">
                                         <span>Rest Days</span>
-                                        <Badge bg="secondary">{stats.offDays}/7</Badge>
+                                        <Badge bg="secondary">
+                                            {stats.offDays}/7
+                                        </Badge>
                                     </ListGroup.Item>
                                 </ListGroup>
                             </Card.Body>
@@ -221,21 +283,27 @@ export function TeamDetailModal({ show, onHide, teamNumber }: TeamDetailModalPro
                                             <i className="bi bi-sun me-1 text-warning"></i>
                                             Morning Shifts
                                         </span>
-                                        <Badge className="bg-warning">{stats.morningShifts}</Badge>
+                                        <Badge className="bg-warning">
+                                            {stats.morningShifts}
+                                        </Badge>
                                     </ListGroup.Item>
                                     <ListGroup.Item className="px-0 py-2 d-flex justify-content-between">
                                         <span>
                                             <i className="bi bi-sunset me-1 text-info"></i>
                                             Evening Shifts
                                         </span>
-                                        <Badge bg="info">{stats.eveningShifts}</Badge>
+                                        <Badge bg="info">
+                                            {stats.eveningShifts}
+                                        </Badge>
                                     </ListGroup.Item>
                                     <ListGroup.Item className="px-0 py-2 d-flex justify-content-between">
                                         <span>
                                             <i className="bi bi-moon me-1 text-primary"></i>
                                             Night Shifts
                                         </span>
-                                        <Badge bg="primary">{stats.nightShifts}</Badge>
+                                        <Badge bg="primary">
+                                            {stats.nightShifts}
+                                        </Badge>
                                     </ListGroup.Item>
                                 </ListGroup>
                             </Card.Body>

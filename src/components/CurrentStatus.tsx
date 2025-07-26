@@ -216,12 +216,18 @@ export function CurrentStatus({
                                 Who's On?
                             </Button>
                             <Button
-                                variant={validatedTeam ? "outline-secondary" : "primary"}
+                                variant={
+                                    validatedTeam
+                                        ? 'outline-secondary'
+                                        : 'primary'
+                                }
                                 size="sm"
                                 onClick={onChangeTeam}
                             >
-                                <i className={`bi ${validatedTeam ? "bi-person-gear" : "bi-person-plus"} me-1`}></i>
-                                {validatedTeam ? "Change Team" : "Select Team"}
+                                <i
+                                    className={`bi ${validatedTeam ? 'bi-person-gear' : 'bi-person-plus'} me-1`}
+                                ></i>
+                                {validatedTeam ? 'Change Team' : 'Select Team'}
                             </Button>
                         </div>
                     </div>
@@ -243,7 +249,9 @@ export function CurrentStatus({
                         <Col md={6}>
                             <div className="p-3 border rounded bg-light h-100 d-flex flex-column">
                                 <h6 className="mb-2 text-primary">
-                                    {validatedTeam ? "🏷️ Your Team Status" : "👥 Current Status"}
+                                    {validatedTeam
+                                        ? '🏷️ Your Team Status'
+                                        : '👥 Current Status'}
                                 </h6>
                                 <div className="flex-grow-1">
                                     {isLoading ? (
@@ -340,10 +348,21 @@ export function CurrentStatus({
                                                     <Badge
                                                         className={`shift-code shift-badge-lg ${getShiftClassName(currentWorkingTeam.shift.code)}`}
                                                     >
-                                                        Team {currentWorkingTeam.teamNumber}: {currentWorkingTeam.shift.name}
+                                                        Team{' '}
+                                                        {
+                                                            currentWorkingTeam.teamNumber
+                                                        }
+                                                        :{' '}
+                                                        {
+                                                            currentWorkingTeam
+                                                                .shift.name
+                                                        }
                                                     </Badge>
                                                     <div className="small text-muted mt-1">
-                                                        {currentWorkingTeam.shift.hours}
+                                                        {
+                                                            currentWorkingTeam
+                                                                .shift.hours
+                                                        }
                                                     </div>
                                                     <div className="small text-success mt-2">
                                                         ✅ Currently working
@@ -357,13 +376,16 @@ export function CurrentStatus({
                                                         </Badge>
                                                     </div>
                                                     <div className="small">
-                                                        All teams are currently off duty
+                                                        All teams are currently
+                                                        off duty
                                                     </div>
                                                 </div>
                                             )}
                                             <hr className="my-3" />
                                             <div className="small text-muted">
-                                                💡 Select your team above for personalized shift tracking and countdown timers
+                                                💡 Select your team above for
+                                                personalized shift tracking and
+                                                countdown timers
                                             </div>
                                         </div>
                                     ) : (
@@ -379,7 +401,9 @@ export function CurrentStatus({
                             <div className="p-3 border rounded bg-light h-100 d-flex flex-column">
                                 <h6 className="mb-2 text-success">
                                     <i className="bi bi-arrow-right-circle me-1"></i>
-                                    {validatedTeam ? "Your Next Shift" : "Next Activity"}
+                                    {validatedTeam
+                                        ? 'Your Next Shift'
+                                        : 'Next Activity'}
                                 </h6>
                                 <div className="text-muted flex-grow-1">
                                     {isLoading ? (
@@ -424,25 +448,33 @@ export function CurrentStatus({
                                             {currentWorkingTeam ? (
                                                 <div>
                                                     <div className="fw-semibold text-dark">
-                                                        Next shift change coming soon
+                                                        Next shift change coming
+                                                        soon
                                                     </div>
                                                     <div className="small">
-                                                        Check the timeline above or view all teams in the "Today" tab
+                                                        Check the timeline above
+                                                        or view all teams in the
+                                                        "Today" tab
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div>
                                                     <div className="fw-semibold text-dark">
-                                                        Next shift starts tomorrow
+                                                        Next shift starts
+                                                        tomorrow
                                                     </div>
                                                     <div className="small">
-                                                        View the schedule in other tabs for detailed timing
+                                                        View the schedule in
+                                                        other tabs for detailed
+                                                        timing
                                                     </div>
                                                 </div>
                                             )}
                                             <hr className="my-3" />
                                             <div className="small text-muted">
-                                                Select your team for countdown timers and personalized notifications
+                                                Select your team for countdown
+                                                timers and personalized
+                                                notifications
                                             </div>
                                         </div>
                                     )}

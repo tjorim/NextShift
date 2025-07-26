@@ -15,7 +15,9 @@ describe('WelcomeWizard', () => {
     describe('Basic rendering', () => {
         it('renders modal when show is true', () => {
             render(<WelcomeWizard {...defaultProps} />);
-            expect(screen.getByText('Welcome to NextShift! 👋')).toBeInTheDocument();
+            expect(
+                screen.getByText('Welcome to NextShift! 👋'),
+            ).toBeInTheDocument();
         });
 
         it('does not render modal when show is false', () => {
@@ -86,7 +88,9 @@ describe('WelcomeWizard', () => {
             render(<WelcomeWizard {...defaultProps} onHide={mockOnHide} />);
 
             // Modal renders without errors and accepts the callback
-            expect(screen.getByText('Welcome to NextShift! 👋')).toBeInTheDocument();
+            expect(
+                screen.getByText('Welcome to NextShift! 👋'),
+            ).toBeInTheDocument();
             expect(mockOnHide).toBeDefined();
         });
     });

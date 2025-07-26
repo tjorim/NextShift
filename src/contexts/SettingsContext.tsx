@@ -1,5 +1,5 @@
-import { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
+import { createContext, useContext } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export type TimeFormat = '12h' | '24h';
@@ -26,7 +26,9 @@ const defaultSettings: UserSettings = {
     notifications: 'off',
 };
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(
+    undefined,
+);
 
 interface SettingsProviderProps {
     children: ReactNode;
@@ -34,27 +36,30 @@ interface SettingsProviderProps {
 
 /**
  * Settings provider that manages user preferences using localStorage.
- * 
+ *
  * Provides a context for managing app-wide settings including:
  * - Time format (12h/24h)
  * - Theme preference (light/dark/auto)
  * - Notification settings (on/off)
- * 
+ *
  * All settings are persisted to localStorage and restored on app load.
  */
 export function SettingsProvider({ children }: SettingsProviderProps) {
-    const [settings, setSettings] = useLocalStorage<UserSettings>('userSettings', defaultSettings);
+    const [settings, setSettings] = useLocalStorage<UserSettings>(
+        'userSettings',
+        defaultSettings,
+    );
 
     const updateTimeFormat = (format: TimeFormat) => {
-        setSettings(prev => ({ ...prev, timeFormat: format }));
+        setSettings((prev) => ({ ...prev, timeFormat: format }));
     };
 
     const updateTheme = (theme: Theme) => {
-        setSettings(prev => ({ ...prev, theme }));
+        setSettings((prev) => ({ ...prev, theme }));
     };
 
     const updateNotifications = (notifications: NotificationSetting) => {
-        setSettings(prev => ({ ...prev, notifications }));
+        setSettings((prev) => ({ ...prev, notifications }));
     };
 
     const resetSettings = () => {

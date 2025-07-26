@@ -211,7 +211,9 @@ describe('CurrentStatus Component', () => {
                 ),
             ).toBeInTheDocument();
             expect(
-                screen.getByText('Select your team for countdown timers and personalized notifications'),
+                screen.getByText(
+                    'Select your team for countdown timers and personalized notifications',
+                ),
             ).toBeInTheDocument();
         });
 

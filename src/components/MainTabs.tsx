@@ -40,7 +40,8 @@ export function MainTabs({
 }: MainTabsProps) {
     const [activeKey, setActiveKey] = useState<string>(activeTab);
     const [showTeamDetail, setShowTeamDetail] = useState(false);
-    const [selectedTeamForDetail, setSelectedTeamForDetail] = useState<number>(1);
+    const [selectedTeamForDetail, setSelectedTeamForDetail] =
+        useState<number>(1);
 
     // Sync with external tab changes
     useEffect(() => {
@@ -64,75 +65,75 @@ export function MainTabs({
         <>
             <Tabs
                 activeKey={activeKey}
-            onSelect={(k) => {
-                const newKey = k || 'today';
-                setActiveKey(newKey);
-                onTabChange?.(newKey);
-            }}
-            id="mainTabs"
-            className="mb-3"
-        >
-            <Tab
-                eventKey="today"
-                title={
-                    <>
-                        <i
-                            className="bi bi-calendar-day me-1"
-                            aria-hidden="true"
-                        ></i>
-                        Today
-                    </>
-                }
+                onSelect={(k) => {
+                    const newKey = k || 'today';
+                    setActiveKey(newKey);
+                    onTabChange?.(newKey);
+                }}
+                id="mainTabs"
+                className="mb-3"
             >
-                <TodayView
-                    todayShifts={todayShifts}
-                    selectedTeam={selectedTeam}
-                    onTodayClick={handleTodayClick}
-                    onTeamClick={handleTeamClick}
-                />
-            </Tab>
+                <Tab
+                    eventKey="today"
+                    title={
+                        <>
+                            <i
+                                className="bi bi-calendar-day me-1"
+                                aria-hidden="true"
+                            ></i>
+                            Today
+                        </>
+                    }
+                >
+                    <TodayView
+                        todayShifts={todayShifts}
+                        selectedTeam={selectedTeam}
+                        onTodayClick={handleTodayClick}
+                        onTeamClick={handleTeamClick}
+                    />
+                </Tab>
 
-            <Tab
-                eventKey="schedule"
-                title={
-                    <>
-                        <i
-                            className="bi bi-calendar-week me-1"
-                            aria-hidden="true"
-                        ></i>
-                        Schedule
-                    </>
-                }
-            >
-                <ScheduleView
-                    selectedTeam={selectedTeam}
-                    currentDate={currentDate}
-                    setCurrentDate={setCurrentDate}
-                />
-            </Tab>
+                <Tab
+                    eventKey="schedule"
+                    title={
+                        <>
+                            <i
+                                className="bi bi-calendar-week me-1"
+                                aria-hidden="true"
+                            ></i>
+                            Schedule
+                        </>
+                    }
+                >
+                    <ScheduleView
+                        selectedTeam={selectedTeam}
+                        currentDate={currentDate}
+                        setCurrentDate={setCurrentDate}
+                    />
+                </Tab>
 
-            <Tab
-                eventKey="transfer"
-                title={
-                    <>
-                        <i
-                            className="bi bi-arrow-left-right me-1"
-                            aria-hidden="true"
-                        ></i>
-                        Transfers
-                    </>
-                }
-            >
-                <TransferView selectedTeam={selectedTeam} />
-            </Tab>
-        </Tabs>
-        
-        {/* Team Detail Modal */}
-        <TeamDetailModal
-            show={showTeamDetail}
-            onHide={handleCloseTeamDetail}
-            teamNumber={selectedTeamForDetail}
-        />
+                <Tab
+                    eventKey="transfer"
+                    title={
+                        <>
+                            <i
+                                className="bi bi-arrow-left-right me-1"
+                                aria-hidden="true"
+                            ></i>
+                            Transfers
+                        </>
+                    }
+                >
+                    <TransferView selectedTeam={selectedTeam} />
+                </Tab>
+            </Tabs>
+
+            {/* Team Detail Modal */}
+            <TeamDetailModal
+                show={showTeamDetail}
+                onHide={handleCloseTeamDetail}
+                teamNumber={selectedTeamForDetail}
+            />
         </>
     );
 }

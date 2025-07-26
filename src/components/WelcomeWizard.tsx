@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
@@ -81,19 +81,27 @@ export function WelcomeWizard({
 
     const getProgressPercentage = () => {
         switch (currentStep) {
-            case 'welcome': return 33;
-            case 'features': return 66;
-            case 'team-selection': return 100;
-            default: return 0;
+            case 'welcome':
+                return 33;
+            case 'features':
+                return 66;
+            case 'team-selection':
+                return 100;
+            default:
+                return 0;
         }
     };
 
     const getStepTitle = () => {
         switch (currentStep) {
-            case 'welcome': return 'Welcome to NextShift! 👋';
-            case 'features': return 'What can NextShift do? ✨';
-            case 'team-selection': return 'Choose Your Experience 🎯';
-            default: return 'Welcome to NextShift';
+            case 'welcome':
+                return 'Welcome to NextShift! 👋';
+            case 'features':
+                return 'What can NextShift do? ✨';
+            case 'team-selection':
+                return 'Choose Your Experience 🎯';
+            default:
+                return 'Welcome to NextShift';
         }
     };
 
@@ -101,23 +109,37 @@ export function WelcomeWizard({
         <>
             <div className="text-center mb-4">
                 <div className="mb-3">
-                    <i className="bi bi-clock-history text-primary" style={{ fontSize: '3rem' }}></i>
+                    <i
+                        className="bi bi-clock-history text-primary"
+                        style={{ fontSize: '3rem' }}
+                    ></i>
                 </div>
                 <h4 className="text-primary mb-3">Welcome to NextShift!</h4>
                 <p className="lead mb-3">
-                    Your personal 24/7 shift tracker for 5-team continuous operations
+                    Your personal 24/7 shift tracker for 5-team continuous
+                    operations
                 </p>
                 <p className="text-muted">
-                    NextShift helps you stay on top of your shift schedule with real-time tracking, 
-                    countdown timers, and instant access to team information - all offline-capable!
+                    NextShift helps you stay on top of your shift schedule with
+                    real-time tracking, countdown timers, and instant access to
+                    team information - all offline-capable!
                 </p>
             </div>
             <div className="d-flex justify-content-between">
-                <Button variant="outline-secondary" onClick={onHide} disabled={isLoading}>
+                <Button
+                    variant="outline-secondary"
+                    onClick={onHide}
+                    disabled={isLoading}
+                >
                     Maybe Later
                 </Button>
-                <Button variant="primary" onClick={nextStep} disabled={isLoading}>
-                    Let's Get Started! <i className="bi bi-arrow-right ms-1"></i>
+                <Button
+                    variant="primary"
+                    onClick={nextStep}
+                    disabled={isLoading}
+                >
+                    Let's Get Started!{' '}
+                    <i className="bi bi-arrow-right ms-1"></i>
                 </Button>
             </div>
         </>
@@ -126,52 +148,84 @@ export function WelcomeWizard({
     const renderFeaturesStep = () => (
         <>
             <div className="mb-4">
-                <h5 className="text-center mb-4">Here's what NextShift can do for you:</h5>
+                <h5 className="text-center mb-4">
+                    Here's what NextShift can do for you:
+                </h5>
                 <Row className="g-3">
                     <Col xs={12} md={6}>
                         <div className="d-flex align-items-start">
-                            <i className="bi bi-stopwatch text-success me-3 mt-1" style={{ fontSize: '1.5rem' }}></i>
+                            <i
+                                className="bi bi-stopwatch text-success me-3 mt-1"
+                                style={{ fontSize: '1.5rem' }}
+                            ></i>
                             <div>
                                 <h6 className="mb-1">Live Countdown Timers</h6>
-                                <small className="text-muted">Know exactly when your next shift starts</small>
+                                <small className="text-muted">
+                                    Know exactly when your next shift starts
+                                </small>
                             </div>
                         </div>
                     </Col>
                     <Col xs={12} md={6}>
                         <div className="d-flex align-items-start">
-                            <i className="bi bi-wifi-off text-info me-3 mt-1" style={{ fontSize: '1.5rem' }}></i>
+                            <i
+                                className="bi bi-wifi-off text-info me-3 mt-1"
+                                style={{ fontSize: '1.5rem' }}
+                            ></i>
                             <div>
                                 <h6 className="mb-1">Works Offline</h6>
-                                <small className="text-muted">No internet? No problem - fully functional offline</small>
+                                <small className="text-muted">
+                                    No internet? No problem - fully functional
+                                    offline
+                                </small>
                             </div>
                         </div>
                     </Col>
                     <Col xs={12} md={6}>
                         <div className="d-flex align-items-start">
-                            <i className="bi bi-people text-warning me-3 mt-1" style={{ fontSize: '1.5rem' }}></i>
+                            <i
+                                className="bi bi-people text-warning me-3 mt-1"
+                                style={{ fontSize: '1.5rem' }}
+                            ></i>
                             <div>
                                 <h6 className="mb-1">Team Overview</h6>
-                                <small className="text-muted">See who's working across all 5 teams</small>
+                                <small className="text-muted">
+                                    See who's working across all 5 teams
+                                </small>
                             </div>
                         </div>
                     </Col>
                     <Col xs={12} md={6}>
                         <div className="d-flex align-items-start">
-                            <i className="bi bi-arrow-left-right text-primary me-3 mt-1" style={{ fontSize: '1.5rem' }}></i>
+                            <i
+                                className="bi bi-arrow-left-right text-primary me-3 mt-1"
+                                style={{ fontSize: '1.5rem' }}
+                            ></i>
                             <div>
                                 <h6 className="mb-1">Transfer Detection</h6>
-                                <small className="text-muted">Track handovers between teams</small>
+                                <small className="text-muted">
+                                    Track handovers between teams
+                                </small>
                             </div>
                         </div>
                     </Col>
                 </Row>
             </div>
             <div className="d-flex justify-content-between">
-                <Button variant="outline-secondary" onClick={prevStep} disabled={isLoading}>
+                <Button
+                    variant="outline-secondary"
+                    onClick={prevStep}
+                    disabled={isLoading}
+                >
                     <i className="bi bi-arrow-left me-1"></i> Back
                 </Button>
-                <Button variant="primary" onClick={nextStep} disabled={isLoading}>
-                    Choose My Experience <i className="bi bi-arrow-right ms-1"></i>
+                <Button
+                    variant="primary"
+                    onClick={nextStep}
+                    disabled={isLoading}
+                >
+                    Choose My Experience{' '}
+                    <i className="bi bi-arrow-right ms-1"></i>
                 </Button>
             </div>
         </>
@@ -187,8 +241,13 @@ export function WelcomeWizard({
             </div>
 
             <div className="mb-4">
-                <h6 className="mb-3">Option 1: Select Your Team (Recommended)</h6>
-                <p className="small text-muted mb-3">Get personalized features like countdown timers and shift progress tracking.</p>
+                <h6 className="mb-3">
+                    Option 1: Select Your Team (Recommended)
+                </h6>
+                <p className="small text-muted mb-3">
+                    Get personalized features like countdown timers and shift
+                    progress tracking.
+                </p>
                 <Row className="g-2" aria-label="Select your team">
                     {teams.map((team, index) => (
                         <Col key={team} xs={6} sm={4} md={4}>
@@ -212,7 +271,8 @@ export function WelcomeWizard({
             <div className="text-center">
                 <h6 className="mb-2">Option 2: Browse All Teams</h6>
                 <p className="small text-muted mb-3">
-                    View shift information for all teams without personalization.
+                    View shift information for all teams without
+                    personalization.
                 </p>
                 <Button
                     variant="outline-secondary"
@@ -225,7 +285,12 @@ export function WelcomeWizard({
             </div>
 
             <div className="d-flex justify-content-start mt-3">
-                <Button variant="outline-secondary" size="sm" onClick={prevStep} disabled={isLoading}>
+                <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={prevStep}
+                    disabled={isLoading}
+                >
                     <i className="bi bi-arrow-left me-1"></i> Back
                 </Button>
             </div>
@@ -248,14 +313,22 @@ export function WelcomeWizard({
             <Modal.Body>
                 {/* Progress bar */}
                 <div className="mb-4">
-                    <ProgressBar 
-                        now={getProgressPercentage()} 
+                    <ProgressBar
+                        now={getProgressPercentage()}
                         variant="primary"
                         style={{ height: '4px' }}
                         className="mb-2"
                     />
                     <div className="d-flex justify-content-between small text-muted">
-                        <span>Step {currentStep === 'welcome' ? '1' : currentStep === 'features' ? '2' : '3'} of 3</span>
+                        <span>
+                            Step{' '}
+                            {currentStep === 'welcome'
+                                ? '1'
+                                : currentStep === 'features'
+                                  ? '2'
+                                  : '3'}{' '}
+                            of 3
+                        </span>
                         <span>{getProgressPercentage()}% Complete</span>
                     </div>
                 </div>
@@ -270,7 +343,8 @@ export function WelcomeWizard({
                     <>
                         {currentStep === 'welcome' && renderWelcomeStep()}
                         {currentStep === 'features' && renderFeaturesStep()}
-                        {currentStep === 'team-selection' && renderTeamSelectionStep()}
+                        {currentStep === 'team-selection' &&
+                            renderTeamSelectionStep()}
                     </>
                 )}
             </Modal.Body>

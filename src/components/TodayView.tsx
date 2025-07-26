@@ -75,19 +75,45 @@ export function TodayView({
                 <Row className="g-2">
                     {todayShifts.map((shiftResult) => (
                         <Col key={shiftResult.teamNumber} xs={12} sm={6} lg={4}>
+                            {/* biome-ignore lint/a11y/noStaticElementInteractions: div has proper role="button" and keyboard support */}
                             <div
                                 className={`border rounded p-3 ${isMyTeam(shiftResult.teamNumber)} ${onTeamClick ? 'cursor-pointer' : ''}`}
-                                onClick={() => onTeamClick?.(shiftResult.teamNumber)}
-                                style={onTeamClick ? { transition: 'all 0.2s ease' } : {}}
+                                onClick={() =>
+                                    onTeamClick?.(shiftResult.teamNumber)
+                                }
+                                onKeyDown={(e) => {
+                                    if (
+                                        onTeamClick &&
+                                        (e.key === 'Enter' || e.key === ' ')
+                                    ) {
+                                        e.preventDefault();
+                                        onTeamClick(shiftResult.teamNumber);
+                                    }
+                                }}
+                                role={onTeamClick ? 'button' : undefined}
+                                tabIndex={onTeamClick ? 0 : undefined}
+                                title={
+                                    onTeamClick
+                                        ? `View details for Team ${shiftResult.teamNumber}`
+                                        : undefined
+                                }
+                                style={
+                                    onTeamClick
+                                        ? { transition: 'all 0.2s ease' }
+                                        : {}
+                                }
                                 onMouseEnter={(e) => {
                                     if (onTeamClick) {
-                                        e.currentTarget.style.backgroundColor = '#f8f9fa';
-                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                        e.currentTarget.style.backgroundColor =
+                                            '#f8f9fa';
+                                        e.currentTarget.style.transform =
+                                            'translateY(-2px)';
                                     }
                                 }}
                                 onMouseLeave={(e) => {
                                     if (onTeamClick) {
-                                        e.currentTarget.style.backgroundColor = '';
+                                        e.currentTarget.style.backgroundColor =
+                                            '';
                                         e.currentTarget.style.transform = '';
                                     }
                                 }}
