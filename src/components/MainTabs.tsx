@@ -63,7 +63,10 @@ export function MainTabs({
                 eventKey="today"
                 title={
                     <>
-                        <i className="bi bi-calendar-day me-1"></i>
+                        <i
+                            className="bi bi-calendar-day me-1"
+                            aria-hidden="true"
+                        ></i>
                         Today
                     </>
                 }
@@ -79,7 +82,10 @@ export function MainTabs({
                 eventKey="schedule"
                 title={
                     <>
-                        <i className="bi bi-calendar-week me-1"></i>
+                        <i
+                            className="bi bi-calendar-week me-1"
+                            aria-hidden="true"
+                        ></i>
                         Schedule
                     </>
                 }
@@ -95,7 +101,10 @@ export function MainTabs({
                 eventKey="transfer"
                 title={
                     <>
-                        <i className="bi bi-arrow-left-right me-1"></i>
+                        <i
+                            className="bi bi-arrow-left-right me-1"
+                            aria-hidden="true"
+                        ></i>
                         Transfers
                     </>
                 }

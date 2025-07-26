@@ -41,7 +41,7 @@ export function Header() {
                                 className={`connection-${isOnline ? 'online' : 'offline'}`}
                             >
                                 <i
-                                    className={`bi bi-wifi${isOnline ? '' : '-off'} me-1`}
+                                    className={`bi ${isOnline ? 'bi-wifi' : 'bi-wifi-off'} me-1`}
                                 ></i>
                                 {isOnline ? 'Online' : 'Offline'}
                             </Badge>

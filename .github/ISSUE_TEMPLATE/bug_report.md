@@ -24,10 +24,10 @@ A clear and concise description of what actually happened.
 
 ## 📱 Environment
 **Device Information:**
-- Device: [e.g. iPhone 12, Desktop PC, iPad]
-- OS: [e.g. iOS 15.1, Windows 11, macOS 12.0]
-- Browser: [e.g. Chrome 95, Safari 15, Firefox 93]
-- NextShift Version: [e.g. 3.1.0 - check About modal]
+- Device: `e.g. iPhone 12, Desktop PC, iPad`
+- OS: `e.g. iOS 15.1, Windows 11, macOS 12.0`
+- Browser: `e.g. Chrome 95, Safari 15, Firefox 93`
+- NextShift version: `see About modal`
 
 **Team Configuration:**
 - Selected Team: [e.g. Team 3]

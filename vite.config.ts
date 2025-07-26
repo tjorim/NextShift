@@ -31,19 +31,13 @@ export default defineConfig(({ mode }) => ({
                 manifestTransforms: [
                     (manifestEntries) => {
                         // Remove duplicate icon entries to prevent cache conflicts
-                        // Only filter out icon entries that have revisions (duplicates)
+                        // Keep all non-icon assets and non-revisioned icon assets
                         const manifest = manifestEntries.filter((entry) => {
                             const url = entry.url;
                             const isIconAsset = url.includes('assets/icons/');
 
-                            // Keep all non-icon assets
-                            if (!isIconAsset) {
-                                return true;
-                            }
-
-                            // For icon assets, only keep those without revisions
-                            // (this filters out the duplicate revisioned entries)
-                            return !entry.revision;
+                            // Keep all non-icon assets and non-revisioned icon assets
+                            return !isIconAsset || !entry.revision;
                         });
                         return { manifest };
                     },
