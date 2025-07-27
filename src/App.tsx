@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import { CurrentStatus } from './components/CurrentStatus';
@@ -10,6 +9,8 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
+import { useUserPreferences } from './hooks/useUserPreferences';
+import { dayjs } from './utils/dayjs-setup';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
 
@@ -25,13 +26,8 @@ function AppContent() {
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('today');
     const { showSuccess, showInfo } = useToast();
-    const {
-        selectedTeam,
-        setSelectedTeam,
-        currentDate,
-        setCurrentDate,
-        todayShifts,
-    } = useShiftCalculation();
+    const { selectedTeam, updateTeam } = useUserPreferences();
+    const { currentDate, setCurrentDate, todayShifts } = useShiftCalculation();
 
     // Track whether user has completed onboarding (seen the welcome wizard)
     const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage(
@@ -51,8 +47,8 @@ function AppContent() {
 
         // Use setTimeout to ensure loading state is visible before heavy operations
         setTimeout(() => {
-            setSelectedTeam(team); // This triggers localStorage write and heavy recalculations
-            setHasCompletedOnboarding(true); // Mark onboarding as completed
+            updateTeam(team); // Use user preferences for team selection
+            setHasCompletedOnboarding(true);
             setShowTeamModal(false);
             setIsLoading(false);
             showSuccess(
@@ -71,8 +67,8 @@ function AppContent() {
 
         // Use setTimeout to ensure loading state is visible
         setTimeout(() => {
-            // Keep selectedTeam as null but mark onboarding as completed
-            setHasCompletedOnboarding(true); // Mark onboarding as completed
+            updateTeam(null); // Clear team selection in preferences
+            setHasCompletedOnboarding(true);
             setShowTeamModal(false);
             setIsLoading(false);
             showInfo(

@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
@@ -8,6 +7,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
+import { dayjs } from '../utils/dayjs-setup';
 import { calculateShift, getCurrentShiftDay } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 

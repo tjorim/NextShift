@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -6,6 +5,7 @@ import Col from 'react-bootstrap/Col';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Row from 'react-bootstrap/Row';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { dayjs, getISOWeekYear2Digit } from '../utils/dayjs-setup';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
@@ -23,16 +23,111 @@ interface TodayViewProps {
     onTeamClick?: (teamNumber: number) => void;
 }
 
+function TeamCard({
+    shiftResult,
+    isMyTeam,
+    isCurrentlyActive,
+    onTeamClick,
+}: {
+    shiftResult: ShiftResult;
+    isMyTeam: boolean;
+    isCurrentlyActive: boolean;
+    onTeamClick?: (teamNumber: number) => void;
+}) {
+    const cardContent = (
+        <>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="d-flex align-items-center gap-2">
+                    <h6 className="mb-0">Team {shiftResult.teamNumber}</h6>
+                    {onTeamClick && (
+                        <i className="bi bi-chevron-right text-muted small"></i>
+                    )}
+                    {isCurrentlyActive && (
+                        <Badge bg="success" className="ms-1">
+                            Now
+                        </Badge>
+                    )}
+                </div>
+                <OverlayTrigger
+                    placement="top"
+                    overlay={
+                        <Tooltip id={`shift-tooltip-${shiftResult.teamNumber}`}>
+                            <strong>
+                                Shift Code: {shiftResult.shift.code}
+                            </strong>
+                            <br />
+                            {SHIFT_DESCRIPTIONS[shiftResult.shift.code] ||
+                                'Unknown shift'}
+                        </Tooltip>
+                    }
+                >
+                    <Badge
+                        className={`shift-code cursor-help ${getShiftClassName(
+                            shiftResult.shift.code,
+                        )}`}
+                    >
+                        {shiftResult.shift.code}
+                    </Badge>
+                </OverlayTrigger>
+            </div>
+            <div className="text-muted small">
+                {shiftResult.shift.name}
+                <br />
+                {shiftResult.shift.isWorking
+                    ? shiftResult.shift.hours
+                    : 'Not working today'}
+            </div>
+            <div className="text-muted small mt-1">
+                <OverlayTrigger
+                    placement="bottom"
+                    overlay={
+                        <Tooltip id={`code-tooltip-${shiftResult.teamNumber}`}>
+                            <strong>Full Shift Code</strong>
+                            <br />
+                            Format: YYWW.D + Shift
+                            <br />
+                            <em>{shiftResult.code}</em> = ISO Year{' '}
+                            {getISOWeekYear2Digit(shiftResult.date)}, ISO Week{' '}
+                            {shiftResult.date.isoWeek()},{' '}
+                            {shiftResult.date.format('dddd')},{' '}
+                            {shiftResult.shift.name}
+                        </Tooltip>
+                    }
+                >
+                    <span className="help-underline">{shiftResult.code}</span>
+                </OverlayTrigger>
+            </div>
+        </>
+    );
+
+    if (onTeamClick) {
+        return (
+            <button
+                type="button"
+                className={`border rounded p-3 team-card-interactive w-100 text-start${
+                    isMyTeam ? ' my-team' : ''
+                }`}
+                onClick={() => onTeamClick(shiftResult.teamNumber)}
+                title={`View details for Team ${shiftResult.teamNumber}`}
+            >
+                {cardContent}
+            </button>
+        );
+    }
+
+    return (
+        <div className={`border rounded p-3${isMyTeam ? ' my-team' : ''}`}>
+            {cardContent}
+        </div>
+    );
+}
+
 export function TodayView({
     todayShifts,
     selectedTeam,
     onTodayClick,
     onTeamClick,
 }: TodayViewProps) {
-    const isMyTeam = (teamNumber: number) => {
-        return selectedTeam === teamNumber ? 'my-team' : '';
-    };
-
     const isCurrentlyActive = (shiftResult: ShiftResult) => {
         if (!shiftResult.shift.isWorking) return false;
 
@@ -75,126 +170,16 @@ export function TodayView({
                 <Row className="g-2">
                     {todayShifts.map((shiftResult) => (
                         <Col key={shiftResult.teamNumber} xs={12} sm={6} lg={4}>
-                            {/* biome-ignore lint/a11y/noStaticElementInteractions: div has proper role="button" and keyboard support */}
-                            <div
-                                className={`border rounded p-3 ${isMyTeam(shiftResult.teamNumber)} ${onTeamClick ? 'cursor-pointer' : ''}`}
-                                onClick={() =>
-                                    onTeamClick?.(shiftResult.teamNumber)
+                            <TeamCard
+                                shiftResult={shiftResult}
+                                isMyTeam={
+                                    selectedTeam === shiftResult.teamNumber
                                 }
-                                onKeyDown={(e) => {
-                                    if (
-                                        onTeamClick &&
-                                        (e.key === 'Enter' || e.key === ' ')
-                                    ) {
-                                        e.preventDefault();
-                                        onTeamClick(shiftResult.teamNumber);
-                                    }
-                                }}
-                                role={onTeamClick ? 'button' : undefined}
-                                tabIndex={onTeamClick ? 0 : undefined}
-                                title={
-                                    onTeamClick
-                                        ? `View details for Team ${shiftResult.teamNumber}`
-                                        : undefined
-                                }
-                                style={
-                                    onTeamClick
-                                        ? { transition: 'all 0.2s ease' }
-                                        : {}
-                                }
-                                onMouseEnter={(e) => {
-                                    if (onTeamClick) {
-                                        e.currentTarget.style.backgroundColor =
-                                            '#f8f9fa';
-                                        e.currentTarget.style.transform =
-                                            'translateY(-2px)';
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (onTeamClick) {
-                                        e.currentTarget.style.backgroundColor =
-                                            '';
-                                        e.currentTarget.style.transform = '';
-                                    }
-                                }}
-                            >
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <h6 className="mb-0">
-                                            Team {shiftResult.teamNumber}
-                                        </h6>
-                                        {onTeamClick && (
-                                            <i className="bi bi-chevron-right text-muted small"></i>
-                                        )}
-                                        {isCurrentlyActive(shiftResult) && (
-                                            <Badge
-                                                bg="success"
-                                                className="small"
-                                            >
-                                                Active
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    <OverlayTrigger
-                                        placement="bottom"
-                                        overlay={
-                                            <Tooltip
-                                                id={`shift-tooltip-${shiftResult.teamNumber}`}
-                                            >
-                                                <strong>
-                                                    Shift Code:{' '}
-                                                    {shiftResult.shift.code}
-                                                </strong>
-                                                <br />
-                                                {SHIFT_DESCRIPTIONS[
-                                                    shiftResult.shift.code
-                                                ] || 'Unknown shift'}
-                                            </Tooltip>
-                                        }
-                                    >
-                                        <Badge
-                                            className={`shift-code cursor-help ${getShiftClassName(shiftResult.shift.code)}`}
-                                        >
-                                            {shiftResult.shift.code}
-                                        </Badge>
-                                    </OverlayTrigger>
-                                </div>
-                                <div className="text-muted small">
-                                    {shiftResult.shift.name}
-                                    <br />
-                                    {shiftResult.shift.isWorking
-                                        ? shiftResult.shift.hours
-                                        : 'Not working today'}
-                                </div>
-                                <div className="text-muted small mt-1">
-                                    <OverlayTrigger
-                                        placement="bottom"
-                                        overlay={
-                                            <Tooltip
-                                                id={`code-tooltip-${shiftResult.teamNumber}`}
-                                            >
-                                                <strong>Full Shift Code</strong>
-                                                <br />
-                                                Format: YYWW.D + Shift
-                                                <br />
-                                                <em>{shiftResult.code}</em> =
-                                                Year{' '}
-                                                {shiftResult.date.format('YY')},
-                                                Week{' '}
-                                                {shiftResult.date.format('WW')},{' '}
-                                                {shiftResult.date.format(
-                                                    'dddd',
-                                                )}
-                                                , {shiftResult.shift.name}
-                                            </Tooltip>
-                                        }
-                                    >
-                                        <span className="help-underline">
-                                            {shiftResult.code}
-                                        </span>
-                                    </OverlayTrigger>
-                                </div>
-                            </div>
+                                isCurrentlyActive={isCurrentlyActive(
+                                    shiftResult,
+                                )}
+                                onTeamClick={onTeamClick}
+                            />
                         </Col>
                     ))}
                 </Row>

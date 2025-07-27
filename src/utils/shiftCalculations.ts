@@ -1,9 +1,6 @@
-import dayjs, { type Dayjs } from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
+import type { Dayjs } from 'dayjs';
 import { CONFIG } from './config';
-
-// Initialize dayjs plugins
-dayjs.extend(isoWeek);
+import { dayjs, formatYYWWD } from './dayjs-setup';
 
 export type ShiftType = 'M' | 'E' | 'N' | 'O';
 
@@ -123,11 +120,7 @@ export function calculateShift(
  * @returns The formatted date code (e.g., "2520.2")
  */
 export function formatDateCode(date: string | Date | Dayjs): string {
-    const d = dayjs(date);
-    const year = d.year().toString().slice(-2);
-    const week = d.isoWeek().toString().padStart(2, '0');
-    const day = d.day() === 0 ? 7 : d.day(); // Sunday = 7, Monday = 1, etc.
-    return `${year}${week}.${day}`;
+    return formatYYWWD(date);
 }
 
 /**

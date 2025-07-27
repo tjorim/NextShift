@@ -117,9 +117,9 @@ npm install -D @testing-library/react @testing-library/jest-dom
 ```typescript
 // src/utils/shiftCalculations.ts
 import dayjs from 'dayjs';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
+import isoWeek from 'dayjs/plugin/isoWeek';
 
-dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
 
 interface ShiftConfig {
   REFERENCE_DATE: Date;
@@ -144,7 +144,7 @@ export function formatDateCode(date: Date): string {
   }
   const dayjs_date = dayjs(date);
   const year = dayjs_date.year().toString().slice(-2);
-  const week = dayjs_date.week().toString().padStart(2, '0');
+  const week = dayjs_date.isoWeek().toString().padStart(2, '0');
   const day = dayjs_date.day() || 7; // Convert Sunday (0) to 7
   return `${year}${week}.${day}`;
 }

@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { useId, useMemo } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
@@ -12,6 +11,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { useCountdown } from '../hooks/useCountdown';
 import { useLiveTime } from '../hooks/useLiveTime';
 import { CONFIG } from '../utils/config';
+import { dayjs } from '../utils/dayjs-setup';
 import type {
     NextShiftResult,
     OffDayProgress,
@@ -388,12 +388,7 @@ export function CurrentStatus({
                                                 countdown timers
                                             </div>
                                         </div>
-                                    ) : (
-                                        <div className="text-muted">
-                                            Please select your team to see your
-                                            current status
-                                        </div>
-                                    )}
+                                    ) : null}
                                 </div>
                             </div>
                         </Col>

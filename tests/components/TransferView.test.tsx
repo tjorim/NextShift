@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import dayjs from 'dayjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TransferView } from '../../src/components/TransferView';
 import { useTransferCalculations } from '../../src/hooks/useTransferCalculations';
+import { dayjs } from '../../src/utils/dayjs-setup';
 
 // Mock the useTransferCalculations hook
 vi.mock('../../src/hooks/useTransferCalculations', () => ({
@@ -31,6 +31,7 @@ const mockConsoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 // Default hook return value
 const defaultHookReturn = {
     transfers: [],
+    hasMoreTransfers: false,
     availableTeams: [2, 3, 4, 5],
     compareTeam: 2,
     setCompareTeam: vi.fn(),
@@ -216,9 +217,9 @@ describe('TransferView', () => {
             render(<TransferView {...defaultProps} selectedTeam={1} />);
 
             expect(
-                screen.getByText('Transfers between Team 1 and Team 2:'),
+                screen.getByText('Transfers between Team 1 and Team 2'),
             ).toBeInTheDocument();
-            expect(screen.getByText('Wed, Jan 15, 2025')).toBeInTheDocument();
+            expect(screen.getByText('Wed, Jan 15')).toBeInTheDocument();
             expect(screen.getByText('Morning')).toBeInTheDocument();
             expect(screen.getByText('Evening')).toBeInTheDocument();
             expect(screen.getByText('Team 1 → Team 2')).toBeInTheDocument();
@@ -297,8 +298,8 @@ describe('TransferView', () => {
             render(<TransferView {...defaultProps} selectedTeam={1} />);
 
             // Check that both transfers are displayed
-            expect(screen.getByText('Wed, Jan 15, 2025')).toBeInTheDocument();
-            expect(screen.getByText('Thu, Jan 16, 2025')).toBeInTheDocument();
+            expect(screen.getByText('Wed, Jan 15')).toBeInTheDocument();
+            expect(screen.getByText('Thu, Jan 16')).toBeInTheDocument();
 
             // Check shift types
             expect(screen.getAllByText('Morning')).toHaveLength(1);
@@ -339,7 +340,7 @@ describe('TransferView', () => {
             // if transfers.length was 20 and there were more, but since our hook
             // already limits to 20, this message logic might need to be in the hook
             expect(
-                screen.getByText('Transfers between Team 1 and Team 2:'),
+                screen.getByText('Transfers between Team 1 and Team 2'),
             ).toBeInTheDocument();
         });
     });

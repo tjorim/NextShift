@@ -1,18 +1,11 @@
-import dayjs from 'dayjs';
-import isoWeek from 'dayjs/plugin/isoWeek';
-import utc from 'dayjs/plugin/utc';
-
-// Ensure plugins are loaded for consistent date parsing and week handling
-dayjs.extend(utc);
-dayjs.extend(isoWeek);
-
 /**
  * Parse date string in UTC to avoid timezone interpretation issues
  * @param dateString - Date string in YYYY-MM-DD format
  * @returns Date object parsed in UTC
  */
 function parseUTCDate(dateString: string): Date {
-    return dayjs.utc(dateString).toDate();
+    // Simple UTC parsing without dayjs dependency to avoid test issues
+    return new Date(`${dateString}T00:00:00.000Z`);
 }
 
 export interface NextShiftConfig {

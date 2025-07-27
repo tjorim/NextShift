@@ -1,4 +1,4 @@
-import dayjs, { type Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -8,6 +8,7 @@ import Table from 'react-bootstrap/Table';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { CONFIG } from '../utils/config';
+import { dayjs, getISOWeekYear2Digit } from '../utils/dayjs-setup';
 import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
@@ -184,13 +185,15 @@ export function ScheduleView({
                                                             <br />
                                                             Format: YYWW.D
                                                             <br />
-                                                            YY = Year{' '}
-                                                            {day.format('YY')}
+                                                            YY = ISO Year{' '}
+                                                            {getISOWeekYear2Digit(
+                                                                day,
+                                                            )}
                                                             <br />
-                                                            WW = Week{' '}
-                                                            {day.format('WW')}
-                                                            <br />D = Day{' '}
-                                                            {day.format('d')} (
+                                                            WW = ISO Week{' '}
+                                                            {day.isoWeek()}
+                                                            <br />D = ISO Day{' '}
+                                                            {day.isoWeekday()} (
                                                             {day.format('ddd')})
                                                         </Tooltip>
                                                     }

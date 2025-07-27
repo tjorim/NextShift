@@ -2,8 +2,10 @@ import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Modal from 'react-bootstrap/Modal';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useSettings } from '../contexts/SettingsContext';
+import { CONFIG } from '../utils/config';
 import { ChangelogModal } from './ChangelogModal';
 
 interface SettingsPanelProps {
@@ -26,6 +28,7 @@ interface SettingsPanelProps {
  */
 export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
+    const [showConfirmReset, setShowConfirmReset] = useState(false);
     const {
         settings,
         updateTimeFormat,
@@ -43,11 +46,14 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
     };
 
     const handleResetSettings = () => {
-        if (
-            confirm('Are you sure you want to reset all settings to defaults?')
-        ) {
-            resetSettings();
-        }
+        setShowConfirmReset(true);
+    };
+    const handleConfirmReset = () => {
+        resetSettings();
+        setShowConfirmReset(false);
+    };
+    const handleCancelReset = () => {
+        setShowConfirmReset(false);
     };
 
     return (
@@ -307,7 +313,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                     {/* App Version Footer */}
                     <div className="mt-auto p-3 text-center border-top bg-light">
                         <small className="text-muted d-block">
-                            NextShift v3.1.0
+                            NextShift v{CONFIG.VERSION}
                         </small>
                         <small className="text-muted">
                             Built with ❤️ by Jorim Tielemans
@@ -321,6 +327,24 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                 show={showChangelog}
                 onHide={handleChangelogClose}
             />
+            {/* Confirm Reset Modal */}
+            <Modal show={showConfirmReset} onHide={handleCancelReset} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Reset All Settings?</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to reset all settings to defaults?
+                    This cannot be undone.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCancelReset}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleConfirmReset}>
+                        Reset
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 }

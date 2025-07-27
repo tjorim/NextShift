@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { createContext, useContext } from 'react';
+import { createContext, useCallback, useContext, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export type TimeFormat = '12h' | '24h';
@@ -50,29 +50,47 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         defaultSettings,
     );
 
-    const updateTimeFormat = (format: TimeFormat) => {
-        setSettings((prev) => ({ ...prev, timeFormat: format }));
-    };
+    const updateTimeFormat = useCallback(
+        (format: TimeFormat) => {
+            setSettings((prev) => ({ ...prev, timeFormat: format }));
+        },
+        [setSettings],
+    );
 
-    const updateTheme = (theme: Theme) => {
-        setSettings((prev) => ({ ...prev, theme }));
-    };
+    const updateTheme = useCallback(
+        (theme: Theme) => {
+            setSettings((prev) => ({ ...prev, theme }));
+        },
+        [setSettings],
+    );
 
-    const updateNotifications = (notifications: NotificationSetting) => {
-        setSettings((prev) => ({ ...prev, notifications }));
-    };
+    const updateNotifications = useCallback(
+        (notifications: NotificationSetting) => {
+            setSettings((prev) => ({ ...prev, notifications }));
+        },
+        [setSettings],
+    );
 
-    const resetSettings = () => {
+    const resetSettings = useCallback(() => {
         setSettings(defaultSettings);
-    };
+    }, [setSettings]);
 
-    const contextValue: SettingsContextType = {
-        settings,
-        updateTimeFormat,
-        updateTheme,
-        updateNotifications,
-        resetSettings,
-    };
+    const contextValue: SettingsContextType = useMemo(
+        () => ({
+            settings,
+            updateTimeFormat,
+            updateTheme,
+            updateNotifications,
+            resetSettings,
+        }),
+        [
+            settings,
+            updateTimeFormat,
+            updateTheme,
+            updateNotifications,
+            resetSettings,
+        ],
+    );
 
     return (
         <SettingsContext.Provider value={contextValue}>

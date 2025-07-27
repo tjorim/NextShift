@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import dayjs from 'dayjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentStatus } from '../../src/components/CurrentStatus';
 import * as useCountdownHook from '../../src/hooks/useCountdown';
+import { dayjs } from '../../src/utils/dayjs-setup';
 import * as shiftCalculations from '../../src/utils/shiftCalculations';
 
 // Mock dependencies

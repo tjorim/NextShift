@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
@@ -43,7 +43,6 @@ export function WelcomeWizard({
 }: WelcomeWizardProps) {
     const [currentStep, setCurrentStep] = useState<WizardStep>('welcome');
     const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
-    const firstButtonRef = useRef<HTMLButtonElement>(null);
 
     // Reset to welcome step when modal opens
     const handleModalEntered = () => {
@@ -210,6 +209,12 @@ export function WelcomeWizard({
                         </div>
                     </Col>
                 </Row>
+                <div className="alert alert-info mt-4" role="alert">
+                    <i className="bi bi-gear me-2"></i>
+                    <strong>Tip:</strong> You can customize your experience
+                    anytime in the <b>Settings</b> panel (
+                    <i className="bi bi-gear"></i> in the top right).
+                </div>
             </div>
             <div className="d-flex justify-content-between">
                 <Button
@@ -249,10 +254,9 @@ export function WelcomeWizard({
                     progress tracking.
                 </p>
                 <Row className="g-2" aria-label="Select your team">
-                    {teams.map((team, index) => (
+                    {teams.map((team) => (
                         <Col key={team} xs={6} sm={4} md={4}>
                             <Button
-                                ref={index === 0 ? firstButtonRef : undefined}
                                 variant="outline-primary"
                                 className="w-100 team-btn"
                                 onClick={() => handleTeamSelect(team)}

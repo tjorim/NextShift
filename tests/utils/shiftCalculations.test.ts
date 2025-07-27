@@ -1,6 +1,6 @@
-import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
 import { CONFIG } from '../../src/utils/config';
+import { dayjs } from '../../src/utils/dayjs-setup';
 import {
     calculateShift,
     formatDateCode,
@@ -75,6 +75,28 @@ describe('Shift Calculations', () => {
             const sunday = new Date('2025-05-18'); // Sunday
             const formatted = formatDateCode(sunday);
             expect(formatted).toMatch(/\.7$/); // Should end with .7
+        });
+
+        it('should use ISO week for year-end boundary', () => {
+            // Dec 31, 2023 is a Sunday, ISO week 52
+            const date = new Date('2023-12-31');
+            const formatted = formatDateCode(date);
+            expect(formatted).toMatch(/^2352\.7$/); // 23=2023, 52=ISO week, 7=Sunday
+        });
+
+        it('should use ISO week for first week of year', () => {
+            // Jan 1, 2024 is a Monday, ISO week 1
+            const date = new Date('2024-01-01');
+            const formatted = formatDateCode(date);
+            expect(formatted).toMatch(/^2401\.1$/); // 24=2024, 01=ISO week, 1=Monday
+        });
+
+        it('should handle week transition at year boundary', () => {
+            // Dec 31, 2024 (Tuesday, ISO week 1 of 2025)
+            const date = new Date('2024-12-31');
+            const formatted = formatDateCode(date);
+            // ISO week for 2024-12-31 is week 1 of ISO year 2025
+            expect(formatted).toBe('2501.2'); // YY=25 (ISO year), WW=01 (ISO week 1), D=2 (Tuesday)
         });
     });
 

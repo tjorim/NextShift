@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
-import dayjs, { type Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCountdown } from '../../src/hooks/useCountdown';
+import { dayjs } from '../../src/utils/dayjs-setup';
 
 describe('useCountdown', () => {
     beforeEach(() => {
@@ -209,8 +210,7 @@ describe('useCountdown', () => {
 
             expect(result.current.isExpired).toBe(false);
 
-            const nullDate: Dayjs | null = null;
-            rerender({ date: nullDate });
+            rerender({ date: null });
 
             expect(result.current.isExpired).toBe(true);
             expect(result.current.totalSeconds).toBe(0);

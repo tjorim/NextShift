@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import dayjs from 'dayjs';
 import { describe, expect, it, vi } from 'vitest';
 import { TodayView } from '../../src/components/TodayView';
+import { dayjs } from '../../src/utils/dayjs-setup';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
 
 // Mock getShiftClassName utility

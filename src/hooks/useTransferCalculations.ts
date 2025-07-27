@@ -1,6 +1,7 @@
-import dayjs, { type Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import { CONFIG } from '../utils/config';
+import { dayjs } from '../utils/dayjs-setup';
 import { calculateShift, type ShiftType } from '../utils/shiftCalculations';
 
 export interface TransferInfo {

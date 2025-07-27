@@ -68,6 +68,25 @@ export function TransferView({
         setCurrentPage(1);
     }, [transfers.length, compareTeam, dateRange]);
 
+    // Helper to get page numbers to display in pagination
+    function getPageNumbers(current: number, total: number): number[] {
+        if (total <= 5) {
+            return Array.from({ length: total }, (_, i) => i + 1);
+        }
+        const pages: number[] = [1];
+        if (current > 3) pages.push(-1); // -1 will represent an ellipsis
+        for (
+            let i = Math.max(2, current - 1);
+            i <= Math.min(total - 1, current + 1);
+            i++
+        ) {
+            pages.push(i);
+        }
+        if (current < total - 2) pages.push(-2); // -2 will represent an ellipsis
+        pages.push(total);
+        return pages;
+    }
+
     return (
         <Card>
             <Card.Header>
@@ -247,46 +266,18 @@ export function TransferView({
                                             disabled={currentPage === 1}
                                         />
 
-                                        {/* Page 1 */}
-                                        {totalPages > 1 && (
-                                            <Pagination.Item
-                                                active={currentPage === 1}
-                                                onClick={() =>
-                                                    setCurrentPage(1)
-                                                }
-                                            >
-                                                1
-                                            </Pagination.Item>
-                                        )}
-
-                                        {/* Ellipsis before current page range */}
-                                        {currentPage > 3 && totalPages > 5 && (
-                                            <Pagination.Ellipsis />
-                                        )}
-
-                                        {/* Current page range */}
-                                        {Array.from(
-                                            { length: totalPages },
-                                            (_, i) => i + 1,
-                                        )
-                                            .filter((page) => {
-                                                if (totalPages <= 5)
-                                                    return (
-                                                        page > 1 &&
-                                                        page < totalPages
-                                                    );
-                                                if (
-                                                    page === 1 ||
-                                                    page === totalPages
-                                                )
-                                                    return false;
+                                        {getPageNumbers(
+                                            currentPage,
+                                            totalPages,
+                                        ).map((page, idx) => {
+                                            if (page === -1 || page === -2) {
                                                 return (
-                                                    Math.abs(
-                                                        page - currentPage,
-                                                    ) <= 1
+                                                    <Pagination.Ellipsis
+                                                        key={`ellipsis-${page === -1 ? 'start' : 'end'}-${idx}`}
+                                                    />
                                                 );
-                                            })
-                                            .map((page) => (
+                                            }
+                                            return (
                                                 <Pagination.Item
                                                     key={page}
                                                     active={
@@ -298,27 +289,8 @@ export function TransferView({
                                                 >
                                                     {page}
                                                 </Pagination.Item>
-                                            ))}
-
-                                        {/* Ellipsis after current page range */}
-                                        {currentPage < totalPages - 2 &&
-                                            totalPages > 5 && (
-                                                <Pagination.Ellipsis />
-                                            )}
-
-                                        {/* Last page */}
-                                        {totalPages > 1 && (
-                                            <Pagination.Item
-                                                active={
-                                                    currentPage === totalPages
-                                                }
-                                                onClick={() =>
-                                                    setCurrentPage(totalPages)
-                                                }
-                                            >
-                                                {totalPages}
-                                            </Pagination.Item>
-                                        )}
+                                            );
+                                        })}
 
                                         <Pagination.Next
                                             onClick={() =>

@@ -1,14 +1,15 @@
 import { render, screen } from '@testing-library/react';
-import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { describe, expect, it } from 'vitest';
 import { ShiftTimeline } from '../../src/components/ShiftTimeline';
+import { dayjs } from '../../src/utils/dayjs-setup';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
 
 // Mock data for testing
 const createMockShiftResult = (
     teamNumber: number,
     shiftCode: 'M' | 'E' | 'N' | 'O',
-    date: dayjs.Dayjs,
+    date: Dayjs,
 ): ShiftResult => ({
     teamNumber,
     date,

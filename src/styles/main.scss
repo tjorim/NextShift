@@ -250,3 +250,14 @@
 .header-button-spacing {
     gap: 0.25rem;
 }
+
+/* Team card hover effects */
+.team-card-interactive {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.team-card-interactive:hover,
+.team-card-interactive:focus {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+}

@@ -1,4 +1,4 @@
-import type dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { useId } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -14,7 +14,7 @@ interface TimelineData {
 }
 
 function computeShiftTimeline(
-    today: dayjs.Dayjs,
+    today: Dayjs,
     currentWorkingTeam: ShiftResult,
 ): TimelineData {
     // Get all teams for today to build timeline
@@ -68,7 +68,7 @@ function computeShiftTimeline(
 
 interface ShiftTimelineProps {
     currentWorkingTeam: ShiftResult;
-    today: dayjs.Dayjs;
+    today: Dayjs;
 }
 
 /**

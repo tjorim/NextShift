@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import dayjs from 'dayjs';
 import { describe, expect, it, vi } from 'vitest';
 import { ScheduleView } from '../../src/components/ScheduleView';
+import { dayjs } from '../../src/utils/dayjs-setup';
 
 // Mock the dependencies
 vi.mock('../../src/hooks/useKeyboardShortcuts', () => ({
@@ -175,9 +175,9 @@ describe('ScheduleView', () => {
                 />,
             );
 
-            // Should show week range
+            // Should show week range (Jan 15 is in the week of Jan 13-19)
             expect(screen.getByText(/Week of/)).toBeInTheDocument();
-            expect(screen.getByText(/Jan 15/)).toBeInTheDocument();
+            expect(screen.getByText(/Jan 13/)).toBeInTheDocument();
         });
     });
 });
