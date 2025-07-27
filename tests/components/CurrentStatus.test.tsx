@@ -194,38 +194,6 @@ describe('CurrentStatus Component', () => {
         });
     });
 
-    describe('Loading States', () => {
-        it('should show loading spinner when isLoading is true', () => {
-            renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                    isLoading={true}
-                />,
-            );
-
-            expect(screen.getByText('Updating...')).toBeInTheDocument();
-            expect(
-                screen.getByText('Calculating your next shift...'),
-            ).toBeInTheDocument();
-        });
-
-        it('should hide loading spinner when isLoading is false', () => {
-            renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                    isLoading={false}
-                />,
-            );
-
-            expect(screen.queryByText('Updating...')).not.toBeInTheDocument();
-            expect(
-                screen.queryByText('Calculating your next shift...'),
-            ).not.toBeInTheDocument();
-        });
-    });
-
     describe('Team Selection States', () => {
         it('should show team selection prompt when no team is selected', () => {
             renderWithProviders(

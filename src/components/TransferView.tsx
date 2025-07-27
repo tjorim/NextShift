@@ -7,6 +7,7 @@ import Pagination from 'react-bootstrap/Pagination';
 import Row from 'react-bootstrap/Row';
 import { useTransferCalculations } from '../hooks/useTransferCalculations';
 import { CONFIG } from '../utils/config';
+import { formatDisplayDate } from '../utils/dateTimeUtils';
 import { getShiftClassName } from '../utils/shiftStyles';
 
 interface TransferViewProps {
@@ -71,30 +72,82 @@ export function TransferView({
         }
     }, [initialCompareTeam, compareTeam, setCompareTeam]);
 
-    // Reset pagination when transfers change
-    // biome-ignore lint/correctness/useExhaustiveDependencies: We want to reset when these specific values change
+    // Reset pagination when the transfer data set changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: We want to reset pagination when user changes filter criteria
     useEffect(() => {
         setCurrentPage(1);
-    }, [transfers.length, compareTeam, dateRange]);
+    }, [compareTeam, dateRange]);
 
-    // Helper to get page numbers to display in pagination
-    function getPageNumbers(current: number, total: number): number[] {
-        if (total <= 5) {
-            return Array.from({ length: total }, (_, i) => i + 1);
+    // Generate page items for pagination
+    const renderPaginationItems = () => {
+        const items = [];
+        const maxVisible = 5;
+
+        if (totalPages <= maxVisible) {
+            // Show all pages if few enough
+            for (let page = 1; page <= totalPages; page++) {
+                items.push(
+                    <Pagination.Item
+                        key={page}
+                        active={page === currentPage}
+                        onClick={() => setCurrentPage(page)}
+                    >
+                        {page}
+                    </Pagination.Item>,
+                );
+            }
+        } else {
+            // Show first page
+            items.push(
+                <Pagination.Item
+                    key={1}
+                    active={currentPage === 1}
+                    onClick={() => setCurrentPage(1)}
+                >
+                    1
+                </Pagination.Item>,
+            );
+
+            // Show ellipsis if current page is far from start
+            if (currentPage > 3) {
+                items.push(<Pagination.Ellipsis key="start-ellipsis" />);
+            }
+
+            // Show pages around current page
+            const start = Math.max(2, currentPage - 1);
+            const end = Math.min(totalPages - 1, currentPage + 1);
+
+            for (let page = start; page <= end; page++) {
+                items.push(
+                    <Pagination.Item
+                        key={page}
+                        active={page === currentPage}
+                        onClick={() => setCurrentPage(page)}
+                    >
+                        {page}
+                    </Pagination.Item>,
+                );
+            }
+
+            // Show ellipsis if current page is far from end
+            if (currentPage < totalPages - 2) {
+                items.push(<Pagination.Ellipsis key="end-ellipsis" />);
+            }
+
+            // Show last page
+            items.push(
+                <Pagination.Item
+                    key={totalPages}
+                    active={currentPage === totalPages}
+                    onClick={() => setCurrentPage(totalPages)}
+                >
+                    {totalPages}
+                </Pagination.Item>,
+            );
         }
-        const pages: number[] = [1];
-        if (current > 3) pages.push(-1); // -1 will represent an ellipsis
-        for (
-            let i = Math.max(2, current - 1);
-            i <= Math.min(total - 1, current + 1);
-            i++
-        ) {
-            pages.push(i);
-        }
-        if (current < total - 2) pages.push(-2); // -2 will represent an ellipsis
-        pages.push(total);
-        return pages;
-    }
+
+        return items;
+    };
 
     return (
         <Card>
@@ -213,8 +266,8 @@ export function TransferView({
                                                         aria-hidden="true"
                                                     ></i>
                                                     <strong className="fw-semibold">
-                                                        {transfer.date.format(
-                                                            'ddd, MMM D',
+                                                        {formatDisplayDate(
+                                                            transfer.date.toDate(),
                                                         )}
                                                     </strong>
                                                 </div>
@@ -275,31 +328,7 @@ export function TransferView({
                                             disabled={currentPage === 1}
                                         />
 
-                                        {getPageNumbers(
-                                            currentPage,
-                                            totalPages,
-                                        ).map((page, idx) => {
-                                            if (page === -1 || page === -2) {
-                                                return (
-                                                    <Pagination.Ellipsis
-                                                        key={`ellipsis-${page === -1 ? 'start' : 'end'}-${idx}`}
-                                                    />
-                                                );
-                                            }
-                                            return (
-                                                <Pagination.Item
-                                                    key={page}
-                                                    active={
-                                                        page === currentPage
-                                                    }
-                                                    onClick={() =>
-                                                        setCurrentPage(page)
-                                                    }
-                                                >
-                                                    {page}
-                                                </Pagination.Item>
-                                            );
-                                        })}
+                                        {renderPaginationItems()}
 
                                         <Pagination.Next
                                             onClick={() =>

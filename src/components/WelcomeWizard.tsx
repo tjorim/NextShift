@@ -7,6 +7,8 @@ import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 import { CONFIG } from '../utils/config';
 
+type WizardStep = 'welcome' | 'features' | 'team-selection';
+
 interface WelcomeWizardProps {
     show: boolean;
     onTeamSelect: (team: number) => void;
@@ -33,8 +35,6 @@ interface WelcomeWizardProps {
  *
  * @returns The welcome wizard component
  */
-type WizardStep = 'welcome' | 'features' | 'team-selection';
-
 export function WelcomeWizard({
     show,
     onTeamSelect,
@@ -47,11 +47,32 @@ export function WelcomeWizard({
     const initialStepRef = useRef(startStep);
     const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
 
+    const SETTINGS_LOCATION_TEXT = 'Settings panel (⚙️ in the top right)';
+
+    const getStepNumber = () => {
+        switch (currentStep) {
+            case 'welcome':
+                return '1';
+            case 'features':
+                return '2';
+            case 'team-selection':
+                return '3';
+            default:
+                return '1';
+        }
+    };
+
     // Reset to startStep when modal opens
     const handleModalEntered = () => {
         if (!isLoading) {
             setCurrentStep(initialStepRef.current);
-            // Focus will be handled per step
+            // Focus the first interactive element in the modal
+            const firstButton = document.querySelector(
+                '.modal-body button:not(:disabled)',
+            ) as HTMLButtonElement;
+            if (firstButton) {
+                firstButton.focus();
+            }
         }
     };
     // If startStep changes (should only happen on open), update ref
@@ -61,7 +82,7 @@ export function WelcomeWizard({
 
     const handleTeamSelect = (team: number) => {
         onTeamSelect(team);
-        onHide();
+        // Don't call onHide() here - let the parent component handle modal hiding
     };
 
     const handleSkip = () => {
@@ -219,8 +240,7 @@ export function WelcomeWizard({
                 <div className="alert alert-info mt-4" role="alert">
                     <i className="bi bi-gear me-2"></i>
                     <strong>Tip:</strong> You can customize your experience
-                    anytime in the <b>Settings</b> panel (
-                    <i className="bi bi-gear"></i> in the top right).
+                    anytime in the <b>{SETTINGS_LOCATION_TEXT}</b>.
                 </div>
             </div>
             <div className="d-flex justify-content-between">
@@ -331,15 +351,7 @@ export function WelcomeWizard({
                         className="mb-2"
                     />
                     <div className="d-flex justify-content-between small text-muted">
-                        <span>
-                            Step{' '}
-                            {currentStep === 'welcome'
-                                ? '1'
-                                : currentStep === 'features'
-                                  ? '2'
-                                  : '3'}{' '}
-                            of 3
-                        </span>
+                        <span>Step {getStepNumber()} of 3</span>
                         <span>{getProgressPercentage()}% Complete</span>
                     </div>
                 </div>

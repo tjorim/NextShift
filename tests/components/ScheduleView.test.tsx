@@ -28,21 +28,47 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
     })),
 }));
 
-vi.mock('../../src/utils/dateTimeUtils', () => ({
-    dayjs: vi.fn(() => ({
-        startOf: vi.fn(() => ({
-            format: vi.fn(() => 'Jan 13'),
-            isSame: vi.fn(() => false),
-        })),
-        format: vi.fn(() => '2025-01-15'),
-        add: vi.fn(() => ({
-            format: vi.fn(() => 'Jan 19'),
-        })),
-    })),
-    formatYYWWD: vi.fn((_date: string) => '2503.1'),
-    getISOWeekYear2Digit: vi.fn(() => '25'),
-    getLocalizedShiftTime: vi.fn(() => '07:00–15:00'),
-}));
+vi.mock('../../src/utils/dateTimeUtils', () => {
+    let callCount = 0;
+    return {
+        dayjs: vi.fn(() => {
+            callCount++;
+            return {
+                startOf: vi.fn(() => ({
+                    add: vi.fn(() => {
+                        const uniqueDay = 13 + (callCount % 7);
+                        return {
+                            format: vi.fn(
+                                () =>
+                                    `${uniqueDay}-${Date.now()}-${Math.random()}`,
+                            ),
+                            isSame: vi.fn(() => false),
+                            isoWeek: vi.fn(() => 20),
+                            isoWeekday: vi.fn(() => (callCount % 7) + 1),
+                        };
+                    }),
+                    format: vi.fn(() => 'Jan 13'),
+                    isSame: vi.fn(() => false),
+                })),
+                format: vi.fn(() => '2025-01-15'),
+                add: vi.fn(() => {
+                    const uniqueDay = 18 + (callCount % 7);
+                    return {
+                        format: vi.fn(
+                            () => `${uniqueDay}-${Date.now()}-${Math.random()}`,
+                        ),
+                    };
+                }),
+                subtract: vi.fn(() => ({
+                    format: vi.fn(() => 'Jan 12'),
+                })),
+            };
+        }),
+        formatYYWWD: vi.fn((_date: string) => '2503.1'),
+        getISOWeekYear2Digit: vi.fn(() => '25'),
+        getLocalizedShiftTime: vi.fn(() => '07:00–15:00'),
+    };
+});
 
 vi.mock('../../src/utils/shiftStyles', () => ({
     getShiftClassName: vi.fn(

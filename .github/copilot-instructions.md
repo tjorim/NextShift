@@ -14,7 +14,7 @@
 
 ## Developer Workflows
 - **Install dependencies:** `npm install`
-- **Start dev server:** `npm run dev` (Vite, HMR, runs at http://localhost:8000)
+- **Start dev server:** `npm run dev` (Vite, HMR, runs at <http://localhost:8000>)
 - **Run tests:** `npm run test` (Vitest + React Testing Library)
 - **Lint/format:** `npm run lint` / `npm run lint:fix` / `npm run format` (Biome)
 - **Build for production:** `npm run build`

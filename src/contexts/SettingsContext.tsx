@@ -14,7 +14,13 @@
 // Keep all user state in SettingsContext or unified user state.
 
 import type { ReactNode } from 'react';
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+} from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export type TimeFormat = '12h' | '24h';
@@ -35,9 +41,11 @@ interface SettingsContextType {
     resetSettings: () => void;
     // Unified user state additions:
     selectedTeam: number | null;
-    updateTeam: (team: number | null) => void;
+    setSelectedTeam: (team: number | null) => void;
     hasCompletedOnboarding: boolean;
     setHasCompletedOnboarding: (completed: boolean) => void;
+    // Atomic update for onboarding completion with team selection
+    completeOnboardingWithTeam: (team: number | null) => void;
 }
 
 const defaultSettings: UserSettings = {
@@ -102,6 +110,21 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         ? rawUserState
         : defaultUserState;
 
+    // Apply theme to document body
+    useEffect(() => {
+        if (typeof document !== 'undefined') {
+            if (userState.settings.theme === 'auto') {
+                // Remove the attribute to use system preference
+                document.body.removeAttribute('data-bs-theme');
+            } else {
+                document.body.setAttribute(
+                    'data-bs-theme',
+                    userState.settings.theme,
+                );
+            }
+        }
+    }, [userState.settings.theme]);
+
     const updateTimeFormat = useCallback(
         (format: TimeFormat) => {
             setUserState((prev: NextShiftUserState) => ({
@@ -136,7 +159,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         setUserState(defaultUserState);
     }, [setUserState]);
 
-    const updateTeam = useCallback(
+    const setSelectedTeam = useCallback(
         (team: number | null) => {
             setUserState((prev: NextShiftUserState) => ({
                 ...prev,
@@ -156,6 +179,17 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         [setUserState],
     );
 
+    const completeOnboardingWithTeam = useCallback(
+        (team: number | null) => {
+            setUserState((prev: NextShiftUserState) => ({
+                ...prev,
+                selectedTeam: team,
+                hasCompletedOnboarding: true,
+            }));
+        },
+        [setUserState],
+    );
+
     const contextValue: SettingsContextType = useMemo(
         () => ({
             settings: userState.settings,
@@ -164,9 +198,10 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
             updateNotifications,
             resetSettings,
             selectedTeam: userState.selectedTeam,
-            updateTeam,
+            setSelectedTeam,
             hasCompletedOnboarding: userState.hasCompletedOnboarding,
             setHasCompletedOnboarding,
+            completeOnboardingWithTeam,
         }),
         [
             userState,
@@ -174,8 +209,9 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
             updateTheme,
             updateNotifications,
             resetSettings,
-            updateTeam,
+            setSelectedTeam,
             setHasCompletedOnboarding,
+            completeOnboardingWithTeam,
         ],
     );
 

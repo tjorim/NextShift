@@ -43,7 +43,7 @@ export function TeamDetailModal({
     onHide,
     teamNumber,
     onViewTransfers,
-}: TeamDetailModalProps & { onViewTransfers?: (team: number) => void }) {
+}: TeamDetailModalProps) {
     // Generate 7-day schedule for the team
     const weekSchedule = useMemo(() => {
         const today = dayjs();
@@ -115,8 +115,13 @@ export function TeamDetailModal({
 
     // Transfer history for this team
     const { transfers, hasMoreTransfers } = useTransferCalculations({
-        selectedTeam: teamNumber,
+        selectedTeam: teamNumber, // Team being viewed, not user's selected team
     });
+
+    // Button state logic
+    const isViewingOwnTeam = teamNumber === selectedTeam;
+    const hasTransfers = transfers.length > 0;
+    const canViewTransfers = !isViewingOwnTeam && hasTransfers;
 
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
@@ -449,7 +454,7 @@ export function TeamDetailModal({
                             <OverlayTrigger
                                 placement="top"
                                 overlay={
-                                    teamNumber === selectedTeam ? (
+                                    isViewingOwnTeam ? (
                                         <Tooltip id="transfers-tooltip-disabled">
                                             You are viewing your own team.
                                             Transfers are only shown for other
@@ -469,12 +474,9 @@ export function TeamDetailModal({
                                         onClick={() =>
                                             onViewTransfers?.(teamNumber)
                                         }
-                                        disabled={
-                                            teamNumber === selectedTeam ||
-                                            transfers.length === 0
-                                        }
+                                        disabled={!canViewTransfers}
                                         style={
-                                            teamNumber === selectedTeam
+                                            isViewingOwnTeam
                                                 ? { pointerEvents: 'none' }
                                                 : {}
                                         }

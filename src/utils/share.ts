@@ -24,15 +24,15 @@ export async function share(
             onSuccess?.();
         } else if (navigator.clipboard) {
             await navigator.clipboard.writeText(
-                options.url || options.text || window.location.href,
+                options.url || window.location.href,
             );
             onSuccess?.();
         } else {
             // Fallback: prompt
-            window.prompt(
-                'Copy this link:',
-                options.url || options.text || window.location.href,
-            );
+            // TODO: Consider creating a custom modal component instead of window.prompt
+            // This could integrate with the app's toast system for consistent UX
+            const textToCopy = options.url || window.location.href;
+            window.prompt('Copy this link:', textToCopy);
             onSuccess?.();
         }
     } catch (err) {

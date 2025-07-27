@@ -74,9 +74,6 @@ Features that enhance functionality with moderate development effort.
 - **Estimated Effort**: 2–3 hours
 - **Status**: 🔲 Future
 
-### 🎯 Medium-Priority Items
-Features that enhance functionality with moderate development effort.
-
 #### 6. TeamDetailModal Enhancement
 - **Component**: Improve existing team detail modal
 - **Use Cases**:

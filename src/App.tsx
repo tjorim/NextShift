@@ -24,14 +24,13 @@ function AppContent() {
     const [teamModalMode, setTeamModalMode] = useState<
         'onboarding' | 'change-team'
     >('onboarding');
-    const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('today');
     const { showSuccess, showInfo } = useToast();
     const {
         selectedTeam,
-        updateTeam,
+        setSelectedTeam,
         hasCompletedOnboarding,
-        setHasCompletedOnboarding,
+        completeOnboardingWithTeam,
         settings,
     } = useSettings();
     const { currentDate, setCurrentDate, todayShifts } = useShiftCalculation();
@@ -52,7 +51,7 @@ function AppContent() {
         if (teamParam && hasCompletedOnboarding) {
             const teamNumber = parseInt(teamParam, 10);
             if (teamNumber >= 1 && teamNumber <= 5) {
-                updateTeam(teamNumber);
+                setSelectedTeam(teamNumber);
             }
         }
 
@@ -68,7 +67,7 @@ function AppContent() {
         if (urlParams.toString()) {
             window.history.replaceState({}, '', window.location.pathname);
         }
-    }, [hasCompletedOnboarding, updateTeam, setCurrentDate]); // Run when onboarding completes
+    }, [hasCompletedOnboarding, setSelectedTeam, setCurrentDate]); // Run when onboarding completes
 
     // Show welcome wizard only on first visit (never completed onboarding)
     useEffect(() => {
@@ -99,19 +98,13 @@ function AppContent() {
     }, [settings.theme]);
 
     const handleTeamSelect = (team: number) => {
-        setIsLoading(true);
-
-        // Use setTimeout to ensure loading state is visible before heavy operations
-        setTimeout(() => {
-            updateTeam(team); // Use user preferences for team selection
-            setHasCompletedOnboarding(true);
-            setShowTeamModal(false);
-            setIsLoading(false);
-            showSuccess(
-                `Team ${team} selected! Your shifts are now personalized.`,
-                '🎯',
-            );
-        }, 0);
+        // Use the atomic function to avoid race condition
+        completeOnboardingWithTeam(team);
+        setShowTeamModal(false);
+        showSuccess(
+            `Team ${team} selected! Your shifts are now personalized.`,
+            '🎯',
+        );
     };
 
     const handleChangeTeam = () => {
@@ -120,19 +113,13 @@ function AppContent() {
     };
 
     const handleSkipTeamSelection = () => {
-        setIsLoading(true);
-
-        // Use setTimeout to ensure loading state is visible
-        setTimeout(() => {
-            updateTeam(null); // Clear team selection in preferences
-            setHasCompletedOnboarding(true);
-            setShowTeamModal(false);
-            setIsLoading(false);
-            showInfo(
-                'Browsing all teams. Select a team anytime for personalized features!',
-                '👀',
-            );
-        }, 0);
+        // Complete onboarding without selecting a team
+        completeOnboardingWithTeam(null);
+        setShowTeamModal(false);
+        showInfo(
+            'Browsing all teams. Select a team anytime for personalized features!',
+            '👀',
+        );
     };
 
     const handleTeamModalHide = () => {
@@ -158,7 +145,6 @@ function AppContent() {
                             selectedTeam={selectedTeam}
                             onChangeTeam={handleChangeTeam}
                             onShowWhoIsWorking={handleShowWhoIsWorking}
-                            isLoading={isLoading}
                         />
                     </ErrorBoundary>
                     <ErrorBoundary>
@@ -176,7 +162,6 @@ function AppContent() {
                         onTeamSelect={handleTeamSelect}
                         onSkip={handleSkipTeamSelection}
                         onHide={handleTeamModalHide}
-                        isLoading={isLoading}
                         startStep={
                             teamModalMode === 'onboarding'
                                 ? 'welcome'

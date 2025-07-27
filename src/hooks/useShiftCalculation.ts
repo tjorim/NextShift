@@ -1,5 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import { useMemo, useState } from 'react';
+import { useSettings } from '../contexts/SettingsContext';
 import { dayjs } from '../utils/dateTimeUtils';
 import {
     calculateShift,
@@ -10,7 +11,6 @@ import {
     type NextShiftResult,
     type ShiftResult,
 } from '../utils/shiftCalculations';
-import { useLocalStorage } from './useLocalStorage';
 
 export interface UseShiftCalculationReturn {
     selectedTeam: number | null;
@@ -28,11 +28,8 @@ export interface UseShiftCalculationReturn {
  * @returns Object containing shift state and calculation functions
  */
 export function useShiftCalculation(): UseShiftCalculationReturn {
-    // Team selection with localStorage persistence
-    const [selectedTeam, setSelectedTeam] = useLocalStorage<number | null>(
-        'userTeam',
-        null,
-    );
+    // Use unified user state from SettingsContext
+    const { selectedTeam, setSelectedTeam } = useSettings();
 
     // Current date for calculations
     const [currentDate, setCurrentDate] = useState<Dayjs>(dayjs());

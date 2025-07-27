@@ -40,10 +40,14 @@ const defaultProps = {
 };
 
 function renderWithProviders(ui: React.ReactElement) {
-    return render(
+    return render(wrapWithProviders(ui));
+}
+
+function wrapWithProviders(ui: React.ReactElement) {
+    return (
         <ToastProvider>
             <SettingsProvider>{ui}</SettingsProvider>
-        </ToastProvider>,
+        </ToastProvider>
     );
 }
 
@@ -113,7 +117,11 @@ describe('MainTabs', () => {
             );
             expect(screen.getByTestId('today-view')).toBeInTheDocument();
 
-            rerender(<MainTabs {...defaultProps} activeTab="transfer" />);
+            rerender(
+                wrapWithProviders(
+                    <MainTabs {...defaultProps} activeTab="transfer" />,
+                ),
+            );
             expect(screen.getByTestId('transfer-view')).toBeInTheDocument();
         });
     });

@@ -6,7 +6,6 @@ import Col from 'react-bootstrap/Col';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Row from 'react-bootstrap/Row';
-import Spinner from 'react-bootstrap/Spinner';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSettings } from '../contexts/SettingsContext';
 import { useCountdown } from '../hooks/useCountdown';
@@ -37,7 +36,6 @@ interface CurrentStatusProps {
     selectedTeam: number | null;
     onChangeTeam: () => void;
     onShowWhoIsWorking?: () => void;
-    isLoading?: boolean;
 }
 
 /**
@@ -50,7 +48,6 @@ interface CurrentStatusProps {
  * @param selectedTeam - The team number to display shift information for, or null for generic view.
  * @param onChangeTeam - Callback invoked when the user requests to select/change the team.
  * @param onShowWhoIsWorking - Optional callback to show the current working members.
- * @param isLoading - Optional flag to indicate loading state.
  *
  * @returns A React component displaying current status with team-specific or generic information.
  */
@@ -58,7 +55,6 @@ export function CurrentStatus({
     selectedTeam,
     onChangeTeam,
     onShowWhoIsWorking,
-    isLoading = false,
 }: CurrentStatusProps) {
     // Generate unique IDs for tooltips to avoid HTML ID conflicts
     const dateTooltipId = useId();
@@ -266,17 +262,7 @@ export function CurrentStatus({
                                             : '👥 Current Status'}
                                     </Card.Title>
                                     <div className="flex-grow-1">
-                                        {isLoading ? (
-                                            <div className="d-flex align-items-center gap-2">
-                                                <Spinner
-                                                    animation="border"
-                                                    size="sm"
-                                                />
-                                                <span className="text-muted">
-                                                    Updating...
-                                                </span>
-                                            </div>
-                                        ) : validatedTeam && currentShift ? (
+                                        {validatedTeam && currentShift ? (
                                             <div>
                                                 <OverlayTrigger
                                                     placement="bottom"
@@ -431,18 +417,7 @@ export function CurrentStatus({
                                             : 'Next Activity'}
                                     </Card.Title>
                                     <div className="text-muted flex-grow-1">
-                                        {isLoading ? (
-                                            <div className="d-flex align-items-center gap-2">
-                                                <Spinner
-                                                    animation="border"
-                                                    size="sm"
-                                                />
-                                                <span>
-                                                    Calculating your next
-                                                    shift...
-                                                </span>
-                                            </div>
-                                        ) : validatedTeam && nextShift ? (
+                                        {validatedTeam && nextShift ? (
                                             <div>
                                                 <div className="fw-semibold">
                                                     {nextShift.date.format(

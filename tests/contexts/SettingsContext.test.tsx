@@ -24,26 +24,34 @@ describe('SettingsContext unified user state', () => {
         expect(result.current.hasCompletedOnboarding).toBe(false);
     });
 
-    it('updates settings and user state', () => {
+    it('updates settings and user state', async () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
-        act(() => {
+        await act(async () => {
             result.current.updateTimeFormat('12h');
-            result.current.updateTheme('dark');
-            result.current.updateNotifications('on');
-            result.current.updateTeam(3);
-            result.current.setHasCompletedOnboarding(true);
         });
         expect(result.current.settings.timeFormat).toBe('12h');
+        await act(async () => {
+            result.current.updateTheme('dark');
+        });
         expect(result.current.settings.theme).toBe('dark');
+        await act(async () => {
+            result.current.updateNotifications('on');
+        });
         expect(result.current.settings.notifications).toBe('on');
+        await act(async () => {
+            result.current.setSelectedTeam(3);
+        });
         expect(result.current.selectedTeam).toBe(3);
+        await act(async () => {
+            result.current.setHasCompletedOnboarding(true);
+        });
         expect(result.current.hasCompletedOnboarding).toBe(true);
     });
 
     it('resets all user state', () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
         act(() => {
-            result.current.updateTeam(2);
+            result.current.setSelectedTeam(2);
             result.current.setHasCompletedOnboarding(true);
             result.current.resetSettings();
         });
@@ -89,7 +97,7 @@ describe('SettingsContext unified user state', () => {
     it('resetSettings clears unified key and does not leave old keys', () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
         act(() => {
-            result.current.updateTeam(1);
+            result.current.setSelectedTeam(1);
             result.current.setHasCompletedOnboarding(true);
             result.current.updateTimeFormat('12h');
         });
