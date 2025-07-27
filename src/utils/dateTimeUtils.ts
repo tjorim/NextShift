@@ -94,7 +94,7 @@ export function getLocalizedShiftTime(
     if (start == null && end == null) return null;
     const format = (hour: number) =>
         formatTimeByPreference(
-            dayjs(`${String(hour).padStart(2, '0')}:00`, 'HH:mm'),
+            dayjs().hour(hour).minute(0).second(0),
             timeFormat,
         );
     if (start != null && end != null) {

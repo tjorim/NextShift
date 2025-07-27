@@ -24,7 +24,13 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
         date: dayjs(date),
         dateCode: '2503.1M',
     })),
+}));
+
+vi.mock('../../src/utils/dateTimeUtils', () => ({
+    dayjs: vi.fn(),
     formatYYWWD: vi.fn((_date: string) => '2503.1'),
+    getISOWeekYear2Digit: vi.fn(() => '25'),
+    getLocalizedShiftTime: vi.fn(() => '07:00–15:00'),
 }));
 
 vi.mock('../../src/utils/shiftStyles', () => ({

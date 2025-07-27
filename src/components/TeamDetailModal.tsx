@@ -190,7 +190,7 @@ export function TeamDetailModal({
                     </h6>
                     <div className="table-responsive">
                         <Table striped hover className="mb-0">
-                            <thead className="table-light">
+                            <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th>Day</th>
@@ -356,7 +356,7 @@ export function TeamDetailModal({
                     ) : (
                         <div className="table-responsive">
                             <Table size="sm" className="mb-0">
-                                <thead className="table-light">
+                                <thead>
                                     <tr>
                                         <th>Date</th>
                                         <th>From</th>

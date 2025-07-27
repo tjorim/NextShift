@@ -114,7 +114,7 @@ function AppContent() {
 
     return (
         <ErrorBoundary>
-            <div className="bg-light min-vh-100">
+            <div className="min-vh-100">
                 <Container fluid>
                     <Header />
 

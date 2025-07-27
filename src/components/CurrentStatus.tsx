@@ -255,234 +255,262 @@ export function CurrentStatus({
                     {/* Team Status Row */}
                     <Row>
                         <Col md={6}>
-                            <div className="p-3 border rounded bg-light h-100 d-flex flex-column">
-                                <h6 className="mb-2 text-primary">
-                                    {validatedTeam
-                                        ? '🏷️ Your Team Status'
-                                        : '👥 Current Status'}
-                                </h6>
-                                <div className="flex-grow-1">
-                                    {isLoading ? (
-                                        <div className="d-flex align-items-center gap-2">
-                                            <Spinner
-                                                animation="border"
-                                                size="sm"
-                                            />
-                                            <span className="text-muted">
-                                                Updating...
-                                            </span>
-                                        </div>
-                                    ) : validatedTeam && currentShift ? (
-                                        <div>
-                                            <OverlayTrigger
-                                                placement="bottom"
-                                                overlay={
-                                                    <Tooltip id={teamTooltipId}>
-                                                        <strong>
-                                                            Your Team Today
-                                                        </strong>
-                                                        <br />
-                                                        Code:{' '}
-                                                        <strong>
-                                                            {
-                                                                currentShift
-                                                                    .shift.code
-                                                            }
-                                                        </strong>
-                                                        <br />
-                                                        {currentShift.shift
-                                                            .code === 'M' &&
-                                                            'Morning shift (7:00-15:00)'}
-                                                        {currentShift.shift
-                                                            .code === 'E' &&
-                                                            'Evening shift (15:00-23:00)'}
-                                                        {currentShift.shift
-                                                            .code === 'N' &&
-                                                            'Night shift (23:00-7:00)'}
-                                                        {currentShift.shift
-                                                            .code === 'O' &&
-                                                            'Off duty - rest day'}
-                                                        <br />
-                                                        <em>
-                                                            Full code:{' '}
-                                                            {currentShift.code}
-                                                        </em>
-                                                    </Tooltip>
-                                                }
-                                            >
-                                                <Badge
-                                                    className={`shift-code shift-badge-lg cursor-help ${getShiftClassName(currentShift.shift.code)}`}
+                            <Card className="h-100">
+                                <Card.Body className="d-flex flex-column">
+                                    <Card.Title
+                                        as="h6"
+                                        className="mb-2 text-primary"
+                                    >
+                                        {validatedTeam
+                                            ? '🏷️ Your Team Status'
+                                            : '👥 Current Status'}
+                                    </Card.Title>
+                                    <div className="flex-grow-1">
+                                        {isLoading ? (
+                                            <div className="d-flex align-items-center gap-2">
+                                                <Spinner
+                                                    animation="border"
+                                                    size="sm"
+                                                />
+                                                <span className="text-muted">
+                                                    Updating...
+                                                </span>
+                                            </div>
+                                        ) : validatedTeam && currentShift ? (
+                                            <div>
+                                                <OverlayTrigger
+                                                    placement="bottom"
+                                                    overlay={
+                                                        <Tooltip
+                                                            id={teamTooltipId}
+                                                        >
+                                                            <strong>
+                                                                Your Team Today
+                                                            </strong>
+                                                            <br />
+                                                            Code:{' '}
+                                                            <strong>
+                                                                {
+                                                                    currentShift
+                                                                        .shift
+                                                                        .code
+                                                                }
+                                                            </strong>
+                                                            <br />
+                                                            {currentShift.shift
+                                                                .code === 'M' &&
+                                                                'Morning shift (7:00-15:00)'}
+                                                            {currentShift.shift
+                                                                .code === 'E' &&
+                                                                'Evening shift (15:00-23:00)'}
+                                                            {currentShift.shift
+                                                                .code === 'N' &&
+                                                                'Night shift (23:00-7:00)'}
+                                                            {currentShift.shift
+                                                                .code === 'O' &&
+                                                                'Off duty - rest day'}
+                                                            <br />
+                                                            <em>
+                                                                Full code:{' '}
+                                                                {
+                                                                    currentShift.code
+                                                                }
+                                                            </em>
+                                                        </Tooltip>
+                                                    }
                                                 >
-                                                    Team {validatedTeam}:{' '}
-                                                    {currentShift.shift.name}
-                                                </Badge>
-                                            </OverlayTrigger>
-                                            {currentShift.shift.hours && (
-                                                <div className="small text-muted mt-1">
-                                                    {currentShift.shift.hours}
-                                                </div>
-                                            )}
-                                            {!currentShift.shift.isWorking &&
-                                                offDayProgress && (
-                                                    <div className="mt-2">
-                                                        <div className="small text-muted mb-1">
-                                                            Off Day Progress:
-                                                            Day{' '}
-                                                            {
-                                                                offDayProgress.current
-                                                            }{' '}
-                                                            of{' '}
-                                                            {
-                                                                offDayProgress.total
-                                                            }
-                                                        </div>
-                                                        <ProgressBar
-                                                            now={
-                                                                (offDayProgress.current /
-                                                                    offDayProgress.total) *
-                                                                100
-                                                            }
-                                                            variant="info"
-                                                            className="progress-thin"
-                                                            aria-label={`Off day progress: ${offDayProgress.current} of ${offDayProgress.total} days`}
-                                                        />
-                                                    </div>
-                                                )}
-                                        </div>
-                                    ) : !validatedTeam ? (
-                                        <div>
-                                            {currentWorkingTeam ? (
-                                                <div>
                                                     <Badge
-                                                        className={`shift-code shift-badge-lg ${getShiftClassName(currentWorkingTeam.shift.code)}`}
+                                                        className={`shift-code shift-badge-lg cursor-help ${getShiftClassName(currentShift.shift.code)}`}
                                                     >
-                                                        Team{' '}
+                                                        Team {validatedTeam}:{' '}
                                                         {
-                                                            currentWorkingTeam.teamNumber
-                                                        }
-                                                        :{' '}
-                                                        {
-                                                            currentWorkingTeam
-                                                                .shift.name
+                                                            currentShift.shift
+                                                                .name
                                                         }
                                                     </Badge>
+                                                </OverlayTrigger>
+                                                {currentShift.shift.hours && (
                                                     <div className="small text-muted mt-1">
                                                         {
-                                                            currentWorkingTeam
-                                                                .shift.hours
+                                                            currentShift.shift
+                                                                .hours
                                                         }
                                                     </div>
-                                                    <div className="small text-success mt-2">
-                                                        ✅ Currently working
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="text-muted">
-                                                    <div className="mb-2">
-                                                        <Badge bg="secondary">
-                                                            No teams working
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="small">
-                                                        All teams are currently
-                                                        off duty
-                                                    </div>
-                                                </div>
-                                            )}
-                                            <hr className="my-3" />
-                                            <div className="small text-muted">
-                                                💡 Select your team above for
-                                                personalized shift tracking and
-                                                countdown timers
+                                                )}
+                                                {!currentShift.shift
+                                                    .isWorking &&
+                                                    offDayProgress && (
+                                                        <div className="mt-2">
+                                                            <div className="small text-muted mb-1">
+                                                                Off Day
+                                                                Progress: Day{' '}
+                                                                {
+                                                                    offDayProgress.current
+                                                                }{' '}
+                                                                of{' '}
+                                                                {
+                                                                    offDayProgress.total
+                                                                }
+                                                            </div>
+                                                            <ProgressBar
+                                                                now={
+                                                                    (offDayProgress.current /
+                                                                        offDayProgress.total) *
+                                                                    100
+                                                                }
+                                                                variant="info"
+                                                                className="progress-thin"
+                                                                aria-label={`Off day progress: ${offDayProgress.current} of ${offDayProgress.total} days`}
+                                                            />
+                                                        </div>
+                                                    )}
                                             </div>
-                                        </div>
-                                    ) : null}
-                                </div>
-                            </div>
+                                        ) : !validatedTeam ? (
+                                            <div>
+                                                {currentWorkingTeam ? (
+                                                    <div>
+                                                        <Badge
+                                                            className={`shift-code shift-badge-lg ${getShiftClassName(currentWorkingTeam.shift.code)}`}
+                                                        >
+                                                            Team{' '}
+                                                            {
+                                                                currentWorkingTeam.teamNumber
+                                                            }
+                                                            :{' '}
+                                                            {
+                                                                currentWorkingTeam
+                                                                    .shift.name
+                                                            }
+                                                        </Badge>
+                                                        <div className="small text-muted mt-1">
+                                                            {
+                                                                currentWorkingTeam
+                                                                    .shift.hours
+                                                            }
+                                                        </div>
+                                                        <div className="small text-success mt-2">
+                                                            ✅ Currently working
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-muted">
+                                                        <div className="mb-2">
+                                                            <Badge bg="secondary">
+                                                                No teams working
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="small">
+                                                            All teams are
+                                                            currently off duty
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <hr className="my-3" />
+                                                <div className="small text-muted">
+                                                    💡 Select your team above
+                                                    for personalized shift
+                                                    tracking and countdown
+                                                    timers
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </Card.Body>
+                            </Card>
                         </Col>
                         <Col md={6}>
-                            <div className="p-3 border rounded bg-light h-100 d-flex flex-column">
-                                <h6 className="mb-2 text-success">
-                                    <i className="bi bi-arrow-right-circle me-1"></i>
-                                    {validatedTeam
-                                        ? 'Your Next Shift'
-                                        : 'Next Activity'}
-                                </h6>
-                                <div className="text-muted flex-grow-1">
-                                    {isLoading ? (
-                                        <div className="d-flex align-items-center gap-2">
-                                            <Spinner
-                                                animation="border"
-                                                size="sm"
-                                            />
-                                            <span>
-                                                Calculating your next shift...
-                                            </span>
-                                        </div>
-                                    ) : validatedTeam && nextShift ? (
-                                        <div>
-                                            <div className="fw-semibold text-dark">
-                                                {nextShift.date.format(
-                                                    'ddd, MMM D',
-                                                )}{' '}
-                                                - {nextShift.shift.name}
+                            <Card className="h-100">
+                                <Card.Body className="d-flex flex-column">
+                                    <Card.Title
+                                        as="h6"
+                                        className="mb-2 text-success"
+                                    >
+                                        <i className="bi bi-arrow-right-circle me-1"></i>
+                                        {validatedTeam
+                                            ? 'Your Next Shift'
+                                            : 'Next Activity'}
+                                    </Card.Title>
+                                    <div className="text-muted flex-grow-1">
+                                        {isLoading ? (
+                                            <div className="d-flex align-items-center gap-2">
+                                                <Spinner
+                                                    animation="border"
+                                                    size="sm"
+                                                />
+                                                <span>
+                                                    Calculating your next
+                                                    shift...
+                                                </span>
                                             </div>
-                                            <div className="small text-muted">
-                                                {nextShift.shift.hours}
+                                        ) : validatedTeam && nextShift ? (
+                                            <div>
+                                                <div className="fw-semibold">
+                                                    {nextShift.date.format(
+                                                        'ddd, MMM D',
+                                                    )}{' '}
+                                                    - {nextShift.shift.name}
+                                                </div>
+                                                <div className="small text-muted">
+                                                    {nextShift.shift.hours}
+                                                </div>
+                                                {countdown &&
+                                                    !countdown.isExpired &&
+                                                    nextShiftStartTime && (
+                                                        <Badge
+                                                            bg="info"
+                                                            className="mt-2"
+                                                        >
+                                                            ⏰ Starts in{' '}
+                                                            {
+                                                                countdown.formatted
+                                                            }
+                                                        </Badge>
+                                                    )}
                                             </div>
-                                            {countdown &&
-                                                !countdown.isExpired &&
-                                                nextShiftStartTime && (
-                                                    <Badge
-                                                        bg="info"
-                                                        className="mt-2"
-                                                    >
-                                                        ⏰ Starts in{' '}
-                                                        {countdown.formatted}
-                                                    </Badge>
+                                        ) : validatedTeam ? (
+                                            <div>
+                                                Next shift information not
+                                                available
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                {currentWorkingTeam ? (
+                                                    <div>
+                                                        <div className="fw-semibold">
+                                                            Next shift change
+                                                            coming soon
+                                                        </div>
+                                                        <div className="small">
+                                                            Check the timeline
+                                                            above or view all
+                                                            teams in the "Today"
+                                                            tab
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <div className="fw-semibold">
+                                                            Next shift starts
+                                                            tomorrow
+                                                        </div>
+                                                        <div className="small">
+                                                            View the schedule in
+                                                            other tabs for
+                                                            detailed timing
+                                                        </div>
+                                                    </div>
                                                 )}
-                                        </div>
-                                    ) : validatedTeam ? (
-                                        <div>
-                                            Next shift information not available
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            {currentWorkingTeam ? (
-                                                <div>
-                                                    <div className="fw-semibold text-dark">
-                                                        Next shift change coming
-                                                        soon
-                                                    </div>
-                                                    <div className="small">
-                                                        Check the timeline above
-                                                        or view all teams in the
-                                                        "Today" tab
-                                                    </div>
+                                                <hr className="my-3" />
+                                                <div className="small text-muted">
+                                                    Select your team for
+                                                    countdown timers and
+                                                    personalized notifications
                                                 </div>
-                                            ) : (
-                                                <div>
-                                                    <div className="fw-semibold text-dark">
-                                                        Next shift starts
-                                                        tomorrow
-                                                    </div>
-                                                    <div className="small">
-                                                        View the schedule in
-                                                        other tabs for detailed
-                                                        timing
-                                                    </div>
-                                                </div>
-                                            )}
-                                            <hr className="my-3" />
-                                            <div className="small text-muted">
-                                                Select your team for countdown
-                                                timers and personalized
-                                                notifications
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                                        )}
+                                    </div>
+                                </Card.Body>
+                            </Card>
                         </Col>
                     </Row>
                 </Card.Body>

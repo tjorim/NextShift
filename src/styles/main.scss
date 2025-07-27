@@ -238,6 +238,7 @@
     }
 }
 
+
 /* Header styling */
 .header-icon {
     font-size: 1.25rem;
@@ -256,17 +257,22 @@
 .team-card-interactive {
   transition: all 0.2s ease;
   cursor: pointer;
+  border: 1px solid var(--bs-border-color, #dee2e6) !important;
+  background: none;
 }
+
 .team-card-interactive:hover,
 .team-card-interactive:focus {
-  background-color: var(--bs-light-bg-subtle, #f8f9fa);
-  /* fallback for light mode */
+  background-color: var(--bs-body-bg, #fff) !important;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+  border-color: var(--bs-primary, #0d6efd) !important;
 }
 
 [data-bs-theme="dark"] .team-card-interactive:hover,
 [data-bs-theme="dark"] .team-card-interactive:focus {
-  background-color: var(--bs-dark-bg-subtle, #23272b);
+  background-color: var(--bs-body-bg, #181a1b) !important;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1) !important;
 }
 
 [data-bs-theme="dark"] {
@@ -296,19 +302,23 @@
   color: #e0e0e0 !important;
 }
 
-[data-bs-theme="dark"] .table-light,
-[data-bs-theme="dark"] .bg-light,
-[data-bs-theme="dark"] .list-group-item,
-[data-bs-theme="dark"] .accordion-item {
-  background-color: #23272b !important;
-  color: #e0e0e0 !important;
+
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+  background-color: transparent !important;
+  color: #adb5bd !important;
+  border-color: transparent transparent #343a40;
 }
 
-[data-bs-theme="dark"] .nav-tabs .nav-link.active,
-[data-bs-theme="dark"] .nav-tabs .nav-link {
+[data-bs-theme="dark"] .nav-tabs .nav-link.active {
   background-color: #23272b !important;
   color: #e0e0e0 !important;
-  border-color: #343a40 #343a40 #23272b;
+  border-color: #495057 #495057 #23272b !important;
+  font-weight: 600;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #e0e0e0 !important;
 }
 
 [data-bs-theme="dark"] .schedule-table th,
@@ -317,17 +327,6 @@
   color: var(--bs-table-color, #e0e0e0);
 }
 
-.schedule-table .today-row,
-.schedule-table .table-primary {
-  background-color: var(--bs-primary-bg-subtle, #e3f2fd) !important;
-  color: var(--bs-primary-text-emphasis, #0d6efd) !important;
-}
-
-[data-bs-theme="dark"] .schedule-table .today-row,
-[data-bs-theme="dark"] .schedule-table .table-primary {
-  background-color: var(--bs-primary-bg-subtle, #0d6efd) !important;
-  color: var(--bs-primary-text-emphasis, #fff) !important;
-}
 
 .schedule-table td:first-child {
   background-color: var(--bs-table-bg, #f8f9fa);
@@ -336,3 +335,15 @@
 [data-bs-theme="dark"] .schedule-table td:first-child {
   background-color: var(--bs-table-bg, #23272b);
 }
+
+/* Today column/row highlighting */
+.table-primary {
+  --bs-table-bg: rgba(13, 110, 253, 0.1);
+  --bs-table-color: var(--bs-emphasis-color);
+}
+
+[data-bs-theme="dark"] .table-primary {
+  --bs-table-bg: rgba(13, 110, 253, 0.2);
+  --bs-table-color: var(--bs-emphasis-color);
+}
+

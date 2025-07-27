@@ -1,6 +1,6 @@
 # NextShift Development Roadmap
 
-**Current Version**: 3.1.0  
+**Current Version**: 3.2.0  
 **Branch**: `feat/optional-team-selection`  
 **Status**: Active Development  
 
@@ -13,39 +13,46 @@ This document serves as a general to-do list and development roadmap for NextShi
 ### 🚀 High-Priority Items
 Critical features and improvements that significantly impact user experience.
 
-#### 1. Optional Team Selection ✅
-- **Feature**: Allow users to skip team selection and view generic shift information
-- **Use Cases**: 
-  - New users can explore the app before committing to a team ✅
-  - A manager can view all teams without selecting one ✅
-  - General shift information display without personalization ✅
-  - Temporary users who don't want to store team preference ✅
-- **Implementation Details**: 
-  - Add "Skip" or "View All Teams" button in TeamSelector modal ✅
-  - Modify CurrentStatus component to handle null selectedTeam gracefully ✅
-  - Show generic "Who's Working Today" instead of personalized status ✅
-  - Timeline should still show current working team ✅
-  - Disable team-specific features (next shift, off-day progress) ✅
-  - Add subtle prompt to select team for personalized experience ✅
-- **Files Modified**: 
-  - `src/components/TeamSelector.tsx` - Added skip option ✅
-  - `src/components/CurrentStatus.tsx` - Handles null team state ✅
-  - `src/components/App.tsx` - Updated team selection logic ✅
-  - Tests updated for new behavior ✅
-- **Estimated Effort**: 2–3 hours
-- **Status**: ✅ **Completed**
-
-#### 2. Offcanvas Settings Panel
-- **Component**: `react-bootstrap/Offcanvas`
+#### 1. Export Schedule Feature
+- **Component**: Calendar export functionality
 - **Use Cases**:
-  - App preferences (24-hour format, team colors)
-  - About/help information
-  - Changelog viewer
-- **Implementation**: New settings context + panel
-- **Estimated Effort**: 4–5 hours
+  - Download shift schedule as .ics calendar file
+  - Integration with external calendar apps
+  - Team schedule sharing
+- **Implementation**: Add calendar generation utility and activate export buttons
+- **Files to Modify**:
+  - `src/components/SettingsPanel.tsx` - Remove "Coming Soon" badge and enable button
+  - `src/components/TeamDetailModal.tsx` - Enable export button
+  - `src/utils/` - Add calendar export utility
+- **Estimated Effort**: 3–4 hours
 - **Status**: 🔲 Planned
 
-#### 3. Modal for Team Details
+#### 2. Keyboard Shortcuts Implementation
+- **Component**: Enhanced navigation with keyboard shortcuts
+- **Use Cases**:
+  - Quick tab switching (T for Today, S for Schedule, R for Transfers)
+  - Date navigation (← → arrow keys)
+  - Settings panel toggle (Ctrl+,)
+- **Implementation**: Integrate existing useKeyboardShortcuts hook into components
+- **Files to Modify**:
+  - `src/components/MainTabs.tsx` - Add shortcut handlers
+  - `src/components/ScheduleView.tsx` - Add date navigation shortcuts
+  - `src/components/Header.tsx` - Add settings shortcut
+- **Estimated Effort**: 2–3 hours
+- **Status**: 🔲 Planned
+
+#### 3. Version Sync Fix
+- **Component**: Changelog version alignment
+- **Use Cases**:
+  - Accurate "Coming Soon" version display
+  - Proper future planning version numbers
+- **Implementation**: Update futurePlans in changelog.ts
+- **Files to Modify**:
+  - `src/data/changelog.ts` - Update version numbers in futurePlans
+- **Estimated Effort**: 30 minutes
+- **Status**: 🔲 Planned
+
+#### 4. Modal for Team Details
 - **Component**: `react-bootstrap/Modal`
 - **Use Cases**:
   - Click team card to see detailed 7-day schedule
@@ -57,7 +64,7 @@ Critical features and improvements that significantly impact user experience.
 ### 🎯 Medium-Priority Items
 Features that enhance functionality with moderate development effort.
 
-#### 4. Enhanced List Groups
+#### 5. Enhanced List Groups
 - **Component**: `react-bootstrap/ListGroup`
 - **Use Cases**:
   - Upcoming shifts list
@@ -67,10 +74,43 @@ Features that enhance functionality with moderate development effort.
 - **Estimated Effort**: 2–3 hours
 - **Status**: 🔲 Future
 
+### 🎯 Medium-Priority Items
+Features that enhance functionality with moderate development effort.
+
+#### 6. TeamDetailModal Enhancement
+- **Component**: Improve existing team detail modal
+- **Use Cases**:
+  - Enable export functionality in modal
+  - Enhanced 7-day schedule view
+  - Better team information display
+- **Implementation**: Activate disabled features and improve UX
+- **Estimated Effort**: 1–2 hours
+- **Status**: 🔲 Future
+
+#### 7. Enhanced Error Boundaries
+- **Component**: More granular error handling
+- **Use Cases**:
+  - Component-specific error recovery
+  - Better error messages for users
+  - Graceful degradation
+- **Implementation**: Add specific error boundaries for complex components
+- **Estimated Effort**: 2–3 hours
+- **Status**: 🔲 Future
+
+#### 8. PWA Installation Prompts
+- **Component**: Intelligent install timing
+- **Use Cases**:
+  - Better onboarding integration
+  - Smart prompt timing based on user engagement
+  - Installation success tracking
+- **Implementation**: Enhance existing usePWAInstall hook
+- **Estimated Effort**: 1–2 hours
+- **Status**: 🔲 Future
+
 ### 🎨 Future Enhancements
 Advanced features for future development phases.
 
-#### 5. Carousel for Mobile Team View
+#### 9. Carousel for Mobile Team View
 - **Component**: `react-bootstrap/Carousel`
 - **Use Cases**:
   - Swipe through teams on mobile
@@ -79,7 +119,7 @@ Advanced features for future development phases.
 - **Estimated Effort**: 5–6 hours
 - **Status**: 🔲 Future
 
-#### 6. Accordion for Transfer History
+#### 10. Accordion for Transfer History
 - **Component**: `react-bootstrap/Accordion`
 - **Use Cases**:
   - Collapsible transfer sections by date range
@@ -88,7 +128,28 @@ Advanced features for future development phases.
 - **Estimated Effort**: 3–4 hours
 - **Status**: 🔲 Future
 
-#### 7. Floating Action Button
+#### 11. Notification System Implementation
+- **Component**: Actual notification functionality
+- **Use Cases**:
+  - Shift reminders and countdown alerts
+  - Push notifications for PWA
+  - Customizable notification preferences
+- **Implementation**: Build on existing notification settings in SettingsContext
+- **Estimated Effort**: 4–5 hours
+- **Status**: 🔲 Future
+
+#### 12. Advanced Accessibility Features
+- **Component**: Enhanced accessibility support
+- **Use Cases**:
+  - Screen reader improvements
+  - High contrast mode
+  - Font size preferences
+  - Motion reduction settings
+- **Implementation**: Accessibility context and enhanced ARIA support
+- **Estimated Effort**: 3–4 hours
+- **Status**: 🔲 Future
+
+#### 13. Floating Action Button
 - **Component**: Custom positioned `react-bootstrap/Button`
 - **Use Cases**:
   - Quick team switch
@@ -100,17 +161,21 @@ Advanced features for future development phases.
 ## Current To-do Status
 
 ### 🔲 Next Up
-1. **Offcanvas Settings Panel** - App preferences and settings
-2. **Team Detail Modals** - Detailed team information and schedules
-3. **Enhanced List Groups** - Better data organization
+1. **Export Schedule Feature** - Calendar export functionality (user-facing)
+2. **Keyboard Shortcuts** - Enhanced navigation and UX
+3. **Version Sync Fix** - Quick changelog alignment (30 min)
+4. **Team Detail Modals** - Detailed team information and schedules
 
 ### 📋 Backlog
-4. **Mobile Carousel** - Improved mobile navigation
-5. **Transfer History Accordion** - Organized historical data
-6. **Floating Action Button** - Quick actions overlay
-
-### ✅ Completed
-1. **Optional Team Selection** - Allow skipping team selection for generic view
+5. **Enhanced List Groups** - Better data organization
+6. **TeamDetailModal Enhancement** - Activate disabled features
+7. **Enhanced Error Boundaries** - Better error handling
+8. **PWA Installation Prompts** - Intelligent install timing
+9. **Mobile Carousel** - Improved mobile navigation
+10. **Transfer History Accordion** - Organized historical data
+11. **Notification System** - Actual notification functionality
+12. **Advanced Accessibility** - Enhanced screen reader support
+13. **Floating Action Button** - Quick actions overlay
 
 ## Technical Requirements
 

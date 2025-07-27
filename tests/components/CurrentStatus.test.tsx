@@ -24,6 +24,20 @@ vi.mock('../../src/hooks/useCountdown', () => ({
     useCountdown: vi.fn(),
 }));
 
+vi.mock('../../src/utils/dateTimeUtils', () => ({
+    dayjs: vi.fn(() => ({
+        startOf: vi.fn(() => ({
+            toISOString: vi.fn(() => '2024-01-15T00:00:00.000Z'),
+        })),
+        isSame: vi.fn(() => false),
+        format: vi.fn(() => '2024-01-15'),
+        hour: vi.fn(() => 10),
+        add: vi.fn(),
+        subtract: vi.fn(),
+    })),
+    formatYYWWD: vi.fn(),
+}));
+
 describe('CurrentStatus Component', () => {
     const mockOnChangeTeam = vi.fn();
     const mockOnShowWhoIsWorking = vi.fn();

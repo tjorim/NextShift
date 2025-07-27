@@ -17,9 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Floating action buttons
 - Accordion for organized data
 
-## [3.1.0] - 2025-07-25
+## [3.2.0] - 2025-07-27
 
 ### Added
+- Welcome Wizard: Interactive onboarding experience for new users
+- Optional Team Selection: Users can skip team selection and browse all teams
+- Settings Panel: Complete Offcanvas settings with preferences, theme, and time format
+- Enhanced Theme Support: Auto/Light/Dark theme switching with system preference detection
+- Notification Settings: User-configurable shift reminders and alerts
+- Share Functionality: Share app or current view with colleagues
+- Settings Reset: Option to clear all preferences and start fresh
+- Enhanced User Preferences: Persistent team selection with localStorage
 - Bootstrap UI Enhancements: Toast notification system for user feedback
 - Progress bar visualization for off-day tracking (CurrentStatus component)
 - Tooltips for shift code explanations with enhanced accessibility
@@ -34,17 +42,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consistent styling with Bootstrap component integration
 
 ### Changed
-- Updated package.json version to 3.1.0
+- Updated package.json version to 3.2.0
+- App.tsx: Complete onboarding flow with welcome wizard integration
+- CurrentStatus component: Enhanced to handle null team selection gracefully
+- Header component: Added Settings panel trigger and enhanced navigation
 - Enhanced Header component with changelog access button
 - Improved user feedback with contextual toast notifications
+- Centralized dayjs configuration with ISO week numbering support
+- Unified date/time formatting utilities across the application
+
+### Fixed
+- Critical: Sunday week number calculation using ISO week standard (#13)
+- Year boundary bug: December 31, 2024 now correctly shows as week 2501.2
+- ISO week consistency: All date codes now use ISO week numbering
+- Date code accuracy: Night shifts now use correct shift day instead of calendar day
+- Cross-day timeline: Fixed timeline to show next shift from tomorrow when needed
+- Test environment: dayjs plugin loading and configuration in test suite
 
 ### Planned
-- Settings panel with preferences
-- Team detail modals
+- Team detail modals with 7-day schedule view
+- Enhanced List Groups for data organization
 - Mobile-optimized carousel navigation
 
-### New Components & Enhancements
-Added ChangelogModal.tsx - Interactive changelog viewer with accordion layout, ToastContext.tsx - Global toast notification system with React Context. Enhanced CurrentStatus with progress bar visualization, Header with changelog modal trigger, and App with toast provider integration.
+### Major Architecture & Component Updates
+Added WelcomeWizard.tsx for onboarding, SettingsPanel.tsx with Offcanvas UI, SettingsContext.tsx for global preferences, dateTimeUtils.ts for centralized date handling. Enhanced App.tsx with complete onboarding flow, CurrentStatus.tsx with null team support, Header.tsx with settings integration. Critical fixes to ISO week numbering and date code calculations.
+
+## [3.1.0] - 2025-07-25
+
+### Added
+- Initial Bootstrap UI foundation and component integration
+- Toast notification system prototype
+- Progress bar visualization for shift tracking
+- Enhanced tooltips and accessibility features
+- Changelog infrastructure and version tracking
+
+### Changed
+- Improved component composition patterns
+- Enhanced user interface consistency
+
+### Fixed
+- Component testing and integration issues
+
+### UI Foundation
+Established Bootstrap UI component integration and accessibility improvements.
 
 ## [3.0.0] - 2025-07-25
 
@@ -63,7 +103,7 @@ Added ChangelogModal.tsx - Interactive changelog viewer with accordion layout, T
 
 ### Changed
 - TodayView component now shows consistent content for all teams
-- Off teams display "Not working today" instead of space
+- Off teams display "Not working today" instead of empty space
 - Transfer dates include weekday context for better planning
 - CurrentStatus component shows both working team and user's team status
 

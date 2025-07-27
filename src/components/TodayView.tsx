@@ -115,20 +115,20 @@ function TeamCard({
         return (
             <button
                 type="button"
-                className={`border rounded p-3 team-card-interactive w-100 text-start${
+                className={`card team-card-interactive w-100 text-start${
                     isMyTeam ? ' my-team' : ''
                 }`}
                 onClick={() => onTeamClick(shiftResult.teamNumber)}
                 title={`View details for Team ${shiftResult.teamNumber}`}
             >
-                {cardContent}
+                <div className="card-body p-3">{cardContent}</div>
             </button>
         );
     }
 
     return (
-        <div className={`border rounded p-3${isMyTeam ? ' my-team' : ''}`}>
-            {cardContent}
+        <div className={`card${isMyTeam ? ' my-team' : ''}`}>
+            <div className="card-body p-3">{cardContent}</div>
         </div>
     );
 }

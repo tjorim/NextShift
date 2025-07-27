@@ -374,7 +374,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                     </div>
 
                     {/* App Version Footer */}
-                    <div className="mt-auto p-3 text-center border-top bg-light">
+                    <div className="mt-auto p-3 text-center border-top">
                         <small className="text-muted d-block">
                             NextShift v{CONFIG.VERSION}
                         </small>

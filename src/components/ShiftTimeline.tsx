@@ -32,8 +32,29 @@ function computeShiftTimeline(
         (team) => team.teamNumber === currentWorkingTeam.teamNumber,
     );
 
-    const prevShift =
-        currentIndex > 0 ? (timeline[currentIndex - 1] ?? null) : null;
+    let prevShift: ShiftResult | null = null;
+
+    // Check if there's a previous shift in today's timeline
+    if (currentIndex > 0) {
+        prevShift = timeline[currentIndex - 1] ?? null;
+    } else {
+        // Current shift is the first of the day, look at yesterday's last shift
+        const yesterday = today.subtract(1, 'day');
+        const allTeamsYesterday = getAllTeamsShifts(yesterday);
+        const workingTeamsYesterday = allTeamsYesterday.filter(
+            (team) => team.shift.isWorking,
+        );
+
+        if (workingTeamsYesterday.length > 0) {
+            // Sort yesterday's shifts and get the last one (latest start time)
+            const yesterdayTimeline = workingTeamsYesterday.sort((a, b) => {
+                const startA = a.shift.start || 0;
+                const startB = b.shift.start || 0;
+                return startB - startA; // Descending order to get latest first
+            });
+            prevShift = yesterdayTimeline[0] ?? null;
+        }
+    }
 
     let nextShift: ShiftResult | null = null;
 

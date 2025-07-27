@@ -63,42 +63,6 @@ describe('Shift Calculations', () => {
         });
     });
 
-    describe('Date Code Formatting', () => {
-        it('should format date code correctly', () => {
-            const testDate = new Date('2025-05-13'); // Tuesday, Week 20 of 2025
-            const formatted = formatYYWWD(testDate);
-            expect(formatted).toBe('2520.2'); // 25=2025, 20=week, 2=Tuesday
-        });
-
-        it('should handle Sunday as day 7', () => {
-            const sunday = new Date('2025-05-18'); // Sunday
-            const formatted = formatYYWWD(sunday);
-            expect(formatted).toMatch(/\.7$/); // Should end with .7
-        });
-
-        it('should use ISO week for year-end boundary', () => {
-            // Dec 31, 2023 is a Sunday, ISO week 52
-            const date = new Date('2023-12-31');
-            const formatted = formatYYWWD(date);
-            expect(formatted).toMatch(/^2352\.7$/); // 23=2023, 52=ISO week, 7=Sunday
-        });
-
-        it('should use ISO week for first week of year', () => {
-            // Jan 1, 2024 is a Monday, ISO week 1
-            const date = new Date('2024-01-01');
-            const formatted = formatYYWWD(date);
-            expect(formatted).toMatch(/^2401\.1$/); // 24=2024, 01=ISO week, 1=Monday
-        });
-
-        it('should handle week transition at year boundary', () => {
-            // Dec 31, 2024 (Tuesday, ISO week 1 of 2025)
-            const date = new Date('2024-12-31');
-            const formatted = formatYYWWD(date);
-            // ISO week for 2024-12-31 is week 1 of ISO year 2025
-            expect(formatted).toBe('2501.2'); // YY=25 (ISO year), WW=01 (ISO week 1), D=2 (Tuesday)
-        });
-    });
-
     describe('Shift Code Generation', () => {
         it('should generate correct shift codes', () => {
             const testDate = new Date('2025-07-16');
@@ -315,19 +279,6 @@ describe('Input Type Flexibility Tests', () => {
         expect(shift.code).toMatch(/^[MENO]$/);
     });
 
-    it('should accept different date formats in formatYYWWD', () => {
-        const testDate = new Date('2025-07-16');
-        const stringDate = '2025-07-16';
-        const dayjsDate = dayjs('2025-07-16');
-
-        const code1 = formatYYWWD(testDate);
-        const code2 = formatYYWWD(stringDate);
-        const code3 = formatYYWWD(dayjsDate);
-
-        expect(code1).toBe(code2);
-        expect(code2).toBe(code3);
-    });
-
     it('should accept different date formats in getCurrentShiftDay', () => {
         const testDate = new Date('2025-07-16 10:00');
         const stringDate = '2025-07-16 10:00';
@@ -393,7 +344,6 @@ describe('Error Handling and Robustness', () => {
     it('should handle NaN dates gracefully', () => {
         const nanDate = new Date(NaN);
         expect(() => calculateShift(nanDate, 1)).not.toThrow();
-        expect(() => formatYYWWD(nanDate)).not.toThrow();
         expect(() => getCurrentShiftDay(nanDate)).not.toThrow();
     });
 
@@ -433,7 +383,6 @@ describe('Error Handling and Robustness', () => {
 
         malformedDates.forEach((dateStr) => {
             expect(() => calculateShift(dateStr, 1)).not.toThrow();
-            expect(() => formatYYWWD(dateStr)).not.toThrow();
             expect(() => getCurrentShiftDay(dateStr)).not.toThrow();
         });
     });
