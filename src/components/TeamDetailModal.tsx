@@ -21,6 +21,7 @@ interface TeamDetailModalProps {
     show: boolean;
     onHide: () => void;
     teamNumber: number;
+    onViewTransfers?: (team: number) => void;
 }
 
 /**
