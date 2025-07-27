@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { MainTabs } from '../../src/components/MainTabs';
+import { SettingsProvider } from '../../src/contexts/SettingsContext';
+import { ToastProvider } from '../../src/contexts/ToastContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
 
 // Mock the child components
@@ -37,10 +39,18 @@ const defaultProps = {
     onTabChange: vi.fn(),
 };
 
+function renderWithProviders(ui: React.ReactElement) {
+    return render(
+        <ToastProvider>
+            <SettingsProvider>{ui}</SettingsProvider>
+        </ToastProvider>,
+    );
+}
+
 describe('MainTabs', () => {
     describe('Tab rendering', () => {
         it('renders all tab buttons', () => {
-            render(<MainTabs {...defaultProps} />);
+            renderWithProviders(<MainTabs {...defaultProps} />);
 
             expect(
                 screen.getByRole('tab', { name: 'Today' }),
@@ -54,12 +64,14 @@ describe('MainTabs', () => {
         });
 
         it('shows Today tab content by default', () => {
-            render(<MainTabs {...defaultProps} />);
+            renderWithProviders(<MainTabs {...defaultProps} />);
             expect(screen.getByTestId('today-view')).toBeInTheDocument();
         });
 
         it('shows correct tab content based on activeTab prop', () => {
-            render(<MainTabs {...defaultProps} activeTab="schedule" />);
+            renderWithProviders(
+                <MainTabs {...defaultProps} activeTab="schedule" />,
+            );
             expect(screen.getByTestId('schedule-view')).toBeInTheDocument();
         });
     });
@@ -69,7 +81,7 @@ describe('MainTabs', () => {
             const user = userEvent.setup();
             const mockOnTabChange = vi.fn();
 
-            render(
+            renderWithProviders(
                 <MainTabs {...defaultProps} onTabChange={mockOnTabChange} />,
             );
 
@@ -83,7 +95,7 @@ describe('MainTabs', () => {
             const user = userEvent.setup();
             const mockOnTabChange = vi.fn();
 
-            render(
+            renderWithProviders(
                 <MainTabs {...defaultProps} onTabChange={mockOnTabChange} />,
             );
 
@@ -96,7 +108,7 @@ describe('MainTabs', () => {
 
     describe('Props synchronization', () => {
         it('updates active tab when activeTab prop changes', () => {
-            const { rerender } = render(
+            const { rerender } = renderWithProviders(
                 <MainTabs {...defaultProps} activeTab="today" />,
             );
             expect(screen.getByTestId('today-view')).toBeInTheDocument();

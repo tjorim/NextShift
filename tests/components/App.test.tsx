@@ -132,7 +132,7 @@ describe('App', () => {
             // Should have React Bootstrap components rendered
             // Note: Row components are rendered conditionally based on state
             // so we check for the overall layout structure instead
-            const appContainer = document.querySelector('.bg-light.min-vh-100');
+            const appContainer = document.querySelector('.min-vh-100');
             expect(appContainer).toBeInTheDocument();
         });
     });

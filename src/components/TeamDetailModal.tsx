@@ -13,7 +13,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import { useTransferCalculations } from '../hooks/useTransferCalculations';
 import { dayjs, getLocalizedShiftTime } from '../utils/dateTimeUtils';
-import { shareAppWithContext } from '../utils/share';
+import { shareTeamSchedule } from '../utils/share';
 import { calculateShift, getCurrentShiftDay } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
@@ -41,7 +41,8 @@ export function TeamDetailModal({
     show,
     onHide,
     teamNumber,
-}: TeamDetailModalProps) {
+    onViewTransfers,
+}: TeamDetailModalProps & { onViewTransfers?: (team: number) => void }) {
     // Generate 7-day schedule for the team
     const weekSchedule = useMemo(() => {
         const today = dayjs();
@@ -95,19 +96,19 @@ export function TeamDetailModal({
     );
 
     const toast = useToast();
-    const { settings } = useSettings();
+    const { settings, selectedTeam } = useSettings();
 
     // Share handler for this team
     const handleShareSchedule = async () => {
         const today = dayjs().format('YYYY-MM-DD');
-        const context = `Team ${teamNumber} schedule as of ${today}`;
-        await shareAppWithContext(
-            context,
+        await shareTeamSchedule(
+            teamNumber,
             () => toast?.showSuccess('Share dialog opened or link copied!'),
             () =>
                 toast?.showError(
                     'Could not share. Try copying the link manually.',
                 ),
+            today,
         );
     };
 
@@ -443,10 +444,45 @@ export function TeamDetailModal({
                                 <i className="bi bi-share me-1"></i>
                                 Share Schedule
                             </Button>
-                            <Button variant="outline-secondary" size="sm">
-                                <i className="bi bi-arrow-left-right me-1"></i>
-                                View Transfers
-                            </Button>
+                            {/* View Transfers button with conditional disable and tooltip */}
+                            <OverlayTrigger
+                                placement="top"
+                                overlay={
+                                    teamNumber === selectedTeam ? (
+                                        <Tooltip id="transfers-tooltip-disabled">
+                                            You are viewing your own team.
+                                            Transfers are only shown for other
+                                            teams.
+                                        </Tooltip>
+                                    ) : (
+                                        <Tooltip id="transfers-tooltip">
+                                            View transfer history for this team
+                                        </Tooltip>
+                                    )
+                                }
+                            >
+                                <span className="d-inline-block">
+                                    <Button
+                                        variant="outline-secondary"
+                                        size="sm"
+                                        onClick={() =>
+                                            onViewTransfers?.(teamNumber)
+                                        }
+                                        disabled={
+                                            teamNumber === selectedTeam ||
+                                            transfers.length === 0
+                                        }
+                                        style={
+                                            teamNumber === selectedTeam
+                                                ? { pointerEvents: 'none' }
+                                                : {}
+                                        }
+                                    >
+                                        <i className="bi bi-arrow-left-right me-1"></i>
+                                        View Transfers
+                                    </Button>
+                                </span>
+                            </OverlayTrigger>
                         </div>
                     </Card.Body>
                 </Card>

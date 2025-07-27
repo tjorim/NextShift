@@ -16,14 +16,16 @@ describe('WelcomeWizard', () => {
         it('renders modal when show is true', () => {
             render(<WelcomeWizard {...defaultProps} />);
             expect(
-                screen.getByText('Welcome to NextShift! 👋'),
+                screen.getByRole('heading', { name: /Welcome to NextShift!/i }),
             ).toBeInTheDocument();
         });
 
         it('does not render modal when show is false', () => {
             render(<WelcomeWizard {...defaultProps} show={false} />);
             expect(
-                screen.queryByText('Welcome to NextShift! 👋'),
+                screen.queryByRole('heading', {
+                    name: /Welcome to NextShift!/i,
+                }),
             ).not.toBeInTheDocument();
         });
 

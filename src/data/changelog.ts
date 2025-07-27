@@ -83,9 +83,7 @@ export const changelogData: ChangelogVersion[] = [
             'Improved component composition patterns',
             'Enhanced user interface consistency',
         ],
-        fixed: [
-            'Component testing and integration issues',
-        ],
+        fixed: ['Component testing and integration issues'],
         technicalDetails: {
             title: 'UI Foundation',
             description:

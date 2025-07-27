@@ -1,3 +1,18 @@
+// Unified user state (implemented):
+// - hasCompletedOnboarding: boolean
+// - selectedTeam: number | null
+// - settings: {
+//     timeFormat: '12h' | '24h',
+//     theme: 'light' | 'dark' | 'auto',
+//     notifications: 'on' | 'off'
+//   }
+// Future expansion:
+// - language?: 'en' | 'nl'
+// - darkMode?: boolean (if separate from theme)
+// - Account sync methods
+// - Export/import preferences
+// Keep all user state in SettingsContext or unified user state.
+
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -18,12 +33,29 @@ interface SettingsContextType {
     updateTheme: (theme: Theme) => void;
     updateNotifications: (setting: NotificationSetting) => void;
     resetSettings: () => void;
+    // Unified user state additions:
+    selectedTeam: number | null;
+    updateTeam: (team: number | null) => void;
+    hasCompletedOnboarding: boolean;
+    setHasCompletedOnboarding: (completed: boolean) => void;
 }
 
 const defaultSettings: UserSettings = {
     timeFormat: '24h',
     theme: 'auto',
     notifications: 'off',
+};
+
+interface NextShiftUserState {
+    hasCompletedOnboarding: boolean;
+    selectedTeam: number | null;
+    settings: UserSettings;
+}
+
+const defaultUserState: NextShiftUserState = {
+    hasCompletedOnboarding: false,
+    selectedTeam: null,
+    settings: defaultSettings,
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -45,50 +77,105 @@ interface SettingsProviderProps {
  * All settings are persisted to localStorage and restored on app load.
  */
 export function SettingsProvider({ children }: SettingsProviderProps) {
-    const [settings, setSettings] = useLocalStorage<UserSettings>(
-        'userSettings',
-        defaultSettings,
+    function validateUserState(state: unknown): state is NextShiftUserState {
+        if (typeof state !== 'object' || state === null) return false;
+        const s = state as Record<string, unknown>;
+        if (typeof s.hasCompletedOnboarding !== 'boolean') return false;
+        if (!(typeof s.selectedTeam === 'number' || s.selectedTeam === null))
+            return false;
+        if (typeof s.settings !== 'object' || s.settings === null) return false;
+        const settings = s.settings as Record<string, unknown>;
+        if (!['12h', '24h'].includes(settings.timeFormat as string))
+            return false;
+        if (!['light', 'dark', 'auto'].includes(settings.theme as string))
+            return false;
+        if (!['on', 'off'].includes(settings.notifications as string))
+            return false;
+        return true;
+    }
+
+    const [rawUserState, setUserState] = useLocalStorage<NextShiftUserState>(
+        'nextshift_user_state',
+        defaultUserState,
     );
+    const userState: NextShiftUserState = validateUserState(rawUserState)
+        ? rawUserState
+        : defaultUserState;
 
     const updateTimeFormat = useCallback(
         (format: TimeFormat) => {
-            setSettings((prev) => ({ ...prev, timeFormat: format }));
+            setUserState((prev: NextShiftUserState) => ({
+                ...prev,
+                settings: { ...prev.settings, timeFormat: format },
+            }));
         },
-        [setSettings],
+        [setUserState],
     );
 
     const updateTheme = useCallback(
         (theme: Theme) => {
-            setSettings((prev) => ({ ...prev, theme }));
+            setUserState((prev: NextShiftUserState) => ({
+                ...prev,
+                settings: { ...prev.settings, theme },
+            }));
         },
-        [setSettings],
+        [setUserState],
     );
 
     const updateNotifications = useCallback(
         (notifications: NotificationSetting) => {
-            setSettings((prev) => ({ ...prev, notifications }));
+            setUserState((prev: NextShiftUserState) => ({
+                ...prev,
+                settings: { ...prev.settings, notifications },
+            }));
         },
-        [setSettings],
+        [setUserState],
     );
 
     const resetSettings = useCallback(() => {
-        setSettings(defaultSettings);
-    }, [setSettings]);
+        setUserState(defaultUserState);
+    }, [setUserState]);
+
+    const updateTeam = useCallback(
+        (team: number | null) => {
+            setUserState((prev: NextShiftUserState) => ({
+                ...prev,
+                selectedTeam: team,
+            }));
+        },
+        [setUserState],
+    );
+
+    const setHasCompletedOnboarding = useCallback(
+        (completed: boolean) => {
+            setUserState((prev: NextShiftUserState) => ({
+                ...prev,
+                hasCompletedOnboarding: completed,
+            }));
+        },
+        [setUserState],
+    );
 
     const contextValue: SettingsContextType = useMemo(
         () => ({
-            settings,
+            settings: userState.settings,
             updateTimeFormat,
             updateTheme,
             updateNotifications,
             resetSettings,
+            selectedTeam: userState.selectedTeam,
+            updateTeam,
+            hasCompletedOnboarding: userState.hasCompletedOnboarding,
+            setHasCompletedOnboarding,
         }),
         [
-            settings,
+            userState,
             updateTimeFormat,
             updateTheme,
             updateNotifications,
             resetSettings,
+            updateTeam,
+            setHasCompletedOnboarding,
         ],
     );
 

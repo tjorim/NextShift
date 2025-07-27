@@ -11,6 +11,7 @@ import { getShiftClassName } from '../utils/shiftStyles';
 
 interface TransferViewProps {
     selectedTeam: number | null;
+    initialCompareTeam?: number | null;
 }
 
 /**
@@ -24,6 +25,7 @@ interface TransferViewProps {
  */
 export function TransferView({
     selectedTeam: inputSelectedTeam,
+    initialCompareTeam,
 }: TransferViewProps) {
     // Validate and sanitize selectedTeam prop
     let selectedTeam = inputSelectedTeam;
@@ -61,6 +63,13 @@ export function TransferView({
     const startIndex = (currentPage - 1) * transfersPerPage;
     const endIndex = startIndex + transfersPerPage;
     const currentTransfers = transfers.slice(startIndex, endIndex);
+
+    // Set compare team from initial prop
+    useEffect(() => {
+        if (initialCompareTeam && initialCompareTeam !== compareTeam) {
+            setCompareTeam(initialCompareTeam);
+        }
+    }, [initialCompareTeam, compareTeam, setCompareTeam]);
 
     // Reset pagination when transfers change
     // biome-ignore lint/correctness/useExhaustiveDependencies: We want to reset when these specific values change

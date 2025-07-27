@@ -43,6 +43,9 @@ export function MainTabs({
     const [showTeamDetail, setShowTeamDetail] = useState(false);
     const [selectedTeamForDetail, setSelectedTeamForDetail] =
         useState<number>(1);
+    const [transferTargetTeam, setTransferTargetTeam] = useState<number | null>(
+        null,
+    );
 
     // Sync with external tab changes
     useEffect(() => {
@@ -125,7 +128,10 @@ export function MainTabs({
                         </>
                     }
                 >
-                    <TransferView selectedTeam={selectedTeam} />
+                    <TransferView
+                        selectedTeam={selectedTeam}
+                        initialCompareTeam={transferTargetTeam}
+                    />
                 </Tab>
             </Tabs>
 
@@ -134,6 +140,14 @@ export function MainTabs({
                 show={showTeamDetail}
                 onHide={handleCloseTeamDetail}
                 teamNumber={selectedTeamForDetail}
+                onViewTransfers={(team) => {
+                    setActiveKey('transfer');
+                    onTabChange?.('transfer');
+                    // Only set target team if it's different from user's selected team
+                    if (team !== selectedTeam) {
+                        setTransferTargetTeam(team);
+                    }
+                }}
             />
         </>
     );

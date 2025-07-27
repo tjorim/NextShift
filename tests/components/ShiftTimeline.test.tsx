@@ -93,13 +93,17 @@ describe('ShiftTimeline', () => {
             />,
         );
 
-        const currentBadge = screen.getByText('T2');
+        // There are two T2 badges, select the one with the current badge class
+        const badges = screen.getAllByText('T2');
+        const currentBadge = badges.find((badge) =>
+            badge.className.includes('timeline-current-badge'),
+        );
         expect(currentBadge).toBeInTheDocument();
 
         // Tooltip content is tested through overlay trigger functionality
-        expect(
-            currentBadge.closest('.timeline-current-badge'),
-        ).toBeInTheDocument();
+        expect(currentBadge?.className.includes('timeline-current-badge')).toBe(
+            true,
+        );
     });
 
     it('applies correct shift styling classes', () => {

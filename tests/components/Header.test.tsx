@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Header } from '../../src/components/Header';
 import { SettingsProvider } from '../../src/contexts/SettingsContext';
+import { ToastProvider } from '../../src/contexts/ToastContext';
 
 // Mock the hooks
 vi.mock('../../src/hooks/useOnlineStatus', () => ({
@@ -34,6 +35,14 @@ const mockUsePWAInstall = vi.mocked(usePWAInstall);
 const mockUseServiceWorkerStatus = vi.mocked(useServiceWorkerStatus);
 const mockGetServiceWorkerStatusText = vi.mocked(getServiceWorkerStatusText);
 
+function renderWithProviders(ui: React.ReactElement) {
+    return render(
+        <ToastProvider>
+            <SettingsProvider>{ui}</SettingsProvider>
+        </ToastProvider>,
+    );
+}
+
 beforeEach(() => {
     mockUseOnlineStatus.mockReturnValue(true);
     mockUsePWAInstall.mockReturnValue({
@@ -56,20 +65,12 @@ afterEach(() => {
 describe('Header', () => {
     describe('Basic rendering', () => {
         it('renders NextShift title', () => {
-            render(
-                <SettingsProvider>
-                    <Header />
-                </SettingsProvider>,
-            );
+            renderWithProviders(<Header />);
             expect(screen.getByText('NextShift')).toBeInTheDocument();
         });
 
         it('renders About button', () => {
-            render(
-                <SettingsProvider>
-                    <Header />
-                </SettingsProvider>,
-            );
+            renderWithProviders(<Header />);
             expect(
                 screen.getByLabelText('About NextShift'),
             ).toBeInTheDocument();
@@ -79,21 +80,13 @@ describe('Header', () => {
     describe('Online status', () => {
         it('shows online badge when online', () => {
             mockUseOnlineStatus.mockReturnValue(true);
-            render(
-                <SettingsProvider>
-                    <Header />
-                </SettingsProvider>,
-            );
+            renderWithProviders(<Header />);
             expect(screen.getByText('Online')).toBeInTheDocument();
         });
 
         it('shows offline badge when offline', () => {
             mockUseOnlineStatus.mockReturnValue(false);
-            render(
-                <SettingsProvider>
-                    <Header />
-                </SettingsProvider>,
-            );
+            renderWithProviders(<Header />);
             expect(screen.getByText('Offline')).toBeInTheDocument();
         });
     });
@@ -106,11 +99,7 @@ describe('Header', () => {
                 promptInstall: mockPromptInstall,
             });
 
-            render(
-                <SettingsProvider>
-                    <Header />
-                </SettingsProvider>,
-            );
+            renderWithProviders(<Header />);
             expect(screen.getByText('Install')).toBeInTheDocument();
         });
 
@@ -120,11 +109,7 @@ describe('Header', () => {
                 promptInstall: vi.fn(),
             });
 
-            render(
-                <SettingsProvider>
-                    <Header />
-                </SettingsProvider>,
-            );
+            renderWithProviders(<Header />);
             expect(screen.queryByText('Install')).not.toBeInTheDocument();
         });
     });
@@ -132,11 +117,7 @@ describe('Header', () => {
     describe('About modal', () => {
         it('opens and closes about modal', async () => {
             const user = userEvent.setup();
-            render(
-                <SettingsProvider>
-                    <Header />
-                </SettingsProvider>,
-            );
+            renderWithProviders(<Header />);
 
             const aboutButton = screen.getByLabelText('About NextShift');
             await user.click(aboutButton);

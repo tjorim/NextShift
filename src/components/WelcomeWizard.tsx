@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
@@ -13,6 +13,7 @@ interface WelcomeWizardProps {
     onSkip?: () => void;
     onHide: () => void;
     isLoading?: boolean;
+    startStep?: WizardStep; // NEW: allows controlling initial step
 }
 
 /**
@@ -40,17 +41,23 @@ export function WelcomeWizard({
     onSkip,
     onHide,
     isLoading = false,
+    startStep = 'welcome', // NEW: default to 'welcome'
 }: WelcomeWizardProps) {
-    const [currentStep, setCurrentStep] = useState<WizardStep>('welcome');
+    const [currentStep, setCurrentStep] = useState<WizardStep>(startStep);
+    const initialStepRef = useRef(startStep);
     const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
 
-    // Reset to welcome step when modal opens
+    // Reset to startStep when modal opens
     const handleModalEntered = () => {
         if (!isLoading) {
-            setCurrentStep('welcome');
+            setCurrentStep(initialStepRef.current);
             // Focus will be handled per step
         }
     };
+    // If startStep changes (should only happen on open), update ref
+    if (startStep !== initialStepRef.current) {
+        initialStepRef.current = startStep;
+    }
 
     const handleTeamSelect = (team: number) => {
         onTeamSelect(team);

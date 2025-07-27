@@ -7,7 +7,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import { CONFIG } from '../utils/config';
-import { shareApp, shareAppWithContext } from '../utils/share';
+import { shareApp, shareTodayView } from '../utils/share';
 import { ChangelogModal } from './ChangelogModal';
 
 interface SettingsPanelProps {
@@ -75,9 +75,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
         );
     };
     const handleShareWithContext = async () => {
-        const context = `I'm viewing: ${window.location.pathname}`;
-        await shareAppWithContext(
-            context,
+        await shareTodayView(
             () => toast?.showSuccess('Share dialog opened or link copied!'),
             () =>
                 toast?.showError(

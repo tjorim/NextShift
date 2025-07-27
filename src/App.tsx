@@ -7,9 +7,7 @@ import { MainTabs } from './components/MainTabs';
 import { WelcomeWizard } from './components/WelcomeWizard';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
-import { useLocalStorage } from './hooks/useLocalStorage';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
-import { useUserPreferences } from './hooks/useUserPreferences';
 import { dayjs } from './utils/dateTimeUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
@@ -23,22 +21,59 @@ import './styles/main.scss';
  */
 function AppContent() {
     const [showTeamModal, setShowTeamModal] = useState(false);
+    const [teamModalMode, setTeamModalMode] = useState<
+        'onboarding' | 'change-team'
+    >('onboarding');
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('today');
     const { showSuccess, showInfo } = useToast();
-    const { selectedTeam, updateTeam } = useUserPreferences();
+    const {
+        selectedTeam,
+        updateTeam,
+        hasCompletedOnboarding,
+        setHasCompletedOnboarding,
+        settings,
+    } = useSettings();
     const { currentDate, setCurrentDate, todayShifts } = useShiftCalculation();
-    const { settings } = useSettings();
 
-    // Track whether user has completed onboarding (seen the welcome wizard)
-    const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage(
-        'hasCompletedOnboarding',
-        false,
-    );
+    // Handle URL parameters for deep linking
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        const teamParam = urlParams.get('team');
+        const dateParam = urlParams.get('date');
+
+        // Set active tab from URL
+        if (tabParam && ['today', 'schedule', 'transfer'].includes(tabParam)) {
+            setActiveTab(tabParam);
+        }
+
+        // Set team from URL (if valid and user has completed onboarding)
+        if (teamParam && hasCompletedOnboarding) {
+            const teamNumber = parseInt(teamParam, 10);
+            if (teamNumber >= 1 && teamNumber <= 5) {
+                updateTeam(teamNumber);
+            }
+        }
+
+        // Set date from URL
+        if (dateParam && hasCompletedOnboarding) {
+            const parsedDate = dayjs(dateParam);
+            if (parsedDate.isValid()) {
+                setCurrentDate(parsedDate);
+            }
+        }
+
+        // Clear URL parameters after processing to keep URL clean
+        if (urlParams.toString()) {
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }, [hasCompletedOnboarding, updateTeam, setCurrentDate]); // Run when onboarding completes
 
     // Show welcome wizard only on first visit (never completed onboarding)
     useEffect(() => {
         if (!hasCompletedOnboarding) {
+            setTeamModalMode('onboarding');
             setShowTeamModal(true);
         }
     }, [hasCompletedOnboarding]); // Only run on mount
@@ -80,6 +115,7 @@ function AppContent() {
     };
 
     const handleChangeTeam = () => {
+        setTeamModalMode('change-team');
         setShowTeamModal(true);
     };
 
@@ -117,7 +153,6 @@ function AppContent() {
             <div className="min-vh-100">
                 <Container fluid>
                     <Header />
-
                     <ErrorBoundary>
                         <CurrentStatus
                             selectedTeam={selectedTeam}
@@ -126,7 +161,6 @@ function AppContent() {
                             isLoading={isLoading}
                         />
                     </ErrorBoundary>
-
                     <ErrorBoundary>
                         <MainTabs
                             selectedTeam={selectedTeam}
@@ -137,13 +171,17 @@ function AppContent() {
                             onTabChange={setActiveTab}
                         />
                     </ErrorBoundary>
-
                     <WelcomeWizard
                         show={showTeamModal}
                         onTeamSelect={handleTeamSelect}
                         onSkip={handleSkipTeamSelection}
                         onHide={handleTeamModalHide}
                         isLoading={isLoading}
+                        startStep={
+                            teamModalMode === 'onboarding'
+                                ? 'welcome'
+                                : 'team-selection'
+                        } // NEW
                     />
                 </Container>
             </div>
