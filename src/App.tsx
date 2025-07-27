@@ -5,12 +5,12 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { WelcomeWizard } from './components/WelcomeWizard';
-import { SettingsProvider } from './contexts/SettingsContext';
+import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import { useUserPreferences } from './hooks/useUserPreferences';
-import { dayjs } from './utils/dayjs-setup';
+import { dayjs } from './utils/dateTimeUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
 
@@ -28,6 +28,7 @@ function AppContent() {
     const { showSuccess, showInfo } = useToast();
     const { selectedTeam, updateTeam } = useUserPreferences();
     const { currentDate, setCurrentDate, todayShifts } = useShiftCalculation();
+    const { settings } = useSettings();
 
     // Track whether user has completed onboarding (seen the welcome wizard)
     const [hasCompletedOnboarding, setHasCompletedOnboarding] = useLocalStorage(
@@ -41,6 +42,26 @@ function AppContent() {
             setShowTeamModal(true);
         }
     }, [hasCompletedOnboarding]); // Only run on mount
+
+    // Theme switching effect
+    useEffect(() => {
+        const applyTheme = () => {
+            document.body.setAttribute(
+                'data-bs-theme',
+                settings.theme === 'auto'
+                    ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? 'dark'
+                        : 'light'
+                    : settings.theme,
+            );
+        };
+        applyTheme();
+        if (settings.theme === 'auto') {
+            const mql = window.matchMedia('(prefers-color-scheme: dark)');
+            mql.addEventListener('change', applyTheme);
+            return () => mql.removeEventListener('change', applyTheme);
+        }
+    }, [settings.theme]);
 
     const handleTeamSelect = (team: number) => {
         setIsLoading(true);

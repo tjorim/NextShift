@@ -1,6 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import { CONFIG } from './config';
-import { dayjs, formatYYWWD } from './dayjs-setup';
+import { dayjs, formatYYWWD } from './dateTimeUtils';
 
 export type ShiftType = 'M' | 'E' | 'N' | 'O';
 
@@ -113,17 +113,6 @@ export function calculateShift(
 }
 
 /**
- * Formats a date into the YYWW.D format using ISO week numbering
- * Note: Year is represented as 2 digits (00-99), valid for years 2000-2099
- * Uses ISO week numbering, where weeks start on Monday and end on Sunday
- * @param date - The date to format
- * @returns The formatted date code (e.g., "2520.2")
- */
-export function formatDateCode(date: string | Date | Dayjs): string {
-    return formatYYWWD(date);
-}
-
-/**
  * Returns the current shift day for a given date
  * @param date - The date to check
  * @returns The current shift day
@@ -158,7 +147,8 @@ export function getShiftCode(
         codeDate = codeDate.subtract(1, 'day');
     }
 
-    const dateCode = formatDateCode(codeDate);
+    // Inline formatDateCode logic
+    const dateCode = formatYYWWD(codeDate);
     return `${dateCode}${shift.code}`;
 }
 

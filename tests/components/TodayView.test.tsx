@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { TodayView } from '../../src/components/TodayView';
-import { dayjs } from '../../src/utils/dayjs-setup';
+import { dayjs } from '../../src/utils/dateTimeUtils';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
 
 // Mock getShiftClassName utility

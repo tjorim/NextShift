@@ -8,10 +8,15 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useSettings } from '../contexts/SettingsContext';
 import { useCountdown } from '../hooks/useCountdown';
 import { useLiveTime } from '../hooks/useLiveTime';
 import { CONFIG } from '../utils/config';
-import { dayjs } from '../utils/dayjs-setup';
+import {
+    dayjs,
+    formatTimeByPreference,
+    formatYYWWD,
+} from '../utils/dateTimeUtils';
 import type {
     NextShiftResult,
     OffDayProgress,
@@ -19,7 +24,6 @@ import type {
 } from '../utils/shiftCalculations';
 import {
     calculateShift,
-    formatDateCode,
     getAllTeamsShifts,
     getCurrentShiftDay,
     getNextShift,
@@ -163,6 +167,9 @@ export function CurrentStatus({
     const currentShiftDay = useMemo(() => {
         return getCurrentShiftDay(liveTime);
     }, [liveTime]);
+
+    const { settings } = useSettings();
+
     return (
         <Col className="mb-4">
             <Card>
@@ -185,21 +192,22 @@ export function CurrentStatus({
                                             <br />D = Weekday (1=Mon, 7=Sun)
                                             <br />
                                             <em>
-                                                Today: {formatDateCode(today)}
+                                                Today: {formatYYWWD(today)}
                                                 <br />
                                                 Shift Day:{' '}
-                                                {formatDateCode(
-                                                    currentShiftDay,
-                                                )}
+                                                {formatYYWWD(currentShiftDay)}
                                             </em>
                                         </Tooltip>
                                     }
                                 >
                                     <small className="help-underline">
-                                        📅 {formatDateCode(currentShiftDay)}
+                                        📅 {formatYYWWD(currentShiftDay)}
                                         {currentTimeShiftCode} •{' '}
                                         {liveTime.format('dddd, MMM D')} •{' '}
-                                        {liveTime.format('HH:mm')}
+                                        {formatTimeByPreference(
+                                            liveTime,
+                                            settings.timeFormat,
+                                        )}
                                     </small>
                                 </OverlayTrigger>
                             </div>

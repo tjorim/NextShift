@@ -5,7 +5,9 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useSettings } from '../contexts/SettingsContext';
+import { useToast } from '../contexts/ToastContext';
 import { CONFIG } from '../utils/config';
+import { shareApp, shareAppWithContext } from '../utils/share';
 import { ChangelogModal } from './ChangelogModal';
 
 interface SettingsPanelProps {
@@ -36,6 +38,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
         updateNotifications,
         resetSettings,
     } = useSettings();
+    const toast = useToast();
 
     const handleChangelogClick = () => {
         setShowChangelog(true);
@@ -54,6 +57,33 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
     };
     const handleCancelReset = () => {
         setShowConfirmReset(false);
+    };
+
+    // Replace About & Help trigger to call Header's About modal handler via custom event
+    const handleAboutHelpClick = () => {
+        window.dispatchEvent(new CustomEvent('show-about-modal'));
+    };
+
+    // Share handlers
+    const handleShareApp = async () => {
+        await shareApp(
+            () => toast?.showSuccess('Share dialog opened or link copied!'),
+            () =>
+                toast?.showError(
+                    'Could not share. Try copying the link manually.',
+                ),
+        );
+    };
+    const handleShareWithContext = async () => {
+        const context = `I'm viewing: ${window.location.pathname}`;
+        await shareAppWithContext(
+            context,
+            () => toast?.showSuccess('Share dialog opened or link copied!'),
+            () =>
+                toast?.showError(
+                    'Could not share. Try copying the link manually.',
+                ),
+        );
     };
 
     return (
@@ -125,6 +155,19 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                             </small>
                                         </div>
                                         <ButtonGroup size="sm">
+                                            <Button
+                                                variant={
+                                                    settings.theme === 'auto'
+                                                        ? 'primary'
+                                                        : 'outline-secondary'
+                                                }
+                                                onClick={() =>
+                                                    updateTheme('auto')
+                                                }
+                                            >
+                                                <i className="bi bi-circle-half me-1"></i>
+                                                Auto
+                                            </Button>
                                             <Button
                                                 variant={
                                                     settings.theme === 'light'
@@ -225,27 +268,19 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
-                                <ListGroup.Item action className="px-0 py-2">
+                                <ListGroup.Item
+                                    action
+                                    className="px-0 py-2"
+                                    onClick={handleAboutHelpClick}
+                                >
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
-                                                About NextShift
+                                                About & Help
                                             </div>
                                             <small className="text-muted">
-                                                Version info and credits
-                                            </small>
-                                        </div>
-                                        <i className="bi bi-chevron-right text-muted"></i>
-                                    </div>
-                                </ListGroup.Item>
-                                <ListGroup.Item action className="px-0 py-2">
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div className="fw-medium">
-                                                Help & Support
-                                            </div>
-                                            <small className="text-muted">
-                                                User guide and documentation
+                                                Version info, user guide, and
+                                                support
                                             </small>
                                         </div>
                                         <i className="bi bi-chevron-right text-muted"></i>
@@ -263,11 +298,18 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 Quick Actions
                             </h6>
                             <ListGroup variant="flush">
-                                <ListGroup.Item action className="px-0 py-2">
+                                <ListGroup.Item
+                                    action
+                                    className="px-0 py-2"
+                                    disabled
+                                >
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
-                                                Export Schedule
+                                                Export Schedule{' '}
+                                                <span className="badge bg-secondary ms-2">
+                                                    Coming Soon
+                                                </span>
                                             </div>
                                             <small className="text-muted">
                                                 Download as calendar file
@@ -276,7 +318,11 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
-                                <ListGroup.Item action className="px-0 py-2">
+                                <ListGroup.Item
+                                    action
+                                    className="px-0 py-2"
+                                    onClick={handleShareApp}
+                                >
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
@@ -286,7 +332,24 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                                 Send NextShift to colleagues
                                             </small>
                                         </div>
-                                        <i className="bi bi-chevron-right text-muted"></i>
+                                        <i className="bi bi-share text-muted"></i>
+                                    </div>
+                                </ListGroup.Item>
+                                <ListGroup.Item
+                                    action
+                                    className="px-0 py-2"
+                                    onClick={handleShareWithContext}
+                                >
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div className="fw-medium">
+                                                Share This View
+                                            </div>
+                                            <small className="text-muted">
+                                                Share with current context
+                                            </small>
+                                        </div>
+                                        <i className="bi bi-share-fill text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
                                 <ListGroup.Item

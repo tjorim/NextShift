@@ -1,6 +1,6 @@
 import type { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
-import { dayjs } from '../utils/dayjs-setup';
+import { dayjs } from '../utils/dateTimeUtils';
 
 interface CountdownResult {
     days: number;

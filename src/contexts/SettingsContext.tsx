@@ -22,7 +22,7 @@ interface SettingsContextType {
 
 const defaultSettings: UserSettings = {
     timeFormat: '24h',
-    theme: 'light',
+    theme: 'auto',
     notifications: 'off',
 };
 

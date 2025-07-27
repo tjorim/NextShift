@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import type { Dayjs } from 'dayjs';
 import { describe, expect, it } from 'vitest';
 import { ShiftTimeline } from '../../src/components/ShiftTimeline';
-import { dayjs } from '../../src/utils/dayjs-setup';
+import { dayjs } from '../../src/utils/dateTimeUtils';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
 
 // Mock data for testing

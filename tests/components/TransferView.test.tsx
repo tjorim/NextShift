@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TransferView } from '../../src/components/TransferView';
 import { useTransferCalculations } from '../../src/hooks/useTransferCalculations';
-import { dayjs } from '../../src/utils/dayjs-setup';
+import { dayjs } from '../../src/utils/dateTimeUtils';
 
 // Mock the useTransferCalculations hook
 vi.mock('../../src/hooks/useTransferCalculations', () => ({

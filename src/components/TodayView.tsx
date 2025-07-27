@@ -5,7 +5,12 @@ import Col from 'react-bootstrap/Col';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Row from 'react-bootstrap/Row';
 import Tooltip from 'react-bootstrap/Tooltip';
-import { dayjs, getISOWeekYear2Digit } from '../utils/dayjs-setup';
+import { useSettings } from '../contexts/SettingsContext';
+import {
+    dayjs,
+    getISOWeekYear2Digit,
+    getLocalizedShiftTime,
+} from '../utils/dateTimeUtils';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
@@ -34,6 +39,8 @@ function TeamCard({
     isCurrentlyActive: boolean;
     onTeamClick?: (teamNumber: number) => void;
 }) {
+    const { settings } = useSettings();
+
     const cardContent = (
         <>
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -74,7 +81,11 @@ function TeamCard({
                 {shiftResult.shift.name}
                 <br />
                 {shiftResult.shift.isWorking
-                    ? shiftResult.shift.hours
+                    ? getLocalizedShiftTime(
+                          shiftResult.shift.start,
+                          shiftResult.shift.end,
+                          settings.timeFormat,
+                      )
                     : 'Not working today'}
             </div>
             <div className="text-muted small mt-1">

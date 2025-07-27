@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from '../../src/App';
 import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { dayjs } from '../../src/utils/dayjs-setup';
+import { dayjs } from '../../src/utils/dateTimeUtils';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
 
 // Mock our dayjs setup to avoid loading real dayjs configuration in tests
-vi.mock('../../src/utils/dayjs-setup', () => {
+vi.mock('../../src/utils/dateTimeUtils', () => {
     const mockDayjs = vi.fn(() => ({
         format: vi.fn(() => '2025-01-15'),
         startOf: vi.fn(() => mockDayjs()),

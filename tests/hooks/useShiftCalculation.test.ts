@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useShiftCalculation } from '../../src/hooks/useShiftCalculation';
 import { CONFIG } from '../../src/utils/config';
-import { dayjs } from '../../src/utils/dayjs-setup';
+import { dayjs } from '../../src/utils/dateTimeUtils';
 
 // Only mock the localStorage hook since it's an external dependency
 vi.mock('../../src/hooks/useLocalStorage', () => ({

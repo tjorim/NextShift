@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ScheduleView } from '../../src/components/ScheduleView';
-import { dayjs } from '../../src/utils/dayjs-setup';
+import { dayjs } from '../../src/utils/dateTimeUtils';
 
 // Mock the dependencies
 vi.mock('../../src/hooks/useKeyboardShortcuts', () => ({
@@ -24,7 +24,7 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
         date: dayjs(date),
         dateCode: '2503.1M',
     })),
-    formatDateCode: vi.fn((_date: string) => '2503.1'),
+    formatYYWWD: vi.fn((_date: string) => '2503.1'),
 }));
 
 vi.mock('../../src/utils/shiftStyles', () => ({

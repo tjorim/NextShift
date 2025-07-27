@@ -86,8 +86,8 @@
 }
 
 .card-timeline {
-    background: #ffffff;
-    border: 2px solid #e3f2fd;
+    background: var(--bs-card-bg, #fff);
+    border: 2px solid var(--bs-border-color, #e3f2fd);
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
@@ -171,7 +171,8 @@
 }
 
 .schedule-table .team-header {
-    background-color: #f8f9fa;
+    background-color: var(--bs-table-bg, #f8f9fa);
+    color: var(--bs-table-color, #212529);
     font-weight: 600;
 }
 
@@ -258,6 +259,80 @@
 }
 .team-card-interactive:hover,
 .team-card-interactive:focus {
-  background-color: #f8f9fa;
+  background-color: var(--bs-light-bg-subtle, #f8f9fa);
+  /* fallback for light mode */
   transform: translateY(-2px);
+}
+
+[data-bs-theme="dark"] .team-card-interactive:hover,
+[data-bs-theme="dark"] .team-card-interactive:focus {
+  background-color: var(--bs-dark-bg-subtle, #23272b);
+}
+
+[data-bs-theme="dark"] {
+  --shift-morning: #1565c0;
+  --shift-morning-text: #e3f2fd;
+  --shift-evening: #8d3200;
+  --shift-evening-text: #ffe0b2;
+  --shift-night: #4527a0;
+  --shift-night-text: #ede7f6;
+  --shift-off: #212121;
+  --shift-off-text: #bdbdbd;
+  --primary-color: #90caf9;
+
+  background-color: #181a1b !important;
+  color: #e0e0e0 !important;
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .modal-content,
+[data-bs-theme="dark"] .offcanvas,
+[data-bs-theme="dark"] .table,
+[data-bs-theme="dark"] .tab-content,
+[data-bs-theme="dark"] .nav,
+[data-bs-theme="dark"] .navbar,
+[data-bs-theme="dark"] .dropdown-menu {
+  background-color: #23272b !important;
+  color: #e0e0e0 !important;
+}
+
+[data-bs-theme="dark"] .table-light,
+[data-bs-theme="dark"] .bg-light,
+[data-bs-theme="dark"] .list-group-item,
+[data-bs-theme="dark"] .accordion-item {
+  background-color: #23272b !important;
+  color: #e0e0e0 !important;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link.active,
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+  background-color: #23272b !important;
+  color: #e0e0e0 !important;
+  border-color: #343a40 #343a40 #23272b;
+}
+
+[data-bs-theme="dark"] .schedule-table th,
+[data-bs-theme="dark"] .schedule-table .team-header {
+  background-color: var(--bs-table-bg, #23272b);
+  color: var(--bs-table-color, #e0e0e0);
+}
+
+.schedule-table .today-row,
+.schedule-table .table-primary {
+  background-color: var(--bs-primary-bg-subtle, #e3f2fd) !important;
+  color: var(--bs-primary-text-emphasis, #0d6efd) !important;
+}
+
+[data-bs-theme="dark"] .schedule-table .today-row,
+[data-bs-theme="dark"] .schedule-table .table-primary {
+  background-color: var(--bs-primary-bg-subtle, #0d6efd) !important;
+  color: var(--bs-primary-text-emphasis, #fff) !important;
+}
+
+.schedule-table td:first-child {
+  background-color: var(--bs-table-bg, #f8f9fa);
+}
+
+[data-bs-theme="dark"] .schedule-table td:first-child {
+  background-color: var(--bs-table-bg, #23272b);
 }

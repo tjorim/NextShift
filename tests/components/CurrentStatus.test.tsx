@@ -3,13 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CurrentStatus } from '../../src/components/CurrentStatus';
 import * as useCountdownHook from '../../src/hooks/useCountdown';
-import { dayjs } from '../../src/utils/dayjs-setup';
+import { dayjs, formatYYWWD } from '../../src/utils/dateTimeUtils';
 import * as shiftCalculations from '../../src/utils/shiftCalculations';
 
 // Mock dependencies
 vi.mock('../../src/utils/shiftCalculations', () => ({
     calculateShift: vi.fn(),
-    formatDateCode: vi.fn(),
     getAllTeamsShifts: vi.fn(),
     getCurrentShiftDay: vi.fn(),
     getNextShift: vi.fn(),
@@ -33,9 +32,7 @@ describe('CurrentStatus Component', () => {
         vi.clearAllMocks();
 
         // Setup default mocks
-        vi.mocked(shiftCalculations.formatDateCode).mockReturnValue(
-            'Mon 15 Jan',
-        );
+        vi.mocked(formatYYWWD).mockReturnValue('Mon 15 Jan');
         vi.mocked(shiftCalculations.getCurrentShiftDay).mockReturnValue(
             dayjs('2024-01-15'),
         );
@@ -257,9 +254,7 @@ describe('CurrentStatus Component', () => {
             );
 
             expect(screen.getByText(/📅.*Mon 15 Jan/)).toBeInTheDocument();
-            expect(shiftCalculations.formatDateCode).toHaveBeenCalledWith(
-                expect.any(Object),
-            );
+            expect(formatYYWWD).toHaveBeenCalledWith(expect.any(Object));
         });
     });
 

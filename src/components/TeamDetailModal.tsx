@@ -5,9 +5,15 @@ import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
-import { dayjs } from '../utils/dayjs-setup';
+import Tooltip from 'react-bootstrap/Tooltip';
+import { useSettings } from '../contexts/SettingsContext';
+import { useToast } from '../contexts/ToastContext';
+import { useTransferCalculations } from '../hooks/useTransferCalculations';
+import { dayjs, getLocalizedShiftTime } from '../utils/dateTimeUtils';
+import { shareAppWithContext } from '../utils/share';
 import { calculateShift, getCurrentShiftDay } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
@@ -87,6 +93,28 @@ export function TeamDetailModal({
     const nextShift = weekSchedule.find(
         (day) => day.shift.code !== 'O' && !day.isToday,
     );
+
+    const toast = useToast();
+    const { settings } = useSettings();
+
+    // Share handler for this team
+    const handleShareSchedule = async () => {
+        const today = dayjs().format('YYYY-MM-DD');
+        const context = `Team ${teamNumber} schedule as of ${today}`;
+        await shareAppWithContext(
+            context,
+            () => toast?.showSuccess('Share dialog opened or link copied!'),
+            () =>
+                toast?.showError(
+                    'Could not share. Try copying the link manually.',
+                ),
+        );
+    };
+
+    // Transfer history for this team
+    const { transfers, hasMoreTransfers } = useTransferCalculations({
+        selectedTeam: teamNumber,
+    });
 
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
@@ -221,7 +249,11 @@ export function TeamDetailModal({
                                             <small className="text-muted">
                                                 {day.shift.code === 'O'
                                                     ? '—'
-                                                    : day.shift.hours}
+                                                    : getLocalizedShiftTime(
+                                                          day.shift.start,
+                                                          day.shift.end,
+                                                          settings.timeFormat,
+                                                      )}
                                             </small>
                                         </td>
                                         <td>
@@ -311,6 +343,70 @@ export function TeamDetailModal({
                     </Col>
                 </Row>
 
+                {/* Transfer History */}
+                <div className="mb-4">
+                    <h6 className="mb-3">
+                        <i className="bi bi-arrow-left-right me-2"></i>
+                        Transfer History
+                    </h6>
+                    {transfers.length === 0 ? (
+                        <div className="text-muted small">
+                            No recent transfers detected for this team.
+                        </div>
+                    ) : (
+                        <div className="table-responsive">
+                            <Table size="sm" className="mb-0">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Type</th>
+                                        <th>Handover</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {transfers.map((t) => (
+                                        <tr
+                                            key={
+                                                t.date.format('YYYY-MM-DD') +
+                                                '-' +
+                                                t.fromTeam +
+                                                '-' +
+                                                t.toTeam +
+                                                '-' +
+                                                t.fromShiftType
+                                            }
+                                        >
+                                            <td>{t.date.format('MMM D')}</td>
+                                            <td>
+                                                Team {t.fromTeam} (
+                                                {t.fromShiftName})
+                                            </td>
+                                            <td>
+                                                Team {t.toTeam} ({t.toShiftName}
+                                                )
+                                            </td>
+                                            <td>
+                                                {t.fromShiftType} →{' '}
+                                                {t.toShiftType}
+                                            </td>
+                                            <td>
+                                                {t.isHandover ? 'Yes' : 'No'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                            {hasMoreTransfers && (
+                                <div className="text-muted small mt-1">
+                                    Showing latest {transfers.length} transfers.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 {/* Quick Actions */}
                 <Card>
                     <Card.Body>
@@ -319,11 +415,31 @@ export function TeamDetailModal({
                             Quick Actions
                         </h6>
                         <div className="d-grid gap-2 d-md-flex">
-                            <Button variant="outline-primary" size="sm">
-                                <i className="bi bi-calendar-plus me-1"></i>
-                                Add to Calendar
-                            </Button>
-                            <Button variant="outline-info" size="sm">
+                            <OverlayTrigger
+                                placement="top"
+                                overlay={
+                                    <Tooltip id="calendar-coming-soon-tooltip">
+                                        Live calendar sync coming soon!
+                                    </Tooltip>
+                                }
+                            >
+                                <span className="d-inline-block">
+                                    <Button
+                                        variant="outline-primary"
+                                        size="sm"
+                                        disabled
+                                        style={{ pointerEvents: 'none' }}
+                                    >
+                                        <i className="bi bi-calendar-plus me-1"></i>
+                                        Add to Calendar
+                                    </Button>
+                                </span>
+                            </OverlayTrigger>
+                            <Button
+                                variant="outline-info"
+                                size="sm"
+                                onClick={handleShareSchedule}
+                            >
                                 <i className="bi bi-share me-1"></i>
                                 Share Schedule
                             </Button>

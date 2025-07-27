@@ -6,10 +6,16 @@ import Form from 'react-bootstrap/Form';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Table from 'react-bootstrap/Table';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useSettings } from '../contexts/SettingsContext';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { CONFIG } from '../utils/config';
-import { dayjs, getISOWeekYear2Digit } from '../utils/dayjs-setup';
-import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
+import {
+    dayjs,
+    formatYYWWD,
+    getISOWeekYear2Digit,
+    getLocalizedShiftTime,
+} from '../utils/dateTimeUtils';
+import { calculateShift } from '../utils/shiftCalculations';
 import { getShiftClassName } from '../utils/shiftStyles';
 
 interface ScheduleViewProps {
@@ -77,6 +83,8 @@ export function ScheduleView({
         onPrevious: handlePrevious,
         onNext: handleNext,
     });
+
+    const { settings } = useSettings();
 
     return (
         <Card>
@@ -178,7 +186,7 @@ export function ScheduleView({
                                                         >
                                                             <strong>
                                                                 Date Code:{' '}
-                                                                {formatDateCode(
+                                                                {formatYYWWD(
                                                                     day,
                                                                 )}
                                                             </strong>
@@ -199,7 +207,7 @@ export function ScheduleView({
                                                     }
                                                 >
                                                     <span className="help-underline">
-                                                        {formatDateCode(day)}
+                                                        {formatYYWWD(day)}
                                                     </span>
                                                 </OverlayTrigger>
                                             </div>
@@ -251,20 +259,22 @@ export function ScheduleView({
                                                                 <br />
                                                                 {shift.code ===
                                                                     'M' &&
-                                                                    'Morning shift (7:00-15:00)'}
+                                                                    'Morning shift ('}
                                                                 {shift.code ===
                                                                     'E' &&
-                                                                    'Evening shift (15:00-23:00)'}
+                                                                    'Evening shift ('}
                                                                 {shift.code ===
                                                                     'N' &&
-                                                                    'Night shift (23:00-7:00)'}
+                                                                    'Night shift ('}
                                                                 <br />
                                                                 <em>
                                                                     {shift.name}{' '}
                                                                     -{' '}
-                                                                    {
-                                                                        shift.hours
-                                                                    }
+                                                                    {getLocalizedShiftTime(
+                                                                        shift.start,
+                                                                        shift.end,
+                                                                        settings.timeFormat,
+                                                                    )}
                                                                 </em>
                                                             </Tooltip>
                                                         }
