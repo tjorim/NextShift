@@ -35,37 +35,73 @@ export interface OffDayProgress {
 export const SHIFTS = Object.freeze({
     MORNING: Object.freeze({
         code: 'M',
-        name: '🌅 Morning',
+        emoji: '🌅',
+        name: 'Morning',
         hours: '07:00-15:00',
         start: 7,
         end: 15,
         isWorking: true,
+        className: 'shift-morning',
     }),
     EVENING: Object.freeze({
         code: 'E',
-        name: '🌆 Evening',
+        emoji: '🌆',
+        name: 'Evening',
         hours: '15:00-23:00',
         start: 15,
         end: 23,
         isWorking: true,
+        className: 'shift-evening',
     }),
     NIGHT: Object.freeze({
         code: 'N',
-        name: '🌙 Night',
+        emoji: '🌙',
+        name: 'Night',
         hours: '23:00-07:00',
         start: 23,
         end: 7,
         isWorking: true,
+        className: 'shift-night',
     }),
     OFF: Object.freeze({
         code: 'O',
-        name: '🏠 Off',
+        emoji: '🏠',
+        name: 'Off',
         hours: 'Not working',
         start: null,
         end: null,
         isWorking: false,
+        className: 'shift-off',
     }),
 });
+
+/**
+ * Helper function to get the full display name (emoji + name) for a shift
+ */
+export function getShiftDisplayName(
+    shift: (typeof SHIFTS)[keyof typeof SHIFTS],
+): string {
+    return `${shift.emoji} ${shift.name}`;
+}
+
+/**
+ * Helper function to get shift details by code with unknown fallback
+ */
+export function getShiftByCode(code: string | null | undefined) {
+    const shift = Object.values(SHIFTS).find((s) => s.code === code);
+    return (
+        shift || {
+            code: 'U',
+            emoji: '❓',
+            name: 'Unknown',
+            hours: 'Unknown hours',
+            start: null,
+            end: null,
+            isWorking: false,
+            className: 'shift-off',
+        }
+    );
+}
 
 /**
  * Calculates the shift for a given team on a specific date.

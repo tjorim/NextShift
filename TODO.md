@@ -1,7 +1,7 @@
 # NextShift Development Roadmap
 
 **Current Version**: 3.2.0  
-**Branch**: `feat/optional-team-selection`  
+**Branch**: `main`  
 **Status**: Active Development  
 
 ## Overview
@@ -23,7 +23,7 @@ Critical features and improvements that significantly impact user experience.
 - **Files to Modify**:
   - `src/components/SettingsPanel.tsx` - Remove "Coming Soon" badge and enable button
   - `src/components/TeamDetailModal.tsx` - Enable export button
-  - `src/utils/` - Add calendar export utility
+  - `src/utils/exportCalendar.ts` – Add calendar export utility
 - **Estimated Effort**: 3–4 hours
 - **Status**: 🔲 Planned
 
@@ -95,7 +95,7 @@ Features that enhance functionality with moderate development effort.
 - **Status**: 🔲 Future
 
 #### 8. PWA Installation Prompts
-- **Component**: Intelligent install timing
+- **Component**: Intelligent installation timing
 - **Use Cases**:
   - Better onboarding integration
   - Smart prompt timing based on user engagement
@@ -167,7 +167,7 @@ Advanced features for future development phases.
 5. **Enhanced List Groups** - Better data organization
 6. **TeamDetailModal Enhancement** - Activate disabled features
 7. **Enhanced Error Boundaries** - Better error handling
-8. **PWA Installation Prompts** - Intelligent install timing
+8. **PWA Installation Prompts** – Intelligent installation timing
 9. **Mobile Carousel** - Improved mobile navigation
 10. **Transfer History Accordion** - Organized historical data
 11. **Notification System** - Actual notification functionality

@@ -16,11 +16,10 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
     getNextShift: vi.fn(),
     getOffDayProgress: vi.fn(),
     getShiftCode: vi.fn(),
+    getShiftByCode: vi.fn(),
 }));
 
-vi.mock('../../src/utils/shiftStyles', () => ({
-    getShiftClassName: vi.fn(() => 'shift-day'),
-}));
+// getShiftClassName is now part of shiftCalculations mock
 
 vi.mock('../../src/hooks/useCountdown', () => ({
     useCountdown: vi.fn(),
@@ -121,6 +120,16 @@ describe('CurrentStatus Component', () => {
         vi.mocked(shiftCalculations.getOffDayProgress).mockReturnValue({
             current: 2,
             total: 4,
+        });
+        vi.mocked(shiftCalculations.getShiftByCode).mockReturnValue({
+            code: 'M',
+            emoji: '🌅',
+            name: 'Morning',
+            hours: '07:00-15:00',
+            start: 7,
+            end: 15,
+            isWorking: true,
+            className: 'shift-morning',
         });
         vi.mocked(useCountdownHook.useCountdown).mockReturnValue({
             days: 0,

@@ -27,9 +27,9 @@ import {
     getCurrentShiftDay,
     getNextShift,
     getOffDayProgress,
+    getShiftByCode,
     getShiftCode,
 } from '../utils/shiftCalculations';
-import { getShiftClassName } from '../utils/shiftStyles';
 import { ShiftTimeline } from './ShiftTimeline';
 
 interface CurrentStatusProps {
@@ -43,7 +43,7 @@ interface CurrentStatusProps {
  *
  * When a team is selected: Displays personalized shift status, countdown timers, and off-day progress.
  * When no team is selected: Shows which team is currently working and encourages team selection for personalization.
- * Provides controls to select/change teams and view who is currently working. Shows loading indicators when appropriate.
+ * Provides controls to select/change teams and view who is currently working.
  *
  * @param selectedTeam - The team number to display shift information for, or null for generic view.
  * @param onChangeTeam - Callback invoked when the user requests to select/change the team.
@@ -283,18 +283,15 @@ export function CurrentStatus({
                                                                 }
                                                             </strong>
                                                             <br />
-                                                            {currentShift.shift
-                                                                .code === 'M' &&
-                                                                'Morning shift (7:00-15:00)'}
-                                                            {currentShift.shift
-                                                                .code === 'E' &&
-                                                                'Evening shift (15:00-23:00)'}
-                                                            {currentShift.shift
-                                                                .code === 'N' &&
-                                                                'Night shift (23:00-7:00)'}
-                                                            {currentShift.shift
-                                                                .code === 'O' &&
-                                                                'Off duty - rest day'}
+                                                            {(() => {
+                                                                const shift =
+                                                                    getShiftByCode(
+                                                                        currentShift
+                                                                            .shift
+                                                                            .code,
+                                                                    );
+                                                                return `${shift.emoji} ${shift.name} shift (${shift.hours})`;
+                                                            })()}
                                                             <br />
                                                             <em>
                                                                 Full code:{' '}
@@ -306,7 +303,7 @@ export function CurrentStatus({
                                                     }
                                                 >
                                                     <Badge
-                                                        className={`shift-code shift-badge-lg cursor-help ${getShiftClassName(currentShift.shift.code)}`}
+                                                        className={`shift-code shift-badge-lg cursor-help ${getShiftByCode(currentShift.shift.code).className}`}
                                                     >
                                                         Team {validatedTeam}:{' '}
                                                         {
@@ -356,7 +353,7 @@ export function CurrentStatus({
                                                 {currentWorkingTeam ? (
                                                     <div>
                                                         <Badge
-                                                            className={`shift-code shift-badge-lg ${getShiftClassName(currentWorkingTeam.shift.code)}`}
+                                                            className={`shift-code shift-badge-lg ${getShiftByCode(currentWorkingTeam.shift.code).className}`}
                                                         >
                                                             Team{' '}
                                                             {

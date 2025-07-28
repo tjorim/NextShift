@@ -12,14 +12,7 @@ import {
     getLocalizedShiftTime,
 } from '../utils/dateTimeUtils';
 import type { ShiftResult } from '../utils/shiftCalculations';
-import { getShiftClassName } from '../utils/shiftStyles';
-
-const SHIFT_DESCRIPTIONS = {
-    M: 'Morning (7:00-15:00)',
-    E: 'Evening (15:00-23:00)',
-    N: 'Night (23:00-7:00)',
-    O: 'Off duty',
-} as const;
+import { getShiftByCode } from '../utils/shiftCalculations';
 
 interface TodayViewProps {
     todayShifts: ShiftResult[];
@@ -43,16 +36,25 @@ function TeamCard({
 
     const cardContent = (
         <>
-            <div className="d-flex justify-content-between align-items-center mb-2">
+            {isCurrentlyActive && (
+                <>
+                    <div className="live-team-overlay"></div>
+                    <Badge bg="success" className="live-badge">
+                        LIVE
+                    </Badge>
+                </>
+            )}
+            <div
+                className="d-flex justify-content-between align-items-center mb-2"
+                style={{ position: 'relative', zIndex: 2 }}
+            >
                 <div className="d-flex align-items-center gap-2">
                     <h6 className="mb-0">Team {shiftResult.teamNumber}</h6>
                     {onTeamClick && (
-                        <i className="bi bi-chevron-right text-muted small"></i>
-                    )}
-                    {isCurrentlyActive && (
-                        <Badge bg="success" className="ms-1">
-                            Now
-                        </Badge>
+                        <i
+                            className="bi bi-chevron-right text-muted small"
+                            aria-hidden="true"
+                        ></i>
                     )}
                 </div>
                 <OverlayTrigger
@@ -63,15 +65,23 @@ function TeamCard({
                                 Shift Code: {shiftResult.shift.code}
                             </strong>
                             <br />
-                            {SHIFT_DESCRIPTIONS[shiftResult.shift.code] ||
-                                'Unknown shift'}
+                            {(() => {
+                                const shift = getShiftByCode(
+                                    shiftResult.shift.code,
+                                );
+                                return (
+                                    <>
+                                        {shift.emoji} <em>{shift.name}</em>
+                                        <br />
+                                        {shift.hours}
+                                    </>
+                                );
+                            })()}
                         </Tooltip>
                     }
                 >
                     <Badge
-                        className={`shift-code cursor-help ${getShiftClassName(
-                            shiftResult.shift.code,
-                        )}`}
+                        className={`shift-code cursor-help ${getShiftByCode(shiftResult.shift.code).className}`}
                     >
                         {shiftResult.shift.code}
                     </Badge>
@@ -167,20 +177,29 @@ export function TodayView({
     return (
         <Card>
             <Card.Header className="d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">All Teams Today</h6>
+                <h6 className="mb-0">👥 All Teams Today</h6>
                 <Button
                     variant="outline-primary"
                     size="sm"
                     onClick={onTodayClick}
                 >
-                    <i className="bi bi-calendar-check me-1"></i>
+                    <i
+                        className="bi bi-calendar-check me-1"
+                        aria-hidden="true"
+                    ></i>
                     Today
                 </Button>
             </Card.Header>
             <Card.Body>
                 <Row className="g-2">
                     {todayShifts.map((shiftResult) => (
-                        <Col key={shiftResult.teamNumber} xs={12} sm={6} lg={4}>
+                        <Col
+                            key={shiftResult.teamNumber}
+                            xs={12}
+                            sm={6}
+                            md={4}
+                            lg
+                        >
                             <TeamCard
                                 shiftResult={shiftResult}
                                 isMyTeam={

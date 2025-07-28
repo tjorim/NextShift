@@ -1,31 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { AboutModal } from './AboutModal';
 import { SettingsPanel } from './SettingsPanel';
 
+interface HeaderProps {
+    onShowAbout?: () => void;
+}
+
 /**
- * Displays the top navigation bar and About modal for the NextShift application.
+ * Displays the top navigation bar for the NextShift application.
  *
- * The header shows the app title, online/offline status, a PWA install button when available, and an About button. The About modal presents version information, service worker status, feature highlights, and licensing details.
+ * The header shows the app title, online/offline status, a PWA install button when available, and an About button. When the About button is clicked, it calls the onShowAbout callback prop.
  */
-export function Header() {
+export function Header({ onShowAbout }: HeaderProps = {}) {
     const isOnline = useOnlineStatus();
     const { isInstallable, promptInstall } = usePWAInstall();
-    const [showAbout, setShowAbout] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
-    const handleShowAbout = () => setShowAbout(true);
-
-    // Listen for custom event from SettingsPanel to open AboutModal
-    useEffect(() => {
-        const handler = () => setShowAbout(true);
-        window.addEventListener('show-about-modal', handler);
-        return () => window.removeEventListener('show-about-modal', handler);
-    }, []);
+    const handleShowAbout = () => {
+        onShowAbout?.();
+    };
 
     return (
         <>
@@ -89,13 +86,11 @@ export function Header() {
                 </Container>
             </header>
 
-            {/* About Modal */}
-            <AboutModal show={showAbout} onHide={() => setShowAbout(false)} />
-
             {/* Settings Panel */}
             <SettingsPanel
                 show={showSettings}
                 onHide={() => setShowSettings(false)}
+                onShowAbout={onShowAbout}
             />
         </>
     );

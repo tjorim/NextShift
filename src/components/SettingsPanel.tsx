@@ -13,6 +13,7 @@ import { ChangelogModal } from './ChangelogModal';
 interface SettingsPanelProps {
     show: boolean;
     onHide: () => void;
+    onShowAbout?: () => void;
 }
 
 /**
@@ -26,18 +27,18 @@ interface SettingsPanelProps {
  *
  * @param show - Whether the settings panel is visible
  * @param onHide - Callback to hide the settings panel
+ * @param onShowAbout - Optional callback to show the About modal
  * @returns The settings panel component
  */
-export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
+export function SettingsPanel({
+    show,
+    onHide,
+    onShowAbout,
+}: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
     const [showConfirmReset, setShowConfirmReset] = useState(false);
-    const {
-        settings,
-        updateTimeFormat,
-        updateTheme,
-        updateNotifications,
-        resetSettings,
-    } = useSettings();
+    const { settings, updateTimeFormat, updateTheme, resetSettings } =
+        useSettings();
     const toast = useToast();
 
     const handleChangelogClick = () => {
@@ -54,19 +55,20 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
     const handleConfirmReset = () => {
         resetSettings();
         setShowConfirmReset(false);
+        onHide(); // Close the settings panel after reset
     };
     const handleCancelReset = () => {
         setShowConfirmReset(false);
     };
 
-    // Replace About & Help trigger to call Header's About modal handler via custom event
+    // Open About modal through callback prop
     const handleAboutHelpClick = () => {
-        window.dispatchEvent(new CustomEvent('show-about-modal'));
+        onShowAbout?.();
     };
 
     // Share handlers
-    const handleShareApp = async () => {
-        await shareApp(
+    const handleShareApp = () => {
+        shareApp(
             () => toast?.showSuccess('Share dialog opened or link copied!'),
             () =>
                 toast?.showError(
@@ -74,8 +76,8 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                 ),
         );
     };
-    const handleShareWithContext = async () => {
-        await shareTodayView(
+    const handleShareWithContext = () => {
+        shareTodayView(
             () => toast?.showSuccess('Share dialog opened or link copied!'),
             () =>
                 toast?.showError(
@@ -198,8 +200,11 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                 <ListGroup.Item className="px-0 py-2">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div className="fw-medium">
+                                            <div className="fw-medium text-muted">
                                                 Notifications
+                                                <span className="badge bg-secondary ms-2 small">
+                                                    Coming Soon
+                                                </span>
                                             </div>
                                             <small className="text-muted">
                                                 Shift reminders and alerts
@@ -207,29 +212,15 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                         </div>
                                         <ButtonGroup size="sm">
                                             <Button
-                                                variant={
-                                                    settings.notifications ===
-                                                    'on'
-                                                        ? 'success'
-                                                        : 'outline-secondary'
-                                                }
-                                                onClick={() =>
-                                                    updateNotifications('on')
-                                                }
+                                                variant="outline-secondary"
+                                                disabled
                                             >
                                                 <i className="bi bi-bell me-1"></i>
                                                 On
                                             </Button>
                                             <Button
-                                                variant={
-                                                    settings.notifications ===
-                                                    'off'
-                                                        ? 'secondary'
-                                                        : 'outline-secondary'
-                                                }
-                                                onClick={() =>
-                                                    updateNotifications('off')
-                                                }
+                                                variant="secondary"
+                                                disabled
                                             >
                                                 <i className="bi bi-bell-slash me-1"></i>
                                                 Off
@@ -257,6 +248,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
+                                                <i className="bi bi-stars me-2"></i>
                                                 What's New
                                             </div>
                                             <small className="text-muted">
@@ -274,6 +266,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
+                                                <i className="bi bi-question-circle me-2"></i>
                                                 About & Help
                                             </div>
                                             <small className="text-muted">
@@ -304,6 +297,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
+                                                <i className="bi bi-calendar-event me-2"></i>
                                                 Export Schedule{' '}
                                                 <span className="badge bg-secondary ms-2">
                                                     Coming Soon
@@ -324,6 +318,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
+                                                <i className="bi bi-share me-2"></i>
                                                 Share App
                                             </div>
                                             <small className="text-muted">
@@ -341,6 +336,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
+                                                <i className="bi bi-link-45deg me-2"></i>
                                                 Share This View
                                             </div>
                                             <small className="text-muted">
@@ -358,6 +354,7 @@ export function SettingsPanel({ show, onHide }: SettingsPanelProps) {
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium text-danger">
+                                                <i className="bi bi-arrow-clockwise me-2"></i>
                                                 Reset Data
                                             </div>
                                             <small className="text-muted">

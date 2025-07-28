@@ -7,6 +7,7 @@ import {
     getCurrentShiftDay,
     getNextShift,
     getOffDayProgress,
+    getShiftByCode,
     getShiftCode,
     SHIFTS,
 } from '../../src/utils/shiftCalculations';
@@ -227,32 +228,47 @@ describe('getAllTeamsShifts Function Tests', () => {
 describe('SHIFTS Constant Validation', () => {
     it('should have properly defined SHIFTS constants', () => {
         expect(SHIFTS.MORNING.code).toBe('M');
-        expect(SHIFTS.MORNING.name).toBe('🌅 Morning');
+        expect(SHIFTS.MORNING.emoji).toBe('🌅');
+        expect(SHIFTS.MORNING.name).toBe('Morning');
         expect(SHIFTS.MORNING.hours).toBe('07:00-15:00');
         expect(SHIFTS.MORNING.start).toBe(7);
         expect(SHIFTS.MORNING.end).toBe(15);
         expect(SHIFTS.MORNING.isWorking).toBe(true);
+        expect(SHIFTS.MORNING.className).toBe('shift-morning');
 
         expect(SHIFTS.EVENING.code).toBe('E');
-        expect(SHIFTS.EVENING.name).toBe('🌆 Evening');
+        expect(SHIFTS.EVENING.emoji).toBe('🌆');
+        expect(SHIFTS.EVENING.name).toBe('Evening');
         expect(SHIFTS.EVENING.hours).toBe('15:00-23:00');
         expect(SHIFTS.EVENING.start).toBe(15);
         expect(SHIFTS.EVENING.end).toBe(23);
         expect(SHIFTS.EVENING.isWorking).toBe(true);
+        expect(SHIFTS.EVENING.className).toBe('shift-evening');
 
         expect(SHIFTS.NIGHT.code).toBe('N');
-        expect(SHIFTS.NIGHT.name).toBe('🌙 Night');
+        expect(SHIFTS.NIGHT.emoji).toBe('🌙');
+        expect(SHIFTS.NIGHT.name).toBe('Night');
         expect(SHIFTS.NIGHT.hours).toBe('23:00-07:00');
         expect(SHIFTS.NIGHT.start).toBe(23);
         expect(SHIFTS.NIGHT.end).toBe(7);
         expect(SHIFTS.NIGHT.isWorking).toBe(true);
+        expect(SHIFTS.NIGHT.className).toBe('shift-night');
 
         expect(SHIFTS.OFF.code).toBe('O');
-        expect(SHIFTS.OFF.name).toBe('🏠 Off');
+        expect(SHIFTS.OFF.emoji).toBe('🏠');
+        expect(SHIFTS.OFF.name).toBe('Off');
         expect(SHIFTS.OFF.hours).toBe('Not working');
         expect(SHIFTS.OFF.start).toBe(null);
         expect(SHIFTS.OFF.end).toBe(null);
         expect(SHIFTS.OFF.isWorking).toBe(false);
+        expect(SHIFTS.OFF.className).toBe('shift-off');
+    });
+
+    it('should handle null and undefined inputs in getShiftByCode', () => {
+        expect(getShiftByCode(null).className).toBe('shift-off');
+        expect(getShiftByCode(undefined).className).toBe('shift-off');
+        expect(getShiftByCode('').className).toBe('shift-off');
+        expect(getShiftByCode('invalid').className).toBe('shift-off');
     });
 
     it('should have immutable SHIFTS object', () => {

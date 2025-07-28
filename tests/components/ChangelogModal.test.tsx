@@ -133,9 +133,10 @@ describe('ChangelogModal', () => {
             );
 
             if (versionsWithTechnicalDetails.length > 0) {
-                // Look for technical details cards instead of exact title text
-                const technicalCards =
-                    document.querySelectorAll('.card.bg-light');
+                // Look for technical details cards with correct Bootstrap class
+                const technicalCards = document.querySelectorAll(
+                    '.card.bg-body-secondary',
+                );
                 expect(technicalCards.length).toBe(
                     versionsWithTechnicalDetails.length,
                 );

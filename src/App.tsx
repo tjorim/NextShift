@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
+import { AboutModal } from './components/AboutModal';
 import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
@@ -25,6 +26,7 @@ function AppContent() {
         'onboarding' | 'change-team'
     >('onboarding');
     const [activeTab, setActiveTab] = useState('today');
+    const [showAbout, setShowAbout] = useState(false);
     const { showSuccess, showInfo } = useToast();
     const {
         selectedTeam,
@@ -77,19 +79,27 @@ function AppContent() {
         }
     }, [hasCompletedOnboarding]); // Only run on mount
 
-    // Theme switching effect
+    // Theme switching effect - following Bootstrap 5.3 best practices
     useEffect(() => {
+        if (typeof document === 'undefined') return;
+
         const applyTheme = () => {
-            document.body.setAttribute(
-                'data-bs-theme',
+            const resolvedTheme =
                 settings.theme === 'auto'
                     ? window.matchMedia('(prefers-color-scheme: dark)').matches
                         ? 'dark'
                         : 'light'
-                    : settings.theme,
+                    : settings.theme;
+
+            document.documentElement.setAttribute(
+                'data-bs-theme',
+                resolvedTheme,
             );
         };
+
         applyTheme();
+
+        // Watch for system preference changes when in auto mode
         if (settings.theme === 'auto') {
             const mql = window.matchMedia('(prefers-color-scheme: dark)');
             mql.addEventListener('change', applyTheme);
@@ -108,6 +118,7 @@ function AppContent() {
     };
 
     const handleChangeTeam = () => {
+        // Use React's automatic batching to ensure both updates happen together
         setTeamModalMode('change-team');
         setShowTeamModal(true);
     };
@@ -139,7 +150,7 @@ function AppContent() {
         <ErrorBoundary>
             <div className="min-vh-100">
                 <Container fluid>
-                    <Header />
+                    <Header onShowAbout={() => setShowAbout(true)} />
                     <ErrorBoundary>
                         <CurrentStatus
                             selectedTeam={selectedTeam}
@@ -167,6 +178,10 @@ function AppContent() {
                                 ? 'welcome'
                                 : 'team-selection'
                         } // NEW
+                    />
+                    <AboutModal
+                        show={showAbout}
+                        onHide={() => setShowAbout(false)}
                     />
                 </Container>
             </div>

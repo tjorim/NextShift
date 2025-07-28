@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
     SettingsProvider,
     useSettings,
@@ -124,17 +125,27 @@ describe('SettingsContext unified user state', () => {
         expect(window.localStorage.getItem('userSettings')).toBeNull();
     });
 
-    it('applies theme to document.body', () => {
+    it('updates theme setting without DOM side effects', () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
-        // Theme should not be set by default
-        expect(document.body.getAttribute('data-bs-theme')).toBeNull();
+
+        // Initially should be 'auto'
+        expect(result.current.settings.theme).toBe('auto');
+
+        // Update to dark theme
         act(() => {
             result.current.updateTheme('dark');
         });
-        expect(document.body.getAttribute('data-bs-theme')).toBe('dark');
+        expect(result.current.settings.theme).toBe('dark');
+
+        // Update to light theme
         act(() => {
             result.current.updateTheme('light');
         });
-        expect(document.body.getAttribute('data-bs-theme')).toBe('light');
+        expect(result.current.settings.theme).toBe('light');
+
+        // SettingsContext should not apply theme to DOM - that's App.tsx responsibility
+        expect(
+            document.documentElement.getAttribute('data-bs-theme'),
+        ).toBeNull();
     });
 });

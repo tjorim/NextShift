@@ -7,8 +7,8 @@
 ## Architecture & Key Patterns
 - **src/components/**: All major UI is split into focused React components (e.g., `CurrentStatus.tsx`, `ScheduleView.tsx`, `ShiftTimeline.tsx`). Each view is a self-contained component, with shared logic extracted to hooks or utils.
 - **src/hooks/**: Custom hooks encapsulate business logic (e.g., `useShiftCalculation.ts`, `useTransferCalculations.ts`, `useLiveTime.ts`). Hooks are preferred for stateful or reusable logic.
-- **src/contexts/**: Global state (e.g., toast notifications, settings) is managed via React Contexts.
-- **src/utils/**: Core business logic (e.g., `shiftCalculations.ts`) and configuration constants (`config.ts`).
+- **Global state management**: React Contexts handle shared state like toast notifications and user settings.
+- **Core utilities**: Business logic and configuration constants are centralised in the utils directory.
 - **src/data/changelog.ts**: Structured changelog data for in-app display.
 - **public/sw.js**: Service worker for PWA offline support and asset caching.
 

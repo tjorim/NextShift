@@ -72,7 +72,7 @@ describe('ShiftTimeline', () => {
     it('displays current working team with active indicator', () => {
         const currentWorkingTeam = createMockShiftResult(3, 'E', today);
 
-        render(
+        const { container } = render(
             <ShiftTimeline
                 currentWorkingTeam={currentWorkingTeam}
                 today={today}
@@ -80,7 +80,11 @@ describe('ShiftTimeline', () => {
         );
 
         expect(screen.getByText('T3')).toBeInTheDocument();
-        expect(screen.getByText('E 🔴')).toBeInTheDocument();
+        
+        // Find the current working team badge specifically
+        const currentBadge = container.querySelector('.timeline-current-badge');
+        expect(currentBadge).toBeInTheDocument();
+        expect(currentBadge?.textContent).toBe('T3');
     });
 
     it('shows tooltip on hover for current team', async () => {
@@ -135,9 +139,13 @@ describe('ShiftTimeline', () => {
     it('handles different shift codes correctly', () => {
         const nightTeam = createMockShiftResult(5, 'N', today);
 
-        render(<ShiftTimeline currentWorkingTeam={nightTeam} today={today} />);
+        const { container } = render(<ShiftTimeline currentWorkingTeam={nightTeam} today={today} />);
 
         expect(screen.getByText('T5')).toBeInTheDocument();
-        expect(screen.getByText('N 🔴')).toBeInTheDocument();
+        
+        // Find the current working team badge specifically
+        const currentBadge = container.querySelector('.timeline-current-badge');
+        expect(currentBadge).toBeInTheDocument();
+        expect(currentBadge?.textContent).toBe('T5');
     });
 });

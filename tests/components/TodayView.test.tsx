@@ -8,11 +8,18 @@ import { ToastProvider } from '../../src/contexts/ToastContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
 
-// Mock getShiftClassName utility
-vi.mock('../../src/utils/shiftStyles', () => ({
-    getShiftClassName: vi.fn(
-        (shiftCode: string) => `shift-${shiftCode.toLowerCase()}`,
-    ),
+// Mock shift calculation utilities
+vi.mock('../../src/utils/shiftCalculations', () => ({
+    getShiftByCode: vi.fn(() => ({
+        code: 'M',
+        emoji: '🌅',
+        name: 'Morning',
+        hours: '07:00-15:00',
+        start: 7,
+        end: 15,
+        isWorking: true,
+        className: 'shift-morning',
+    })),
 }));
 
 function renderWithProviders(ui: React.ReactElement) {

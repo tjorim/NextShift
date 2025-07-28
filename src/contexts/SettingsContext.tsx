@@ -14,13 +14,7 @@
 // Keep all user state in SettingsContext or unified user state.
 
 import type { ReactNode } from 'react';
-import {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-} from 'react';
+import { createContext, useCallback, useContext, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export type TimeFormat = '12h' | '24h';
@@ -109,21 +103,6 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     const userState: NextShiftUserState = validateUserState(rawUserState)
         ? rawUserState
         : defaultUserState;
-
-    // Apply theme to document body
-    useEffect(() => {
-        if (typeof document !== 'undefined') {
-            if (userState.settings.theme === 'auto') {
-                // Remove the attribute to use system preference
-                document.body.removeAttribute('data-bs-theme');
-            } else {
-                document.body.setAttribute(
-                    'data-bs-theme',
-                    userState.settings.theme,
-                );
-            }
-        }
-    }, [userState.settings.theme]);
 
     const updateTimeFormat = useCallback(
         (format: TimeFormat) => {

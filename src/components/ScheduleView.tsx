@@ -15,8 +15,7 @@ import {
     getISOWeekYear2Digit,
     getLocalizedShiftTime,
 } from '../utils/dateTimeUtils';
-import { calculateShift } from '../utils/shiftCalculations';
-import { getShiftClassName } from '../utils/shiftStyles';
+import { calculateShift, getShiftByCode } from '../utils/shiftCalculations';
 
 interface ScheduleViewProps {
     selectedTeam: number | null;
@@ -90,7 +89,7 @@ export function ScheduleView({
         <Card>
             <Card.Header>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6 className="mb-0">Schedule Overview</h6>
+                    <h6 className="mb-0">📅 Schedule Overview</h6>
                     <fieldset
                         className="btn-group"
                         aria-label="Week navigation"
@@ -101,7 +100,10 @@ export function ScheduleView({
                             onClick={handlePrevious}
                             aria-label="Go to previous week"
                         >
-                            <i className="bi bi-chevron-left me-1"></i>
+                            <i
+                                className="bi bi-chevron-left me-1"
+                                aria-hidden="true"
+                            ></i>
                             Previous
                         </Button>
                         <Button
@@ -110,7 +112,10 @@ export function ScheduleView({
                             onClick={handleCurrent}
                             aria-label="Go to current week"
                         >
-                            <i className="bi bi-house me-1"></i>
+                            <i
+                                className="bi bi-house me-1"
+                                aria-hidden="true"
+                            ></i>
                             This Week
                         </Button>
                         <Button
@@ -120,18 +125,20 @@ export function ScheduleView({
                             aria-label="Go to next week"
                         >
                             Next
-                            <i className="bi bi-chevron-right ms-1"></i>
+                            <i
+                                className="bi bi-chevron-right ms-1"
+                                aria-hidden="true"
+                            ></i>
                         </Button>
                     </fieldset>
                 </div>
-                <div className="d-flex align-items-center gap-3">
+                <div className="d-flex justify-content-between align-items-center gap-3">
                     <div className="d-flex align-items-center gap-2">
                         <Form.Label
                             htmlFor="datePicker"
                             className="mb-0 small text-muted"
                         >
-                            <i className="bi bi-calendar3 me-1"></i>
-                            Jump to date:
+                            🎯 Jump to date:
                         </Form.Label>
                         <Form.Control
                             type="date"
@@ -142,15 +149,18 @@ export function ScheduleView({
                             className="date-picker-auto"
                         />
                     </div>
-                    <div className="small text-muted">
-                        Keyboard: ← → arrows, Ctrl+H (this week)
+                    <div
+                        className="small text-muted text-end"
+                        style={{ minWidth: '180px' }}
+                    >
+                        ⌨️ Keyboard: ← → arrows, Ctrl+H (this week)
                     </div>
                 </div>
             </Card.Header>
             <Card.Body>
                 {selectedTeam && (
                     <div className="mb-3">
-                        <strong>Team {selectedTeam} Schedule:</strong>
+                        <strong>👥 Team {selectedTeam} Schedule:</strong>
                         <div className="text-muted small">
                             Week of {startOfWeek.format('MMM D')} -{' '}
                             {startOfWeek.add(6, 'day').format('MMM D, YYYY')}
@@ -171,7 +181,7 @@ export function ScheduleView({
                                     return (
                                         <th
                                             key={day.format('YYYY-MM-DD')}
-                                            className={`text-center ${isToday ? 'table-primary' : ''}`}
+                                            className={`text-center ${isToday ? 'today-column' : ''}`}
                                             aria-label={`${day.format('dddd, MMM D')}${isToday ? ' (today)' : ''}`}
                                         >
                                             <div className="fw-semibold">
@@ -242,7 +252,7 @@ export function ScheduleView({
                                         return (
                                             <td
                                                 key={day.format('YYYY-MM-DD')}
-                                                className={`text-center ${isToday ? 'table-primary' : ''}`}
+                                                className={`text-center ${isToday ? 'today-column' : ''}`}
                                                 aria-label={`Team ${teamNumber} on ${day.format('dddd')}: ${shift.isWorking ? shift.name : 'Off'}`}
                                             >
                                                 {shift.isWorking && (
@@ -280,7 +290,7 @@ export function ScheduleView({
                                                         }
                                                     >
                                                         <Badge
-                                                            className={`shift-code cursor-help ${getShiftClassName(shift.code)}`}
+                                                            className={`shift-code cursor-help ${getShiftByCode(shift.code).className}`}
                                                         >
                                                             {shift.code}
                                                         </Badge>

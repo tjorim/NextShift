@@ -4,8 +4,7 @@ import Badge from 'react-bootstrap/Badge';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import type { ShiftResult } from '../utils/shiftCalculations';
-import { getAllTeamsShifts } from '../utils/shiftCalculations';
-import { getShiftClassName } from '../utils/shiftStyles';
+import { getAllTeamsShifts, getShiftByCode } from '../utils/shiftCalculations';
 
 interface TimelineData {
     prevShift: ShiftResult | null;
@@ -112,7 +111,7 @@ export function ShiftTimeline({
     return (
         <div className="card-timeline timeline-container">
             <div className="timeline-header text-center">
-                <i className="bi bi-clock me-2"></i>
+                <i className="bi bi-clock me-2" aria-hidden="true"></i>
                 Today's Shift Timeline
             </div>
             <div className="d-flex timeline-flow flex-wrap">
@@ -145,13 +144,25 @@ export function ShiftTimeline({
                         }
                     >
                         <Badge
-                            className={`${getShiftClassName(currentWorkingTeam.shift.code)} timeline-current-badge timeline-badge`}
+                            className={`${getShiftByCode(currentWorkingTeam.shift.code).className} timeline-current-badge timeline-badge`}
                         >
                             T{currentWorkingTeam.teamNumber}
                         </Badge>
                     </OverlayTrigger>
                     <div className="timeline-code">
-                        {currentWorkingTeam.shift.code} 🔴
+                        {currentWorkingTeam.shift.code}
+                        <OverlayTrigger
+                            placement="bottom"
+                            overlay={
+                                <Tooltip id={`${timelineTooltipId}-live`}>
+                                    <strong>📡 Live Updates</strong>
+                                    <br />
+                                    Data refreshes every minute
+                                </Tooltip>
+                            }
+                        >
+                            <i className="bi bi-broadcast text-success live-indicator ms-1"></i>
+                        </OverlayTrigger>
                     </div>
                 </div>
                 {nextShift && <span className="timeline-arrow">→</span>}

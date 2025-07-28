@@ -11,11 +11,13 @@ import Table from 'react-bootstrap/Table';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
-import { useTransferCalculations } from '../hooks/useTransferCalculations';
 import { dayjs, getLocalizedShiftTime } from '../utils/dateTimeUtils';
 import { shareTeamSchedule } from '../utils/share';
-import { calculateShift, getCurrentShiftDay } from '../utils/shiftCalculations';
-import { getShiftClassName } from '../utils/shiftStyles';
+import {
+    calculateShift,
+    getCurrentShiftDay,
+    getShiftByCode,
+} from '../utils/shiftCalculations';
 
 interface TeamDetailModalProps {
     show: boolean;
@@ -113,15 +115,9 @@ export function TeamDetailModal({
         );
     };
 
-    // Transfer history for this team
-    const { transfers, hasMoreTransfers } = useTransferCalculations({
-        selectedTeam: teamNumber, // Team being viewed, not user's selected team
-    });
-
-    // Button state logic
+    // Button state logic - only allow viewing transfers for other teams, not your own
     const isViewingOwnTeam = teamNumber === selectedTeam;
-    const hasTransfers = transfers.length > 0;
-    const canViewTransfers = !isViewingOwnTeam && hasTransfers;
+    const canViewTransfers = !isViewingOwnTeam;
 
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
@@ -149,10 +145,11 @@ export function TeamDetailModal({
                                         </Badge>
                                     ) : (
                                         <Badge
-                                            className={getShiftClassName(
-                                                currentStatus?.shift.code ||
-                                                    'O',
-                                            )}
+                                            className={
+                                                getShiftByCode(
+                                                    currentStatus?.shift.code,
+                                                ).className
+                                            }
                                             pill
                                         >
                                             <i className="bi bi-briefcase me-1"></i>
@@ -173,9 +170,10 @@ export function TeamDetailModal({
                                         Next Shift
                                     </small>
                                     <Badge
-                                        className={getShiftClassName(
-                                            nextShift.shift.code,
-                                        )}
+                                        className={
+                                            getShiftByCode(nextShift.shift.code)
+                                                .className
+                                        }
                                         pill
                                     >
                                         {nextShift.shift.name}
@@ -211,7 +209,7 @@ export function TeamDetailModal({
                                     <tr
                                         key={day.date.format('YYYY-MM-DD')}
                                         className={
-                                            day.isToday ? 'table-primary' : ''
+                                            day.isToday ? 'today-row' : ''
                                         }
                                     >
                                         <td>
@@ -243,9 +241,11 @@ export function TeamDetailModal({
                                                 </Badge>
                                             ) : (
                                                 <Badge
-                                                    className={getShiftClassName(
-                                                        day.shift.code,
-                                                    )}
+                                                    className={
+                                                        getShiftByCode(
+                                                            day.shift.code,
+                                                        ).className
+                                                    }
                                                     pill
                                                 >
                                                     {day.shift.name}
@@ -350,70 +350,6 @@ export function TeamDetailModal({
                     </Col>
                 </Row>
 
-                {/* Transfer History */}
-                <div className="mb-4">
-                    <h6 className="mb-3">
-                        <i className="bi bi-arrow-left-right me-2"></i>
-                        Transfer History
-                    </h6>
-                    {transfers.length === 0 ? (
-                        <div className="text-muted small">
-                            No recent transfers detected for this team.
-                        </div>
-                    ) : (
-                        <div className="table-responsive">
-                            <Table size="sm" className="mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Type</th>
-                                        <th>Handover</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {transfers.map((t) => (
-                                        <tr
-                                            key={
-                                                t.date.format('YYYY-MM-DD') +
-                                                '-' +
-                                                t.fromTeam +
-                                                '-' +
-                                                t.toTeam +
-                                                '-' +
-                                                t.fromShiftType
-                                            }
-                                        >
-                                            <td>{t.date.format('MMM D')}</td>
-                                            <td>
-                                                Team {t.fromTeam} (
-                                                {t.fromShiftName})
-                                            </td>
-                                            <td>
-                                                Team {t.toTeam} ({t.toShiftName}
-                                                )
-                                            </td>
-                                            <td>
-                                                {t.fromShiftType} →{' '}
-                                                {t.toShiftType}
-                                            </td>
-                                            <td>
-                                                {t.isHandover ? 'Yes' : 'No'}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                            {hasMoreTransfers && (
-                                <div className="text-muted small mt-1">
-                                    Showing latest {transfers.length} transfers.
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
                 {/* Quick Actions */}
                 <Card>
                     <Card.Body>
@@ -462,7 +398,8 @@ export function TeamDetailModal({
                                         </Tooltip>
                                     ) : (
                                         <Tooltip id="transfers-tooltip">
-                                            View transfer history for this team
+                                            View transfers between your team and
+                                            this team
                                         </Tooltip>
                                     )
                                 }

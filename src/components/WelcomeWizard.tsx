@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
@@ -45,6 +45,15 @@ export function WelcomeWizard({
 }: WelcomeWizardProps) {
     const [currentStep, setCurrentStep] = useState<WizardStep>(startStep);
     const initialStepRef = useRef(startStep);
+    const firstButtonRef = useRef<HTMLButtonElement>(null);
+
+    // Sync currentStep when startStep prop changes
+    useEffect(() => {
+        if (startStep !== initialStepRef.current) {
+            setCurrentStep(startStep);
+            initialStepRef.current = startStep;
+        }
+    }, [startStep]);
     const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
 
     const SETTINGS_LOCATION_TEXT = 'Settings panel (⚙️ in the top right)';
@@ -66,19 +75,12 @@ export function WelcomeWizard({
     const handleModalEntered = () => {
         if (!isLoading) {
             setCurrentStep(initialStepRef.current);
-            // Focus the first interactive element in the modal
-            const firstButton = document.querySelector(
-                '.modal-body button:not(:disabled)',
-            ) as HTMLButtonElement;
-            if (firstButton) {
-                firstButton.focus();
+            // Focus the first interactive element using ref
+            if (firstButtonRef.current) {
+                firstButtonRef.current.focus();
             }
         }
     };
-    // If startStep changes (should only happen on open), update ref
-    if (startStep !== initialStepRef.current) {
-        initialStepRef.current = startStep;
-    }
 
     const handleTeamSelect = (team: number) => {
         onTeamSelect(team);
@@ -157,6 +159,7 @@ export function WelcomeWizard({
                     variant="outline-secondary"
                     onClick={onHide}
                     disabled={isLoading}
+                    ref={currentStep === 'welcome' ? firstButtonRef : undefined}
                 >
                     Maybe Later
                 </Button>
@@ -248,6 +251,9 @@ export function WelcomeWizard({
                     variant="outline-secondary"
                     onClick={prevStep}
                     disabled={isLoading}
+                    ref={
+                        currentStep === 'features' ? firstButtonRef : undefined
+                    }
                 >
                     <i className="bi bi-arrow-left me-1"></i> Back
                 </Button>
@@ -289,6 +295,12 @@ export function WelcomeWizard({
                                 onClick={() => handleTeamSelect(team)}
                                 disabled={isLoading}
                                 aria-label={`Select Team ${team}`}
+                                ref={
+                                    currentStep === 'team-selection' &&
+                                    team === 1
+                                        ? firstButtonRef
+                                        : undefined
+                                }
                             >
                                 Team {team}
                             </Button>

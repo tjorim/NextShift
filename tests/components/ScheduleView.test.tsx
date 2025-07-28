@@ -70,10 +70,27 @@ vi.mock('../../src/utils/dateTimeUtils', () => {
     };
 });
 
-vi.mock('../../src/utils/shiftStyles', () => ({
-    getShiftClassName: vi.fn(
-        (shiftCode: string) => `shift-${shiftCode.toLowerCase()}`,
-    ),
+vi.mock('../../src/utils/shiftCalculations', () => ({
+    calculateShift: vi.fn(() => ({
+        code: 'M',
+        emoji: '🌅',
+        name: 'Morning',
+        hours: '07:00-15:00',
+        start: 7,
+        end: 15,
+        isWorking: true,
+        className: 'shift-morning',
+    })),
+    getShiftByCode: vi.fn(() => ({
+        code: 'M',
+        emoji: '🌅',
+        name: 'Morning',
+        hours: '07:00-15:00',
+        start: 7,
+        end: 15,
+        isWorking: true,
+        className: 'shift-morning',
+    })),
 }));
 
 vi.mock('../../src/utils/config', () => ({
@@ -100,7 +117,9 @@ describe('ScheduleView', () => {
     describe('Basic rendering', () => {
         it('renders schedule overview header', () => {
             renderWithProviders(<ScheduleView {...defaultProps} />);
-            expect(screen.getByText('Schedule Overview')).toBeInTheDocument();
+            expect(
+                screen.getByText('📅 Schedule Overview'),
+            ).toBeInTheDocument();
         });
 
         it('displays navigation buttons', () => {
