@@ -379,8 +379,13 @@ describe('App', () => {
 
             const laterButton = screen.getByTestId('later-button');
 
-            // Test that the button exists and can be clicked without errors
-            expect(() => user.click(laterButton)).not.toThrow();
+            // Click the later button
+            await user.click(laterButton);
+
+            // Verify the modal is dismissed after clicking later
+            expect(
+                screen.queryByTestId('update-available-modal'),
+            ).not.toBeInTheDocument();
         });
     });
 });

@@ -103,37 +103,22 @@ describe('UpdateAvailableModal', () => {
         expect(modal).toBeInTheDocument();
 
         // Check for icons
-        expect(
-            screen.getByText('Update Available').closest('.modal-title'),
-        ).toContainHTML('bi bi-download');
-        expect(
-            screen.getByRole('button', { name: /update now/i }),
-        ).toContainHTML('bi bi-arrow-clockwise');
+        const modalTitle = screen
+            .getByText('Update Available')
+            .closest('.modal-title');
+        expect(modalTitle?.querySelector('.bi-download')).toBeInTheDocument();
 
-        // Check button variants
-        const laterButton = screen.getByRole('button', { name: /later/i });
         const updateButton = screen.getByRole('button', {
             name: /update now/i,
         });
+        expect(
+            updateButton.querySelector('.bi-arrow-clockwise'),
+        ).toBeInTheDocument();
+
+        // Check button variants
+        const laterButton = screen.getByRole('button', { name: /later/i });
 
         expect(laterButton).toHaveClass('btn-outline-secondary');
         expect(updateButton).toHaveClass('btn-primary');
-    });
-
-    it('modal props are configured correctly', () => {
-        render(
-            <UpdateAvailableModal
-                show={true}
-                onUpdate={mockOnUpdate}
-                onLater={mockOnLater}
-            />,
-        );
-
-        // Check that modal structure exists
-        const modal = screen.getByRole('dialog');
-        expect(modal).toBeInTheDocument();
-
-        // Note: backdrop="static" is a React Bootstrap prop, not a DOM attribute
-        // The actual DOM testing would require integration testing with real Bootstrap modal
     });
 });
