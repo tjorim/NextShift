@@ -65,9 +65,7 @@ describe('ChangelogModal', () => {
             render(<ChangelogModal {...defaultProps} />);
 
             // Test that status badges are rendered (without checking specific versions)
-            const statusBadges = screen.getAllByText(
-                /(Current|Released|Planned)/,
-            );
+            const statusBadges = screen.getAllByText(/(Current|Released)/);
             expect(statusBadges.length).toBeGreaterThan(0);
         });
 
@@ -107,7 +105,7 @@ describe('ChangelogModal', () => {
             render(<ChangelogModal {...defaultProps} />);
 
             // Test pattern: verify sections render with proper icons and structure
-            const sectionTypes = ['Added', 'Changed', 'Fixed', 'Planned'];
+            const sectionTypes = ['Added', 'Changed', 'Fixed'];
 
             sectionTypes.forEach((sectionType) => {
                 const hasThisSection = changelogData.some((version) => {
@@ -133,9 +131,10 @@ describe('ChangelogModal', () => {
             );
 
             if (versionsWithTechnicalDetails.length > 0) {
-                // Look for technical details cards instead of exact title text
-                const technicalCards =
-                    document.querySelectorAll('.card.bg-light');
+                // Look for technical details cards with correct Bootstrap class
+                const technicalCards = document.querySelectorAll(
+                    '.card.bg-body-secondary',
+                );
                 expect(technicalCards.length).toBe(
                     versionsWithTechnicalDetails.length,
                 );
@@ -208,7 +207,6 @@ describe('ChangelogModal', () => {
             expect(screen.getAllByText('Added').length).toBeGreaterThan(0);
             expect(screen.getAllByText('Changed').length).toBeGreaterThan(0);
             expect(screen.getAllByText('Fixed').length).toBeGreaterThan(0);
-            expect(screen.getByText('Planned')).toBeInTheDocument();
 
             // Check for Bootstrap icons (via class names) in the DOM
             const addedElements = screen.getAllByText('Added');
@@ -220,9 +218,6 @@ describe('ChangelogModal', () => {
 
             // Check that different section types exist across versions
             expect(screen.getAllByText('Added').length).toBeGreaterThan(0);
-
-            // v3.1.0 has planned items
-            expect(screen.getByText('Planned')).toBeInTheDocument();
 
             // Other versions may have changed/fixed items
             const changedHeaders = screen.getAllByText('Changed');
@@ -239,13 +234,16 @@ describe('ChangelogModal', () => {
             render(<ChangelogModal {...defaultProps} />);
 
             expect(screen.getByText('Coming Soon')).toBeInTheDocument();
-            expect(screen.getByText(/v3.2.0:/)).toBeInTheDocument();
-            expect(screen.getByText(/v3.3.0:/)).toBeInTheDocument();
 
-            // Check for the combined text in Coming Soon section
+            // Dynamically check for all versions in futurePlans
+            expect(screen.getByText(/v3.3.0:/)).toBeInTheDocument();
+            expect(screen.getByText(/v3.4.0:/)).toBeInTheDocument();
+            expect(screen.getByText(/future:/)).toBeInTheDocument();
+
+            // Check for specific features from the actual futurePlans data
             expect(
                 screen.getByText(
-                    /Settings panel with preferences, Team detail modals/,
+                    /Enhanced data presentation, Advanced navigation options/,
                 ),
             ).toBeInTheDocument();
             expect(

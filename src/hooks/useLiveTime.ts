@@ -1,5 +1,6 @@
-import dayjs, { type Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
+import { dayjs } from '../utils/dateTimeUtils';
 
 const DEFAULT_INTERVALS = {
     SECOND: 1000,

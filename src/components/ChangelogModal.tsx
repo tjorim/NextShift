@@ -133,7 +133,7 @@ export function ChangelogModal({ show, onHide }: ChangelogModalProps) {
                                     )}
 
                                 {version.technicalDetails && (
-                                    <Card className="mt-3 border-0 bg-light">
+                                    <Card className="mt-3 border-0 bg-body-secondary">
                                         <Card.Body className="py-2">
                                             <small className="text-muted">
                                                 <i className="bi bi-info-circle me-1"></i>
@@ -157,19 +157,26 @@ export function ChangelogModal({ show, onHide }: ChangelogModalProps) {
                     ))}
                 </Accordion>
 
-                <div className="mt-4 p-3 bg-light rounded">
+                <div className="mt-4 p-3 bg-body-secondary rounded">
                     <h6 className="text-primary mb-2">
                         <i className="bi bi-rocket me-2"></i>
                         Coming Soon
                     </h6>
-                    <p className="mb-1 small text-muted">
-                        <strong>v3.2.0:</strong>{' '}
-                        {futurePlans['v3.2.0'].features.join(', ')}
-                    </p>
-                    <p className="mb-0 small text-muted">
-                        <strong>v3.3.0:</strong>{' '}
-                        {futurePlans['v3.3.0'].features.join(', ')}
-                    </p>
+                    {Object.entries(futurePlans).map(
+                        ([version, plan], index, array) => (
+                            <p
+                                key={version}
+                                className={
+                                    index === array.length - 1
+                                        ? 'mb-0 small text-muted'
+                                        : 'mb-1 small text-muted'
+                                }
+                            >
+                                <strong>{version}:</strong>{' '}
+                                {plan.features.join(', ')}
+                            </p>
+                        ),
+                    )}
                 </div>
             </Modal.Body>
             <Modal.Footer>

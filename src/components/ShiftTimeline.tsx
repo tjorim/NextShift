@@ -1,11 +1,12 @@
-import type dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { useId } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useSettings } from '../contexts/SettingsContext';
+import { getLocalizedShiftTime } from '../utils/dateTimeUtils';
 import type { ShiftResult } from '../utils/shiftCalculations';
-import { getAllTeamsShifts } from '../utils/shiftCalculations';
-import { getShiftClassName } from '../utils/shiftStyles';
+import { getAllTeamsShifts, getShiftByCode } from '../utils/shiftCalculations';
 
 interface TimelineData {
     prevShift: ShiftResult | null;
@@ -14,7 +15,7 @@ interface TimelineData {
 }
 
 function computeShiftTimeline(
-    today: dayjs.Dayjs,
+    today: Dayjs,
     currentWorkingTeam: ShiftResult,
 ): TimelineData {
     // Get all teams for today to build timeline
@@ -32,8 +33,29 @@ function computeShiftTimeline(
         (team) => team.teamNumber === currentWorkingTeam.teamNumber,
     );
 
-    const prevShift =
-        currentIndex > 0 ? (timeline[currentIndex - 1] ?? null) : null;
+    let prevShift: ShiftResult | null = null;
+
+    // Check if there's a previous shift in today's timeline
+    if (currentIndex > 0) {
+        prevShift = timeline[currentIndex - 1] ?? null;
+    } else {
+        // Current shift is the first of the day, look at yesterday's last shift
+        const yesterday = today.subtract(1, 'day');
+        const allTeamsYesterday = getAllTeamsShifts(yesterday);
+        const workingTeamsYesterday = allTeamsYesterday.filter(
+            (team) => team.shift.isWorking,
+        );
+
+        if (workingTeamsYesterday.length > 0) {
+            // Sort yesterday's shifts and get the last one (latest start time)
+            const yesterdayTimeline = workingTeamsYesterday.sort((a, b) => {
+                const startA = a.shift.start || 0;
+                const startB = b.shift.start || 0;
+                return startB - startA; // Descending order to get latest first
+            });
+            prevShift = yesterdayTimeline[0] ?? null;
+        }
+    }
 
     let nextShift: ShiftResult | null = null;
 
@@ -68,7 +90,7 @@ function computeShiftTimeline(
 
 interface ShiftTimelineProps {
     currentWorkingTeam: ShiftResult;
-    today: dayjs.Dayjs;
+    today: Dayjs;
 }
 
 /**
@@ -83,6 +105,7 @@ export function ShiftTimeline({
 }: ShiftTimelineProps) {
     // Generate unique ID for tooltip to avoid HTML ID conflicts
     const timelineTooltipId = useId();
+    const { settings } = useSettings();
     const { prevShift, nextShift } = computeShiftTimeline(
         today,
         currentWorkingTeam,
@@ -91,7 +114,7 @@ export function ShiftTimeline({
     return (
         <div className="card-timeline timeline-container">
             <div className="timeline-header text-center">
-                <i className="bi bi-clock me-2"></i>
+                <i className="bi bi-clock me-2" aria-hidden="true"></i>
                 Today's Shift Timeline
             </div>
             <div className="d-flex timeline-flow flex-wrap">
@@ -119,18 +142,37 @@ export function ShiftTimeline({
                                 <br />
                                 {currentWorkingTeam.shift.name}
                                 <br />
-                                {currentWorkingTeam.shift.hours}
+                                {currentWorkingTeam.shift.start &&
+                                currentWorkingTeam.shift.end
+                                    ? getLocalizedShiftTime(
+                                          currentWorkingTeam.shift.start,
+                                          currentWorkingTeam.shift.end,
+                                          settings.timeFormat,
+                                      )
+                                    : currentWorkingTeam.shift.hours}
                             </Tooltip>
                         }
                     >
                         <Badge
-                            className={`${getShiftClassName(currentWorkingTeam.shift.code)} timeline-current-badge timeline-badge`}
+                            className={`${getShiftByCode(currentWorkingTeam.shift.code).className} timeline-current-badge timeline-badge`}
                         >
                             T{currentWorkingTeam.teamNumber}
                         </Badge>
                     </OverlayTrigger>
                     <div className="timeline-code">
-                        {currentWorkingTeam.shift.code} 🔴
+                        {currentWorkingTeam.shift.code}
+                        <OverlayTrigger
+                            placement="bottom"
+                            overlay={
+                                <Tooltip id={`${timelineTooltipId}-live`}>
+                                    <strong>📡 Live Updates</strong>
+                                    <br />
+                                    Data refreshes every minute
+                                </Tooltip>
+                            }
+                        >
+                            <i className="bi bi-broadcast text-success live-indicator ms-1"></i>
+                        </OverlayTrigger>
                     </div>
                 </div>
                 {nextShift && <span className="timeline-arrow">→</span>}

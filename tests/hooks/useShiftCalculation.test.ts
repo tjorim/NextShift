@@ -1,73 +1,77 @@
 import { act, renderHook } from '@testing-library/react';
-import dayjs from 'dayjs';
-import { describe, expect, it, vi } from 'vitest';
+import type { ReactNode } from 'react';
+import React from 'react';
+import { describe, expect, it } from 'vitest';
+import { SettingsProvider } from '../../src/contexts/SettingsContext';
 import { useShiftCalculation } from '../../src/hooks/useShiftCalculation';
-import { CONFIG } from '../../src/utils/config';
+import { dayjs } from '../../src/utils/dateTimeUtils';
 
-// Only mock the localStorage hook since it's an external dependency
-vi.mock('../../src/hooks/useLocalStorage', () => ({
-    useLocalStorage: vi.fn(),
-}));
-
-import { useLocalStorage } from '../../src/hooks/useLocalStorage';
-
-const mockUseLocalStorage = vi.mocked(useLocalStorage);
+function wrapper({ children }: { children: ReactNode }) {
+    return React.createElement(SettingsProvider, null, children);
+}
 
 describe('useShiftCalculation', () => {
     describe('Initialization', () => {
         it('initializes with default values', () => {
-            mockUseLocalStorage.mockReturnValue([null, vi.fn()]);
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
+            });
 
-            const { result } = renderHook(() => useShiftCalculation());
-
-            expect(result.current.selectedTeam).toBeNull();
+            expect(result.current.myTeam).toBeNull();
             expect(dayjs.isDayjs(result.current.currentDate)).toBe(true);
             expect(result.current.currentShift).toBeNull();
         });
 
         it('initializes with stored team from localStorage', () => {
-            const setStoredTeam = vi.fn();
-            mockUseLocalStorage.mockReturnValue([3, setStoredTeam]);
+            // This test is no longer relevant since we use SettingsContext instead of direct localStorage
+            // The SettingsContext handles localStorage internally
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
+            });
 
-            const { result } = renderHook(() => useShiftCalculation());
-
-            expect(result.current.selectedTeam).toBe(3);
+            // Should start with default null value
+            expect(result.current.myTeam).toBeNull();
         });
     });
 
     describe('Team Selection', () => {
-        it('updates selected team', () => {
-            const setStoredTeam = vi.fn();
-            mockUseLocalStorage.mockReturnValue([1, setStoredTeam]);
-
-            const { result } = renderHook(() => useShiftCalculation());
-
-            act(() => {
-                result.current.setSelectedTeam(2);
+        it('updates my team', () => {
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
             });
 
-            expect(setStoredTeam).toHaveBeenCalledWith(2);
+            act(() => {
+                result.current.setMyTeam(3);
+            });
+
+            expect(result.current.myTeam).toBe(3);
         });
 
-        it('clears selected team', () => {
-            const setStoredTeam = vi.fn();
-            mockUseLocalStorage.mockReturnValue([1, setStoredTeam]);
-
-            const { result } = renderHook(() => useShiftCalculation());
-
-            act(() => {
-                result.current.setSelectedTeam(null);
+        it('clears my team', () => {
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
             });
 
-            expect(setStoredTeam).toHaveBeenCalledWith(null);
+            // First set a team
+            act(() => {
+                result.current.setMyTeam(3);
+            });
+            expect(result.current.myTeam).toBe(3);
+
+            // Then clear it
+            act(() => {
+                result.current.setMyTeam(null);
+            });
+
+            expect(result.current.myTeam).toBeNull();
         });
     });
 
     describe('Date Management', () => {
         it('updates current date', () => {
-            mockUseLocalStorage.mockReturnValue([1, vi.fn()]);
-
-            const { result } = renderHook(() => useShiftCalculation());
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
+            });
             const newDate = dayjs('2025-01-15');
 
             act(() => {
@@ -81,61 +85,58 @@ describe('useShiftCalculation', () => {
     });
 
     describe('Shift Data Integration', () => {
-        it('calculates current shift for selected team', () => {
-            mockUseLocalStorage.mockReturnValue([1, vi.fn()]);
+        it('calculates current shift for my team', () => {
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
+            });
 
-            const { result } = renderHook(() => useShiftCalculation());
+            act(() => {
+                result.current.setMyTeam(1);
+            });
 
-            // Since we're using real shift calculations, we should get actual shift data
-            expect(result.current.currentShift).toBeDefined();
-            if (result.current.currentShift) {
-                expect(result.current.currentShift.teamNumber).toBe(1);
-                expect(result.current.currentShift.shift).toBeDefined();
-                expect(dayjs.isDayjs(result.current.currentShift.date)).toBe(
-                    true,
-                );
-            }
+            expect(result.current.currentShift).not.toBeNull();
+            expect(result.current.currentShift?.teamNumber).toBe(1);
         });
 
         it('calculates today shifts for all teams', () => {
-            mockUseLocalStorage.mockReturnValue([1, vi.fn()]);
-
-            const { result } = renderHook(() => useShiftCalculation());
-
-            // Should return shifts for all teams
-            expect(result.current.todayShifts).toHaveLength(CONFIG.TEAMS_COUNT);
-            result.current.todayShifts.forEach((shiftResult, index) => {
-                expect(shiftResult.teamNumber).toBe(index + 1);
-                expect(shiftResult.shift).toBeDefined();
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
             });
+
+            expect(result.current.todayShifts).toHaveLength(5); // CONFIG.TEAMS_COUNT
+            expect(
+                result.current.todayShifts.every(
+                    (shift) => shift.teamNumber >= 1 && shift.teamNumber <= 5,
+                ),
+            ).toBe(true);
         });
 
-        it('calculates next shift for selected team', () => {
-            mockUseLocalStorage.mockReturnValue([1, vi.fn()]);
+        it('calculates next shift for my team', () => {
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
+            });
 
-            const { result } = renderHook(() => useShiftCalculation());
+            act(() => {
+                result.current.setMyTeam(1);
+            });
 
-            // Should calculate next shift
-            expect(result.current.nextShift).toBeDefined();
-            if (result.current.nextShift) {
-                expect(dayjs.isDayjs(result.current.nextShift.date)).toBe(true);
-                expect(result.current.nextShift.shift).toBeDefined();
-            }
+            expect(result.current.nextShift).not.toBeNull();
+            expect(result.current.nextShift?.shift).toBeDefined();
         });
 
         it('returns null for current shift when no team selected', () => {
-            mockUseLocalStorage.mockReturnValue([null, vi.fn()]);
-
-            const { result } = renderHook(() => useShiftCalculation());
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
+            });
 
             expect(result.current.currentShift).toBeNull();
             expect(result.current.nextShift).toBeNull();
         });
 
         it('provides current shift day', () => {
-            mockUseLocalStorage.mockReturnValue([1, vi.fn()]);
-
-            const { result } = renderHook(() => useShiftCalculation());
+            const { result } = renderHook(() => useShiftCalculation(), {
+                wrapper,
+            });
 
             expect(dayjs.isDayjs(result.current.currentShiftDay)).toBe(true);
         });

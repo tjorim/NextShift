@@ -1,11 +1,6 @@
-import dayjs from 'dayjs';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-
-// Initialize dayjs plugins
-dayjs.extend(weekOfYear);
 
 // Register service worker for PWA functionality (production only)
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

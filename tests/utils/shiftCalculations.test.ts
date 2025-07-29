@@ -1,13 +1,13 @@
-import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
 import { CONFIG } from '../../src/utils/config';
+import { dayjs, formatYYWWD } from '../../src/utils/dateTimeUtils';
 import {
     calculateShift,
-    formatDateCode,
     getAllTeamsShifts,
     getCurrentShiftDay,
     getNextShift,
     getOffDayProgress,
+    getShiftByCode,
     getShiftCode,
     SHIFTS,
 } from '../../src/utils/shiftCalculations';
@@ -64,20 +64,6 @@ describe('Shift Calculations', () => {
         });
     });
 
-    describe('Date Code Formatting', () => {
-        it('should format date code correctly', () => {
-            const testDate = new Date('2025-05-13'); // Tuesday, Week 20 of 2025
-            const formatted = formatDateCode(testDate);
-            expect(formatted).toBe('2520.2'); // 25=2025, 20=week, 2=Tuesday
-        });
-
-        it('should handle Sunday as day 7', () => {
-            const sunday = new Date('2025-05-18'); // Sunday
-            const formatted = formatDateCode(sunday);
-            expect(formatted).toMatch(/\.7$/); // Should end with .7
-        });
-    });
-
     describe('Shift Code Generation', () => {
         it('should generate correct shift codes', () => {
             const testDate = new Date('2025-07-16');
@@ -110,7 +96,7 @@ describe('Shift Calculations', () => {
             expect(nightDate).not.toBeNull();
             const code = getShiftCode(nightDate, 1);
             const expectedPrevDay = dayjs(nightDate).subtract(1, 'day');
-            const expectedCode = `${formatDateCode(expectedPrevDay)}N`;
+            const expectedCode = `${formatYYWWD(expectedPrevDay)}N`;
             expect(code).toBe(expectedCode);
         });
     });
@@ -168,7 +154,7 @@ describe('Shift Calculations', () => {
             // If this is a night shift, the code should reflect the previous day
             if (shift.code === 'N') {
                 // Code should use previous day format
-                const expectedCode = `${formatDateCode(shiftDay)}N`;
+                const expectedCode = `${formatYYWWD(shiftDay)}N`;
                 expect(code).toBe(expectedCode);
             }
         });
@@ -242,32 +228,47 @@ describe('getAllTeamsShifts Function Tests', () => {
 describe('SHIFTS Constant Validation', () => {
     it('should have properly defined SHIFTS constants', () => {
         expect(SHIFTS.MORNING.code).toBe('M');
-        expect(SHIFTS.MORNING.name).toBe('🌅 Morning');
+        expect(SHIFTS.MORNING.emoji).toBe('🌅');
+        expect(SHIFTS.MORNING.name).toBe('Morning');
         expect(SHIFTS.MORNING.hours).toBe('07:00-15:00');
         expect(SHIFTS.MORNING.start).toBe(7);
         expect(SHIFTS.MORNING.end).toBe(15);
         expect(SHIFTS.MORNING.isWorking).toBe(true);
+        expect(SHIFTS.MORNING.className).toBe('shift-morning');
 
         expect(SHIFTS.EVENING.code).toBe('E');
-        expect(SHIFTS.EVENING.name).toBe('🌆 Evening');
+        expect(SHIFTS.EVENING.emoji).toBe('🌆');
+        expect(SHIFTS.EVENING.name).toBe('Evening');
         expect(SHIFTS.EVENING.hours).toBe('15:00-23:00');
         expect(SHIFTS.EVENING.start).toBe(15);
         expect(SHIFTS.EVENING.end).toBe(23);
         expect(SHIFTS.EVENING.isWorking).toBe(true);
+        expect(SHIFTS.EVENING.className).toBe('shift-evening');
 
         expect(SHIFTS.NIGHT.code).toBe('N');
-        expect(SHIFTS.NIGHT.name).toBe('🌙 Night');
+        expect(SHIFTS.NIGHT.emoji).toBe('🌙');
+        expect(SHIFTS.NIGHT.name).toBe('Night');
         expect(SHIFTS.NIGHT.hours).toBe('23:00-07:00');
         expect(SHIFTS.NIGHT.start).toBe(23);
         expect(SHIFTS.NIGHT.end).toBe(7);
         expect(SHIFTS.NIGHT.isWorking).toBe(true);
+        expect(SHIFTS.NIGHT.className).toBe('shift-night');
 
         expect(SHIFTS.OFF.code).toBe('O');
-        expect(SHIFTS.OFF.name).toBe('🏠 Off');
+        expect(SHIFTS.OFF.emoji).toBe('🏠');
+        expect(SHIFTS.OFF.name).toBe('Off');
         expect(SHIFTS.OFF.hours).toBe('Not working');
         expect(SHIFTS.OFF.start).toBe(null);
         expect(SHIFTS.OFF.end).toBe(null);
         expect(SHIFTS.OFF.isWorking).toBe(false);
+        expect(SHIFTS.OFF.className).toBe('shift-off');
+    });
+
+    it('should handle null and undefined inputs in getShiftByCode', () => {
+        expect(getShiftByCode(null).className).toBe('shift-off');
+        expect(getShiftByCode(undefined).className).toBe('shift-off');
+        expect(getShiftByCode('').className).toBe('shift-off');
+        expect(getShiftByCode('invalid').className).toBe('shift-off');
     });
 
     it('should have immutable SHIFTS object', () => {
@@ -292,19 +293,6 @@ describe('Input Type Flexibility Tests', () => {
         const shift = calculateShift(dayjsDate, 1);
         expect(shift).toBeDefined();
         expect(shift.code).toMatch(/^[MENO]$/);
-    });
-
-    it('should accept different date formats in formatDateCode', () => {
-        const testDate = new Date('2025-07-16');
-        const stringDate = '2025-07-16';
-        const dayjsDate = dayjs('2025-07-16');
-
-        const code1 = formatDateCode(testDate);
-        const code2 = formatDateCode(stringDate);
-        const code3 = formatDateCode(dayjsDate);
-
-        expect(code1).toBe(code2);
-        expect(code2).toBe(code3);
     });
 
     it('should accept different date formats in getCurrentShiftDay', () => {
@@ -372,7 +360,6 @@ describe('Error Handling and Robustness', () => {
     it('should handle NaN dates gracefully', () => {
         const nanDate = new Date(NaN);
         expect(() => calculateShift(nanDate, 1)).not.toThrow();
-        expect(() => formatDateCode(nanDate)).not.toThrow();
         expect(() => getCurrentShiftDay(nanDate)).not.toThrow();
     });
 
@@ -412,7 +399,6 @@ describe('Error Handling and Robustness', () => {
 
         malformedDates.forEach((dateStr) => {
             expect(() => calculateShift(dateStr, 1)).not.toThrow();
-            expect(() => formatDateCode(dateStr)).not.toThrow();
             expect(() => getCurrentShiftDay(dateStr)).not.toThrow();
         });
     });

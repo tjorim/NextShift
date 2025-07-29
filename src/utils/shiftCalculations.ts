@@ -1,9 +1,6 @@
-import dayjs, { type Dayjs } from 'dayjs';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
+import type { Dayjs } from 'dayjs';
 import { CONFIG } from './config';
-
-// Initialize dayjs plugins
-dayjs.extend(weekOfYear);
+import { dayjs, formatYYWWD } from './dateTimeUtils';
 
 export type ShiftType = 'M' | 'E' | 'N' | 'O';
 
@@ -38,37 +35,73 @@ export interface OffDayProgress {
 export const SHIFTS = Object.freeze({
     MORNING: Object.freeze({
         code: 'M',
-        name: '🌅 Morning',
+        emoji: '🌅',
+        name: 'Morning',
         hours: '07:00-15:00',
         start: 7,
         end: 15,
         isWorking: true,
+        className: 'shift-morning',
     }),
     EVENING: Object.freeze({
         code: 'E',
-        name: '🌆 Evening',
+        emoji: '🌆',
+        name: 'Evening',
         hours: '15:00-23:00',
         start: 15,
         end: 23,
         isWorking: true,
+        className: 'shift-evening',
     }),
     NIGHT: Object.freeze({
         code: 'N',
-        name: '🌙 Night',
+        emoji: '🌙',
+        name: 'Night',
         hours: '23:00-07:00',
         start: 23,
         end: 7,
         isWorking: true,
+        className: 'shift-night',
     }),
     OFF: Object.freeze({
         code: 'O',
-        name: '🏠 Off',
+        emoji: '🏠',
+        name: 'Off',
         hours: 'Not working',
         start: null,
         end: null,
         isWorking: false,
+        className: 'shift-off',
     }),
 });
+
+/**
+ * Helper function to get the full display name (emoji + name) for a shift
+ */
+export function getShiftDisplayName(
+    shift: ReturnType<typeof getShiftByCode>,
+): string {
+    return `${shift.emoji} ${shift.name}`;
+}
+
+/**
+ * Helper function to get shift details by code with unknown fallback
+ */
+export function getShiftByCode(code: string | null | undefined) {
+    const shift = Object.values(SHIFTS).find((s) => s.code === code);
+    return (
+        shift || {
+            code: 'U',
+            emoji: '❓',
+            name: 'Unknown',
+            hours: 'Unknown hours',
+            start: null,
+            end: null,
+            isWorking: false,
+            className: 'shift-off',
+        }
+    );
+}
 
 /**
  * Calculates the shift for a given team on a specific date.
@@ -116,20 +149,6 @@ export function calculateShift(
 }
 
 /**
- * Formats a date into the YYWW.D format
- * Note: Year is represented as 2 digits (00-99), valid for years 2000-2099
- * @param date - The date to format
- * @returns The formatted date code (e.g., "2520.2")
- */
-export function formatDateCode(date: string | Date | Dayjs): string {
-    const d = dayjs(date);
-    const year = d.year().toString().slice(-2);
-    const week = d.week().toString().padStart(2, '0');
-    const day = d.day() === 0 ? 7 : d.day(); // Sunday = 7, Monday = 1, etc.
-    return `${year}${week}.${day}`;
-}
-
-/**
  * Returns the current shift day for a given date
  * @param date - The date to check
  * @returns The current shift day
@@ -164,7 +183,8 @@ export function getShiftCode(
         codeDate = codeDate.subtract(1, 'day');
     }
 
-    const dateCode = formatDateCode(codeDate);
+    // Inline formatDateCode logic
+    const dateCode = formatYYWWD(codeDate);
     return `${dateCode}${shift.code}`;
 }
 

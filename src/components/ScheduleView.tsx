@@ -1,18 +1,25 @@
-import dayjs, { type Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Table from 'react-bootstrap/Table';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useSettings } from '../contexts/SettingsContext';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { CONFIG } from '../utils/config';
-import { calculateShift, formatDateCode } from '../utils/shiftCalculations';
-import { getShiftClassName } from '../utils/shiftStyles';
+import {
+    dayjs,
+    formatYYWWD,
+    getISOWeekYear2Digit,
+    getLocalizedShiftTime,
+} from '../utils/dateTimeUtils';
+import { calculateShift, getShiftByCode } from '../utils/shiftCalculations';
 
 interface ScheduleViewProps {
-    selectedTeam: number | null;
+    myTeam: number | null; // The user's team from onboarding
     currentDate: Dayjs;
     setCurrentDate: (date: Dayjs) => void;
 }
@@ -20,30 +27,30 @@ interface ScheduleViewProps {
 /**
  * Renders a weekly schedule table for all teams, allowing users to view, navigate, and select weeks using buttons, a date picker, or keyboard shortcuts.
  *
- * The component displays each team's shift assignments for the selected week, highlights the current day and selected team, and provides accessible ARIA labels for navigation and table elements. Users can move between weeks, jump to the current week, or select a specific date to update the schedule view.
+ * The component displays each team's shift assignments for the selected week, highlights the current day and user's team, and provides accessible ARIA labels for navigation and table elements. Users can move between weeks, jump to the current week, or select a specific date to update the schedule view.
  *
- * @param selectedTeam - The team number currently selected, or null if no team is selected.
+ * @param myTeam - The user's team number from onboarding, or null if no team is selected.
  * @param currentDate - The date used to determine the week displayed.
  * @param setCurrentDate - Function to update the current date in the schedule view.
  */
 export function ScheduleView({
-    selectedTeam: inputSelectedTeam,
+    myTeam: inputMyTeam,
     currentDate,
     setCurrentDate,
 }: ScheduleViewProps) {
-    // Validate and sanitize selectedTeam prop
-    let selectedTeam = inputSelectedTeam;
+    // Validate and sanitize myTeam prop
+    let myTeam = inputMyTeam;
     if (
-        typeof selectedTeam === 'number' &&
-        (selectedTeam < 1 || selectedTeam > CONFIG.TEAMS_COUNT)
+        typeof myTeam === 'number' &&
+        (myTeam < 1 || myTeam > CONFIG.TEAMS_COUNT)
     ) {
         console.warn(
-            `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+            `Invalid team number: ${myTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
         );
-        selectedTeam = null;
+        myTeam = null;
     }
     const isMyTeam = (teamNumber: number) => {
-        return selectedTeam === teamNumber ? 'my-team' : '';
+        return myTeam === teamNumber ? 'my-team' : '';
     };
 
     const handlePrevious = () => {
@@ -77,22 +84,24 @@ export function ScheduleView({
         onNext: handleNext,
     });
 
+    const { settings } = useSettings();
+
     return (
         <Card>
             <Card.Header>
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6 className="mb-0">Schedule Overview</h6>
-                    <fieldset
-                        className="btn-group"
-                        aria-label="Week navigation"
-                    >
+                    <h6 className="mb-0">📅 Schedule Overview</h6>
+                    <ButtonGroup aria-label="Week navigation">
                         <Button
                             variant="outline-secondary"
                             size="sm"
                             onClick={handlePrevious}
                             aria-label="Go to previous week"
                         >
-                            <i className="bi bi-chevron-left me-1"></i>
+                            <i
+                                className="bi bi-chevron-left me-1"
+                                aria-hidden="true"
+                            ></i>
                             Previous
                         </Button>
                         <Button
@@ -101,7 +110,10 @@ export function ScheduleView({
                             onClick={handleCurrent}
                             aria-label="Go to current week"
                         >
-                            <i className="bi bi-house me-1"></i>
+                            <i
+                                className="bi bi-house me-1"
+                                aria-hidden="true"
+                            ></i>
                             This Week
                         </Button>
                         <Button
@@ -111,18 +123,20 @@ export function ScheduleView({
                             aria-label="Go to next week"
                         >
                             Next
-                            <i className="bi bi-chevron-right ms-1"></i>
+                            <i
+                                className="bi bi-chevron-right ms-1"
+                                aria-hidden="true"
+                            ></i>
                         </Button>
-                    </fieldset>
+                    </ButtonGroup>
                 </div>
-                <div className="d-flex align-items-center gap-3">
+                <div className="d-flex justify-content-between align-items-center gap-3">
                     <div className="d-flex align-items-center gap-2">
                         <Form.Label
                             htmlFor="datePicker"
                             className="mb-0 small text-muted"
                         >
-                            <i className="bi bi-calendar3 me-1"></i>
-                            Jump to date:
+                            🎯 Jump to date:
                         </Form.Label>
                         <Form.Control
                             type="date"
@@ -133,15 +147,18 @@ export function ScheduleView({
                             className="date-picker-auto"
                         />
                     </div>
-                    <div className="small text-muted">
-                        Keyboard: ← → arrows, Ctrl+H (this week)
+                    <div
+                        className="small text-muted text-end"
+                        style={{ minWidth: '180px' }}
+                    >
+                        ⌨️ Keyboard: ← → arrows, Ctrl+H (this week)
                     </div>
                 </div>
             </Card.Header>
             <Card.Body>
-                {selectedTeam && (
+                {myTeam && (
                     <div className="mb-3">
-                        <strong>Team {selectedTeam} Schedule:</strong>
+                        <strong>👥 Team {myTeam} Schedule:</strong>
                         <div className="text-muted small">
                             Week of {startOfWeek.format('MMM D')} -{' '}
                             {startOfWeek.add(6, 'day').format('MMM D, YYYY')}
@@ -162,7 +179,7 @@ export function ScheduleView({
                                     return (
                                         <th
                                             key={day.format('YYYY-MM-DD')}
-                                            className={`text-center ${isToday ? 'table-primary' : ''}`}
+                                            className={`text-center ${isToday ? 'today-column' : ''}`}
                                             aria-label={`${day.format('dddd, MMM D')}${isToday ? ' (today)' : ''}`}
                                         >
                                             <div className="fw-semibold">
@@ -177,26 +194,28 @@ export function ScheduleView({
                                                         >
                                                             <strong>
                                                                 Date Code:{' '}
-                                                                {formatDateCode(
+                                                                {formatYYWWD(
                                                                     day,
                                                                 )}
                                                             </strong>
                                                             <br />
                                                             Format: YYWW.D
                                                             <br />
-                                                            YY = Year{' '}
-                                                            {day.format('YY')}
+                                                            YY = ISO Year{' '}
+                                                            {getISOWeekYear2Digit(
+                                                                day,
+                                                            )}
                                                             <br />
-                                                            WW = Week{' '}
-                                                            {day.format('WW')}
-                                                            <br />D = Day{' '}
-                                                            {day.format('d')} (
+                                                            WW = ISO Week{' '}
+                                                            {day.isoWeek()}
+                                                            <br />D = ISO Day{' '}
+                                                            {day.isoWeekday()} (
                                                             {day.format('ddd')})
                                                         </Tooltip>
                                                     }
                                                 >
                                                     <span className="help-underline">
-                                                        {formatDateCode(day)}
+                                                        {formatYYWWD(day)}
                                                     </span>
                                                 </OverlayTrigger>
                                             </div>
@@ -213,7 +232,7 @@ export function ScheduleView({
                                 <tr
                                     key={teamNumber}
                                     className={isMyTeam(teamNumber)}
-                                    aria-label={`Team ${teamNumber}${selectedTeam === teamNumber ? ' (your team)' : ''}`}
+                                    aria-label={`Team ${teamNumber}${myTeam === teamNumber ? ' (your team)' : ''}`}
                                 >
                                     <td className="team-header">
                                         <strong>Team {teamNumber}</strong>
@@ -231,7 +250,7 @@ export function ScheduleView({
                                         return (
                                             <td
                                                 key={day.format('YYYY-MM-DD')}
-                                                className={`text-center ${isToday ? 'table-primary' : ''}`}
+                                                className={`text-center ${isToday ? 'today-column' : ''}`}
                                                 aria-label={`Team ${teamNumber} on ${day.format('dddd')}: ${shift.isWorking ? shift.name : 'Off'}`}
                                             >
                                                 {shift.isWorking && (
@@ -248,26 +267,28 @@ export function ScheduleView({
                                                                 <br />
                                                                 {shift.code ===
                                                                     'M' &&
-                                                                    'Morning shift (7:00-15:00)'}
+                                                                    'Morning shift ('}
                                                                 {shift.code ===
                                                                     'E' &&
-                                                                    'Evening shift (15:00-23:00)'}
+                                                                    'Evening shift ('}
                                                                 {shift.code ===
                                                                     'N' &&
-                                                                    'Night shift (23:00-7:00)'}
+                                                                    'Night shift ('}
                                                                 <br />
                                                                 <em>
                                                                     {shift.name}{' '}
                                                                     -{' '}
-                                                                    {
-                                                                        shift.hours
-                                                                    }
+                                                                    {getLocalizedShiftTime(
+                                                                        shift.start,
+                                                                        shift.end,
+                                                                        settings.timeFormat,
+                                                                    )}
                                                                 </em>
                                                             </Tooltip>
                                                         }
                                                     >
                                                         <Badge
-                                                            className={`shift-code cursor-help ${getShiftClassName(shift.code)}`}
+                                                            className={`shift-code cursor-help ${getShiftByCode(shift.code).className}`}
                                                         >
                                                             {shift.code}
                                                         </Badge>

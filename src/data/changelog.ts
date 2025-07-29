@@ -14,10 +14,18 @@ export interface ChangelogVersion {
 
 export const changelogData: ChangelogVersion[] = [
     {
-        version: '3.1.0',
-        date: '2025-07-25',
+        version: '3.2.0',
+        date: '2025-07-27',
         status: 'current',
         added: [
+            'Welcome Wizard: Interactive onboarding experience for new users',
+            'Optional Team Selection: Users can skip team selection and browse all teams',
+            'Settings Panel: Complete Offcanvas settings with preferences, theme, and time format',
+            'Enhanced Theme Support: Auto/Light/Dark theme switching with system preference detection',
+            'Notification Settings: User-configurable shift reminders and alerts',
+            'Share Functionality: Share app or current view with colleagues',
+            'Settings Reset: Option to clear all preferences and start fresh',
+            'Enhanced User Preferences: Persistent team selection with localStorage',
             'Bootstrap UI Enhancements: Toast notification system for user feedback',
             'Progress bar visualization for off-day tracking (CurrentStatus component)',
             'Tooltips for shift code explanations with enhanced accessibility',
@@ -30,22 +38,62 @@ export const changelogData: ChangelogVersion[] = [
             'Context API integration for toast notifications',
             'Improved accessibility with ARIA labels and tooltips',
             'Consistent styling with Bootstrap component integration',
+            'React Bootstrap component consistency across all UI elements',
+            'Transfer type badges with explanatory tooltips for better UX',
+            'Seamless tab-content styling for professional appearance',
+            'TeamDetailModal: Complete modal for detailed team information and 7-day schedules',
         ],
         changed: [
-            'Updated package.json version to 3.1.0',
+            'Updated package.json version to 3.2.0',
+            'App.tsx: Complete onboarding flow with welcome wizard integration',
+            'CurrentStatus component: Enhanced to handle null team selection gracefully',
+            'Header component: Added Settings panel trigger and enhanced navigation',
             'Enhanced Header component with changelog access button',
             'Improved user feedback with contextual toast notifications',
+            'Centralized Day.js configuration with ISO week numbering support',
+            'Unified date/time formatting utilities across the application',
+            'TransferView: Reorganized controls layout for better space utilization and UX',
+            'TransferInfo interface: Refactored from isHandover boolean to semantic TransferType union',
+            'Shift display: Implemented single source of truth using getShiftDisplayName utility',
+            'TodayView: Converted HTML button cards to proper React Bootstrap Card components',
+            'ScheduleView: Replaced HTML fieldset btn-group with React Bootstrap ButtonGroup',
+            'Component architecture: Improved semantic variable naming and accessibility',
         ],
-        fixed: [],
-        planned: [
-            'Settings panel with preferences',
-            'Team detail modals',
-            'Mobile-optimized carousel navigation',
+        fixed: [
+            'Critical: Sunday week number calculation using ISO week standard (#13)',
+            'Year boundary bug: December 31, 2024 now correctly shows as week 2501.2',
+            'ISO week consistency: All date codes now use ISO week numbering',
+            'Date code accuracy: Night shifts now use correct shift day instead of calendar day',
+            'Cross-day timeline: Fixed timeline to show next shift from tomorrow when needed',
+            'Test environment: dayjs plugin loading and configuration in test suite',
         ],
+        planned: [],
         technicalDetails: {
-            title: 'New Components & Enhancements',
+            title: 'Major Architecture & Component Updates',
             description:
-                'Added ChangelogModal.tsx - Interactive changelog viewer with accordion layout, ToastContext.tsx - Global toast notification system with React Context. Enhanced CurrentStatus with progress bar visualization, Header with changelog modal trigger, and App with toast provider integration.',
+                'Added WelcomeWizard.tsx for onboarding, SettingsPanel.tsx with Offcanvas UI, SettingsContext.tsx for global preferences, dateTimeUtils.ts for centralized date handling. Enhanced App.tsx with complete onboarding flow, CurrentStatus.tsx with null team support, Header.tsx with settings integration. Critical fixes to ISO week numbering and date code calculations.',
+        },
+    },
+    {
+        version: '3.1.0',
+        date: '2025-07-26',
+        status: 'released',
+        added: [
+            'Initial Bootstrap UI foundation and component integration',
+            'Toast notification system prototype',
+            'Progress bar visualization for shift tracking',
+            'Enhanced tooltips and accessibility features',
+            'Changelog infrastructure and version tracking',
+        ],
+        changed: [
+            'Improved component composition patterns',
+            'Enhanced user interface consistency',
+        ],
+        fixed: ['Component testing and integration issues'],
+        technicalDetails: {
+            title: 'UI Foundation',
+            description:
+                'Established Bootstrap UI component integration and accessibility improvements.',
         },
     },
     {
@@ -67,7 +115,7 @@ export const changelogData: ChangelogVersion[] = [
         ],
         changed: [
             'TodayView component now shows consistent content for all teams',
-            'Off teams display "Not working today" instead of empty space',
+            'Off teams display "Not working today" instead of space',
             'Transfer dates include weekday context for better planning',
             "CurrentStatus component shows both working team and user's team status",
         ],
@@ -85,7 +133,7 @@ export const changelogData: ChangelogVersion[] = [
     },
     {
         version: '2.0.0',
-        date: 'Previous Major Release',
+        date: '2025-07-23',
         status: 'released',
         added: [
             'Progressive Web App (PWA) functionality',
@@ -119,16 +167,15 @@ export const changelogData: ChangelogVersion[] = [
 ];
 
 export const futurePlans = {
-    'v3.2.0': {
+    'v3.3.0': {
         title: 'Interactive Features Phase 2',
         features: [
-            'Settings panel with preferences',
-            'Team detail modals',
             'Enhanced data presentation',
             'Advanced navigation options',
+            'Calendar integration features',
         ],
     },
-    'v3.3.0': {
+    'v3.4.0': {
         title: 'Mobile & Advanced UX Phase 3',
         features: [
             'Mobile carousel for team browsing',
@@ -140,7 +187,6 @@ export const futurePlans = {
     future: {
         title: 'Future Releases',
         features: [
-            'Calendar integration',
             'Notification system',
             'Theme customization',
             'Multi-language support',
