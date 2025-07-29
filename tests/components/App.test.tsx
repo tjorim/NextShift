@@ -304,11 +304,21 @@ describe('App', () => {
                 },
             };
 
+            let controllerChangeListener: (() => void) | null = null;
+
             Object.defineProperty(navigator, 'serviceWorker', {
                 value: {
                     getRegistration: vi
                         .fn()
                         .mockResolvedValue(mockRegistration),
+                    addEventListener: vi.fn(
+                        (event: string, listener: () => void) => {
+                            if (event === 'controllerchange') {
+                                controllerChangeListener = listener;
+                            }
+                        },
+                    ),
+                    removeEventListener: vi.fn(),
                 },
                 configurable: true,
             });
@@ -336,7 +346,19 @@ describe('App', () => {
             expect(mockRegistration.waiting.postMessage).toHaveBeenCalledWith({
                 type: 'SKIP_WAITING',
             });
+            expect(
+                navigator.serviceWorker.addEventListener,
+            ).toHaveBeenCalledWith('controllerchange', expect.any(Function));
+
+            // Simulate the controllerchange event
+            if (controllerChangeListener) {
+                controllerChangeListener();
+            }
+
             expect(window.location.reload).toHaveBeenCalled();
+            expect(
+                navigator.serviceWorker.removeEventListener,
+            ).toHaveBeenCalledWith('controllerchange', expect.any(Function));
         });
 
         it('renders later button that can be clicked', async () => {

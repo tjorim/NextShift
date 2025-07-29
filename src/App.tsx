@@ -113,10 +113,10 @@ function AppContent() {
 
     // Show update prompt when service worker has a waiting update
     useEffect(() => {
-        if (serviceWorkerStatus.isWaiting && !showUpdatePrompt) {
+        if (serviceWorkerStatus.isWaiting) {
             setShowUpdatePrompt(true);
         }
-    }, [serviceWorkerStatus.isWaiting, showUpdatePrompt]);
+    }, [serviceWorkerStatus.isWaiting]);
 
     const handleUpdateApp = () => {
         // Send SKIP_WAITING message to service worker to activate update
@@ -125,11 +125,36 @@ function AppContent() {
                 .getRegistration()
                 .then((registration) => {
                     if (registration?.waiting) {
+                        // Show updating message
+                        showInfo('Updating app...', '🔄');
+
+                        // Listen for the new service worker to take control before reloading
+                        const handleControllerChange = () => {
+                            navigator.serviceWorker.removeEventListener(
+                                'controllerchange',
+                                handleControllerChange,
+                            );
+                            window.location.reload();
+                        };
+
+                        navigator.serviceWorker.addEventListener(
+                            'controllerchange',
+                            handleControllerChange,
+                        );
+
+                        // Send message to activate the waiting service worker
                         registration.waiting.postMessage({
                             type: 'SKIP_WAITING',
                         });
-                        // Reload the page to get the new version
-                        window.location.reload();
+
+                        // Fallback timeout in case controllerchange doesn't fire
+                        setTimeout(() => {
+                            navigator.serviceWorker.removeEventListener(
+                                'controllerchange',
+                                handleControllerChange,
+                            );
+                            window.location.reload();
+                        }, 2000);
                     } else {
                         // No waiting service worker, show info and keep prompt open
                         showInfo(
@@ -138,7 +163,8 @@ function AppContent() {
                         );
                     }
                 })
-                .catch(() => {
+                .catch((error) => {
+                    console.error('Error during service worker update:', error);
                     showInfo(
                         'Failed to update the app. Please try again later.',
                         '⚠️',
