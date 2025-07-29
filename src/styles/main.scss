@@ -135,6 +135,12 @@
     height: 8px;
 }
 
+/* Remove top border radius from main component cards in tab content for seamless look, but not nested cards */
+.tab-content .card:not(.card .card) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
 .card-timeline {
     background: var(--bs-card-bg, #fff);
     border: 2px solid var(--bs-border-color, #e3f2fd);

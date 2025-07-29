@@ -1,370 +1,436 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
-import Pagination from 'react-bootstrap/Pagination';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Row from 'react-bootstrap/Row';
+import Table from 'react-bootstrap/Table';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { useTransferCalculations } from '../hooks/useTransferCalculations';
 import { CONFIG } from '../utils/config';
 import { formatDisplayDate } from '../utils/dateTimeUtils';
-import { getShiftClassName } from '../utils/shiftStyles';
+import {
+    getShiftByCode,
+    getShiftDisplayName,
+} from '../utils/shiftCalculations';
 
 interface TransferViewProps {
-    selectedTeam: number | null;
-    initialCompareTeam?: number | null;
+    myTeam: number | null; // The user's team from onboarding
+    initialOtherTeam?: number | null; // Initial other team (e.g., from Team Detail Modal)
 }
 
 /**
- * React component that displays shift transfer events between a selected team and another team over a user-defined date range.
+ * React component that displays shift transfer events between the user's team and another team.
  *
- * Users can select a comparison team and a date range (preset or custom) to view up to 20 detected shift transfers.
- * Transfers are identified based on specific shift transitions (Morning to Evening, Evening to Night, Night to next-day Morning)
- * in both directions between the two teams. Each transfer entry shows the date, involved teams, shift types, and whether it is a handover or takeover.
+ * Shows transfer information in a clean, table format with options to:
+ * - Select which other team to view transfers with
+ * - Optionally filter by custom date range
+ * - Load more transfers with pagination
  *
- * If no team is selected or no transfers are found in the chosen range, an appropriate message is shown.
+ * If no user team is selected or no transfers are found, appropriate messages are shown.
  */
 export function TransferView({
-    selectedTeam: inputSelectedTeam,
-    initialCompareTeam,
+    myTeam: inputMyTeam,
+    initialOtherTeam,
 }: TransferViewProps) {
-    // Validate and sanitize selectedTeam prop
-    let selectedTeam = inputSelectedTeam;
+    // Generate unique ID for tooltips
+    const handoverTooltipId = useId();
+    const takeoverTooltipId = useId();
+    // Validate and sanitize user's team prop
+    let myTeam = inputMyTeam;
     if (
-        typeof selectedTeam === 'number' &&
-        (selectedTeam < 1 || selectedTeam > CONFIG.TEAMS_COUNT)
+        typeof myTeam === 'number' &&
+        (myTeam < 1 || myTeam > CONFIG.TEAMS_COUNT)
     ) {
         console.warn(
-            `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+            `Invalid user team number: ${myTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
         );
-        selectedTeam = null;
+        myTeam = null;
     }
 
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const transfersPerPage = 6; // 2 rows of 3 cards each
+    // Local state
+    const [transfersToShow, setTransfersToShow] = useState(10);
+    const [useCustomRange, setUseCustomRange] = useState(false);
+    const [customStartDate, setCustomStartDate] = useState('');
+    const [customEndDate, setCustomEndDate] = useState('');
 
     // Use the transfer calculations hook
     const {
         transfers,
+        availableOtherTeams,
+        otherTeam,
+        setOtherTeam,
         hasMoreTransfers,
-        availableTeams,
-        compareTeam,
-        setCompareTeam,
-        dateRange,
-        setDateRange,
-        customStartDate,
-        setCustomStartDate,
-        customEndDate,
-        setCustomEndDate,
-    } = useTransferCalculations({ selectedTeam });
+    } = useTransferCalculations({
+        myTeam,
+        limit: transfersToShow,
+        customStartDate: useCustomRange ? customStartDate : undefined,
+        customEndDate: useCustomRange ? customEndDate : undefined,
+    });
 
-    // Calculate pagination
-    const totalPages = Math.ceil(transfers.length / transfersPerPage);
-    const startIndex = (currentPage - 1) * transfersPerPage;
-    const endIndex = startIndex + transfersPerPage;
-    const currentTransfers = transfers.slice(startIndex, endIndex);
-
-    // Set compare team from initial prop
+    // Reset pagination when filters change
+    // biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional to reset on filter changes
     useEffect(() => {
-        if (initialCompareTeam && initialCompareTeam !== compareTeam) {
-            setCompareTeam(initialCompareTeam);
-        }
-    }, [initialCompareTeam, compareTeam, setCompareTeam]);
+        setTransfersToShow(10);
+    }, [otherTeam, useCustomRange, customStartDate, customEndDate]);
 
-    // Reset pagination when the transfer data set changes
-    // biome-ignore lint/correctness/useExhaustiveDependencies: We want to reset pagination when user changes filter criteria
+    // Set initial other team if provided (e.g., when coming from Team Detail Modal)
     useEffect(() => {
-        setCurrentPage(1);
-    }, [compareTeam, dateRange]);
-
-    // Generate page items for pagination
-    const renderPaginationItems = () => {
-        const items = [];
-        const maxVisible = 5;
-
-        if (totalPages <= maxVisible) {
-            // Show all pages if few enough
-            for (let page = 1; page <= totalPages; page++) {
-                items.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => setCurrentPage(page)}
-                    >
-                        {page}
-                    </Pagination.Item>,
-                );
-            }
-        } else {
-            // Show first page
-            items.push(
-                <Pagination.Item
-                    key={1}
-                    active={currentPage === 1}
-                    onClick={() => setCurrentPage(1)}
-                >
-                    1
-                </Pagination.Item>,
-            );
-
-            // Show ellipsis if current page is far from start
-            if (currentPage > 3) {
-                items.push(<Pagination.Ellipsis key="start-ellipsis" />);
-            }
-
-            // Show pages around current page
-            const start = Math.max(2, currentPage - 1);
-            const end = Math.min(totalPages - 1, currentPage + 1);
-
-            for (let page = start; page <= end; page++) {
-                items.push(
-                    <Pagination.Item
-                        key={page}
-                        active={page === currentPage}
-                        onClick={() => setCurrentPage(page)}
-                    >
-                        {page}
-                    </Pagination.Item>,
-                );
-            }
-
-            // Show ellipsis if current page is far from end
-            if (currentPage < totalPages - 2) {
-                items.push(<Pagination.Ellipsis key="end-ellipsis" />);
-            }
-
-            // Show last page
-            items.push(
-                <Pagination.Item
-                    key={totalPages}
-                    active={currentPage === totalPages}
-                    onClick={() => setCurrentPage(totalPages)}
-                >
-                    {totalPages}
-                </Pagination.Item>,
-            );
+        if (initialOtherTeam && initialOtherTeam !== otherTeam) {
+            setOtherTeam(initialOtherTeam);
         }
+    }, [initialOtherTeam, otherTeam, setOtherTeam]);
 
-        return items;
-    };
+    // Clear dates when custom range is disabled
+    useEffect(() => {
+        if (!useCustomRange) {
+            setCustomStartDate('');
+            setCustomEndDate('');
+        }
+    }, [useCustomRange]);
 
     return (
         <Card>
-            <Card.Header>
-                <h6 className="mb-0">Team Transfers</h6>
+            <Card.Header className="d-flex justify-content-between align-items-center">
+                <h6 className="mb-0">
+                    <i className="bi bi-arrow-left-right me-2"></i>
+                    Team Transfers
+                </h6>
+                {myTeam && (
+                    <Badge bg="primary" pill>
+                        <i className="bi bi-person-check me-1"></i>
+                        Your Team: {myTeam}
+                    </Badge>
+                )}
             </Card.Header>
             <Card.Body>
-                <Row className="mb-3">
-                    <Col md={6}>
-                        <Form.Label htmlFor="compareTeam">
-                            Compare with Team:
-                        </Form.Label>
-                        <Form.Select
-                            id="compareTeam"
-                            value={compareTeam}
-                            onChange={(e) =>
-                                setCompareTeam(parseInt(e.target.value))
-                            }
-                        >
-                            {availableTeams.map((teamNumber) => (
-                                <option key={teamNumber} value={teamNumber}>
-                                    Team {teamNumber}
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </Col>
-                    <Col md={6}>
-                        <Form.Label htmlFor="transferRange">
-                            Date Range:
-                        </Form.Label>
-                        <Form.Select
-                            id="transferRange"
-                            value={dateRange}
-                            onChange={(e) => setDateRange(e.target.value)}
-                        >
-                            <option value="14">Next 14 days</option>
-                            <option value="30">Next 30 days</option>
-                            <option value="60">Next 60 days</option>
-                            <option value="custom">Custom range</option>
-                        </Form.Select>
-                    </Col>
-                </Row>
-
-                {dateRange === 'custom' && (
-                    <Row className="mb-3">
-                        <Col md={6}>
-                            <Form.Label htmlFor="startDate">
-                                Start Date:
-                            </Form.Label>
-                            <Form.Control
-                                type="date"
-                                id="startDate"
-                                value={customStartDate}
-                                onChange={(e) =>
-                                    setCustomStartDate(e.target.value)
-                                }
-                            />
-                        </Col>
-                        <Col md={6}>
-                            <Form.Label htmlFor="endDate">End Date:</Form.Label>
-                            <Form.Control
-                                type="date"
-                                id="endDate"
-                                value={customEndDate}
-                                onChange={(e) =>
-                                    setCustomEndDate(e.target.value)
-                                }
-                            />
-                        </Col>
-                    </Row>
-                )}
-
-                <div id="transferInfo">
-                    {!selectedTeam ? (
-                        <div className="text-muted">
+                {!myTeam ? (
+                    <div className="text-center py-4">
+                        <i
+                            className="bi bi-person-plus-fill text-muted mb-3"
+                            style={{ fontSize: '2rem' }}
+                        ></i>
+                        <p className="text-muted mb-0">
                             Please select your team to see transfer information.
-                        </div>
-                    ) : transfers.length === 0 ? (
-                        <div className="text-muted">
-                            No transfers found between Team {selectedTeam} and
-                            Team {compareTeam} in the selected date range.
-                        </div>
-                    ) : (
-                        <div>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h6 className="mb-0">
-                                    Transfers between Team {selectedTeam} and
-                                    Team {compareTeam}
-                                </h6>
-                                <small className="text-muted">
-                                    {transfers.length}{' '}
-                                    {transfers.length === 1
-                                        ? 'transfer'
-                                        : 'transfers'}{' '}
-                                    found
-                                    {totalPages > 1 && (
-                                        <span className="ms-2">
-                                            • Page {currentPage} of {totalPages}
-                                        </span>
-                                    )}
-                                </small>
-                            </div>
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Controls */}
+                        <Row className="mb-3">
+                            <Col md={4}>
+                                <Form.Label
+                                    htmlFor="otherTeam"
+                                    className="fw-semibold"
+                                >
+                                    <i className="bi bi-people me-1"></i>
+                                    View transfers with Team:
+                                </Form.Label>
+                                <Form.Select
+                                    id="otherTeam"
+                                    value={otherTeam}
+                                    onChange={(e) =>
+                                        setOtherTeam(parseInt(e.target.value))
+                                    }
+                                >
+                                    {availableOtherTeams.map((teamNumber) => (
+                                        <option
+                                            key={teamNumber}
+                                            value={teamNumber}
+                                        >
+                                            Team {teamNumber}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Col>
+                            <Col md={8}>
+                                <Form.Check
+                                    type="checkbox"
+                                    id="useCustomRange"
+                                    label="Filter by custom date range"
+                                    checked={useCustomRange}
+                                    onChange={(e) =>
+                                        setUseCustomRange(e.target.checked)
+                                    }
+                                    className="mb-3"
+                                />
+                            </Col>
+                        </Row>
 
-                            <Row className="g-3">
-                                {currentTransfers.map((transfer) => (
-                                    <Col
-                                        key={`${transfer.date.toISOString()}-${transfer.fromTeam}-${transfer.toTeam}`}
-                                        md={6}
-                                        lg={4}
+                        {useCustomRange && (
+                            <Row className="mb-3">
+                                <Col md={5}>
+                                    <Form.Label
+                                        htmlFor="startDate"
+                                        className="fw-semibold"
                                     >
-                                        <Card className="h-100 transfer-card">
-                                            <Card.Body className="p-3">
-                                                <div className="d-flex align-items-center gap-2 mb-2">
-                                                    <i
-                                                        className={`bi ${transfer.isHandover ? 'bi-arrow-right-circle' : 'bi-arrow-left-circle'} text-${transfer.isHandover ? 'success' : 'info'}`}
-                                                        aria-hidden="true"
-                                                    ></i>
-                                                    <strong className="fw-semibold">
-                                                        {formatDisplayDate(
-                                                            transfer.date.toDate(),
-                                                        )}
-                                                    </strong>
-                                                </div>
-                                                <div className="text-muted small mb-2">
-                                                    Team {transfer.fromTeam} →
-                                                    Team {transfer.toTeam}
-                                                </div>
-                                                <div className="mb-2">
-                                                    <Badge
-                                                        className={`${transfer.isHandover ? 'bg-success' : 'bg-info'} text-white`}
-                                                        pill
-                                                    >
-                                                        {transfer.isHandover
-                                                            ? 'Handover'
-                                                            : 'Takeover'}
-                                                    </Badge>
-                                                </div>
-                                                <div className="d-flex gap-2 align-items-center">
-                                                    <Badge
-                                                        className={getShiftClassName(
-                                                            transfer.fromShiftType,
-                                                        )}
-                                                        pill
-                                                    >
-                                                        {transfer.fromShiftName}
-                                                    </Badge>
-                                                    <i
-                                                        className="bi bi-arrow-right text-muted"
-                                                        aria-hidden="true"
-                                                    ></i>
-                                                    <Badge
-                                                        className={getShiftClassName(
-                                                            transfer.toShiftType,
-                                                        )}
-                                                        pill
-                                                    >
-                                                        {transfer.toShiftName}
-                                                    </Badge>
-                                                </div>
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                ))}
+                                        <i className="bi bi-calendar-range me-1"></i>
+                                        Start Date:
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        id="startDate"
+                                        value={customStartDate}
+                                        onChange={(e) =>
+                                            setCustomStartDate(e.target.value)
+                                        }
+                                    />
+                                </Col>
+                                <Col md={5}>
+                                    <Form.Label
+                                        htmlFor="endDate"
+                                        className="fw-semibold"
+                                    >
+                                        End Date:
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        id="endDate"
+                                        value={customEndDate}
+                                        onChange={(e) =>
+                                            setCustomEndDate(e.target.value)
+                                        }
+                                    />
+                                </Col>
+                                <Col md={2} className="d-flex align-items-end">
+                                    <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        className="w-100"
+                                        style={{ minHeight: '38px' }}
+                                        onClick={() => {
+                                            setCustomStartDate('');
+                                            setCustomEndDate('');
+                                        }}
+                                        disabled={
+                                            !customStartDate && !customEndDate
+                                        }
+                                    >
+                                        <i className="bi bi-x-circle me-1"></i>
+                                        Clear
+                                    </Button>
+                                </Col>
                             </Row>
+                        )}
 
-                            {/* Pagination */}
-                            {totalPages > 1 && (
-                                <div className="d-flex justify-content-center mt-4">
-                                    <Pagination size="sm">
-                                        <Pagination.First
-                                            onClick={() => setCurrentPage(1)}
-                                            disabled={currentPage === 1}
-                                        />
-                                        <Pagination.Prev
-                                            onClick={() =>
-                                                setCurrentPage(currentPage - 1)
-                                            }
-                                            disabled={currentPage === 1}
-                                        />
+                        <Row className="mb-3">
+                            <Col>
+                                <Form.Text className="text-muted">
+                                    <i className="bi bi-info-circle me-1"></i>
+                                    Shows transfers between your team and the
+                                    selected team
+                                    {useCustomRange
+                                        ? ' within the specified date range'
+                                        : '. Check the box above to filter by date range'}
+                                    .
+                                </Form.Text>
+                            </Col>
+                        </Row>
 
-                                        {renderPaginationItems()}
-
-                                        <Pagination.Next
-                                            onClick={() =>
-                                                setCurrentPage(currentPage + 1)
-                                            }
-                                            disabled={
-                                                currentPage === totalPages
-                                            }
-                                        />
-                                        <Pagination.Last
-                                            onClick={() =>
-                                                setCurrentPage(totalPages)
-                                            }
-                                            disabled={
-                                                currentPage === totalPages
-                                            }
-                                        />
-                                    </Pagination>
+                        {/* Transfer Results */}
+                        {transfers.length === 0 ? (
+                            <div className="text-center py-4">
+                                <i
+                                    className="bi bi-calendar-x text-muted mb-3"
+                                    style={{ fontSize: '2rem' }}
+                                ></i>
+                                <h6 className="text-muted">
+                                    No Transfers Found
+                                </h6>
+                                <p className="text-muted mb-0">
+                                    No transfers found between Team {myTeam} and
+                                    Team {otherTeam}
+                                    {useCustomRange &&
+                                        (customStartDate || customEndDate) &&
+                                        ' in the selected date range'}
+                                    .
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="d-flex justify-content-end mb-2">
+                                    <small className="text-muted">
+                                        Showing {transfers.length}{' '}
+                                        {transfers.length === 1
+                                            ? 'transfer'
+                                            : 'transfers'}
+                                        {hasMoreTransfers &&
+                                            ' (more available)'}
+                                    </small>
                                 </div>
-                            )}
 
-                            {hasMoreTransfers && (
-                                <div className="d-flex align-items-center gap-2 text-muted small mt-3">
-                                    <i
-                                        className="bi bi-info-circle"
-                                        aria-hidden="true"
-                                    ></i>
-                                    <span>
-                                        Some transfers may not be shown. Narrow
-                                        your date range for complete results.
-                                    </span>
+                                <div className="table-responsive">
+                                    <Table hover className="align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Teams</th>
+                                                <th>Transfer Type</th>
+                                                <th>Shift Change</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {transfers.map((transfer) => (
+                                                <tr
+                                                    key={`${transfer.date.toISOString()}-${transfer.fromTeam}-${transfer.toTeam}`}
+                                                >
+                                                    <td>
+                                                        <div className="d-flex align-items-center">
+                                                            <i
+                                                                className={`bi ${
+                                                                    transfer.type ===
+                                                                    'handover'
+                                                                        ? 'bi-arrow-right-circle text-success'
+                                                                        : 'bi-arrow-left-circle text-info'
+                                                                } me-2`}
+                                                            ></i>
+                                                            <strong>
+                                                                {formatDisplayDate(
+                                                                    transfer.date.toDate(),
+                                                                )}
+                                                            </strong>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="d-flex align-items-center gap-1">
+                                                            <Badge
+                                                                bg={
+                                                                    transfer.fromTeam ===
+                                                                    myTeam
+                                                                        ? 'primary'
+                                                                        : 'outline-secondary'
+                                                                }
+                                                                className="text-nowrap"
+                                                            >
+                                                                {transfer.fromTeam ===
+                                                                myTeam
+                                                                    ? 'Your '
+                                                                    : ''}
+                                                                Team{' '}
+                                                                {
+                                                                    transfer.fromTeam
+                                                                }
+                                                            </Badge>
+                                                            <i className="bi bi-arrow-right text-muted"></i>
+                                                            <Badge
+                                                                bg={
+                                                                    transfer.toTeam ===
+                                                                    myTeam
+                                                                        ? 'primary'
+                                                                        : 'outline-secondary'
+                                                                }
+                                                                className="text-nowrap"
+                                                            >
+                                                                {transfer.toTeam ===
+                                                                myTeam
+                                                                    ? 'Your '
+                                                                    : ''}
+                                                                Team{' '}
+                                                                {
+                                                                    transfer.toTeam
+                                                                }
+                                                            </Badge>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            overlay={
+                                                                <Tooltip
+                                                                    id={
+                                                                        transfer.type ===
+                                                                        'handover'
+                                                                            ? handoverTooltipId
+                                                                            : takeoverTooltipId
+                                                                    }
+                                                                >
+                                                                    {transfer.type ===
+                                                                    'handover'
+                                                                        ? 'Your team transfers to them'
+                                                                        : 'They transfer to your team'}
+                                                                </Tooltip>
+                                                            }
+                                                        >
+                                                            <Badge
+                                                                bg={
+                                                                    transfer.type ===
+                                                                    'handover'
+                                                                        ? 'success'
+                                                                        : 'info'
+                                                                }
+                                                                pill
+                                                                style={{
+                                                                    cursor: 'help',
+                                                                }}
+                                                            >
+                                                                {transfer.type ===
+                                                                'handover'
+                                                                    ? 'Handover'
+                                                                    : 'Takeover'}
+                                                            </Badge>
+                                                        </OverlayTrigger>
+                                                    </td>
+                                                    <td>
+                                                        <div className="d-flex align-items-center gap-2">
+                                                            <Badge
+                                                                className={
+                                                                    getShiftByCode(
+                                                                        transfer.fromShiftType,
+                                                                    ).className
+                                                                }
+                                                                pill
+                                                            >
+                                                                {getShiftDisplayName(
+                                                                    getShiftByCode(
+                                                                        transfer.fromShiftType,
+                                                                    ),
+                                                                )}
+                                                            </Badge>
+                                                            <i className="bi bi-arrow-right text-muted"></i>
+                                                            <Badge
+                                                                className={
+                                                                    getShiftByCode(
+                                                                        transfer.toShiftType,
+                                                                    ).className
+                                                                }
+                                                                pill
+                                                            >
+                                                                {getShiftDisplayName(
+                                                                    getShiftByCode(
+                                                                        transfer.toShiftType,
+                                                                    ),
+                                                                )}
+                                                            </Badge>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
                                 </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+
+                                {hasMoreTransfers && (
+                                    <div className="text-center mt-3">
+                                        <Button
+                                            variant="outline-primary"
+                                            size="sm"
+                                            onClick={() =>
+                                                setTransfersToShow(
+                                                    (prev) => prev + 10,
+                                                )
+                                            }
+                                        >
+                                            <i className="bi bi-plus-circle me-1"></i>
+                                            Load More Transfers
+                                        </Button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
             </Card.Body>
         </Card>
     );

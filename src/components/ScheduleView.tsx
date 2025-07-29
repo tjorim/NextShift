@@ -1,6 +1,7 @@
 import type { Dayjs } from 'dayjs';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -18,7 +19,7 @@ import {
 import { calculateShift, getShiftByCode } from '../utils/shiftCalculations';
 
 interface ScheduleViewProps {
-    selectedTeam: number | null;
+    myTeam: number | null; // The user's team from onboarding
     currentDate: Dayjs;
     setCurrentDate: (date: Dayjs) => void;
 }
@@ -26,30 +27,30 @@ interface ScheduleViewProps {
 /**
  * Renders a weekly schedule table for all teams, allowing users to view, navigate, and select weeks using buttons, a date picker, or keyboard shortcuts.
  *
- * The component displays each team's shift assignments for the selected week, highlights the current day and selected team, and provides accessible ARIA labels for navigation and table elements. Users can move between weeks, jump to the current week, or select a specific date to update the schedule view.
+ * The component displays each team's shift assignments for the selected week, highlights the current day and user's team, and provides accessible ARIA labels for navigation and table elements. Users can move between weeks, jump to the current week, or select a specific date to update the schedule view.
  *
- * @param selectedTeam - The team number currently selected, or null if no team is selected.
+ * @param myTeam - The user's team number from onboarding, or null if no team is selected.
  * @param currentDate - The date used to determine the week displayed.
  * @param setCurrentDate - Function to update the current date in the schedule view.
  */
 export function ScheduleView({
-    selectedTeam: inputSelectedTeam,
+    myTeam: inputMyTeam,
     currentDate,
     setCurrentDate,
 }: ScheduleViewProps) {
-    // Validate and sanitize selectedTeam prop
-    let selectedTeam = inputSelectedTeam;
+    // Validate and sanitize myTeam prop
+    let myTeam = inputMyTeam;
     if (
-        typeof selectedTeam === 'number' &&
-        (selectedTeam < 1 || selectedTeam > CONFIG.TEAMS_COUNT)
+        typeof myTeam === 'number' &&
+        (myTeam < 1 || myTeam > CONFIG.TEAMS_COUNT)
     ) {
         console.warn(
-            `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+            `Invalid team number: ${myTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
         );
-        selectedTeam = null;
+        myTeam = null;
     }
     const isMyTeam = (teamNumber: number) => {
-        return selectedTeam === teamNumber ? 'my-team' : '';
+        return myTeam === teamNumber ? 'my-team' : '';
     };
 
     const handlePrevious = () => {
@@ -90,10 +91,7 @@ export function ScheduleView({
             <Card.Header>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                     <h6 className="mb-0">📅 Schedule Overview</h6>
-                    <fieldset
-                        className="btn-group"
-                        aria-label="Week navigation"
-                    >
+                    <ButtonGroup aria-label="Week navigation">
                         <Button
                             variant="outline-secondary"
                             size="sm"
@@ -130,7 +128,7 @@ export function ScheduleView({
                                 aria-hidden="true"
                             ></i>
                         </Button>
-                    </fieldset>
+                    </ButtonGroup>
                 </div>
                 <div className="d-flex justify-content-between align-items-center gap-3">
                     <div className="d-flex align-items-center gap-2">
@@ -158,9 +156,9 @@ export function ScheduleView({
                 </div>
             </Card.Header>
             <Card.Body>
-                {selectedTeam && (
+                {myTeam && (
                     <div className="mb-3">
-                        <strong>👥 Team {selectedTeam} Schedule:</strong>
+                        <strong>👥 Team {myTeam} Schedule:</strong>
                         <div className="text-muted small">
                             Week of {startOfWeek.format('MMM D')} -{' '}
                             {startOfWeek.add(6, 'day').format('MMM D, YYYY')}
@@ -234,7 +232,7 @@ export function ScheduleView({
                                 <tr
                                     key={teamNumber}
                                     className={isMyTeam(teamNumber)}
-                                    aria-label={`Team ${teamNumber}${selectedTeam === teamNumber ? ' (your team)' : ''}`}
+                                    aria-label={`Team ${teamNumber}${myTeam === teamNumber ? ' (your team)' : ''}`}
                                 >
                                     <td className="team-header">
                                         <strong>Team {teamNumber}</strong>

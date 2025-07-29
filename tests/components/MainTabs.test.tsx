@@ -9,29 +9,25 @@ import { dayjs } from '../../src/utils/dateTimeUtils';
 
 // Mock the child components
 vi.mock('../../src/components/TodayView', () => ({
-    TodayView: ({ selectedTeam }: { selectedTeam: number | null }) => (
-        <div data-testid="today-view">TodayView - Team {selectedTeam}</div>
+    TodayView: ({ myTeam }: { myTeam: number | null }) => (
+        <div data-testid="today-view">TodayView - Team {myTeam}</div>
     ),
 }));
 
 vi.mock('../../src/components/ScheduleView', () => ({
-    ScheduleView: ({ selectedTeam }: { selectedTeam: number | null }) => (
-        <div data-testid="schedule-view">
-            ScheduleView - Team {selectedTeam}
-        </div>
+    ScheduleView: ({ myTeam }: { myTeam: number | null }) => (
+        <div data-testid="schedule-view">ScheduleView - Team {myTeam}</div>
     ),
 }));
 
 vi.mock('../../src/components/TransferView', () => ({
-    TransferView: ({ selectedTeam }: { selectedTeam: number | null }) => (
-        <div data-testid="transfer-view">
-            TransferView - Team {selectedTeam}
-        </div>
+    TransferView: ({ myTeam }: { myTeam: number | null }) => (
+        <div data-testid="transfer-view">TransferView - Team {myTeam}</div>
     ),
 }));
 
 const defaultProps = {
-    selectedTeam: 1,
+    myTeam: 1,
     currentDate: dayjs('2025-01-15'),
     setCurrentDate: vi.fn(),
     todayShifts: [],

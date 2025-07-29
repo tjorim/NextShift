@@ -21,7 +21,7 @@ describe('SettingsContext unified user state', () => {
         expect(result.current.settings.timeFormat).toBe('24h');
         expect(result.current.settings.theme).toBe('auto');
         expect(result.current.settings.notifications).toBe('off');
-        expect(result.current.selectedTeam).toBe(null);
+        expect(result.current.myTeam).toBe(null);
         expect(result.current.hasCompletedOnboarding).toBe(false);
     });
 
@@ -40,9 +40,9 @@ describe('SettingsContext unified user state', () => {
         });
         expect(result.current.settings.notifications).toBe('on');
         await act(async () => {
-            result.current.setSelectedTeam(3);
+            result.current.setMyTeam(3);
         });
-        expect(result.current.selectedTeam).toBe(3);
+        expect(result.current.myTeam).toBe(3);
         await act(async () => {
             result.current.setHasCompletedOnboarding(true);
         });
@@ -52,11 +52,11 @@ describe('SettingsContext unified user state', () => {
     it('resets all user state', () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
         act(() => {
-            result.current.setSelectedTeam(2);
+            result.current.setMyTeam(2);
             result.current.setHasCompletedOnboarding(true);
             result.current.resetSettings();
         });
-        expect(result.current.selectedTeam).toBe(null);
+        expect(result.current.myTeam).toBe(null);
         expect(result.current.hasCompletedOnboarding).toBe(false);
         expect(result.current.settings.timeFormat).toBe('24h');
     });
@@ -68,7 +68,7 @@ describe('SettingsContext unified user state', () => {
             JSON.stringify({ foo: 'bar' }),
         );
         const { result } = renderHook(() => useSettings(), { wrapper });
-        expect(result.current.selectedTeam).toBe(null);
+        expect(result.current.myTeam).toBe(null);
         expect(result.current.hasCompletedOnboarding).toBe(false);
         expect(result.current.settings.timeFormat).toBe('24h');
     });
@@ -77,7 +77,7 @@ describe('SettingsContext unified user state', () => {
         window.localStorage.setItem('hasCompletedOnboarding', 'true');
         window.localStorage.setItem(
             'nextshift_user_preferences',
-            JSON.stringify({ selectedTeam: 2 }),
+            JSON.stringify({ myTeam: 2 }),
         );
         window.localStorage.setItem(
             'userSettings',
@@ -91,14 +91,14 @@ describe('SettingsContext unified user state', () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
         // Should fallback to default, as migration is not implemented, but this test documents the gap
         expect(result.current.hasCompletedOnboarding).toBe(false);
-        expect(result.current.selectedTeam).toBe(null);
+        expect(result.current.myTeam).toBe(null);
         expect(result.current.settings.timeFormat).toBe('24h');
     });
 
     it('resetSettings clears unified key and does not leave old keys', () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
         act(() => {
-            result.current.setSelectedTeam(1);
+            result.current.setMyTeam(1);
             result.current.setHasCompletedOnboarding(true);
             result.current.updateTimeFormat('12h');
         });
@@ -109,7 +109,7 @@ describe('SettingsContext unified user state', () => {
         expect(stored).not.toBeNull();
         expect(JSON.parse(stored || '{}')).toEqual({
             hasCompletedOnboarding: false,
-            selectedTeam: null,
+            myTeam: null,
             settings: {
                 timeFormat: '24h',
                 theme: 'auto',

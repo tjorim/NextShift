@@ -29,8 +29,8 @@ function AppContent() {
     const [showAbout, setShowAbout] = useState(false);
     const { showSuccess, showInfo } = useToast();
     const {
-        selectedTeam,
-        setSelectedTeam,
+        myTeam,
+        setMyTeam,
         hasCompletedOnboarding,
         completeOnboardingWithTeam,
         settings,
@@ -53,7 +53,7 @@ function AppContent() {
         if (teamParam && hasCompletedOnboarding) {
             const teamNumber = parseInt(teamParam, 10);
             if (teamNumber >= 1 && teamNumber <= 5) {
-                setSelectedTeam(teamNumber);
+                setMyTeam(teamNumber);
             }
         }
 
@@ -69,7 +69,7 @@ function AppContent() {
         if (urlParams.toString()) {
             window.history.replaceState({}, '', window.location.pathname);
         }
-    }, [hasCompletedOnboarding, setSelectedTeam, setCurrentDate]); // Run when onboarding completes
+    }, [hasCompletedOnboarding, setMyTeam, setCurrentDate]); // Run when onboarding completes
 
     // Show welcome wizard only on first visit (never completed onboarding)
     useEffect(() => {
@@ -153,14 +153,14 @@ function AppContent() {
                     <Header onShowAbout={() => setShowAbout(true)} />
                     <ErrorBoundary>
                         <CurrentStatus
-                            selectedTeam={selectedTeam}
+                            myTeam={myTeam}
                             onChangeTeam={handleChangeTeam}
                             onShowWhoIsWorking={handleShowWhoIsWorking}
                         />
                     </ErrorBoundary>
                     <ErrorBoundary>
                         <MainTabs
-                            selectedTeam={selectedTeam}
+                            myTeam={myTeam}
                             currentDate={currentDate}
                             setCurrentDate={setCurrentDate}
                             todayShifts={todayShifts}

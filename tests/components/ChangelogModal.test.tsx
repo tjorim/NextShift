@@ -65,9 +65,7 @@ describe('ChangelogModal', () => {
             render(<ChangelogModal {...defaultProps} />);
 
             // Test that status badges are rendered (without checking specific versions)
-            const statusBadges = screen.getAllByText(
-                /(Current|Released|Planned)/,
-            );
+            const statusBadges = screen.getAllByText(/(Current|Released)/);
             expect(statusBadges.length).toBeGreaterThan(0);
         });
 
@@ -107,7 +105,7 @@ describe('ChangelogModal', () => {
             render(<ChangelogModal {...defaultProps} />);
 
             // Test pattern: verify sections render with proper icons and structure
-            const sectionTypes = ['Added', 'Changed', 'Fixed', 'Planned'];
+            const sectionTypes = ['Added', 'Changed', 'Fixed'];
 
             sectionTypes.forEach((sectionType) => {
                 const hasThisSection = changelogData.some((version) => {
@@ -209,7 +207,6 @@ describe('ChangelogModal', () => {
             expect(screen.getAllByText('Added').length).toBeGreaterThan(0);
             expect(screen.getAllByText('Changed').length).toBeGreaterThan(0);
             expect(screen.getAllByText('Fixed').length).toBeGreaterThan(0);
-            expect(screen.getByText('Planned')).toBeInTheDocument();
 
             // Check for Bootstrap icons (via class names) in the DOM
             const addedElements = screen.getAllByText('Added');
@@ -221,9 +218,6 @@ describe('ChangelogModal', () => {
 
             // Check that different section types exist across versions
             expect(screen.getAllByText('Added').length).toBeGreaterThan(0);
-
-            // v3.1.0 has planned items
-            expect(screen.getByText('Planned')).toBeInTheDocument();
 
             // Other versions may have changed/fixed items
             const changedHeaders = screen.getAllByText('Changed');
@@ -246,7 +240,7 @@ describe('ChangelogModal', () => {
             // Check for the combined text in Coming Soon section
             expect(
                 screen.getByText(
-                    /Settings panel with preferences, Team detail modals/,
+                    /Settings panel with preferences, Enhanced data presentation/,
                 ),
             ).toBeInTheDocument();
             expect(

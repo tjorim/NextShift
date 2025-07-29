@@ -1,6 +1,6 @@
 // Unified user state (implemented):
 // - hasCompletedOnboarding: boolean
-// - selectedTeam: number | null
+// - myTeam: number | null (the user's team from onboarding)
 // - settings: {
 //     timeFormat: '12h' | '24h',
 //     theme: 'light' | 'dark' | 'auto',
@@ -34,8 +34,8 @@ interface SettingsContextType {
     updateNotifications: (setting: NotificationSetting) => void;
     resetSettings: () => void;
     // Unified user state additions:
-    selectedTeam: number | null;
-    setSelectedTeam: (team: number | null) => void;
+    myTeam: number | null; // The user's team from onboarding
+    setMyTeam: (team: number | null) => void;
     hasCompletedOnboarding: boolean;
     setHasCompletedOnboarding: (completed: boolean) => void;
     // Atomic update for onboarding completion with team selection
@@ -50,13 +50,13 @@ const defaultSettings: UserSettings = {
 
 interface NextShiftUserState {
     hasCompletedOnboarding: boolean;
-    selectedTeam: number | null;
+    myTeam: number | null; // The user's team from onboarding
     settings: UserSettings;
 }
 
 const defaultUserState: NextShiftUserState = {
     hasCompletedOnboarding: false,
-    selectedTeam: null,
+    myTeam: null,
     settings: defaultSettings,
 };
 
@@ -83,8 +83,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         if (typeof state !== 'object' || state === null) return false;
         const s = state as Record<string, unknown>;
         if (typeof s.hasCompletedOnboarding !== 'boolean') return false;
-        if (!(typeof s.selectedTeam === 'number' || s.selectedTeam === null))
-            return false;
+        if (!(typeof s.myTeam === 'number' || s.myTeam === null)) return false;
         if (typeof s.settings !== 'object' || s.settings === null) return false;
         const settings = s.settings as Record<string, unknown>;
         if (!['12h', '24h'].includes(settings.timeFormat as string))
@@ -138,11 +137,11 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         setUserState(defaultUserState);
     }, [setUserState]);
 
-    const setSelectedTeam = useCallback(
+    const setMyTeam = useCallback(
         (team: number | null) => {
             setUserState((prev: NextShiftUserState) => ({
                 ...prev,
-                selectedTeam: team,
+                myTeam: team,
             }));
         },
         [setUserState],
@@ -162,7 +161,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         (team: number | null) => {
             setUserState((prev: NextShiftUserState) => ({
                 ...prev,
-                selectedTeam: team,
+                myTeam: team,
                 hasCompletedOnboarding: true,
             }));
         },
@@ -176,8 +175,8 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
             updateTheme,
             updateNotifications,
             resetSettings,
-            selectedTeam: userState.selectedTeam,
-            setSelectedTeam,
+            myTeam: userState.myTeam,
+            setMyTeam,
             hasCompletedOnboarding: userState.hasCompletedOnboarding,
             setHasCompletedOnboarding,
             completeOnboardingWithTeam,
@@ -188,7 +187,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
             updateTheme,
             updateNotifications,
             resetSettings,
-            setSelectedTeam,
+            setMyTeam,
             setHasCompletedOnboarding,
             completeOnboardingWithTeam,
         ],

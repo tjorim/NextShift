@@ -99,7 +99,7 @@ export function TeamDetailModal({
     );
 
     const toast = useToast();
-    const { settings, selectedTeam } = useSettings();
+    const { settings, myTeam } = useSettings();
 
     // Share handler for this team
     const handleShareSchedule = async () => {
@@ -116,7 +116,7 @@ export function TeamDetailModal({
     };
 
     // Button state logic - only allow viewing transfers for other teams, not your own
-    const isViewingOwnTeam = teamNumber === selectedTeam;
+    const isViewingOwnTeam = teamNumber === myTeam;
     const canViewTransfers = !isViewingOwnTeam;
 
     return (

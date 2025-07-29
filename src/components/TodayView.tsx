@@ -16,7 +16,7 @@ import { getShiftByCode } from '../utils/shiftCalculations';
 
 interface TodayViewProps {
     todayShifts: ShiftResult[];
-    selectedTeam: number | null;
+    myTeam: number | null; // The user's team from onboarding
     onTodayClick: () => void;
     onTeamClick?: (teamNumber: number) => void;
 }
@@ -73,7 +73,13 @@ function TeamCard({
                                     <>
                                         {shift.emoji} <em>{shift.name}</em>
                                         <br />
-                                        {shift.hours}
+                                        {shift.start && shift.end
+                                            ? getLocalizedShiftTime(
+                                                  shift.start,
+                                                  shift.end,
+                                                  settings.timeFormat,
+                                              )
+                                            : shift.hours}
                                     </>
                                 );
                             })()}
@@ -123,29 +129,36 @@ function TeamCard({
 
     if (onTeamClick) {
         return (
-            <button
-                type="button"
-                className={`card team-card-interactive w-100 text-start${
+            <Card
+                className={`team-card-interactive w-100${
                     isMyTeam ? ' my-team' : ''
                 }`}
                 onClick={() => onTeamClick(shiftResult.teamNumber)}
                 title={`View details for Team ${shiftResult.teamNumber}`}
+                style={{ cursor: 'pointer' }}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onTeamClick(shiftResult.teamNumber);
+                    }
+                }}
             >
-                <div className="card-body p-3">{cardContent}</div>
-            </button>
+                <Card.Body className="p-3">{cardContent}</Card.Body>
+            </Card>
         );
     }
 
     return (
-        <div className={`card${isMyTeam ? ' my-team' : ''}`}>
-            <div className="card-body p-3">{cardContent}</div>
-        </div>
+        <Card className={isMyTeam ? 'my-team' : ''}>
+            <Card.Body className="p-3">{cardContent}</Card.Body>
+        </Card>
     );
 }
 
 export function TodayView({
     todayShifts,
-    selectedTeam,
+    myTeam,
     onTodayClick,
     onTeamClick,
 }: TodayViewProps) {
@@ -202,9 +215,7 @@ export function TodayView({
                         >
                             <TeamCard
                                 shiftResult={shiftResult}
-                                isMyTeam={
-                                    selectedTeam === shiftResult.teamNumber
-                                }
+                                isMyTeam={myTeam === shiftResult.teamNumber}
                                 isCurrentlyActive={isCurrentlyActive(
                                     shiftResult,
                                 )}

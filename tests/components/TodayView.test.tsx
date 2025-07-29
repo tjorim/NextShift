@@ -74,7 +74,7 @@ const mockTodayShifts: ShiftResult[] = [
 
 const defaultProps = {
     todayShifts: mockTodayShifts,
-    selectedTeam: 1,
+    myTeam: 1,
     onTodayClick: vi.fn(),
 };
 
@@ -105,20 +105,16 @@ describe('TodayView', () => {
     });
 
     describe('Team highlighting', () => {
-        it('highlights selected team', () => {
-            renderWithProviders(
-                <TodayView {...defaultProps} selectedTeam={1} />,
-            );
+        it('highlights my team', () => {
+            renderWithProviders(<TodayView {...defaultProps} myTeam={1} />);
 
-            // The selected team should have my-team class on the div element
+            // The my team should have my-team class on the div element
             const team1Element = screen.getByText('Team 1').closest('.my-team');
             expect(team1Element).toBeInTheDocument();
         });
 
-        it('handles no selected team', () => {
-            renderWithProviders(
-                <TodayView {...defaultProps} selectedTeam={null} />,
-            );
+        it('handles no my team', () => {
+            renderWithProviders(<TodayView {...defaultProps} myTeam={null} />);
 
             // Should render without errors
             expect(screen.getByText('Team 1')).toBeInTheDocument();

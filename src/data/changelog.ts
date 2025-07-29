@@ -38,6 +38,10 @@ export const changelogData: ChangelogVersion[] = [
             'Context API integration for toast notifications',
             'Improved accessibility with ARIA labels and tooltips',
             'Consistent styling with Bootstrap component integration',
+            'React Bootstrap component consistency across all UI elements',
+            'Transfer type badges with explanatory tooltips for better UX',
+            'Seamless tab-content styling for professional appearance',
+            'TeamDetailModal: Complete modal for detailed team information and 7-day schedules',
         ],
         changed: [
             'Updated package.json version to 3.2.0',
@@ -48,6 +52,12 @@ export const changelogData: ChangelogVersion[] = [
             'Improved user feedback with contextual toast notifications',
             'Centralized dayjs configuration with ISO week numbering support',
             'Unified date/time formatting utilities across the application',
+            'TransferView: Reorganized controls layout for better space utilization and UX',
+            'TransferInfo interface: Refactored from isHandover boolean to semantic TransferType union',
+            'Shift display: Implemented single source of truth using getShiftDisplayName utility',
+            'TodayView: Converted HTML button cards to proper React Bootstrap Card components',
+            'ScheduleView: Replaced HTML fieldset btn-group with React Bootstrap ButtonGroup',
+            'Component architecture: Improved semantic variable naming and accessibility',
         ],
         fixed: [
             'Critical: Sunday week number calculation using ISO week standard (#13)',
@@ -57,11 +67,7 @@ export const changelogData: ChangelogVersion[] = [
             'Cross-day timeline: Fixed timeline to show next shift from tomorrow when needed',
             'Test environment: dayjs plugin loading and configuration in test suite',
         ],
-        planned: [
-            'Team detail modals with 7-day schedule view',
-            'Enhanced List Groups for data organization',
-            'Mobile-optimized carousel navigation',
-        ],
+        planned: [],
         technicalDetails: {
             title: 'Major Architecture & Component Updates',
             description:
@@ -165,7 +171,6 @@ export const futurePlans = {
         title: 'Interactive Features Phase 2',
         features: [
             'Settings panel with preferences',
-            'Team detail modals',
             'Enhanced data presentation',
             'Advanced navigation options',
         ],

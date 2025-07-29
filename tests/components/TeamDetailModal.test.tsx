@@ -19,7 +19,7 @@ describe('TeamDetailModal', () => {
             'nextshift_user_state',
             JSON.stringify({
                 hasCompletedOnboarding: true,
-                selectedTeam: 2,
+                myTeam: 2,
                 settings: {
                     timeFormat: '24h',
                     theme: 'auto',
@@ -37,7 +37,7 @@ describe('TeamDetailModal', () => {
         );
 
         // Simulate user is on team 2 (default selectedTeam is null, so we need to set it)
-        // For this test, we assume the context is set up so selectedTeam === teamNumber
+        // For this test, we assume the context is set up so myTeam === teamNumber
         // The button should be disabled
         const button = screen.getByRole('button', { name: /view transfers/i });
         expect(button).toBeDisabled();
@@ -58,7 +58,7 @@ describe('TeamDetailModal', () => {
             'nextshift_user_state',
             JSON.stringify({
                 hasCompletedOnboarding: true,
-                selectedTeam: 2,
+                myTeam: 2,
                 settings: {
                     timeFormat: '24h',
                     theme: 'auto',

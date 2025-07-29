@@ -52,14 +52,6 @@ Critical features and improvements that significantly impact user experience.
 - **Estimated Effort**: 30 minutes
 - **Status**: 🔲 Planned
 
-#### 4. Modal for Team Details
-- **Component**: `react-bootstrap/Modal`
-- **Use Cases**:
-  - Click team card to see detailed 7-day schedule
-  - Transfer history for specific team
-- **Implementation**: New TeamDetailModal component
-- **Estimated Effort**: 3–4 hours
-- **Status**: 🔲 Planned
 
 ### 🎯 Medium-Priority Items
 Features that enhance functionality with moderate development effort.
@@ -161,7 +153,6 @@ Advanced features for future development phases.
 1. **Export Schedule Feature** - Calendar export functionality (user-facing)
 2. **Keyboard Shortcuts** - Enhanced navigation and UX
 3. **Version Sync Fix** - Quick changelog alignment (30 min)
-4. **Team Detail Modals** - Detailed team information and schedules
 
 ### 📋 Backlog
 5. **Enhanced List Groups** - Better data organization

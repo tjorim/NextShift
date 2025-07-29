@@ -15,6 +15,7 @@ import {
     dayjs,
     formatTimeByPreference,
     formatYYWWD,
+    getLocalizedShiftTime,
 } from '../utils/dateTimeUtils';
 import type {
     NextShiftResult,
@@ -33,26 +34,26 @@ import {
 import { ShiftTimeline } from './ShiftTimeline';
 
 interface CurrentStatusProps {
-    selectedTeam: number | null;
+    myTeam: number | null; // The user's team from onboarding
     onChangeTeam: () => void;
     onShowWhoIsWorking?: () => void;
 }
 
 /**
- * Renders the current and upcoming work shift details for a selected team, or generic shift information when no team is selected.
+ * Renders the current and upcoming work shift details for the user's team, or generic shift information when no team is selected.
  *
  * When a team is selected: Displays personalized shift status, countdown timers, and off-day progress.
  * When no team is selected: Shows which team is currently working and encourages team selection for personalization.
  * Provides controls to select/change teams and view who is currently working.
  *
- * @param selectedTeam - The team number to display shift information for, or null for generic view.
+ * @param myTeam - The user's team number from onboarding, or null for generic view.
  * @param onChangeTeam - Callback invoked when the user requests to select/change the team.
  * @param onShowWhoIsWorking - Optional callback to show the current working members.
  *
  * @returns A React component displaying current status with team-specific or generic information.
  */
 export function CurrentStatus({
-    selectedTeam,
+    myTeam,
     onChangeTeam,
     onShowWhoIsWorking,
 }: CurrentStatusProps) {
@@ -60,17 +61,17 @@ export function CurrentStatus({
     const dateTooltipId = useId();
     const teamTooltipId = useId();
 
-    // Validate and sanitize selectedTeam prop
+    // Validate and sanitize myTeam prop
     const validatedTeam =
-        typeof selectedTeam === 'number' &&
-        selectedTeam >= 1 &&
-        selectedTeam <= CONFIG.TEAMS_COUNT
-            ? selectedTeam
+        typeof myTeam === 'number' &&
+        myTeam >= 1 &&
+        myTeam <= CONFIG.TEAMS_COUNT
+            ? myTeam
             : null;
 
-    if (selectedTeam !== null && validatedTeam === null) {
+    if (myTeam !== null && validatedTeam === null) {
         console.warn(
-            `Invalid team number: ${selectedTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
+            `Invalid team number: ${myTeam}. Expected 1-${CONFIG.TEAMS_COUNT}`,
         );
     }
     // Always use today's date for current status
@@ -290,7 +291,7 @@ export function CurrentStatus({
                                                                             .shift
                                                                             .code,
                                                                     );
-                                                                return `${shift.emoji} ${shift.name} shift (${shift.hours})`;
+                                                                return `${shift.emoji} ${shift.name} shift (${shift.start && shift.end ? getLocalizedShiftTime(shift.start, shift.end, settings.timeFormat) : shift.hours})`;
                                                             })()}
                                                             <br />
                                                             <em>
@@ -312,14 +313,19 @@ export function CurrentStatus({
                                                         }
                                                     </Badge>
                                                 </OverlayTrigger>
-                                                {currentShift.shift.hours && (
-                                                    <div className="small text-muted mt-1">
-                                                        {
-                                                            currentShift.shift
-                                                                .hours
-                                                        }
-                                                    </div>
-                                                )}
+                                                {currentShift.shift.start &&
+                                                    currentShift.shift.end && (
+                                                        <div className="small text-muted mt-1">
+                                                            {getLocalizedShiftTime(
+                                                                currentShift
+                                                                    .shift
+                                                                    .start,
+                                                                currentShift
+                                                                    .shift.end,
+                                                                settings.timeFormat,
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 {!currentShift.shift
                                                     .isWorking &&
                                                     offDayProgress && (
@@ -366,10 +372,22 @@ export function CurrentStatus({
                                                             }
                                                         </Badge>
                                                         <div className="small text-muted mt-1">
-                                                            {
-                                                                currentWorkingTeam
-                                                                    .shift.hours
-                                                            }
+                                                            {currentWorkingTeam
+                                                                .shift.start &&
+                                                            currentWorkingTeam
+                                                                .shift.end
+                                                                ? getLocalizedShiftTime(
+                                                                      currentWorkingTeam
+                                                                          .shift
+                                                                          .start,
+                                                                      currentWorkingTeam
+                                                                          .shift
+                                                                          .end,
+                                                                      settings.timeFormat,
+                                                                  )
+                                                                : currentWorkingTeam
+                                                                      .shift
+                                                                      .hours}
                                                         </div>
                                                         <div className="small text-success mt-2">
                                                             ✅ Currently working
@@ -423,7 +441,16 @@ export function CurrentStatus({
                                                     - {nextShift.shift.name}
                                                 </div>
                                                 <div className="small text-muted">
-                                                    {nextShift.shift.hours}
+                                                    {nextShift.shift.start &&
+                                                    nextShift.shift.end
+                                                        ? getLocalizedShiftTime(
+                                                              nextShift.shift
+                                                                  .start,
+                                                              nextShift.shift
+                                                                  .end,
+                                                              settings.timeFormat,
+                                                          )
+                                                        : nextShift.shift.hours}
                                                 </div>
                                                 {countdown &&
                                                     !countdown.isExpired &&

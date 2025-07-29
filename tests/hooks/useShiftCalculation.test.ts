@@ -17,7 +17,7 @@ describe('useShiftCalculation', () => {
                 wrapper,
             });
 
-            expect(result.current.selectedTeam).toBeNull();
+            expect(result.current.myTeam).toBeNull();
             expect(dayjs.isDayjs(result.current.currentDate)).toBe(true);
             expect(result.current.currentShift).toBeNull();
         });
@@ -30,40 +30,40 @@ describe('useShiftCalculation', () => {
             });
 
             // Should start with default null value
-            expect(result.current.selectedTeam).toBeNull();
+            expect(result.current.myTeam).toBeNull();
         });
     });
 
     describe('Team Selection', () => {
-        it('updates selected team', () => {
+        it('updates my team', () => {
             const { result } = renderHook(() => useShiftCalculation(), {
                 wrapper,
             });
 
             act(() => {
-                result.current.setSelectedTeam(3);
+                result.current.setMyTeam(3);
             });
 
-            expect(result.current.selectedTeam).toBe(3);
+            expect(result.current.myTeam).toBe(3);
         });
 
-        it('clears selected team', () => {
+        it('clears my team', () => {
             const { result } = renderHook(() => useShiftCalculation(), {
                 wrapper,
             });
 
             // First set a team
             act(() => {
-                result.current.setSelectedTeam(3);
+                result.current.setMyTeam(3);
             });
-            expect(result.current.selectedTeam).toBe(3);
+            expect(result.current.myTeam).toBe(3);
 
             // Then clear it
             act(() => {
-                result.current.setSelectedTeam(null);
+                result.current.setMyTeam(null);
             });
 
-            expect(result.current.selectedTeam).toBeNull();
+            expect(result.current.myTeam).toBeNull();
         });
     });
 
@@ -85,13 +85,13 @@ describe('useShiftCalculation', () => {
     });
 
     describe('Shift Data Integration', () => {
-        it('calculates current shift for selected team', () => {
+        it('calculates current shift for my team', () => {
             const { result } = renderHook(() => useShiftCalculation(), {
                 wrapper,
             });
 
             act(() => {
-                result.current.setSelectedTeam(1);
+                result.current.setMyTeam(1);
             });
 
             expect(result.current.currentShift).not.toBeNull();
@@ -111,13 +111,13 @@ describe('useShiftCalculation', () => {
             ).toBe(true);
         });
 
-        it('calculates next shift for selected team', () => {
+        it('calculates next shift for my team', () => {
             const { result } = renderHook(() => useShiftCalculation(), {
                 wrapper,
             });
 
             act(() => {
-                result.current.setSelectedTeam(1);
+                result.current.setMyTeam(1);
             });
 
             expect(result.current.nextShift).not.toBeNull();

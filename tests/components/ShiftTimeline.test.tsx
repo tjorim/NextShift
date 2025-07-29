@@ -1,9 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import type { Dayjs } from 'dayjs';
+import type React from 'react';
 import { describe, expect, it } from 'vitest';
 import { ShiftTimeline } from '../../src/components/ShiftTimeline';
+import { SettingsProvider } from '../../src/contexts/SettingsContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
+
+// Helper to render component with required providers
+const renderWithProviders = (component: React.ReactElement) => {
+    return render(<SettingsProvider>{component}</SettingsProvider>);
+};
 
 // Mock data for testing
 const createMockShiftResult = (
@@ -58,7 +65,7 @@ describe('ShiftTimeline', () => {
     it('renders timeline header', () => {
         const currentWorkingTeam = createMockShiftResult(1, 'M', today);
 
-        render(
+        renderWithProviders(
             <ShiftTimeline
                 currentWorkingTeam={currentWorkingTeam}
                 today={today}
@@ -72,7 +79,7 @@ describe('ShiftTimeline', () => {
     it('displays current working team with active indicator', () => {
         const currentWorkingTeam = createMockShiftResult(3, 'E', today);
 
-        const { container } = render(
+        const { container } = renderWithProviders(
             <ShiftTimeline
                 currentWorkingTeam={currentWorkingTeam}
                 today={today}
@@ -80,7 +87,7 @@ describe('ShiftTimeline', () => {
         );
 
         expect(screen.getByText('T3')).toBeInTheDocument();
-        
+
         // Find the current working team badge specifically
         const currentBadge = container.querySelector('.timeline-current-badge');
         expect(currentBadge).toBeInTheDocument();
@@ -90,7 +97,7 @@ describe('ShiftTimeline', () => {
     it('shows tooltip on hover for current team', async () => {
         const currentWorkingTeam = createMockShiftResult(2, 'N', today);
 
-        render(
+        renderWithProviders(
             <ShiftTimeline
                 currentWorkingTeam={currentWorkingTeam}
                 today={today}
@@ -113,7 +120,7 @@ describe('ShiftTimeline', () => {
     it('applies correct shift styling classes', () => {
         const morningTeam = createMockShiftResult(1, 'M', today);
 
-        render(
+        renderWithProviders(
             <ShiftTimeline currentWorkingTeam={morningTeam} today={today} />,
         );
 
@@ -125,7 +132,7 @@ describe('ShiftTimeline', () => {
     it('renders timeline flow structure', () => {
         const currentWorkingTeam = createMockShiftResult(1, 'M', today);
 
-        const { container } = render(
+        const { container } = renderWithProviders(
             <ShiftTimeline
                 currentWorkingTeam={currentWorkingTeam}
                 today={today}
@@ -139,10 +146,12 @@ describe('ShiftTimeline', () => {
     it('handles different shift codes correctly', () => {
         const nightTeam = createMockShiftResult(5, 'N', today);
 
-        const { container } = render(<ShiftTimeline currentWorkingTeam={nightTeam} today={today} />);
+        const { container } = renderWithProviders(
+            <ShiftTimeline currentWorkingTeam={nightTeam} today={today} />,
+        );
 
         expect(screen.getByText('T5')).toBeInTheDocument();
-        
+
         // Find the current working team badge specifically
         const currentBadge = container.querySelector('.timeline-current-badge');
         expect(currentBadge).toBeInTheDocument();

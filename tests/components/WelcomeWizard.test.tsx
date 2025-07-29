@@ -12,7 +12,6 @@ const defaultProps = {
     isLoading: false,
 };
 
-
 describe('WelcomeWizard', () => {
     describe('Basic rendering', () => {
         it('renders modal when show is true', () => {
@@ -153,12 +152,12 @@ describe('WelcomeWizard', () => {
                 name: /Choose My Experience/i,
             });
             fireEvent.click(chooseButton);
-            
+
             // Wait for step 3 to appear
             await waitFor(() => {
                 expect(screen.getByText(/Step 3 of 3/i)).toBeInTheDocument();
             });
-            
+
             fireEvent.click(screen.getByLabelText(/Select Team 1/i));
 
             await waitFor(() =>

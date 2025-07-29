@@ -10,7 +10,7 @@ import { TodayView } from './TodayView';
 import { TransferView } from './TransferView';
 
 interface MainTabsProps {
-    selectedTeam: number | null;
+    myTeam: number | null; // The user's team from onboarding
     currentDate: Dayjs;
     setCurrentDate: (date: Dayjs) => void;
     todayShifts: ShiftResult[];
@@ -21,9 +21,9 @@ interface MainTabsProps {
 /**
  * Displays a tabbed interface for viewing today's shifts, the team schedule, or transfer information.
  *
- * Supports both internal and external control of the active tab, and notifies when the tab changes. Each tab presents a different view relevant to the selected team and date.
+ * Supports both internal and external control of the active tab, and notifies when the tab changes. Each tab presents a different view relevant to the user's team and date.
  *
- * @param selectedTeam - The currently selected team number or null
+ * @param myTeam - The user's team number from onboarding or null
  * @param currentDate - The current date being viewed
  * @param setCurrentDate - Function to update the current date
  * @param todayShifts - Array of shift results for today
@@ -32,7 +32,7 @@ interface MainTabsProps {
  * @returns The rendered tabbed interface component.
  */
 export function MainTabs({
-    selectedTeam,
+    myTeam,
     currentDate,
     setCurrentDate,
     todayShifts,
@@ -75,7 +75,6 @@ export function MainTabs({
                     onTabChange?.(newKey);
                 }}
                 id="mainTabs"
-                className="mb-3"
             >
                 <Tab
                     eventKey="today"
@@ -91,7 +90,7 @@ export function MainTabs({
                 >
                     <TodayView
                         todayShifts={todayShifts}
-                        selectedTeam={selectedTeam}
+                        myTeam={myTeam}
                         onTodayClick={handleTodayClick}
                         onTeamClick={handleTeamClick}
                     />
@@ -110,7 +109,7 @@ export function MainTabs({
                     }
                 >
                     <ScheduleView
-                        selectedTeam={selectedTeam}
+                        myTeam={myTeam}
                         currentDate={currentDate}
                         setCurrentDate={setCurrentDate}
                     />
@@ -129,8 +128,8 @@ export function MainTabs({
                     }
                 >
                     <TransferView
-                        selectedTeam={selectedTeam}
-                        initialCompareTeam={transferTargetTeam}
+                        myTeam={myTeam}
+                        initialOtherTeam={transferTargetTeam}
                     />
                 </Tab>
             </Tabs>
@@ -143,10 +142,12 @@ export function MainTabs({
                 onViewTransfers={(team) => {
                     setActiveKey('transfer');
                     onTabChange?.('transfer');
-                    // Only set target team if it's different from user's selected team
-                    if (team !== selectedTeam) {
+                    // Only set initial other team if it's different from user's team
+                    if (team !== myTeam) {
                         setTransferTargetTeam(team);
                     }
+                    // Close the modal after navigation
+                    setShowTeamDetail(false);
                 }}
             />
         </>

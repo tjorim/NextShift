@@ -82,8 +82,8 @@ const mockTodayShifts: ShiftResult[] = [
 // Mock the shift calculation hook with realistic data
 vi.mock('../../src/hooks/useShiftCalculation', () => ({
     useShiftCalculation: () => ({
-        selectedTeam: 1,
-        setSelectedTeam: vi.fn(),
+        myTeam: 1,
+        setMyTeam: vi.fn(),
         currentDate: createMockDate(),
         setCurrentDate: vi.fn(),
         todayShifts: mockTodayShifts,

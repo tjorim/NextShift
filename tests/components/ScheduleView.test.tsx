@@ -100,7 +100,7 @@ vi.mock('../../src/utils/config', () => ({
 }));
 
 const defaultProps = {
-    selectedTeam: 1,
+    myTeam: 1,
     currentDate: dayjs('2025-01-15'),
     setCurrentDate: vi.fn(),
 };
@@ -219,20 +219,18 @@ describe('ScheduleView', () => {
     });
 
     describe('Team highlighting', () => {
-        it('highlights selected team when provided', () => {
-            renderWithProviders(
-                <ScheduleView {...defaultProps} selectedTeam={2} />,
-            );
+        it('highlights my team when provided', () => {
+            renderWithProviders(<ScheduleView {...defaultProps} myTeam={2} />);
 
-            // The selected team row should have my-team class
+            // The my team row should have my-team class
             const team2Element = screen.getByText('Team 2');
             const teamRow = team2Element.closest('tr');
             expect(teamRow).toHaveClass('my-team');
         });
 
-        it('handles no selected team', () => {
+        it('handles no my team', () => {
             renderWithProviders(
-                <ScheduleView {...defaultProps} selectedTeam={null} />,
+                <ScheduleView {...defaultProps} myTeam={null} />,
             );
 
             // Should render without errors

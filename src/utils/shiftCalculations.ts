@@ -79,7 +79,7 @@ export const SHIFTS = Object.freeze({
  * Helper function to get the full display name (emoji + name) for a shift
  */
 export function getShiftDisplayName(
-    shift: (typeof SHIFTS)[keyof typeof SHIFTS],
+    shift: ReturnType<typeof getShiftByCode>,
 ): string {
     return `${shift.emoji} ${shift.name}`;
 }

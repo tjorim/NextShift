@@ -3,6 +3,8 @@ import { useId } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useSettings } from '../contexts/SettingsContext';
+import { getLocalizedShiftTime } from '../utils/dateTimeUtils';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { getAllTeamsShifts, getShiftByCode } from '../utils/shiftCalculations';
 
@@ -103,6 +105,7 @@ export function ShiftTimeline({
 }: ShiftTimelineProps) {
     // Generate unique ID for tooltip to avoid HTML ID conflicts
     const timelineTooltipId = useId();
+    const { settings } = useSettings();
     const { prevShift, nextShift } = computeShiftTimeline(
         today,
         currentWorkingTeam,
@@ -139,7 +142,14 @@ export function ShiftTimeline({
                                 <br />
                                 {currentWorkingTeam.shift.name}
                                 <br />
-                                {currentWorkingTeam.shift.hours}
+                                {currentWorkingTeam.shift.start &&
+                                currentWorkingTeam.shift.end
+                                    ? getLocalizedShiftTime(
+                                          currentWorkingTeam.shift.start,
+                                          currentWorkingTeam.shift.end,
+                                          settings.timeFormat,
+                                      )
+                                    : currentWorkingTeam.shift.hours}
                             </Tooltip>
                         }
                     >

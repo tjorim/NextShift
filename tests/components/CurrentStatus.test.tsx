@@ -149,10 +149,7 @@ describe('CurrentStatus Component', () => {
     describe('Basic Rendering', () => {
         it('should render without crashing', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={null}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={null} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.getByText('Current Status')).toBeInTheDocument();
@@ -160,10 +157,7 @@ describe('CurrentStatus Component', () => {
 
         it('should render the card structure correctly', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={null}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={null} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.getByText('Current Status')).toBeInTheDocument();
@@ -175,7 +169,7 @@ describe('CurrentStatus Component', () => {
         it('should show who is working button when callback is provided', () => {
             renderWithProviders(
                 <CurrentStatus
-                    selectedTeam={1}
+                    myTeam={1}
                     onChangeTeam={mockOnChangeTeam}
                     onShowWhoIsWorking={mockOnShowWhoIsWorking}
                 />,
@@ -190,10 +184,7 @@ describe('CurrentStatus Component', () => {
 
         it('should disable who is working button when callback is not provided', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             const whoIsWorkingButton = screen.getByRole('button', {
@@ -206,10 +197,7 @@ describe('CurrentStatus Component', () => {
     describe('Team Selection States', () => {
         it('should show team selection prompt when no team is selected', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={null}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={null} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(
@@ -226,39 +214,38 @@ describe('CurrentStatus Component', () => {
 
         it('should show current shift information when team is selected', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
-            const teamMorningElements = screen.getAllByText('Team 1: Morning');
-            expect(teamMorningElements.length).toBeGreaterThan(0);
-            const hoursElements = screen.getAllByText('07:00-15:00');
-            expect(hoursElements.length).toBeGreaterThan(0);
+            // Use a function matcher to find an element containing both 'Team 1' and 'Morning'
+            const teamMorning = screen.getAllByText((content, _node) => {
+                const hasTeam = /Team\s*1/.test(content);
+                const hasMorning = /Morning/.test(content);
+                return hasTeam && hasMorning;
+            });
+            expect(teamMorning.length).toBeGreaterThan(0);
+
+            // Also check for hours somewhere in the document (localized format uses en-dash)
+            expect(screen.getAllByText('07:00–15:00').length).toBeGreaterThan(
+                0,
+            );
         });
 
         it('should show next shift information when team is selected', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.getByText('Your Next Shift')).toBeInTheDocument();
             expect(screen.getByText(/2024-01-15.*Evening/)).toBeInTheDocument();
-            expect(screen.getByText('15:00-23:00')).toBeInTheDocument();
+            expect(screen.getByText('15:00–23:00')).toBeInTheDocument();
         });
     });
 
     describe('Date Display', () => {
         it('should display formatted date code', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.getByText(/📅.*Mon 15 Jan/)).toBeInTheDocument();
@@ -282,10 +269,7 @@ describe('CurrentStatus Component', () => {
             });
 
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.getByText(/⏰ Starts in 2h 30m/)).toBeInTheDocument();
@@ -306,10 +290,7 @@ describe('CurrentStatus Component', () => {
             });
 
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             // Should still show countdown
@@ -328,10 +309,7 @@ describe('CurrentStatus Component', () => {
             });
 
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.queryByText(/⏰ Starts in/)).not.toBeInTheDocument();
@@ -349,10 +327,7 @@ describe('CurrentStatus Component', () => {
             });
 
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.queryByText(/⏰ Starts in/)).not.toBeInTheDocument();
@@ -364,10 +339,7 @@ describe('CurrentStatus Component', () => {
             const user = userEvent.setup();
 
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             const changeTeamButton = screen.getByRole('button', {
@@ -383,7 +355,7 @@ describe('CurrentStatus Component', () => {
 
             renderWithProviders(
                 <CurrentStatus
-                    selectedTeam={1}
+                    myTeam={1}
                     onChangeTeam={mockOnChangeTeam}
                     onShowWhoIsWorking={mockOnShowWhoIsWorking}
                 />,
@@ -401,10 +373,7 @@ describe('CurrentStatus Component', () => {
     describe('Edge Cases and Error Handling', () => {
         it('should show fallback when no team is selected', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={null}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={null} onChangeTeam={mockOnChangeTeam} />,
             );
 
             // Should show team selection prompt
@@ -419,10 +388,7 @@ describe('CurrentStatus Component', () => {
             vi.mocked(shiftCalculations.getNextShift).mockReturnValue(null);
 
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(
@@ -445,10 +411,7 @@ describe('CurrentStatus Component', () => {
             });
 
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             // Should not show countdown
@@ -457,10 +420,7 @@ describe('CurrentStatus Component', () => {
 
         it('should handle different team numbers correctly', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={4}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={4} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(screen.getByText('Team 4: Morning')).toBeInTheDocument();
@@ -475,7 +435,7 @@ describe('CurrentStatus Component', () => {
         it('should have proper button labels and titles', () => {
             renderWithProviders(
                 <CurrentStatus
-                    selectedTeam={1}
+                    myTeam={1}
                     onChangeTeam={mockOnChangeTeam}
                     onShowWhoIsWorking={mockOnShowWhoIsWorking}
                 />,
@@ -493,7 +453,7 @@ describe('CurrentStatus Component', () => {
         it('should maintain focus management for buttons', () => {
             renderWithProviders(
                 <CurrentStatus
-                    selectedTeam={1}
+                    myTeam={1}
                     onChangeTeam={mockOnChangeTeam}
                     onShowWhoIsWorking={mockOnShowWhoIsWorking}
                 />,
@@ -517,10 +477,7 @@ describe('CurrentStatus Component', () => {
     describe('Component State Management', () => {
         it('should recalculate shifts when team changes', () => {
             const { rerender } = renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(shiftCalculations.calculateShift).toHaveBeenCalledWith(
@@ -532,7 +489,7 @@ describe('CurrentStatus Component', () => {
                 <ToastProvider>
                     <SettingsProvider>
                         <CurrentStatus
-                            selectedTeam={2}
+                            myTeam={2}
                             onChangeTeam={mockOnChangeTeam}
                         />
                     </SettingsProvider>
@@ -547,10 +504,7 @@ describe('CurrentStatus Component', () => {
 
         it('should use memoized values correctly', () => {
             const { rerender } = renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             const initialCallCount = vi.mocked(shiftCalculations.calculateShift)
@@ -561,7 +515,7 @@ describe('CurrentStatus Component', () => {
                 <ToastProvider>
                     <SettingsProvider>
                         <CurrentStatus
-                            selectedTeam={1}
+                            myTeam={1}
                             onChangeTeam={mockOnChangeTeam}
                         />
                     </SettingsProvider>
@@ -577,10 +531,7 @@ describe('CurrentStatus Component', () => {
     describe('Bootstrap Components Integration', () => {
         it('should render with correct Bootstrap classes', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             // Check for Bootstrap card structure
@@ -598,10 +549,7 @@ describe('CurrentStatus Component', () => {
 
         it('should render badges with correct classes', () => {
             renderWithProviders(
-                <CurrentStatus
-                    selectedTeam={1}
-                    onChangeTeam={mockOnChangeTeam}
-                />,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             const shiftBadges = screen.getAllByText('Team 1: Morning');
