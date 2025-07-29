@@ -5,13 +5,20 @@ import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
+import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
+import { useServiceWorkerStatus } from './hooks/useServiceWorkerStatus';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import { dayjs } from './utils/dateTimeUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
+
+// Service worker update timeout fallback in milliseconds
+// 2000ms provides sufficient time for the controllerchange event to fire
+// while preventing indefinite waiting if the event doesn't trigger
+const SERVICE_WORKER_UPDATE_TIMEOUT = 2000;
 
 /**
  * The main application component for team selection and shift management.
@@ -27,7 +34,9 @@ function AppContent() {
     >('onboarding');
     const [activeTab, setActiveTab] = useState('today');
     const [showAbout, setShowAbout] = useState(false);
+    const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
     const { showSuccess, showInfo } = useToast();
+    const serviceWorkerStatus = useServiceWorkerStatus();
     const {
         myTeam,
         setMyTeam,
@@ -107,6 +116,67 @@ function AppContent() {
         }
     }, [settings.theme]);
 
+    // Show update prompt when service worker has a waiting update
+    useEffect(() => {
+        if (serviceWorkerStatus.isWaiting) {
+            setShowUpdatePrompt(true);
+        }
+    }, [serviceWorkerStatus.isWaiting]);
+
+    const handleUpdateApp = () => {
+        // Send SKIP_WAITING message to service worker to activate update
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .getRegistration()
+                .then((registration) => {
+                    if (registration?.waiting) {
+                        // Show updating message
+                        showInfo('Updating app...', '🔄');
+
+                        // Fallback timeout in case controllerchange doesn't fire
+                        const fallbackTimeout = setTimeout(() => {
+                            window.location.reload();
+                        }, SERVICE_WORKER_UPDATE_TIMEOUT);
+
+                        // Listen for the new service worker to take control before reloading
+                        navigator.serviceWorker.addEventListener(
+                            'controllerchange',
+                            () => {
+                                clearTimeout(fallbackTimeout);
+                                window.location.reload();
+                            },
+                            { once: true },
+                        );
+
+                        // Send message to activate the waiting service worker
+                        registration.waiting.postMessage({
+                            type: 'SKIP_WAITING',
+                        });
+                    } else {
+                        // No waiting service worker, show info and close prompt
+                        showInfo(
+                            'No update is currently available. Please try again later.',
+                            '⚠️',
+                        );
+                        setShowUpdatePrompt(false);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error during service worker update:', error);
+                    showInfo(
+                        'Failed to update the app. Please try again later.',
+                        '⚠️',
+                    );
+                });
+        } else {
+            showInfo('Service workers are not supported in this browser.', '⚠️');
+        }
+    };
+
+    const handleUpdateLater = () => {
+        setShowUpdatePrompt(false);
+    };
+
     const handleTeamSelect = (team: number) => {
         // Use the atomic function to avoid race condition
         completeOnboardingWithTeam(team);
@@ -182,6 +252,11 @@ function AppContent() {
                     <AboutModal
                         show={showAbout}
                         onHide={() => setShowAbout(false)}
+                    />
+                    <UpdateAvailableModal
+                        show={showUpdatePrompt}
+                        onUpdate={handleUpdateApp}
+                        onLater={handleUpdateLater}
                     />
                 </Container>
             </div>
