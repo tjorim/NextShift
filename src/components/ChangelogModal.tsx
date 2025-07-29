@@ -162,14 +162,21 @@ export function ChangelogModal({ show, onHide }: ChangelogModalProps) {
                         <i className="bi bi-rocket me-2"></i>
                         Coming Soon
                     </h6>
-                    <p className="mb-1 small text-muted">
-                        <strong>v3.2.0:</strong>{' '}
-                        {futurePlans['v3.2.0'].features.join(', ')}
-                    </p>
-                    <p className="mb-0 small text-muted">
-                        <strong>v3.3.0:</strong>{' '}
-                        {futurePlans['v3.3.0'].features.join(', ')}
-                    </p>
+                    {Object.entries(futurePlans).map(
+                        ([version, plan], index, array) => (
+                            <p
+                                key={version}
+                                className={
+                                    index === array.length - 1
+                                        ? 'mb-0 small text-muted'
+                                        : 'mb-1 small text-muted'
+                                }
+                            >
+                                <strong>{version}:</strong>{' '}
+                                {plan.features.join(', ')}
+                            </p>
+                        ),
+                    )}
                 </div>
             </Modal.Body>
             <Modal.Footer>

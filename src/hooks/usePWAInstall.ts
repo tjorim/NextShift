@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
     prompt(): Promise<void>;
@@ -18,6 +18,15 @@ export function usePWAInstall() {
     const [isInstallable, setIsInstallable] = useState(false);
     const [isPrompting, setIsPrompting] = useState(false);
 
+    // Check if user previously dismissed auto-prompts (persisted in localStorage)
+    const hasUserDismissedAutoPrompt = useCallback(() => {
+        try {
+            return localStorage.getItem('pwa-auto-prompt-dismissed') === 'true';
+        } catch {
+            return false;
+        }
+    }, []);
+
     useEffect(() => {
         // Early return if window or necessary methods are not available
         if (
@@ -31,13 +40,15 @@ export function usePWAInstall() {
         const handleBeforeInstallPrompt = (e: Event | null) => {
             if (!e) return;
 
-            // Prevent default mini-infobar
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            // Save the event for later use
+            // Save the event for manual triggering
             setDeferredPrompt(e as BeforeInstallPromptEvent);
             setIsInstallable(true);
+
+            // Only prevent auto-prompt if user previously dismissed it
+            // Otherwise, let the browser show its smart auto-prompt
+            if (hasUserDismissedAutoPrompt() && e.preventDefault) {
+                e.preventDefault();
+            }
         };
 
         const handleAppInstalled = () => {
@@ -60,7 +71,7 @@ export function usePWAInstall() {
                 window.removeEventListener('appinstalled', handleAppInstalled);
             }
         };
-    }, []);
+    }, [hasUserDismissedAutoPrompt]);
 
     const promptInstall = async () => {
         if (!deferredPrompt || isPrompting) return false;
@@ -73,6 +84,16 @@ export function usePWAInstall() {
         try {
             await promptToUse.prompt();
             const { outcome } = await promptToUse.userChoice;
+
+            // If user dismisses our manual prompt, remember this for future auto-prompts
+            if (outcome === 'dismissed') {
+                try {
+                    localStorage.setItem('pwa-auto-prompt-dismissed', 'true');
+                } catch {
+                    // Ignore localStorage errors
+                }
+            }
+
             return outcome === 'accepted';
         } catch (error) {
             console.error('Install prompt failed:', error);

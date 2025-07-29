@@ -300,7 +300,7 @@ export function TransferView({
                                                                     transfer.fromTeam ===
                                                                     myTeam
                                                                         ? 'primary'
-                                                                        : 'outline-secondary'
+                                                                        : 'secondary'
                                                                 }
                                                                 className="text-nowrap"
                                                             >
@@ -319,7 +319,7 @@ export function TransferView({
                                                                     transfer.toTeam ===
                                                                     myTeam
                                                                         ? 'primary'
-                                                                        : 'outline-secondary'
+                                                                        : 'secondary'
                                                                 }
                                                                 className="text-nowrap"
                                                             >

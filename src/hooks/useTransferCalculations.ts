@@ -105,6 +105,13 @@ export function useTransferCalculations({
             ? endDate.diff(startDate, 'day') + 1
             : 365; // Default to scanning 1 year forward
 
+        // Add performance warning for large date ranges
+        if (endDate && endDate.diff(startDate, 'day') > 365) {
+            console.warn(
+                'Large date range detected. Consider limiting the range for better performance.',
+            );
+        }
+
         const currentDate = startDate;
 
         for (

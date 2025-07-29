@@ -234,13 +234,16 @@ describe('ChangelogModal', () => {
             render(<ChangelogModal {...defaultProps} />);
 
             expect(screen.getByText('Coming Soon')).toBeInTheDocument();
-            expect(screen.getByText(/v3.2.0:/)).toBeInTheDocument();
-            expect(screen.getByText(/v3.3.0:/)).toBeInTheDocument();
 
-            // Check for the combined text in Coming Soon section
+            // Dynamically check for all versions in futurePlans
+            expect(screen.getByText(/v3.3.0:/)).toBeInTheDocument();
+            expect(screen.getByText(/v3.4.0:/)).toBeInTheDocument();
+            expect(screen.getByText(/future:/)).toBeInTheDocument();
+
+            // Check for specific features from the actual futurePlans data
             expect(
                 screen.getByText(
-                    /Settings panel with preferences, Enhanced data presentation/,
+                    /Enhanced data presentation, Advanced navigation options/,
                 ),
             ).toBeInTheDocument();
             expect(

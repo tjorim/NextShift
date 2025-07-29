@@ -167,15 +167,15 @@ export const changelogData: ChangelogVersion[] = [
 ];
 
 export const futurePlans = {
-    'v3.2.0': {
+    'v3.3.0': {
         title: 'Interactive Features Phase 2',
         features: [
-            'Settings panel with preferences',
             'Enhanced data presentation',
             'Advanced navigation options',
+            'Calendar integration features',
         ],
     },
-    'v3.3.0': {
+    'v3.4.0': {
         title: 'Mobile & Advanced UX Phase 3',
         features: [
             'Mobile carousel for team browsing',

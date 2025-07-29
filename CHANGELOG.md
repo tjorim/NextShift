@@ -8,10 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - Future Enhancements
 
 ### Planned
-- Settings panel with preferences
-- Team detail modals
 - Enhanced data presentation
 - Advanced navigation options
+- Calendar integration features
 - Mobile carousel for team browsing
 - Advanced accessibility features
 - Floating action buttons
@@ -40,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Context API integration for toast notifications
 - Improved accessibility with ARIA labels and tooltips
 - Consistent styling with Bootstrap component integration
+- React Bootstrap component consistency across all UI elements
+- Transfer type badges with explanatory tooltips for better UX
+- Seamless tab-content styling for professional appearance
+- TeamDetailModal: Complete modal for detailed team information and 7-day schedules
 
 ### Changed
 - Updated package.json version to 3.2.0
@@ -50,6 +53,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved user feedback with contextual toast notifications
 - Centralized dayjs configuration with ISO week numbering support
 - Unified date/time formatting utilities across the application
+- TransferView: Reorganized controls layout for better space utilization and UX
+- TransferInfo interface: Refactored from isHandover boolean to semantic TransferType union
+- Shift display: Implemented single source of truth using getShiftDisplayName utility
+- TodayView: Converted HTML button cards to proper React Bootstrap Card components
+- ScheduleView: Replaced HTML fieldset btn-group with React Bootstrap ButtonGroup
+- Component architecture: Improved semantic variable naming and accessibility
 
 ### Fixed
 - Critical: Sunday week number calculation using ISO week standard (#13)
@@ -58,11 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Date code accuracy: Night shifts now use correct shift day instead of calendar day
 - Cross-day timeline: Fixed timeline to show next shift from tomorrow when needed
 - Test environment: dayjs plugin loading and configuration in test suite
-
-### Planned
-- Team detail modals with 7-day schedule view
-- Enhanced List Groups for data organization
-- Mobile-optimized carousel navigation
 
 ### Major Architecture & Component Updates
 Added WelcomeWizard.tsx for onboarding, SettingsPanel.tsx with Offcanvas UI, SettingsContext.tsx for global preferences, dateTimeUtils.ts for centralized date handling. Enhanced App.tsx with complete onboarding flow, CurrentStatus.tsx with null team support, Header.tsx with settings integration. Critical fixes to ISO week numbering and date code calculations.
@@ -146,13 +150,12 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 
 ## Version Planning
 
-### v3.2.0 - Interactive Features Phase 2
-- Settings panel with preferences
-- Team detail modals
+### v3.3.0 - Interactive Features Phase 2
 - Enhanced data presentation
 - Advanced navigation options
+- Calendar integration features
 
-### v3.3.0 - Mobile & Advanced UX Phase 3
+### v3.4.0 - Mobile & Advanced UX Phase 3
 - Mobile carousel for team browsing
 - Advanced accessibility features
 - Floating action buttons

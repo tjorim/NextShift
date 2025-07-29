@@ -56,6 +56,20 @@ Critical features and improvements that significantly impact user experience.
 ### 🎯 Medium-Priority Items
 Features that enhance functionality with moderate development effort.
 
+#### 4. Reusable TeamSelector Component
+- **Component**: Extract common team selection logic
+- **Use Cases**:
+  - Reduce code duplication across TransferView, TeamDetailModal, etc.
+  - Consistent team selection UI/UX
+  - Easier maintenance and updates
+- **Implementation**: Create `components/common/TeamSelector.tsx` with standardized props
+- **Files to Modify**:
+  - `src/components/TransferView.tsx` - Replace dropdown with TeamSelector
+  - `src/components/TeamDetailModal.tsx` - Use common component
+  - Create `src/components/common/TeamSelector.tsx`
+- **Estimated Effort**: 2–3 hours
+- **Status**: 🔲 Planned
+
 #### 5. Enhanced List Groups
 - **Component**: `react-bootstrap/ListGroup`
 - **Use Cases**:
@@ -86,7 +100,22 @@ Features that enhance functionality with moderate development effort.
 - **Estimated Effort**: 2–3 hours
 - **Status**: 🔲 Future
 
-#### 8. PWA Installation Prompts
+#### 8. CurrentStatus Component Refactoring
+- **Component**: Simplify complex conditional rendering in CurrentStatus
+- **Use Cases**:
+  - Improved code readability and maintainability
+  - Easier testing of individual status display logic
+  - Better separation of concerns
+- **Implementation**: Extract nested conditional logic into separate components
+- **Files to Modify**:
+  - `src/components/CurrentStatus.tsx` - Split into smaller components
+  - Create `src/components/status/GenericTeamStatus.tsx`
+  - Create `src/components/status/NoTeamsWorkingMessage.tsx`
+  - Create `src/components/status/CurrentWorkingTeamDisplay.tsx`
+- **Estimated Effort**: 2–3 hours
+- **Status**: 🔲 Planned
+
+#### 9. PWA Installation Prompts
 - **Component**: Intelligent installation timing
 - **Use Cases**:
   - Better onboarding integration
@@ -138,7 +167,29 @@ Advanced features for future development phases.
 - **Estimated Effort**: 3–4 hours
 - **Status**: 🔲 Future
 
-#### 13. Floating Action Button
+#### 13. Multi-Roster Pattern Support
+- **Component**: Configurable shift patterns beyond 5-team 2-2-2-4 cycle
+- **Use Cases**:
+  - Support 3-team, 4-team, 6-team rosters
+  - Different shift patterns (3-3-3-3, 4-4-4-4, custom patterns)
+  - Multiple roster types in same organization
+  - Dynamic team count and shift cycle configuration
+- **Implementation**: Extract hardcoded pattern logic into configurable system
+- **Files to Modify**:
+  - `src/utils/shiftCalculations.ts` - Make SHIFTS and cycle logic configurable
+  - `src/utils/config.ts` - Add roster pattern configuration
+  - `src/components/WelcomeWizard.tsx` - Dynamic team count references
+  - `src/components/AboutModal.tsx` - Dynamic roster description
+  - `CLAUDE.md` - Update documentation for multiple patterns
+- **Technical Requirements**:
+  - Roster pattern schema (teams, shifts per team, cycle length)
+  - Migration system for existing localStorage data
+  - UI for roster selection/configuration
+  - Backward compatibility with current 5-team setup
+- **Estimated Effort**: 8–12 hours (Major feature)
+- **Status**: 🔲 Future
+
+#### 14. Floating Action Button
 - **Component**: Custom positioned `react-bootstrap/Button`
 - **Use Cases**:
   - Quick team switch
@@ -154,16 +205,21 @@ Advanced features for future development phases.
 2. **Keyboard Shortcuts** - Enhanced navigation and UX
 3. **Version Sync Fix** - Quick changelog alignment (30 min)
 
-### 📋 Backlog
+### 📋 Backlog (Code Quality)
+4. **Reusable TeamSelector Component** - Reduce code duplication
+8. **CurrentStatus Component Refactoring** - Simplify complex conditionals
+
+### 📋 Backlog (Features)
 5. **Enhanced List Groups** - Better data organization
 6. **TeamDetailModal Enhancement** - Activate disabled features
 7. **Enhanced Error Boundaries** - Better error handling
-8. **PWA Installation Prompts** – Intelligent installation timing
-9. **Mobile Carousel** - Improved mobile navigation
-10. **Transfer History Accordion** - Organized historical data
-11. **Notification System** - Actual notification functionality
-12. **Advanced Accessibility** - Enhanced screen reader support
-13. **Floating Action Button** - Quick actions overlay
+9. **PWA Installation Prompts** – Intelligent installation timing
+10. **Mobile Carousel** - Improved mobile navigation
+11. **Transfer History Accordion** - Organized historical data
+12. **Notification System** - Actual notification functionality
+13. **Multi-Roster Pattern Support** - Support 3/4/6-team rosters and custom patterns
+14. **Advanced Accessibility** - Enhanced screen reader support
+15. **Floating Action Button** - Quick actions overlay
 
 ## Technical Requirements
 

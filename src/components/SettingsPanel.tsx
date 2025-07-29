@@ -104,7 +104,7 @@ export function SettingsPanel({
                                 Preferences
                             </h6>
                             <ListGroup variant="flush">
-                                <ListGroup.Item className="px-0 py-2">
+                                <ListGroup.Item className="">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
@@ -144,7 +144,7 @@ export function SettingsPanel({
                                         </ButtonGroup>
                                     </div>
                                 </ListGroup.Item>
-                                <ListGroup.Item className="px-0 py-2">
+                                <ListGroup.Item className="">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
@@ -197,7 +197,7 @@ export function SettingsPanel({
                                         </ButtonGroup>
                                     </div>
                                 </ListGroup.Item>
-                                <ListGroup.Item className="px-0 py-2">
+                                <ListGroup.Item className="">
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium text-muted">
@@ -242,7 +242,6 @@ export function SettingsPanel({
                             <ListGroup variant="flush">
                                 <ListGroup.Item
                                     action
-                                    className="px-0 py-2"
                                     onClick={handleChangelogClick}
                                 >
                                     <div className="d-flex justify-content-between align-items-center">
@@ -260,7 +259,6 @@ export function SettingsPanel({
                                 </ListGroup.Item>
                                 <ListGroup.Item
                                     action
-                                    className="px-0 py-2"
                                     onClick={handleAboutHelpClick}
                                 >
                                     <div className="d-flex justify-content-between align-items-center">
@@ -289,11 +287,7 @@ export function SettingsPanel({
                                 Quick Actions
                             </h6>
                             <ListGroup variant="flush">
-                                <ListGroup.Item
-                                    action
-                                    className="px-0 py-2"
-                                    disabled
-                                >
+                                <ListGroup.Item action disabled>
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
@@ -310,11 +304,7 @@ export function SettingsPanel({
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
-                                <ListGroup.Item
-                                    action
-                                    className="px-0 py-2"
-                                    onClick={handleShareApp}
-                                >
+                                <ListGroup.Item action onClick={handleShareApp}>
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
@@ -330,7 +320,6 @@ export function SettingsPanel({
                                 </ListGroup.Item>
                                 <ListGroup.Item
                                     action
-                                    className="px-0 py-2"
                                     onClick={handleShareWithContext}
                                 >
                                     <div className="d-flex justify-content-between align-items-center">
@@ -348,7 +337,6 @@ export function SettingsPanel({
                                 </ListGroup.Item>
                                 <ListGroup.Item
                                     action
-                                    className="px-0 py-2"
                                     onClick={handleResetSettings}
                                 >
                                     <div className="d-flex justify-content-between align-items-center">

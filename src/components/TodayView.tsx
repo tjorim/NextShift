@@ -39,7 +39,11 @@ function TeamCard({
             {isCurrentlyActive && (
                 <>
                     <div className="live-team-overlay"></div>
-                    <Badge bg="success" className="live-badge">
+                    <Badge
+                        bg="success"
+                        className="live-badge"
+                        aria-label={`Team ${shiftResult.teamNumber} is currently working`}
+                    >
                         LIVE
                     </Badge>
                 </>
