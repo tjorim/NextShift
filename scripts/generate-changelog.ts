@@ -68,6 +68,17 @@ ${Object.entries(futurePlans)
         })
         .join('');
 
+    // Generate version links for Keep a Changelog format
+    const versionLinks = [
+        '[Unreleased]: https://github.com/tjorim/NextShift/compare/v3.2.0...HEAD',
+        ...changelogData.slice(0, -1).map((version, index) => {
+            const nextVersion = changelogData[index + 1];
+            return `[${version.version}]: https://github.com/tjorim/NextShift/compare/v${nextVersion.version}...v${version.version}`;
+        }),
+        // Last version compared to initial release
+        `[${changelogData[changelogData.length - 1].version}]: https://github.com/tjorim/NextShift/releases/tag/v${changelogData[changelogData.length - 1].version}`,
+    ];
+
     const footer = `---
 
 ## Version Planning
@@ -82,6 +93,8 @@ ${Object.entries(futurePlans)
 
 ### ${futurePlans.future.title}
 ${futurePlans.future.features.map((feature) => `- ${feature}`).join('\n')}
+
+${versionLinks.join('\n')}
 `;
 
     return header + versions + footer;

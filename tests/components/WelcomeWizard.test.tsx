@@ -15,25 +15,38 @@ const defaultProps = {
 // Test helper functions
 const findModalTitle = async (text: RegExp) => {
     const headings = await screen.findAllByText(text);
-    const modalHeading = headings.find((el) => el.className.includes('modal-title'));
+    const modalHeading = headings.find((el) =>
+        el.className.includes('modal-title'),
+    );
     expect(modalHeading).toBeInTheDocument();
     return modalHeading;
 };
 
 const waitForStep = async (stepNumber: number, timeout = 3000) => {
-    await waitFor(() => {
-        expect(screen.getByText(new RegExp(`Step ${stepNumber} of 3`, 'i'))).toBeInTheDocument();
-    }, { timeout });
+    await waitFor(
+        () => {
+            expect(
+                screen.getByText(new RegExp(`Step ${stepNumber} of 3`, 'i')),
+            ).toBeInTheDocument();
+        },
+        { timeout },
+    );
 };
 
-const navigateWizardSteps = async (user: any) => {
+const navigateWizardSteps = async (
+    user: ReturnType<typeof userEvent.setup>,
+) => {
     // Step 1 -> Step 2
-    const getStartedButton = screen.getByRole('button', { name: /Let's Get Started/i });
+    const getStartedButton = screen.getByRole('button', {
+        name: /Let's Get Started/i,
+    });
     await user.click(getStartedButton);
     await waitForStep(2);
 
-    // Step 2 -> Step 3  
-    const chooseButton = await screen.findByRole('button', { name: /Choose My Experience/i });
+    // Step 2 -> Step 3
+    const chooseButton = await screen.findByRole('button', {
+        name: /Choose My Experience/i,
+    });
     await user.click(chooseButton);
     await waitForStep(3);
 };

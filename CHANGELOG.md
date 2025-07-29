@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Header component: Added Settings panel trigger and enhanced navigation
 - Enhanced Header component with changelog access button
 - Improved user feedback with contextual toast notifications
-- Centralized dayjs configuration with ISO week numbering support
+- Centralized Day.js configuration with ISO week numbering support
 - Unified date/time formatting utilities across the application
 - TransferView: Reorganized controls layout for better space utilization and UX
 - TransferInfo interface: Refactored from isHandover boolean to semantic TransferType union
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Major Architecture & Component Updates
 Added WelcomeWizard.tsx for onboarding, SettingsPanel.tsx with Offcanvas UI, SettingsContext.tsx for global preferences, dateTimeUtils.ts for centralized date handling. Enhanced App.tsx with complete onboarding flow, CurrentStatus.tsx with null team support, Header.tsx with settings integration. Critical fixes to ISO week numbering and date code calculations.
 
-## [3.1.0] - 2025-07-25
+## [3.1.0] - 2025-07-26
 
 ### Added
 - Initial Bootstrap UI foundation and component integration
@@ -107,7 +107,7 @@ Established Bootstrap UI component integration and accessibility improvements.
 
 ### Changed
 - TodayView component now shows consistent content for all teams
-- Off teams display "Not working today" instead of empty space
+- Off teams display "Not working today" instead of space
 - Transfer dates include weekday context for better planning
 - CurrentStatus component shows both working team and user's team status
 
@@ -120,7 +120,7 @@ Established Bootstrap UI component integration and accessibility improvements.
 ### Technical Highlights
 This release focused on UX improvements and code quality, adding 42 comprehensive tests for shift calculations, updating component tests for new UI elements, and refactoring business logic for better maintainability.
 
-## [2.0.0] - Previous Major Release
+## [2.0.0] - 2025-07-23
 
 ### Added
 - Progressive Web App (PWA) functionality
@@ -162,8 +162,13 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 - Accordion for organized data
 
 ### Future Releases
-- Calendar integration
 - Notification system
 - Theme customization
 - Multi-language support
 - Data export capabilities
+
+[Unreleased]: https://github.com/tjorim/NextShift/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/tjorim/NextShift/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/tjorim/NextShift/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/tjorim/NextShift/compare/v2.0.0...v3.0.0
+[2.0.0]: https://github.com/tjorim/NextShift/releases/tag/v2.0.0

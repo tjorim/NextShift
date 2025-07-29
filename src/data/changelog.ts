@@ -50,7 +50,7 @@ export const changelogData: ChangelogVersion[] = [
             'Header component: Added Settings panel trigger and enhanced navigation',
             'Enhanced Header component with changelog access button',
             'Improved user feedback with contextual toast notifications',
-            'Centralized dayjs configuration with ISO week numbering support',
+            'Centralized Day.js configuration with ISO week numbering support',
             'Unified date/time formatting utilities across the application',
             'TransferView: Reorganized controls layout for better space utilization and UX',
             'TransferInfo interface: Refactored from isHandover boolean to semantic TransferType union',
@@ -76,7 +76,7 @@ export const changelogData: ChangelogVersion[] = [
     },
     {
         version: '3.1.0',
-        date: '2025-07-25',
+        date: '2025-07-26',
         status: 'released',
         added: [
             'Initial Bootstrap UI foundation and component integration',
@@ -115,7 +115,7 @@ export const changelogData: ChangelogVersion[] = [
         ],
         changed: [
             'TodayView component now shows consistent content for all teams',
-            'Off teams display "Not working today" instead of empty space',
+            'Off teams display "Not working today" instead of space',
             'Transfer dates include weekday context for better planning',
             "CurrentStatus component shows both working team and user's team status",
         ],
@@ -133,7 +133,7 @@ export const changelogData: ChangelogVersion[] = [
     },
     {
         version: '2.0.0',
-        date: 'Previous Major Release',
+        date: '2025-07-23',
         status: 'released',
         added: [
             'Progressive Web App (PWA) functionality',
@@ -187,7 +187,6 @@ export const futurePlans = {
     future: {
         title: 'Future Releases',
         features: [
-            'Calendar integration',
             'Notification system',
             'Theme customization',
             'Multi-language support',

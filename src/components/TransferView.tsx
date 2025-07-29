@@ -77,11 +77,12 @@ export function TransferView({
     }, [otherTeam, useCustomRange, customStartDate, customEndDate]);
 
     // Set initial other team if provided (e.g., when coming from Team Detail Modal)
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally omitting otherTeam to prevent infinite loop when user changes selection
     useEffect(() => {
         if (initialOtherTeam && initialOtherTeam !== otherTeam) {
             setOtherTeam(initialOtherTeam);
         }
-    }, [initialOtherTeam, otherTeam, setOtherTeam]);
+    }, [initialOtherTeam, setOtherTeam]);
 
     // Clear dates when custom range is disabled
     useEffect(() => {
