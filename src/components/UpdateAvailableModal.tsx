@@ -10,7 +10,11 @@ interface UpdateAvailableModalProps {
 /**
  * Modal that prompts users when an app update is available
  */
-export function UpdateAvailableModal({ show, onUpdate, onLater }: UpdateAvailableModalProps) {
+export function UpdateAvailableModal({
+    show,
+    onUpdate,
+    onLater,
+}: UpdateAvailableModalProps) {
     return (
         <Modal show={show} onHide={onLater} centered backdrop="static">
             <Modal.Header>
@@ -22,10 +26,12 @@ export function UpdateAvailableModal({ show, onUpdate, onLater }: UpdateAvailabl
             <Modal.Body>
                 <div className="text-center">
                     <p className="mb-3">
-                        A new version of NextShift is available with improvements and bug fixes.
+                        A new version of NextShift is available with
+                        improvements and bug fixes.
                     </p>
                     <p className="text-muted mb-0">
-                        The update will be applied immediately and the app will refresh.
+                        The update will be applied immediately and the app will
+                        refresh.
                     </p>
                 </div>
             </Modal.Body>

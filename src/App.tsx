@@ -121,13 +121,31 @@ function AppContent() {
     const handleUpdateApp = () => {
         // Send SKIP_WAITING message to service worker to activate update
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistration().then((registration) => {
-                if (registration?.waiting) {
-                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    // Reload the page to get the new version
-                    window.location.reload();
-                }
-            });
+            navigator.serviceWorker
+                .getRegistration()
+                .then((registration) => {
+                    if (registration?.waiting) {
+                        registration.waiting.postMessage({
+                            type: 'SKIP_WAITING',
+                        });
+                        // Reload the page to get the new version
+                        window.location.reload();
+                    } else {
+                        // No waiting service worker, show info and keep prompt open
+                        showInfo(
+                            'No update is currently available. Please try again later.',
+                            '⚠️',
+                        );
+                    }
+                })
+                .catch(() => {
+                    showInfo(
+                        'Failed to update the app. Please try again later.',
+                        '⚠️',
+                    );
+                });
+        } else {
+            showInfo('Service workers are not supported in this browser.', '⚠️');
         }
         setShowUpdatePrompt(false);
     };
