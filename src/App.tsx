@@ -5,9 +5,11 @@ import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
+import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
+import { useServiceWorkerStatus } from './hooks/useServiceWorkerStatus';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
 import { dayjs } from './utils/dateTimeUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -27,7 +29,9 @@ function AppContent() {
     >('onboarding');
     const [activeTab, setActiveTab] = useState('today');
     const [showAbout, setShowAbout] = useState(false);
+    const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
     const { showSuccess, showInfo } = useToast();
+    const serviceWorkerStatus = useServiceWorkerStatus();
     const {
         myTeam,
         setMyTeam,
@@ -107,6 +111,31 @@ function AppContent() {
         }
     }, [settings.theme]);
 
+    // Show update prompt when service worker has a waiting update
+    useEffect(() => {
+        if (serviceWorkerStatus.isWaiting && !showUpdatePrompt) {
+            setShowUpdatePrompt(true);
+        }
+    }, [serviceWorkerStatus.isWaiting, showUpdatePrompt]);
+
+    const handleUpdateApp = () => {
+        // Send SKIP_WAITING message to service worker to activate update
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then((registration) => {
+                if (registration?.waiting) {
+                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    // Reload the page to get the new version
+                    window.location.reload();
+                }
+            });
+        }
+        setShowUpdatePrompt(false);
+    };
+
+    const handleUpdateLater = () => {
+        setShowUpdatePrompt(false);
+    };
+
     const handleTeamSelect = (team: number) => {
         // Use the atomic function to avoid race condition
         completeOnboardingWithTeam(team);
@@ -182,6 +211,11 @@ function AppContent() {
                     <AboutModal
                         show={showAbout}
                         onHide={() => setShowAbout(false)}
+                    />
+                    <UpdateAvailableModal
+                        show={showUpdatePrompt}
+                        onUpdate={handleUpdateApp}
+                        onLater={handleUpdateLater}
                     />
                 </Container>
             </div>
