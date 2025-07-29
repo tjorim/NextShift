@@ -348,7 +348,9 @@ describe('App', () => {
             });
             expect(
                 navigator.serviceWorker.addEventListener,
-            ).toHaveBeenCalledWith('controllerchange', expect.any(Function), { once: true });
+            ).toHaveBeenCalledWith('controllerchange', expect.any(Function), {
+                once: true,
+            });
 
             // Simulate the controllerchange event
             if (controllerChangeListener) {
