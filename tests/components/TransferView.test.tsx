@@ -156,51 +156,70 @@ describe('TransferView', () => {
             expect(filterCheckbox).not.toBeChecked();
         });
 
-        it('calls setDateRange when user changes date range', async () => {
-            // Removed setDateRange from mock as it's not in the hook return type
+        it('toggles custom date range when checkbox is clicked', async () => {
             const user = userEvent.setup();
             render(<TransferView {...defaultProps} />);
 
             const filterCheckbox = screen.getByLabelText(
                 /Filter by custom date range/i,
             );
+
+            // Initially unchecked
+            expect(filterCheckbox).not.toBeChecked();
+
+            // Click to enable custom range
             await user.click(filterCheckbox);
             expect(filterCheckbox).toBeChecked();
-            // Optionally, check for UI changes or events
+
+            // Date inputs should now be visible
+            expect(screen.getByLabelText(/Start Date/i)).toBeInTheDocument();
+            expect(screen.getByLabelText(/End Date/i)).toBeInTheDocument();
         });
 
-        it('shows custom date inputs when custom range is selected', async () => {
+        it('updates date inputs when user changes custom dates', async () => {
             const user = userEvent.setup();
             render(<TransferView {...defaultProps} />);
 
+            // Enable custom range
             const filterCheckbox = screen.getByLabelText(
                 /Filter by custom date range/i,
             );
             await user.click(filterCheckbox);
-            expect(filterCheckbox).toBeChecked();
 
-            expect(screen.queryByLabelText(/Start Date/i)).not.toBeNull();
-            expect(screen.queryByLabelText(/End Date/i)).not.toBeNull();
+            // Test start date input
+            const startDateInput = screen.getByLabelText(/Start Date/i);
+            await user.type(startDateInput, '2025-01-01');
+            expect(startDateInput).toHaveValue('2025-01-01');
+
+            // Test end date input
+            const endDateInput = screen.getByLabelText(/End Date/i);
+            await user.type(endDateInput, '2025-01-31');
+            expect(endDateInput).toHaveValue('2025-01-31');
         });
 
-        it('calls custom date setters when user changes custom dates', async () => {
-            // Removed setCustomStartDate and setCustomEndDate from mock as they're not in the hook return type
+        it('clears date inputs when clear button is clicked', async () => {
             const user = userEvent.setup();
             render(<TransferView {...defaultProps} />);
 
-            // Simulate enabling custom range if needed
-            // const filterCheckbox = screen.getByLabelText(/Filter by custom date range/i);
-            // await user.click(filterCheckbox);
+            // Enable custom range
+            const filterCheckbox = screen.getByLabelText(
+                /Filter by custom date range/i,
+            );
+            await user.click(filterCheckbox);
 
-            const startDateInput = screen.queryByLabelText(/Start Date/i);
-            const endDateInput = screen.queryByLabelText(/End Date/i);
+            // Set some dates
+            const startDateInput = screen.getByLabelText(/Start Date/i);
+            const endDateInput = screen.getByLabelText(/End Date/i);
+            await user.type(startDateInput, '2025-01-01');
+            await user.type(endDateInput, '2025-01-31');
 
-            if (startDateInput && endDateInput) {
-                await user.type(startDateInput, '2025-01-01');
-                await user.type(endDateInput, '2025-01-31');
+            // Click clear button
+            const clearButton = screen.getByRole('button', { name: /Clear/i });
+            await user.click(clearButton);
 
-                // Optionally, check for UI changes or events
-            }
+            // Dates should be cleared
+            expect(startDateInput).toHaveValue('');
+            expect(endDateInput).toHaveValue('');
         });
     });
 
@@ -344,9 +363,7 @@ describe('TransferView', () => {
                 fromTeam: 1,
                 toTeam: 2,
                 fromShiftType: 'M' as const,
-                fromShiftName: 'Morning',
                 toShiftType: 'E' as const,
-                toShiftName: 'Evening',
                 type: 'handover',
             }));
 

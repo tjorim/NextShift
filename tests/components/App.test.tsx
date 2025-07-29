@@ -28,8 +28,8 @@ vi.mock('../../src/components/MainTabs', () => ({
     MainTabs: () => <div data-testid="main-tabs">MainTabs</div>,
 }));
 
-vi.mock('../../src/components/TeamSelector', () => ({
-    TeamSelector: () => <div data-testid="team-selector">TeamSelector</div>,
+vi.mock('../../src/components/WelcomeWizard', () => ({
+    WelcomeWizard: () => <div data-testid="welcome-wizard">WelcomeWizard</div>,
 }));
 
 vi.mock('../../src/components/ErrorBoundary', () => ({
@@ -102,9 +102,7 @@ describe('App', () => {
             expect(screen.getByTestId('header')).toBeInTheDocument();
             expect(screen.getByTestId('current-status')).toBeInTheDocument();
             expect(screen.getByTestId('main-tabs')).toBeInTheDocument();
-            expect(
-                screen.getByText('Welcome to NextShift!'),
-            ).toBeInTheDocument();
+            expect(screen.getByTestId('welcome-wizard')).toBeInTheDocument();
         });
 
         it('wraps components in error boundaries', () => {

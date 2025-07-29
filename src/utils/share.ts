@@ -28,12 +28,27 @@ export async function share(
             );
             onSuccess?.();
         } else {
-            // Fallback: prompt
-            // TODO: Consider creating a custom modal component instead of window.prompt
-            // This could integrate with the app's toast system for consistent UX
+            // Fallback: manual copy to clipboard using temporary textarea
             const textToCopy = options.url || window.location.href;
-            window.prompt('Copy this link:', textToCopy);
-            onSuccess?.();
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                onSuccess?.();
+            } catch {
+                // Ultimate fallback: let the caller handle this through onError
+                onError?.(
+                    new Error(
+                        'Sharing not supported in this browser. Please copy the URL manually.',
+                    ),
+                );
+            }
         }
     } catch (err) {
         onError?.(err);

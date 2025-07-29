@@ -148,7 +148,7 @@ jobs:
           echo "Checking React app structure..."
           [ -f "src/utils/shiftCalculations.ts" ] && echo "✅ Shift calculations utility found" || { echo "❌ Shift calculations missing"; exit 1; }
           [ -f "src/hooks/useShiftCalculation.ts" ] && echo "✅ Shift calculation hook found" || { echo "❌ Shift calculation hook missing"; exit 1; }
-          [ -f "src/components/TeamSelector.tsx" ] && echo "✅ TeamSelector component found" || { echo "❌ TeamSelector component missing"; exit 1; }
+          [ -f "src/components/WelcomeWizard.tsx" ] && echo "✅ WelcomeWizard component found" || { echo "❌ WelcomeWizard component missing"; exit 1; }
           echo "✅ React app structure validated"
 
       - name: Comment PR with results

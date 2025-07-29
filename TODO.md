@@ -100,20 +100,35 @@ Features that enhance functionality with moderate development effort.
 - **Estimated Effort**: 2–3 hours
 - **Status**: 🔲 Future
 
-#### 8. CurrentStatus Component Refactoring
+#### 8. CurrentStatus Component Refactoring ⭐️
 - **Component**: Simplify complex conditional rendering in CurrentStatus
+- **Priority**: Elevated due to code review feedback
+- **Code Review Feedback**: "This component has grown quite complex with the introduction of the generic view for when no team is selected. The conditional rendering logic, especially within the Your Team Status and Your Next Shift cards, makes it a bit hard to follow." - *Gemini Code Assistant*
 - **Use Cases**:
   - Improved code readability and maintainability
   - Easier testing of individual status display logic
   - Better separation of concerns
-- **Implementation**: Extract nested conditional logic into separate components
+  - Cleaner component architecture with single responsibility
+- **Recommended Implementation**: 
+  - Extract into `PersonalizedStatus` and `GenericStatus` components
+  - Make CurrentStatus a simple router component that decides which view to render
+  - Example structure:
+    ```tsx
+    export function CurrentStatus({ myTeam, currentDate, todayShifts, onTodayClick }) {
+      return myTeam ? (
+        <PersonalizedStatus myTeam={myTeam} currentDate={currentDate} todayShifts={todayShifts} />
+      ) : (
+        <GenericStatus currentDate={currentDate} todayShifts={todayShifts} onTodayClick={onTodayClick} />
+      );
+    }
+    ```
 - **Files to Modify**:
-  - `src/components/CurrentStatus.tsx` - Split into smaller components
-  - Create `src/components/status/GenericTeamStatus.tsx`
-  - Create `src/components/status/NoTeamsWorkingMessage.tsx`
-  - Create `src/components/status/CurrentWorkingTeamDisplay.tsx`
+  - `src/components/CurrentStatus.tsx` - Simplify to router component
+  - Create `src/components/status/PersonalizedStatus.tsx` - Handles user's team view
+  - Create `src/components/status/GenericStatus.tsx` - Handles no-team-selected view
+  - Update tests to cover new component structure
 - **Estimated Effort**: 2–3 hours
-- **Status**: 🔲 Planned
+- **Status**: 🔲 Planned (High Priority)
 
 #### 9. PWA Installation Prompts
 - **Component**: Intelligent installation timing
@@ -201,18 +216,18 @@ Advanced features for future development phases.
 ## Current To-do Status
 
 ### 🔲 Next Up
-1. **Export Schedule Feature** - Calendar export functionality (user-facing)
-2. **Keyboard Shortcuts** - Enhanced navigation and UX
-3. **Version Sync Fix** - Quick changelog alignment (30 min)
+1. **CurrentStatus Component Refactoring** ⭐️ - Elevated priority due to code review feedback
+2. **Export Schedule Feature** - Calendar export functionality (user-facing)
+3. **Keyboard Shortcuts** - Enhanced navigation and UX
+4. **Version Sync Fix** - Quick changelog alignment (30 min)
 
 ### 📋 Backlog (Code Quality)
-4. **Reusable TeamSelector Component** - Reduce code duplication
-8. **CurrentStatus Component Refactoring** - Simplify complex conditionals
+5. **Reusable TeamSelector Component** - Reduce code duplication
 
 ### 📋 Backlog (Features)
-5. **Enhanced List Groups** - Better data organization
-6. **TeamDetailModal Enhancement** - Activate disabled features
-7. **Enhanced Error Boundaries** - Better error handling
+6. **Enhanced List Groups** - Better data organization
+7. **TeamDetailModal Enhancement** - Activate disabled features
+8. **Enhanced Error Boundaries** - Better error handling
 9. **PWA Installation Prompts** – Intelligent installation timing
 10. **Mobile Carousel** - Improved mobile navigation
 11. **Transfer History Accordion** - Organized historical data
