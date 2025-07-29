@@ -348,7 +348,7 @@ describe('App', () => {
             });
             expect(
                 navigator.serviceWorker.addEventListener,
-            ).toHaveBeenCalledWith('controllerchange', expect.any(Function));
+            ).toHaveBeenCalledWith('controllerchange', expect.any(Function), { once: true });
 
             // Simulate the controllerchange event
             if (controllerChangeListener) {
@@ -356,9 +356,6 @@ describe('App', () => {
             }
 
             expect(window.location.reload).toHaveBeenCalled();
-            expect(
-                navigator.serviceWorker.removeEventListener,
-            ).toHaveBeenCalledWith('controllerchange', expect.any(Function));
         });
 
         it('renders later button that can be clicked', async () => {

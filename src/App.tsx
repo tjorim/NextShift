@@ -15,6 +15,11 @@ import { dayjs } from './utils/dateTimeUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
 
+// Service worker update timeout fallback in milliseconds
+// 2000ms provides sufficient time for the controllerchange event to fire
+// while preventing indefinite waiting if the event doesn't trigger
+const SERVICE_WORKER_UPDATE_TIMEOUT = 2000;
+
 /**
  * The main application component for team selection and shift management.
  *
@@ -128,39 +133,32 @@ function AppContent() {
                         // Show updating message
                         showInfo('Updating app...', '🔄');
 
-                        // Listen for the new service worker to take control before reloading
-                        const handleControllerChange = () => {
-                            navigator.serviceWorker.removeEventListener(
-                                'controllerchange',
-                                handleControllerChange,
-                            );
+                        // Fallback timeout in case controllerchange doesn't fire
+                        const fallbackTimeout = setTimeout(() => {
                             window.location.reload();
-                        };
+                        }, SERVICE_WORKER_UPDATE_TIMEOUT);
 
+                        // Listen for the new service worker to take control before reloading
                         navigator.serviceWorker.addEventListener(
                             'controllerchange',
-                            handleControllerChange,
+                            () => {
+                                clearTimeout(fallbackTimeout);
+                                window.location.reload();
+                            },
+                            { once: true },
                         );
 
                         // Send message to activate the waiting service worker
                         registration.waiting.postMessage({
                             type: 'SKIP_WAITING',
                         });
-
-                        // Fallback timeout in case controllerchange doesn't fire
-                        setTimeout(() => {
-                            navigator.serviceWorker.removeEventListener(
-                                'controllerchange',
-                                handleControllerChange,
-                            );
-                            window.location.reload();
-                        }, 2000);
                     } else {
-                        // No waiting service worker, show info and keep prompt open
+                        // No waiting service worker, show info and close prompt
                         showInfo(
                             'No update is currently available. Please try again later.',
                             '⚠️',
                         );
+                        setShowUpdatePrompt(false);
                     }
                 })
                 .catch((error) => {
@@ -173,7 +171,6 @@ function AppContent() {
         } else {
             showInfo('Service workers are not supported in this browser.', '⚠️');
         }
-        setShowUpdatePrompt(false);
     };
 
     const handleUpdateLater = () => {
