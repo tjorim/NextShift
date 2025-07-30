@@ -1,276 +1,950 @@
 [
     {
         "title": "Export Schedule Feature",
-        "component": "Calendar export functionality",
-        "useCases": [
-            "Download shift schedule as .ics calendar file",
-            "Integration with external calendar apps",
-            "Team schedule sharing"
+        "component": "Calendar export functionality for shift schedules",
+        "description": "Implement comprehensive calendar export functionality to allow users to download their shift schedules as .ics files and share them with external calendar applications like Google Calendar, Outlook, and Apple Calendar.",
+        "userStories": [
+            "As a shift worker, I want to export my team's schedule as a calendar file so that I can import it into my personal calendar app",
+            "As a team lead, I want to share our team's schedule with new members so they can quickly add it to their calendars",
+            "As a manager, I want to export multiple team schedules to coordinate coverage and planning across teams"
         ],
-        "implementation": "Add calendar generation utility and activate export buttons",
+        "acceptanceCriteria": [
+            "User can download a .ics calendar file containing their team's shifts for a configurable date range (default: next 3 months)",
+            "Calendar file includes proper event details: shift type, time, location metadata, and team information",
+            "Export functionality is accessible from both Settings Panel and Team Detail Modal",
+            "Calendar events include proper timezone information and recurrence patterns where applicable",
+            "File naming follows convention: 'NextShift_Team{N}_{YYYY-MM-DD}.ics'",
+            "Progress indicator shows during calendar generation for large date ranges",
+            "Error handling for invalid date ranges or generation failures"
+        ],
+        "technicalRequirements": [
+            "Create iCalendar (.ics) generation utility with proper RFC 5545 compliance",
+            "Support for timezone conversion and daylight saving time handling",
+            "Efficient batch processing for large date ranges",
+            "File download mechanism compatible with all major browsers",
+            "Integration with existing shift calculation logic",
+            "Configurable export settings (date range, team selection, event details)"
+        ],
+        "implementation": {
+            "approach": "Create exportCalendar utility using existing shift calculations and implement UI controls",
+            "apiDesign": {
+                "exportTeamSchedule": {
+                    "params": ["teamNumber: number", "startDate: Dayjs", "endDate: Dayjs", "options?: ExportOptions"],
+                    "returns": "Promise<void>",
+                    "description": "Generates and downloads calendar file for specified team and date range"
+                },
+                "generateICalContent": {
+                    "params": ["shifts: ShiftResult[]", "teamNumber: number"],
+                    "returns": "string",
+                    "description": "Converts shift data to RFC 5545 iCalendar format"
+                }
+            },
+            "componentChanges": [
+                "Remove 'Coming Soon' badges and activate export buttons",
+                "Add export configuration modal for date range and options selection",
+                "Implement download progress feedback"
+            ]
+        },
         "filesToModify": [
-            "`src/components/SettingsPanel.tsx` - Remove \"Coming Soon\" badge and enable button",
-            "`src/components/TeamDetailModal.tsx` - Enable export button",
-            "`src/utils/exportCalendar.ts` – Add calendar export utility"
+            "src/utils/exportCalendar.ts - New utility for iCalendar generation and download",
+            "src/components/SettingsPanel.tsx - Remove 'Coming Soon' badge, enable export button, add click handler",
+            "src/components/TeamDetailModal.tsx - Enable export button with team-specific functionality",
+            "src/components/ExportModal.tsx - New modal for export configuration (date range, options)",
+            "src/types/export.ts - TypeScript interfaces for export functionality",
+            "tests/utils/exportCalendar.test.ts - Comprehensive test suite for export functionality"
         ],
-        "estimatedEffort": "3–4 hours",
-        "status": "🔲 Planned",
+        "dependencies": [
+            "dayjs for date manipulation",
+            "Existing shift calculation utilities",
+            "Browser File API for downloads",
+            "React Bootstrap Modal for export configuration"
+        ],
+        "estimatedEffort": "4-5 hours",
+        "complexity": "Medium",
         "priority": "high",
+        "milestone": "v3.3.0",
         "labels": [
             "enhancement",
             "todo-item",
             "priority:high",
-            "feature:export"
+            "feature:export",
+            "effort:medium"
         ]
     },
     {
         "title": "Keyboard Shortcuts Implementation",
-        "component": "Enhanced navigation with keyboard shortcuts",
-        "useCases": [
-            "Quick tab switching (T for Today, S for Schedule, R for Transfers)",
-            "Date navigation (← → arrow keys)",
-            "Settings panel toggle (Ctrl+,)"
+        "component": "Enhanced navigation with comprehensive keyboard shortcuts",
+        "description": "Integrate the existing useKeyboardShortcuts hook throughout the application to provide power users with efficient keyboard-based navigation and control, improving accessibility and user experience.",
+        "userStories": [
+            "As a power user, I want to navigate between tabs using keyboard shortcuts so I can quickly access different views without using the mouse",
+            "As an accessibility-focused user, I want to use arrow keys to navigate dates so I can efficiently browse schedules",
+            "As a frequent user, I want to quickly open settings with a keyboard shortcut so I can access preferences without mouse navigation",
+            "As a mobile user with a bluetooth keyboard, I want keyboard shortcuts to work on mobile so I can navigate efficiently"
         ],
-        "implementation": "Integrate existing useKeyboardShortcuts hook into components",
+        "acceptanceCriteria": [
+            "Tab navigation shortcuts work: T (Today), S (Schedule), R (Transfers)",
+            "Date navigation with arrow keys (← previous day/week, → next day/week) works in relevant views",
+            "Settings panel toggle with Ctrl+, (Cmd+, on Mac) works from any view",
+            "Team selection shortcut Ctrl+T (Cmd+T on Mac) opens team selection",
+            "Shortcuts are disabled when focus is in input fields, textareas, or contentEditable elements",
+            "Visual feedback shows which shortcuts are available (tooltip or help modal)",
+            "Shortcuts work consistently across all major browsers and mobile devices with keyboards",
+            "No conflicts with browser shortcuts or accessibility tools"
+        ],
+        "technicalRequirements": [
+            "Integration of existing useKeyboardShortcuts hook across all relevant components",
+            "Proper focus management to prevent shortcut conflicts with form inputs",
+            "Cross-platform compatibility (Windows Ctrl vs Mac Cmd key handling)",
+            "State management for shortcut availability per view",
+            "Accessibility compliance with screen reader shortcuts"
+        ],
+        "implementation": {
+            "approach": "Incrementally integrate useKeyboardShortcuts hook into main components with proper callback handlers",
+            "existingHooks": "useKeyboardShortcuts hook already exists with comprehensive functionality",
+            "integrationPoints": [
+                "MainTabs: Tab switching and settings toggle",
+                "ScheduleView: Date navigation and today jump",
+                "Header: Settings shortcut and team selection",
+                "TodayView: Team selection shortcut"
+            ],
+            "keyMappings": {
+                "Ctrl+H / Cmd+H": "Jump to today",
+                "Ctrl+K / Cmd+K": "Previous day/week",
+                "Ctrl+J / Cmd+J": "Next day/week", 
+                "Ctrl+T / Cmd+T": "Team selection",
+                "ArrowLeft": "Previous (context-aware)",
+                "ArrowRight": "Next (context-aware)"
+            }
+        },
         "filesToModify": [
-            "`src/components/MainTabs.tsx` - Add shortcut handlers",
-            "`src/components/ScheduleView.tsx` - Add date navigation shortcuts",
-            "`src/components/Header.tsx` - Add settings shortcut"
+            "src/components/MainTabs.tsx - Integrate useKeyboardShortcuts for tab switching and settings",
+            "src/components/ScheduleView.tsx - Add date navigation shortcuts with proper date state management",
+            "src/components/Header.tsx - Add settings panel toggle shortcut",
+            "src/components/TodayView.tsx - Add team selection shortcut integration",
+            "src/components/KeyboardShortcutsHelp.tsx - New component for shortcuts help modal",
+            "tests/hooks/useKeyboardShortcuts.test.ts - Enhanced tests for new integrations"
         ],
-        "estimatedEffort": "2–3 hours",
-        "status": "🔲 Planned",
-        "priority": "high",
+        "dependencies": [
+            "Existing useKeyboardShortcuts hook",
+            "React Bootstrap Modal for help display",
+            "Existing navigation state management"
+        ],
+        "estimatedEffort": "3-4 hours",
+        "complexity": "Low-Medium",
+        "priority": "high", 
+        "milestone": "v3.3.0",
         "labels": [
             "enhancement",
-            "todo-item",
+            "todo-item", 
             "priority:high",
-            "feature:shortcuts"
+            "feature:shortcuts",
+            "a11y:keyboard-navigation",
+            "effort:medium"
         ]
     },
     {
         "title": "Version Sync Fix",
         "component": "Changelog version alignment",
-        "useCases": [
-            "Accurate \"Coming Soon\" version display",
-            "Proper future planning version numbers"
+        "description": "Synchronize version numbers between the application's package.json, changelog display, and future planning sections to ensure accurate 'Coming Soon' version displays and proper roadmap versioning.",
+        "userStories": [
+            "As a user, I want to see accurate version numbers in the changelog so I know what features are coming in which releases",
+            "As a developer, I want version numbers to be consistent across all documentation so there's no confusion about release planning"
         ],
-        "implementation": "Update futurePlans in changelog.ts",
+        "acceptanceCriteria": [
+            "Current version in changelog matches package.json version (3.2.1)",
+            "Future plans show realistic and sequential version numbers",
+            "'Coming Soon' features reference correct upcoming version numbers",
+            "Version numbering follows semantic versioning principles",
+            "Changelog dates align with realistic development timeline"
+        ],
+        "technicalRequirements": [
+            "Review and update futurePlans array in changelog.ts",
+            "Ensure version increment logic follows semantic versioning",
+            "Validate that all 'Coming Soon' references point to valid future versions",
+            "Update any hardcoded version references in UI components"
+        ],
+        "implementation": {
+            "approach": "Quick audit and update of version references in changelog data",
+            "currentVersion": "3.2.1",
+            "nextVersions": {
+                "v3.3.0": "High priority features (Export, Shortcuts, TeamSelector)",
+                "v3.4.0": "Medium priority enhancements (UI improvements, Error boundaries)",
+                "v4.0.0": "Major features (Multi-roster support, Advanced accessibility)"
+            },
+            "changes": [
+                "Update futurePlans version numbers to reflect realistic roadmap",
+                "Align 'Coming Soon' badges with actual planned versions",
+                "Review changelog dates for realistic timeline"
+            ]
+        },
         "filesToModify": [
-            "`src/data/changelog.ts` - Update version numbers in futurePlans"
+            "src/data/changelog.ts - Update version numbers in futurePlans array",
+            "src/components/SettingsPanel.tsx - Verify 'Coming Soon' version references (if any)",
+            "src/components/ChangelogModal.tsx - Ensure version display consistency"
+        ],
+        "dependencies": [
+            "Current package.json version (3.2.1)",
+            "Existing changelog structure"
         ],
         "estimatedEffort": "30 minutes",
-        "status": "🔲 Planned",
+        "complexity": "Very Low",
         "priority": "high",
-        "labels": ["enhancement", "todo-item", "priority:high", "effort:xs"]
-    },
-    {
-        "title": "Reusable TeamSelector Component",
-        "component": "Extract common team selection logic",
-        "useCases": [
-            "Reduce code duplication across TransferView, TeamDetailModal, etc.",
-            "Consistent team selection UI/UX",
-            "Easier maintenance and updates"
-        ],
-        "implementation": "Create `components/common/TeamSelector.tsx` with standardized props",
-        "filesToModify": [
-            "`src/components/TransferView.tsx` - Replace dropdown with TeamSelector",
-            "`src/components/TeamDetailModal.tsx` - Use common component",
-            "Create `src/components/common/TeamSelector.tsx`"
-        ],
-        "estimatedEffort": "2–3 hours",
-        "status": "🔲 Planned",
-        "priority": "high",
-        "labels": ["enhancement", "todo-item", "priority:high"]
-    },
-    {
-        "title": "Enhanced List Groups",
-        "component": "`react-bootstrap/ListGroup`",
-        "useCases": [
-            "Upcoming shifts list",
-            "Recent transfers list",
-            "Clean, organized data display"
-        ],
-        "implementation": "New components for data lists",
-        "filesToModify": [],
-        "estimatedEffort": "2–3 hours",
-        "status": "🔲 Future",
-        "priority": "medium",
-        "labels": ["enhancement", "todo-item", "priority:medium"]
-    },
-    {
-        "title": "TeamDetailModal Enhancement",
-        "component": "Improve existing team detail modal",
-        "useCases": [
-            "Enable export functionality in modal",
-            "Enhanced 7-day schedule view",
-            "Better team information display"
-        ],
-        "implementation": "Activate disabled features and improve UX",
-        "filesToModify": [],
-        "estimatedEffort": "1–2 hours",
-        "status": "🔲 Future",
-        "priority": "medium",
-        "labels": ["enhancement", "todo-item", "priority:medium"]
-    },
-    {
-        "title": "Enhanced Error Boundaries",
-        "component": "More granular error handling",
-        "useCases": [
-            "Component-specific error recovery",
-            "Better error messages for users",
-            "Graceful degradation"
-        ],
-        "implementation": "Add specific error boundaries for complex components",
-        "filesToModify": [],
-        "estimatedEffort": "2–3 hours",
-        "status": "🔲 Future",
-        "priority": "medium",
-        "labels": ["enhancement", "todo-item", "priority:medium"]
+        "milestone": "v3.3.0", 
+        "labels": [
+            "maintenance",
+            "todo-item",
+            "priority:high", 
+            "effort:xs",
+            "documentation"
+        ]
     },
     {
         "title": "CurrentStatus Component Refactoring ⭐️",
         "component": "Simplify complex conditional rendering in CurrentStatus",
-        "useCases": [
-            "Improved code readability and maintainability",
-            "Easier testing of individual status display logic",
-            "Better separation of concerns",
-            "Cleaner component architecture with single responsibility",
-            "**Recommended Implementation**:",
-            "Extract into `PersonalizedStatus` and `GenericStatus` components",
-            "Make CurrentStatus a simple router component that decides which view to render",
-            "Example structure:"
+        "description": "Refactor the CurrentStatus component to address code complexity by extracting conditional rendering logic into separate, focused components. This addresses code review feedback about the component's complexity and improves maintainability.",
+        "userStories": [
+            "As a developer, I want the CurrentStatus component to be easier to understand so I can maintain and extend it more effectively",
+            "As a code reviewer, I want clear separation of concerns so I can review personalized vs generic status logic independently",
+            "As a QA engineer, I want simpler components so I can write more focused and reliable unit tests"
         ],
-        "implementation": "",
+        "acceptanceCriteria": [
+            "CurrentStatus becomes a simple router component that decides which view to render",
+            "PersonalizedStatus component handles all user team-specific status display",
+            "GenericStatus component handles no-team-selected view with team selection encouragement",
+            "All existing functionality is preserved (no regression in features)",
+            "Component props are clearly defined with TypeScript interfaces",
+            "Test coverage is maintained or improved for new component structure",
+            "No visual changes to end-user experience"
+        ],
+        "technicalRequirements": [
+            "Extract conditional rendering logic into separate components",
+            "Maintain existing prop interfaces and callback functions",
+            "Preserve all existing functionality and styling",
+            "Create clear component boundaries with single responsibilities",
+            "Ensure proper TypeScript typing for all new interfaces"
+        ],
+        "implementation": {
+            "approach": "Extract existing conditional logic into focused sub-components",
+            "componentStructure": {
+                "CurrentStatus": "Simple router component (10-15 lines)",
+                "PersonalizedStatus": "Handles myTeam != null case with shift countdown, progress bars",
+                "GenericStatus": "Handles myTeam == null case with team selection prompt"
+            },
+            "exampleStructure": "export function CurrentStatus({ myTeam, currentDate, todayShifts, onTodayClick }) {\n  return myTeam ? (\n    <PersonalizedStatus myTeam={myTeam} currentDate={currentDate} todayShifts={todayShifts} />\n  ) : (\n    <GenericStatus currentDate={currentDate} todayShifts={todayShifts} onTodayClick={onTodayClick} />\n  );\n}",
+            "interfaceDesign": {
+                "PersonalizedStatusProps": "{ myTeam: number; currentDate: Dayjs; todayShifts: ShiftResult[]; }",
+                "GenericStatusProps": "{ currentDate: Dayjs; todayShifts: ShiftResult[]; onTodayClick: () => void; }"
+            },
+            "migrationSteps": [
+                "Create new components directory structure",
+                "Extract PersonalizedStatus with team-specific logic",
+                "Extract GenericStatus with no-team logic", 
+                "Simplify CurrentStatus to router pattern",
+                "Update tests for new component structure",
+                "Verify no visual regressions"
+            ]
+        },
         "filesToModify": [
-            "`src/components/CurrentStatus.tsx` - Simplify to router component",
-            "Create `src/components/status/PersonalizedStatus.tsx` - Handles user's team view",
-            "Create `src/components/status/GenericStatus.tsx` - Handles no-team-selected view",
-            "Update tests to cover new component structure"
+            "src/components/CurrentStatus.tsx - Simplify to simple router component (~15 lines)",
+            "src/components/status/PersonalizedStatus.tsx - New component for user's team view",
+            "src/components/status/GenericStatus.tsx - New component for no-team-selected view",
+            "src/components/status/index.ts - Export barrel for new status components",
+            "tests/components/CurrentStatus.test.tsx - Update tests for new structure",
+            "tests/components/status/PersonalizedStatus.test.tsx - New comprehensive test suite",
+            "tests/components/status/GenericStatus.test.tsx - New comprehensive test suite"
         ],
-        "estimatedEffort": "2–3 hours",
-        "status": "🔲 Planned (High Priority)",
+        "dependencies": [
+            "Existing CurrentStatus component logic",
+            "React Bootstrap components (Card, ProgressBar, Button)",
+            "Existing hooks (useCountdown, useLiveTime)",
+            "Shift calculation utilities"
+        ],
+        "estimatedEffort": "3-4 hours",
+        "complexity": "Medium",
+        "priority": "high",
+        "milestone": "v3.3.0",
+        "labels": [
+            "refactoring",
+            "todo-item",
+            "priority:high",
+            "code-quality",
+            "maintainability",
+            "effort:medium"
+        ]
+    },
+    {
+        "title": "Reusable TeamSelector Component",
+        "component": "Extract common team selection logic into reusable component",
+        "description": "Create a standardized, reusable TeamSelector component to replace duplicated team selection dropdowns across the application, improving code maintainability and ensuring consistent UI/UX for team selection.",
+        "userStories": [
+            "As a developer, I want a reusable TeamSelector component so I don't have to duplicate team selection logic across multiple components",
+            "As a user, I want consistent team selection behavior so the interface feels cohesive across different views",
+            "As a maintainer, I want centralized team selection logic so updates only need to be made in one place"
+        ],
+        "acceptanceCriteria": [
+            "Single reusable TeamSelector component with standardized props interface",
+            "Consistent styling and behavior across all usage locations",
+            "Support for different selection modes (single team, team filtering, etc.)",
+            "Proper accessibility attributes (ARIA labels, keyboard navigation)",
+            "Integration with existing team validation and state management",
+            "Backwards compatibility with current team selection functionality",
+            "Clear documentation and TypeScript interfaces"
+        ],
+        "technicalRequirements": [
+            "Flexible props interface to handle different use cases",
+            "Integration with React Bootstrap Form components",
+            "Support for controlled and uncontrolled component patterns",
+            "Proper event handling for team selection changes",
+            "Validation for team number ranges (1-5)",
+            "Optional filtering capabilities for specific team subsets"
+        ],
+        "implementation": {
+            "approach": "Create flexible TeamSelector component, then replace existing implementations",
+            "componentApi": {
+                "props": {
+                    "selectedTeam": "number | null",
+                    "onTeamSelect": "(team: number | null) => void",
+                    "teams": "number[] (optional, defaults to [1,2,3,4,5])",
+                    "placeholder": "string (optional)",
+                    "includeNoneOption": "boolean (optional)",
+                    "disabled": "boolean (optional)",
+                    "size": "'sm' | 'lg' (optional)",
+                    "variant": "'primary' | 'secondary' | 'outline' (optional)"
+                },
+                "features": [
+                    "Standardized dropdown with team options",
+                    "Optional 'No team selected' option",
+                    "Configurable team list for filtering",
+                    "Consistent styling and accessibility"
+                ]
+            },
+            "migrationPlan": [
+                "Create components/common/TeamSelector.tsx",
+                "Replace team dropdown in TransferView",
+                "Replace team selection in TeamDetailModal", 
+                "Update any other team selection instances",
+                "Remove duplicate team selection code"
+            ]
+        },
+        "filesToModify": [
+            "src/components/common/TeamSelector.tsx - New reusable component with comprehensive API",
+            "src/components/TransferView.tsx - Replace existing dropdown with TeamSelector",
+            "src/components/TeamDetailModal.tsx - Integrate TeamSelector component",
+            "src/components/WelcomeWizard.tsx - Use TeamSelector for initial team selection (if applicable)",
+            "src/types/components.ts - Add TeamSelector prop interfaces",
+            "tests/components/common/TeamSelector.test.tsx - Comprehensive test suite",
+            "tests/components/TransferView.test.tsx - Update tests for new component integration"
+        ],
+        "dependencies": [
+            "React Bootstrap Form components",
+            "Existing team validation logic",
+            "Current styling and theme system"
+        ],
+        "estimatedEffort": "3-4 hours",
+        "complexity": "Medium",
+        "priority": "high",
+        "milestone": "v3.3.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:high",
+            "code-quality",
+            "reusability",
+            "effort:medium"
+        ]
+    },
+    {
+        "title": "Enhanced List Groups",
+        "component": "Implement React Bootstrap ListGroup components for data display",
+        "description": "Create new components using React Bootstrap ListGroup to display upcoming shifts, recent transfers, and other data lists with improved organization and visual hierarchy.",
+        "userStories": [
+            "As a user, I want to see my upcoming shifts in a clean, organized list so I can quickly scan my schedule",
+            "As a team member, I want to view recent transfers in a structured format so I can understand recent schedule changes",
+            "As a user, I want consistent list styling throughout the app so the interface feels cohesive"
+        ],
+        "acceptanceCriteria": [
+            "UpcomingShiftsList component displays next 5-7 shifts in organized format",
+            "RecentTransfersList component shows latest transfers with clear visual hierarchy",
+            "List items include relevant metadata (dates, shift types, team info)",
+            "Responsive design works well on mobile and desktop",
+            "List items are interactive where appropriate (click to view details)",
+            "Empty states are handled gracefully with helpful messaging",
+            "Lists support loading states and error handling"
+        ],
+        "technicalRequirements": [
+            "React Bootstrap ListGroup with proper variant usage",
+            "Integration with existing shift calculation logic",
+            "Responsive design using Bootstrap grid system",
+            "Proper TypeScript interfaces for list item data",
+            "Accessibility support with proper ARIA attributes",
+            "Performance optimization for large lists"
+        ],
+        "implementation": {
+            "approach": "Create focused list components using React Bootstrap ListGroup",
+            "components": {
+                "UpcomingShiftsList": "Display user's next shifts with countdown timers",
+                "RecentTransfersList": "Show latest transfer history with team changes",
+                "TeamShiftsList": "Generic list for any team's shifts"
+            },
+            "listItemFeatures": [
+                "Badge indicators for shift types",
+                "Relative time display (e.g., 'in 2 days')",
+                "Team color coding or visual indicators",
+                "Interactive elements for additional details"
+            ]
+        },
+        "filesToModify": [
+            "src/components/lists/UpcomingShiftsList.tsx - New component for upcoming shifts",
+            "src/components/lists/RecentTransfersList.tsx - New component for transfer history",
+            "src/components/lists/TeamShiftsList.tsx - Generic team shifts list component",
+            "src/components/lists/index.ts - Export barrel for list components",
+            "src/components/TodayView.tsx - Integrate UpcomingShiftsList",
+            "src/components/TransferView.tsx - Integrate RecentTransfersList",
+            "tests/components/lists/ - Test suites for all new list components"
+        ],
+        "dependencies": [
+            "React Bootstrap ListGroup and related components",
+            "Existing shift calculation utilities",
+            "Date formatting utilities"
+        ],
+        "estimatedEffort": "3-4 hours",
+        "complexity": "Medium",
         "priority": "medium",
-        "labels": ["enhancement", "todo-item", "priority:medium"]
+        "milestone": "v3.4.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:medium",
+            "feature:ui-components",
+            "effort:medium"
+        ]
+    },
+    {
+        "title": "TeamDetailModal Enhancement",
+        "component": "Improve existing team detail modal functionality",
+        "description": "Enhance the TeamDetailModal component by activating disabled features, improving the 7-day schedule view, and adding better team information display with export functionality integration.",
+        "userStories": [
+            "As a user, I want to export a specific team's schedule from their detail modal so I can share it with colleagues",
+            "As a team member, I want to see an enhanced 7-day view in the team modal so I can better understand the team's schedule pattern",
+            "As a supervisor, I want detailed team information displayed clearly so I can make informed scheduling decisions"
+        ],
+        "acceptanceCriteria": [
+            "Export functionality is fully enabled and functional within the modal",
+            "7-day schedule view shows clear shift patterns with proper formatting",
+            "Team information section includes comprehensive team details",
+            "Modal is responsive and works well on mobile devices",
+            "Loading states are handled properly for async operations",
+            "Error handling for failed export or data loading operations"
+        ],
+        "technicalRequirements": [
+            "Integration with export calendar functionality",
+            "Enhanced schedule visualization within modal constraints",
+            "Proper state management for team-specific data",
+            "Accessibility improvements for modal navigation"
+        ],
+        "implementation": {
+            "approach": "Activate existing disabled features and enhance UI components",
+            "enhancements": [
+                "Enable export button with team-specific calendar generation",
+                "Improve 7-day schedule grid layout and styling",
+                "Add team statistics and shift pattern information",
+                "Implement proper loading and error states"
+            ]
+        },
+        "filesToModify": [
+            "src/components/TeamDetailModal.tsx - Enable export functionality and enhance UI",
+            "src/components/TeamScheduleGrid.tsx - Enhanced 7-day schedule component (if separate)",
+            "tests/components/TeamDetailModal.test.tsx - Update tests for new functionality"
+        ],
+        "dependencies": [
+            "Export calendar functionality",
+            "React Bootstrap Modal components",
+            "Existing team data and shift calculations"
+        ],
+        "estimatedEffort": "2-3 hours",
+        "complexity": "Low-Medium",
+        "priority": "medium",
+        "milestone": "v3.4.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:medium", 
+            "feature:modal",
+            "effort:small"
+        ]
+    },
+    {
+        "title": "Enhanced Error Boundaries",
+        "component": "More granular error handling with component-specific error boundaries",
+        "description": "Implement additional error boundaries for complex components to provide better error recovery, more informative error messages, and graceful degradation when components fail.",
+        "userStories": [
+            "As a user, I want the app to continue working when one component fails so my entire experience isn't disrupted",
+            "As a developer, I want detailed error information so I can diagnose and fix issues more effectively",
+            "As a support person, I want users to see helpful error messages so they can understand what went wrong"
+        ],
+        "acceptanceCriteria": [
+            "Critical components have individual error boundaries",
+            "Error boundaries provide user-friendly error messages",
+            "Failed components can be retried without full page reload",
+            "Error reporting includes component context and error details",
+            "Graceful degradation maintains app functionality where possible",
+            "Error boundaries don't interfere with development error overlay"
+        ],
+        "technicalRequirements": [
+            "Strategic placement of error boundaries around complex components",
+            "Error reporting integration with existing error handling",
+            "User-friendly error UI components",
+            "Retry mechanisms for recoverable errors",
+            "Development vs production error display modes"
+        ],
+        "implementation": {
+            "approach": "Add focused error boundaries around key components",
+            "targetComponents": [
+                "CurrentStatus - Complex state and calculations",
+                "ScheduleView - Large data sets and date calculations", 
+                "ShiftTimeline - Complex rendering logic",
+                "TransferView - Complex transfer calculations"
+            ],
+            "errorBoundaryFeatures": [
+                "Component-specific error messages",
+                "Retry button for failed components",
+                "Error context reporting",
+                "Fallback UI for failed components"
+            ]
+        },
+        "filesToModify": [
+            "src/components/ErrorBoundary.tsx - Enhance existing error boundary",
+            "src/components/error/ComponentErrorBoundary.tsx - New granular error boundary",
+            "src/components/error/ErrorFallback.tsx - Reusable error fallback UI",
+            "src/components/CurrentStatus.tsx - Wrap with error boundary",
+            "src/components/ScheduleView.tsx - Add error boundary protection",
+            "src/components/ShiftTimeline.tsx - Add error boundary protection",
+            "tests/components/error/ - Test suite for error handling"
+        ],
+        "dependencies": [
+            "Existing ErrorBoundary component",
+            "React error boundary patterns",
+            "React Bootstrap Alert components"
+        ],
+        "estimatedEffort": "3-4 hours",
+        "complexity": "Medium",
+        "priority": "medium",
+        "milestone": "v3.4.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:medium",
+            "reliability",
+            "error-handling",
+            "effort:medium"
+        ]
     },
     {
         "title": "PWA Installation Prompts",
-        "component": "Intelligent installation timing",
-        "useCases": [
-            "Better onboarding integration",
-            "Smart prompt timing based on user engagement",
-            "Installation success tracking"
+        "component": "Intelligent installation timing and enhanced prompts",
+        "description": "Enhance the existing usePWAInstall hook to provide better onboarding integration, smart prompt timing based on user engagement, and installation success tracking.",
+        "userStories": [
+            "As a new user, I want to be prompted to install the app at an appropriate time so I'm not interrupted during my first experience",
+            "As a returning user, I want smart prompts that consider my usage patterns so I'm only asked when it makes sense",
+            "As a user who dismissed the prompt, I want easy access to install later so I can change my mind"
         ],
-        "implementation": "Enhance existing usePWAInstall hook ### 🎨 Future Enhancements Advanced features for future development phases.",
-        "filesToModify": [],
-        "estimatedEffort": "1–2 hours",
-        "status": "🔲 Future",
+        "acceptanceCriteria": [
+            "Installation prompts appear after user engagement threshold is met",
+            "Prompts respect user dismissal and don't repeatedly interrupt",
+            "Manual installation option is always available in settings",
+            "Installation success/failure is tracked and reported",
+            "Prompts are contextually relevant and well-timed",
+            "Works across different browsers and platforms"
+        ],
+        "technicalRequirements": [
+            "User engagement tracking (page views, time spent, actions taken)",
+            "Smart timing algorithms for prompt display",
+            "Installation analytics and success tracking",
+            "Integration with existing settings and onboarding flow"
+        ],
+        "implementation": {
+            "approach": "Enhance existing usePWAInstall hook with smart timing",
+            "existingHook": "usePWAInstall already provides basic installation functionality",
+            "enhancements": [
+                "User engagement tracking",
+                "Smart prompt timing based on usage patterns",
+                "Better integration with app onboarding",
+                "Installation success analytics"
+            ]
+        },
+        "filesToModify": [
+            "src/hooks/usePWAInstall.ts - Enhance with smart timing and engagement tracking",
+            "src/components/PWAInstallPrompt.tsx - New component for contextual prompts",
+            "src/components/SettingsPanel.tsx - Always-available manual install option",
+            "src/hooks/useUserEngagement.ts - New hook for tracking user engagement",
+            "tests/hooks/usePWAInstall.test.ts - Enhanced tests for new functionality"
+        ],
+        "dependencies": [
+            "Existing usePWAInstall hook",
+            "localStorage for engagement tracking",
+            "React Bootstrap components for UI"
+        ],
+        "estimatedEffort": "2-3 hours",
+        "complexity": "Medium",
         "priority": "medium",
-        "labels": ["enhancement", "todo-item", "priority:medium"]
+        "milestone": "v3.4.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:medium",
+            "feature:pwa",
+            "user-experience",
+            "effort:small"
+        ]
     },
     {
         "title": "Carousel for Mobile Team View",
-        "component": "`react-bootstrap/Carousel`",
-        "useCases": [
-            "Swipe through teams on mobile",
-            "Better mobile navigation"
+        "component": "Mobile-optimized team navigation with swipe gestures",
+        "description": "Implement a React Bootstrap Carousel component to provide intuitive swipe-based navigation between teams on mobile devices, improving the mobile user experience significantly.",
+        "userStories": [
+            "As a mobile user, I want to swipe between teams so I can quickly navigate without tapping small buttons",
+            "As a touch device user, I want smooth gesture-based navigation so the app feels native and responsive",
+            "As a user with multiple teams to track, I want visual indicators of which team I'm viewing so I don't get confused"
         ],
-        "implementation": "Responsive team display",
-        "filesToModify": [],
-        "estimatedEffort": "5–6 hours",
-        "status": "🔲 Future",
-        "priority": "medium",
-        "labels": ["enhancement", "todo-item", "priority:medium"]
-    },
-    {
-        "title": "Accordion for Transfer History",
-        "component": "`react-bootstrap/Accordion`",
-        "useCases": [
-            "Collapsible transfer sections by date range",
-            "Organized historical data"
+        "acceptanceCriteria": [
+            "Carousel displays team schedules with smooth swipe transitions on mobile",
+            "Touch gestures (swipe left/right) navigate between teams",
+            "Visual indicators show current team and total team count",
+            "Carousel automatically adapts to screen size (mobile vs desktop)",
+            "Proper accessibility support for screen readers and keyboard navigation",
+            "Performance optimized for smooth animations on lower-end devices",
+            "Fallback to standard navigation on devices without touch support"
         ],
-        "implementation": "Update TransferView component",
-        "filesToModify": [],
-        "estimatedEffort": "3–4 hours",
-        "status": "🔲 Future",
-        "priority": "future",
-        "labels": ["enhancement", "todo-item", "priority:low"]
-    },
-    {
-        "title": "Notification System Implementation",
-        "component": "Actual notification functionality",
-        "useCases": [
-            "Shift reminders and countdown alerts",
-            "Push notifications for PWA",
-            "Customizable notification preferences"
+        "technicalRequirements": [
+            "React Bootstrap Carousel with touch gesture support",
+            "Responsive design that activates only on mobile breakpoints",
+            "Integration with existing team data and shift calculations",
+            "Performance optimization for smooth touch interactions",
+            "Accessibility compliance with ARIA attributes"
         ],
-        "implementation": "Build on existing notification settings in SettingsContext",
-        "filesToModify": [],
-        "estimatedEffort": "4–5 hours",
-        "status": "🔲 Future",
-        "priority": "future",
-        "labels": ["enhancement", "todo-item", "priority:low"]
-    },
-    {
-        "title": "Advanced Accessibility Features",
-        "component": "Enhanced accessibility support",
-        "useCases": [
-            "Screen reader improvements",
-            "High contrast mode",
-            "Font size preferences",
-            "Motion reduction settings"
+        "implementation": {
+            "approach": "Create responsive carousel that activates on mobile breakpoints",
+            "mobileBreakpoint": "768px and below",
+            "components": [
+                "MobileTeamCarousel - Main carousel wrapper",
+                "TeamCarouselItem - Individual team slide",
+                "CarouselIndicators - Team navigation dots"
+            ],
+            "features": [
+                "Touch swipe detection",
+                "Smooth CSS transitions",
+                "Auto-height adjustment",
+                "Loading states for team data"
+            ]
+        },
+        "filesToModify": [
+            "src/components/mobile/MobileTeamCarousel.tsx - New carousel component",
+            "src/components/mobile/TeamCarouselItem.tsx - Individual team slide component",
+            "src/components/TeamView.tsx - Integrate carousel for mobile breakpoints",
+            "src/styles/mobile-carousel.scss - Mobile-specific styles and animations",
+            "tests/components/mobile/MobileTeamCarousel.test.tsx - Comprehensive test suite"
         ],
-        "implementation": "Accessibility context and enhanced ARIA support",
-        "filesToModify": [],
-        "estimatedEffort": "3–4 hours",
-        "status": "🔲 Future",
-        "priority": "future",
+        "dependencies": [
+            "React Bootstrap Carousel",
+            "CSS media queries for responsive behavior",
+            "Existing team data and calculations",
+            "Touch event handling"
+        ],
+        "estimatedEffort": "5-6 hours",
+        "complexity": "High",
+        "priority": "low",
+        "milestone": "v4.0.0",
         "labels": [
             "enhancement",
             "todo-item",
             "priority:low",
-            "feature:accessibility"
+            "feature:mobile",
+            "feature:carousel",
+            "effort:large"
+        ]
+    },
+    {
+        "title": "Notification System Implementation",
+        "component": "Comprehensive push notification and reminder system",
+        "description": "Build a complete notification system with shift reminders, countdown alerts, and push notifications for PWA installations, leveraging existing notification settings in SettingsContext.",
+        "userStories": [
+            "As a shift worker, I want to receive notifications before my shift starts so I never miss work",
+            "As a busy professional, I want customizable notification timing so I can set reminders that work with my schedule",
+            "As a PWA user, I want push notifications even when the app is closed so I'm always informed"
+        ],
+        "acceptanceCriteria": [
+            "Users can set shift reminder notifications (15min, 1hr, 2hr before shift)",
+            "Push notifications work when PWA is installed and app is closed",
+            "Notification permissions are requested appropriately",
+            "Users can customize notification preferences per shift type",
+            "Notifications include relevant shift information (time, type, duration)",
+            "Notification system respects browser and system do-not-disturb settings",
+            "Graceful fallback for browsers without notification support"
+        ],
+        "technicalRequirements": [
+            "Browser Notification API integration",
+            "Service worker push notification support",
+            "Notification scheduling and timing logic",
+            "Permission management and user consent",
+            "Integration with existing SettingsContext"
+        ],
+        "implementation": {
+            "approach": "Build comprehensive notification system with multiple delivery methods",
+            "notificationTypes": [
+                "Shift start reminders",
+                "Shift end countdown",
+                "Schedule change alerts",
+                "Weekly schedule preview"
+            ],
+            "deliveryMethods": [
+                "Browser notifications (when app is open)",
+                "Push notifications (when app is closed)",
+                "In-app toast notifications"
+            ],
+            "timing": [
+                "Configurable advance warning (15min to 2hr)",
+                "Smart scheduling based on user patterns",
+                "Timezone-aware notification delivery"
+            ]
+        },
+        "filesToModify": [
+            "src/hooks/useNotifications.ts - Core notification logic and scheduling",
+            "src/components/NotificationSettings.tsx - User notification preferences UI",
+            "src/utils/notificationScheduler.ts - Notification timing and delivery logic",
+            "src/contexts/NotificationContext.tsx - Global notification state management",
+            "public/sw.js - Service worker push notification handling",
+            "tests/hooks/useNotifications.test.ts - Comprehensive notification tests"
+        ],
+        "dependencies": [
+            "Browser Notification API",
+            "Service Worker Push API",
+            "Existing SettingsContext",
+            "Shift calculation utilities"
+        ],
+        "estimatedEffort": "6-8 hours",
+        "complexity": "High",
+        "priority": "low",
+        "milestone": "v4.0.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:low",
+            "feature:notifications",
+            "feature:pwa",
+            "effort:large"
+        ]
+    },
+    {
+        "title": "Advanced Accessibility Features",
+        "component": "Comprehensive accessibility enhancements and customization",
+        "description": "Implement advanced accessibility features including screen reader improvements, high contrast mode, font size preferences, and motion reduction settings to ensure the app is usable by everyone.",
+        "userStories": [
+            "As a visually impaired user, I want excellent screen reader support so I can navigate the app independently",
+            "As a user with vision difficulties, I want high contrast mode so I can see the interface clearly",
+            "As a user with dyslexia, I want adjustable font sizes so I can read comfortably",
+            "As a user sensitive to motion, I want to disable animations so the app doesn't cause discomfort"
+        ],
+        "acceptanceCriteria": [
+            "Screen readers can navigate all components with proper announcements",
+            "High contrast mode provides sufficient color contrast ratios (WCAG AA)",
+            "Font size can be adjusted from 75% to 150% of default",
+            "Motion can be reduced or disabled entirely",
+            "Keyboard navigation works for all interactive elements",
+            "Focus indicators are clear and visible",
+            "All images have appropriate alt text",
+            "Form labels are properly associated with inputs"
+        ],
+        "technicalRequirements": [
+            "ARIA attributes and roles throughout the application",
+            "CSS custom properties for theming and sizing",
+            "Respect for prefers-reduced-motion media query",
+            "Proper semantic HTML structure",
+            "Focus management for dynamic content"
+        ],
+        "implementation": {
+            "approach": "Comprehensive accessibility audit and systematic improvements",
+            "accessibilityFeatures": [
+                "Enhanced ARIA labeling and descriptions",
+                "High contrast theme with proper color ratios",
+                "Scalable font system with user preferences",
+                "Motion reduction settings and CSS variables",
+                "Improved focus management"
+            ],
+            "testingStrategy": [
+                "Screen reader testing (NVDA, JAWS, VoiceOver)",
+                "Keyboard-only navigation testing",
+                "Color contrast validation",
+                "Automated accessibility testing"
+            ]
+        },
+        "filesToModify": [
+            "src/contexts/AccessibilityContext.tsx - Global accessibility settings and preferences",
+            "src/components/AccessibilitySettings.tsx - User accessibility preferences UI",
+            "src/styles/accessibility.scss - High contrast themes and motion controls",
+            "src/styles/typography.scss - Scalable font system",
+            "src/hooks/useAccessibility.ts - Accessibility state management",
+            "tests/accessibility/ - Comprehensive accessibility test suite"
+        ],
+        "dependencies": [
+            "CSS custom properties for theming",
+            "React Context for global settings",
+            "Existing settings and theme system"
+        ],
+        "estimatedEffort": "4-6 hours",
+        "complexity": "Medium-High",
+        "priority": "low",
+        "milestone": "v4.0.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:low",
+            "feature:accessibility",
+            "a11y:screen-reader",
+            "a11y:high-contrast",
+            "effort:large"
         ]
     },
     {
         "title": "Multi-Roster Pattern Support",
-        "component": "Configurable shift patterns beyond 5-team 2-2-2-4 cycle",
-        "useCases": [
-            "Support 3-team, 4-team, 6-team rosters",
-            "Different shift patterns (3-3-3-3, 4-4-4-4, custom patterns)",
-            "Multiple roster types in same organization",
-            "Dynamic team count and shift cycle configuration"
+        "component": "Configurable shift patterns beyond the current 5-team system",
+        "description": "Extract hardcoded 5-team, 2-2-2-4 shift pattern logic into a configurable system supporting 3-team, 4-team, 6-team rosters and custom shift patterns for different organizational needs.",
+        "userStories": [
+            "As an organization with 3 teams, I want to configure the app for our specific roster so we can use NextShift for our schedule",
+            "As a company with multiple departments, I want to support different shift patterns so all teams can use the same tool",
+            "As an administrator, I want to migrate from our current 5-team setup to a 4-team setup without losing data"
         ],
-        "implementation": "Extract hardcoded pattern logic into configurable system",
+        "acceptanceCriteria": [
+            "Support for 3, 4, 5, and 6 team configurations",
+            "Configurable shift patterns (2-2-3, 3-3-3-3, 4-4-4-4, custom)",
+            "Roster pattern can be changed without losing existing user data",
+            "All calculations adapt automatically to selected pattern",
+            "UI components adjust to show correct number of teams",
+            "Backward compatibility with existing 5-team setups",
+            "Clear migration path for changing patterns"
+        ],
+        "technicalRequirements": [
+            "Configurable shift calculation engine",
+            "Database migration system for pattern changes",
+            "Dynamic UI components that adapt to team count",
+            "Pattern validation and error handling",
+            "Comprehensive testing for all supported patterns"
+        ],
+        "implementation": {
+            "approach": "Extract hardcoded logic into configurable pattern system",
+            "patternSchema": {
+                "teamCount": "number (3-6)",
+                "shiftPattern": "number[] (days per shift type)",
+                "cycleLength": "number (total days in pattern)",
+                "shiftTypes": "array of shift definitions"
+            },
+            "supportedPatterns": [
+                "3-team: 2-2-3 (7-day cycle)",
+                "4-team: 3-3-3-3 (12-day cycle)", 
+                "5-team: 2-2-2-4 (10-day cycle) - current",
+                "6-team: 2-2-2-2-2-2 (12-day cycle)",
+                "Custom: User-defined patterns"
+            ],
+            "migrationStrategy": [
+                "Pattern selection wizard for new users",
+                "Migration tool for existing users",
+                "Data backup before pattern changes",
+                "Validation and rollback capabilities"
+            ]
+        },
         "filesToModify": [
-            "`src/utils/shiftCalculations.ts` - Make SHIFTS and cycle logic configurable",
-            "`src/utils/config.ts` - Add roster pattern configuration",
-            "`src/components/WelcomeWizard.tsx` - Dynamic team count references",
-            "`src/components/AboutModal.tsx` - Dynamic roster description",
-            "`CLAUDE.md` - Update documentation for multiple patterns",
-            "**Technical Requirements**:",
-            "Roster pattern schema (teams, shifts per team, cycle length)",
-            "Migration system for existing localStorage data",
-            "UI for roster selection/configuration",
-            "Backward compatibility with current 5-team setup"
+            "src/utils/shiftCalculations.ts - Make shift logic configurable with pattern support",
+            "src/utils/config.ts - Add roster pattern configuration and validation",
+            "src/utils/patternMigration.ts - Migration utilities for changing patterns",
+            "src/components/PatternSelector.tsx - UI for selecting/configuring patterns",
+            "src/components/WelcomeWizard.tsx - Integrate pattern selection into onboarding",
+            "src/components/AboutModal.tsx - Update description for multi-pattern support",
+            "src/types/patterns.ts - TypeScript interfaces for pattern definitions",
+            "tests/utils/patterns/ - Comprehensive test suite for all patterns",
+            "CLAUDE.md - Update documentation for multi-pattern support"
         ],
-        "estimatedEffort": "8–12 hours (Major feature)",
-        "status": "🔲 Future",
-        "priority": "future",
-        "labels": ["enhancement", "todo-item", "priority:low"]
+        "dependencies": [
+            "Existing shift calculation system",
+            "LocalStorage migration utilities",
+            "React Bootstrap form components",
+            "Configuration validation logic"
+        ],
+        "estimatedEffort": "10-12 hours",
+        "complexity": "Very High",
+        "priority": "low",
+        "milestone": "v4.0.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:low",
+            "feature:patterns",
+            "major-feature",
+            "effort:xl"
+        ]
     },
     {
         "title": "Floating Action Button",
-        "component": "Custom positioned `react-bootstrap/Button`",
-        "useCases": [
-            "Quick team switch",
-            "Add to calendar",
-            "Quick actions overlay"
+        "component": "Quick actions overlay with floating action button",
+        "description": "Implement a floating action button system providing quick access to common actions like team switching, calendar export, and other frequently used features.",
+        "userStories": [
+            "As a mobile user, I want quick access to team switching so I don't have to navigate through menus",
+            "As a frequent user, I want quick calendar export so I can share schedules with one tap",
+            "As a power user, I want customizable quick actions so I can access my most-used features efficiently"
         ],
-        "implementation": "Fixed positioned button system ## Current To-do Status ### 🔲 Next Up ### 📋 Backlog (Code Quality) ### 📋 Backlog (Features) ## Technical Requirements ### Dependencies - All components use existing `react-bootstrap` - no new dependencies - Maintain existing responsive design - Preserve accessibility standards - Keep PWA functionality intact ### Testing Strategy - Unit tests for all new components - Integration tests for complex interactions - Visual regression testing for UI changes - Accessibility testing with screen readers ### Performance Considerations - Lazy load modals and heavy components - Optimize carousel for smooth animations - Minimize re-renders with proper memoization - Keep bundle size impact minimal ## Success Metrics ### User Experience - Reduced cognitive load with visual progress indicators - Improved discoverability with tooltips - Enhanced mobile usability with touch-friendly components - Better feedback with toast notifications ### Technical Quality - Maintain 100% test coverage - Zero accessibility regressions - No performance degradation - Clean, maintainable code architecture ## Changelog Integration ### In-App Changelog Viewer - Accessible via settings panel - Formatted changelog display - Version history with dates - Feature highlights with screenshots ### Version Tracking - Semantic versioning (3.x.x) - Git tags for releases - Automated changelog generation - Release notes in GitHub ## Risk Assessment ### Low-Risk - Toast notifications (isolated feature) - Progress bars (simple UI update) - Tooltips (non-intrusive enhancement) ### Medium Risk - Offcanvas settings (new navigation pattern) - Modal components (focus management) ### High-Risk - Carousel implementation (complex touch handling) - Major layout changes (potential responsive issues) ## Future Considerations ### Potential Extensions - Customizable themes - Advanced notification preferences - Keyboard shortcuts panel - Export/import settings - Integration with calendar apps ### User Account System (Future Phase) - Phase 1: Keep current localStorage foundation ✅ - Phase 2: Add optional account sync (hybrid approach) - Phase 3: Full multi-device real-time sync - Maintain offline-first PWA capabilities - Preserve zero-infrastructure-cost option - Smooth migration without breaking changes ### Accessibility Enhancements - High contrast mode - Font size preferences - Motion reduction settings - Keyboard navigation improvements ---",
-        "filesToModify": [],
-        "estimatedEffort": "2–3 hours",
-        "status": "",
-        "priority": "future",
-        "labels": ["enhancement", "todo-item", "priority:low"]
+        "acceptanceCriteria": [
+            "Floating action button appears in bottom-right corner on appropriate screens",
+            "Button expands to show quick action menu on tap",
+            "Quick actions include team switching, export, and settings",
+            "Button is responsive and works well on both mobile and desktop",
+            "Actions are contextual and relevant to current view",
+            "Button can be minimized or hidden based on user preference",
+            "Accessibility support with proper ARIA labels and keyboard navigation"
+        ],
+        "technicalRequirements": [
+            "Fixed positioning that works across different screen sizes",
+            "Smooth animations for expand/collapse interactions",
+            "Integration with existing action handlers",
+            "Contextual action availability based on current state"
+        ],
+        "implementation": {
+            "approach": "Create expandable floating action button with contextual quick actions",
+            "buttonStates": [
+                "Collapsed - Shows main action icon",
+                "Expanded - Shows menu of quick actions",
+                "Hidden - Can be toggled off by user"
+            ],
+            "quickActions": [
+                "Team selection/switching",
+                "Export current view",
+                "Jump to today",
+                "Open settings",
+                "Toggle notifications"
+            ],
+            "positioning": "Fixed bottom-right with responsive margins"
+        },
+        "filesToModify": [
+            "src/components/FloatingActionButton.tsx - Main FAB component with expand/collapse",
+            "src/components/QuickActionsMenu.tsx - Expandable menu of quick actions",
+            "src/components/QuickAction.tsx - Individual quick action button component",
+            "src/styles/floating-action-button.scss - FAB styling and animations",
+            "src/hooks/useQuickActions.ts - Quick action state and handlers",
+            "tests/components/FloatingActionButton.test.tsx - Comprehensive test suite"
+        ],
+        "dependencies": [
+            "React Bootstrap Button components",
+            "CSS animations for smooth transitions",
+            "Existing action handlers and navigation"
+        ],
+        "estimatedEffort": "3-4 hours",
+        "complexity": "Medium",
+        "priority": "low",
+        "milestone": "v4.0.0",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:low",
+            "feature:quick-actions",
+            "feature:mobile",
+            "effort:medium"
+        ]
     }
 ]
