@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -18,6 +18,7 @@ import {
     getCurrentShiftDay,
     getShiftByCode,
 } from '../utils/shiftCalculations';
+import { ExportModal } from './ExportModal';
 
 interface TeamDetailModalProps {
     show: boolean;
@@ -46,6 +47,8 @@ export function TeamDetailModal({
     teamNumber,
     onViewTransfers,
 }: TeamDetailModalProps) {
+    const [showExportModal, setShowExportModal] = useState(false);
+    
     // Generate 7-day schedule for the team
     const weekSchedule = useMemo(() => {
         const today = dayjs();
@@ -113,6 +116,14 @@ export function TeamDetailModal({
                 ),
             today,
         );
+    };
+
+    const handleExportCalendar = () => {
+        setShowExportModal(true);
+    };
+
+    const handleExportClose = () => {
+        setShowExportModal(false);
     };
 
     // Button state logic - only allow viewing transfers for other teams, not your own
@@ -358,26 +369,14 @@ export function TeamDetailModal({
                             Quick Actions
                         </h6>
                         <div className="d-grid gap-2 d-md-flex">
-                            <OverlayTrigger
-                                placement="top"
-                                overlay={
-                                    <Tooltip id="calendar-coming-soon-tooltip">
-                                        Live calendar sync coming soon!
-                                    </Tooltip>
-                                }
+                            <Button
+                                variant="outline-primary"
+                                size="sm"
+                                onClick={handleExportCalendar}
                             >
-                                <span className="d-inline-block">
-                                    <Button
-                                        variant="outline-primary"
-                                        size="sm"
-                                        disabled
-                                        style={{ pointerEvents: 'none' }}
-                                    >
-                                        <i className="bi bi-calendar-plus me-1"></i>
-                                        Add to Calendar
-                                    </Button>
-                                </span>
-                            </OverlayTrigger>
+                                <i className="bi bi-calendar-plus me-1"></i>
+                                Add to Calendar
+                            </Button>
                             <Button
                                 variant="outline-info"
                                 size="sm"
@@ -432,6 +431,14 @@ export function TeamDetailModal({
                     Close
                 </Button>
             </Modal.Footer>
+            
+            {/* Export Modal */}
+            <ExportModal
+                show={showExportModal}
+                onHide={handleExportClose}
+                defaultTeamNumber={teamNumber}
+                title={`Export Team ${teamNumber} Schedule`}
+            />
         </Modal>
     );
 }
