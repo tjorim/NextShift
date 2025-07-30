@@ -1,0 +1,276 @@
+[
+    {
+        "title": "Export Schedule Feature",
+        "component": "Calendar export functionality",
+        "useCases": [
+            "Download shift schedule as .ics calendar file",
+            "Integration with external calendar apps",
+            "Team schedule sharing"
+        ],
+        "implementation": "Add calendar generation utility and activate export buttons",
+        "filesToModify": [
+            "`src/components/SettingsPanel.tsx` - Remove \"Coming Soon\" badge and enable button",
+            "`src/components/TeamDetailModal.tsx` - Enable export button",
+            "`src/utils/exportCalendar.ts` – Add calendar export utility"
+        ],
+        "estimatedEffort": "3–4 hours",
+        "status": "🔲 Planned",
+        "priority": "high",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:high",
+            "feature:export"
+        ]
+    },
+    {
+        "title": "Keyboard Shortcuts Implementation",
+        "component": "Enhanced navigation with keyboard shortcuts",
+        "useCases": [
+            "Quick tab switching (T for Today, S for Schedule, R for Transfers)",
+            "Date navigation (← → arrow keys)",
+            "Settings panel toggle (Ctrl+,)"
+        ],
+        "implementation": "Integrate existing useKeyboardShortcuts hook into components",
+        "filesToModify": [
+            "`src/components/MainTabs.tsx` - Add shortcut handlers",
+            "`src/components/ScheduleView.tsx` - Add date navigation shortcuts",
+            "`src/components/Header.tsx` - Add settings shortcut"
+        ],
+        "estimatedEffort": "2–3 hours",
+        "status": "🔲 Planned",
+        "priority": "high",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:high",
+            "feature:shortcuts"
+        ]
+    },
+    {
+        "title": "Version Sync Fix",
+        "component": "Changelog version alignment",
+        "useCases": [
+            "Accurate \"Coming Soon\" version display",
+            "Proper future planning version numbers"
+        ],
+        "implementation": "Update futurePlans in changelog.ts",
+        "filesToModify": [
+            "`src/data/changelog.ts` - Update version numbers in futurePlans"
+        ],
+        "estimatedEffort": "30 minutes",
+        "status": "🔲 Planned",
+        "priority": "high",
+        "labels": ["enhancement", "todo-item", "priority:high", "effort:xs"]
+    },
+    {
+        "title": "Reusable TeamSelector Component",
+        "component": "Extract common team selection logic",
+        "useCases": [
+            "Reduce code duplication across TransferView, TeamDetailModal, etc.",
+            "Consistent team selection UI/UX",
+            "Easier maintenance and updates"
+        ],
+        "implementation": "Create `components/common/TeamSelector.tsx` with standardized props",
+        "filesToModify": [
+            "`src/components/TransferView.tsx` - Replace dropdown with TeamSelector",
+            "`src/components/TeamDetailModal.tsx` - Use common component",
+            "Create `src/components/common/TeamSelector.tsx`"
+        ],
+        "estimatedEffort": "2–3 hours",
+        "status": "🔲 Planned",
+        "priority": "high",
+        "labels": ["enhancement", "todo-item", "priority:high"]
+    },
+    {
+        "title": "Enhanced List Groups",
+        "component": "`react-bootstrap/ListGroup`",
+        "useCases": [
+            "Upcoming shifts list",
+            "Recent transfers list",
+            "Clean, organized data display"
+        ],
+        "implementation": "New components for data lists",
+        "filesToModify": [],
+        "estimatedEffort": "2–3 hours",
+        "status": "🔲 Future",
+        "priority": "medium",
+        "labels": ["enhancement", "todo-item", "priority:medium"]
+    },
+    {
+        "title": "TeamDetailModal Enhancement",
+        "component": "Improve existing team detail modal",
+        "useCases": [
+            "Enable export functionality in modal",
+            "Enhanced 7-day schedule view",
+            "Better team information display"
+        ],
+        "implementation": "Activate disabled features and improve UX",
+        "filesToModify": [],
+        "estimatedEffort": "1–2 hours",
+        "status": "🔲 Future",
+        "priority": "medium",
+        "labels": ["enhancement", "todo-item", "priority:medium"]
+    },
+    {
+        "title": "Enhanced Error Boundaries",
+        "component": "More granular error handling",
+        "useCases": [
+            "Component-specific error recovery",
+            "Better error messages for users",
+            "Graceful degradation"
+        ],
+        "implementation": "Add specific error boundaries for complex components",
+        "filesToModify": [],
+        "estimatedEffort": "2–3 hours",
+        "status": "🔲 Future",
+        "priority": "medium",
+        "labels": ["enhancement", "todo-item", "priority:medium"]
+    },
+    {
+        "title": "CurrentStatus Component Refactoring ⭐️",
+        "component": "Simplify complex conditional rendering in CurrentStatus",
+        "useCases": [
+            "Improved code readability and maintainability",
+            "Easier testing of individual status display logic",
+            "Better separation of concerns",
+            "Cleaner component architecture with single responsibility",
+            "**Recommended Implementation**:",
+            "Extract into `PersonalizedStatus` and `GenericStatus` components",
+            "Make CurrentStatus a simple router component that decides which view to render",
+            "Example structure:"
+        ],
+        "implementation": "",
+        "filesToModify": [
+            "`src/components/CurrentStatus.tsx` - Simplify to router component",
+            "Create `src/components/status/PersonalizedStatus.tsx` - Handles user's team view",
+            "Create `src/components/status/GenericStatus.tsx` - Handles no-team-selected view",
+            "Update tests to cover new component structure"
+        ],
+        "estimatedEffort": "2–3 hours",
+        "status": "🔲 Planned (High Priority)",
+        "priority": "medium",
+        "labels": ["enhancement", "todo-item", "priority:medium"]
+    },
+    {
+        "title": "PWA Installation Prompts",
+        "component": "Intelligent installation timing",
+        "useCases": [
+            "Better onboarding integration",
+            "Smart prompt timing based on user engagement",
+            "Installation success tracking"
+        ],
+        "implementation": "Enhance existing usePWAInstall hook ### 🎨 Future Enhancements Advanced features for future development phases.",
+        "filesToModify": [],
+        "estimatedEffort": "1–2 hours",
+        "status": "🔲 Future",
+        "priority": "medium",
+        "labels": ["enhancement", "todo-item", "priority:medium"]
+    },
+    {
+        "title": "Carousel for Mobile Team View",
+        "component": "`react-bootstrap/Carousel`",
+        "useCases": [
+            "Swipe through teams on mobile",
+            "Better mobile navigation"
+        ],
+        "implementation": "Responsive team display",
+        "filesToModify": [],
+        "estimatedEffort": "5–6 hours",
+        "status": "🔲 Future",
+        "priority": "medium",
+        "labels": ["enhancement", "todo-item", "priority:medium"]
+    },
+    {
+        "title": "Accordion for Transfer History",
+        "component": "`react-bootstrap/Accordion`",
+        "useCases": [
+            "Collapsible transfer sections by date range",
+            "Organized historical data"
+        ],
+        "implementation": "Update TransferView component",
+        "filesToModify": [],
+        "estimatedEffort": "3–4 hours",
+        "status": "🔲 Future",
+        "priority": "future",
+        "labels": ["enhancement", "todo-item", "priority:low"]
+    },
+    {
+        "title": "Notification System Implementation",
+        "component": "Actual notification functionality",
+        "useCases": [
+            "Shift reminders and countdown alerts",
+            "Push notifications for PWA",
+            "Customizable notification preferences"
+        ],
+        "implementation": "Build on existing notification settings in SettingsContext",
+        "filesToModify": [],
+        "estimatedEffort": "4–5 hours",
+        "status": "🔲 Future",
+        "priority": "future",
+        "labels": ["enhancement", "todo-item", "priority:low"]
+    },
+    {
+        "title": "Advanced Accessibility Features",
+        "component": "Enhanced accessibility support",
+        "useCases": [
+            "Screen reader improvements",
+            "High contrast mode",
+            "Font size preferences",
+            "Motion reduction settings"
+        ],
+        "implementation": "Accessibility context and enhanced ARIA support",
+        "filesToModify": [],
+        "estimatedEffort": "3–4 hours",
+        "status": "🔲 Future",
+        "priority": "future",
+        "labels": [
+            "enhancement",
+            "todo-item",
+            "priority:low",
+            "feature:accessibility"
+        ]
+    },
+    {
+        "title": "Multi-Roster Pattern Support",
+        "component": "Configurable shift patterns beyond 5-team 2-2-2-4 cycle",
+        "useCases": [
+            "Support 3-team, 4-team, 6-team rosters",
+            "Different shift patterns (3-3-3-3, 4-4-4-4, custom patterns)",
+            "Multiple roster types in same organization",
+            "Dynamic team count and shift cycle configuration"
+        ],
+        "implementation": "Extract hardcoded pattern logic into configurable system",
+        "filesToModify": [
+            "`src/utils/shiftCalculations.ts` - Make SHIFTS and cycle logic configurable",
+            "`src/utils/config.ts` - Add roster pattern configuration",
+            "`src/components/WelcomeWizard.tsx` - Dynamic team count references",
+            "`src/components/AboutModal.tsx` - Dynamic roster description",
+            "`CLAUDE.md` - Update documentation for multiple patterns",
+            "**Technical Requirements**:",
+            "Roster pattern schema (teams, shifts per team, cycle length)",
+            "Migration system for existing localStorage data",
+            "UI for roster selection/configuration",
+            "Backward compatibility with current 5-team setup"
+        ],
+        "estimatedEffort": "8–12 hours (Major feature)",
+        "status": "🔲 Future",
+        "priority": "future",
+        "labels": ["enhancement", "todo-item", "priority:low"]
+    },
+    {
+        "title": "Floating Action Button",
+        "component": "Custom positioned `react-bootstrap/Button`",
+        "useCases": [
+            "Quick team switch",
+            "Add to calendar",
+            "Quick actions overlay"
+        ],
+        "implementation": "Fixed positioned button system ## Current To-do Status ### 🔲 Next Up ### 📋 Backlog (Code Quality) ### 📋 Backlog (Features) ## Technical Requirements ### Dependencies - All components use existing `react-bootstrap` - no new dependencies - Maintain existing responsive design - Preserve accessibility standards - Keep PWA functionality intact ### Testing Strategy - Unit tests for all new components - Integration tests for complex interactions - Visual regression testing for UI changes - Accessibility testing with screen readers ### Performance Considerations - Lazy load modals and heavy components - Optimize carousel for smooth animations - Minimize re-renders with proper memoization - Keep bundle size impact minimal ## Success Metrics ### User Experience - Reduced cognitive load with visual progress indicators - Improved discoverability with tooltips - Enhanced mobile usability with touch-friendly components - Better feedback with toast notifications ### Technical Quality - Maintain 100% test coverage - Zero accessibility regressions - No performance degradation - Clean, maintainable code architecture ## Changelog Integration ### In-App Changelog Viewer - Accessible via settings panel - Formatted changelog display - Version history with dates - Feature highlights with screenshots ### Version Tracking - Semantic versioning (3.x.x) - Git tags for releases - Automated changelog generation - Release notes in GitHub ## Risk Assessment ### Low-Risk - Toast notifications (isolated feature) - Progress bars (simple UI update) - Tooltips (non-intrusive enhancement) ### Medium Risk - Offcanvas settings (new navigation pattern) - Modal components (focus management) ### High-Risk - Carousel implementation (complex touch handling) - Major layout changes (potential responsive issues) ## Future Considerations ### Potential Extensions - Customizable themes - Advanced notification preferences - Keyboard shortcuts panel - Export/import settings - Integration with calendar apps ### User Account System (Future Phase) - Phase 1: Keep current localStorage foundation ✅ - Phase 2: Add optional account sync (hybrid approach) - Phase 3: Full multi-device real-time sync - Maintain offline-first PWA capabilities - Preserve zero-infrastructure-cost option - Smooth migration without breaking changes ### Accessibility Enhancements - High contrast mode - Font size preferences - Motion reduction settings - Keyboard navigation improvements ---",
+        "filesToModify": [],
+        "estimatedEffort": "2–3 hours",
+        "status": "",
+        "priority": "future",
+        "labels": ["enhancement", "todo-item", "priority:low"]
+    }
+]
