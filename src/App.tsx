@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import { AboutModal } from './components/AboutModal';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
+import {
+    CookieConsentProvider,
+    useCookieConsent,
+} from './contexts/CookieConsentContext';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useServiceWorkerStatus } from './hooks/useServiceWorkerStatus';
@@ -44,6 +49,7 @@ function AppContent() {
         completeOnboardingWithTeam,
         settings,
     } = useSettings();
+    const { hasConsentBeenSet } = useCookieConsent();
     const { currentDate, setCurrentDate, todayShifts } = useShiftCalculation();
 
     // Handle URL parameters for deep linking
@@ -258,6 +264,7 @@ function AppContent() {
                         onUpdate={handleUpdateApp}
                         onLater={handleUpdateLater}
                     />
+                    <CookieConsentBanner show={!hasConsentBeenSet} />
                 </Container>
             </div>
         </ErrorBoundary>
@@ -266,11 +273,13 @@ function AppContent() {
 
 function App() {
     return (
-        <SettingsProvider>
-            <ToastProvider>
-                <AppContent />
-            </ToastProvider>
-        </SettingsProvider>
+        <CookieConsentProvider>
+            <SettingsProvider>
+                <ToastProvider>
+                    <AppContent />
+                </ToastProvider>
+            </SettingsProvider>
+        </CookieConsentProvider>
     );
 }
 

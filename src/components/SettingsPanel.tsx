@@ -4,8 +4,10 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import { useCookieConsent } from '../contexts/CookieConsentContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
+import { clearNonEssentialStorage } from '../hooks/useConsentAwareLocalStorage';
 import { CONFIG } from '../utils/config';
 import { shareApp, shareTodayView } from '../utils/share';
 import { ChangelogModal } from './ChangelogModal';
@@ -37,8 +39,15 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
     const [showConfirmReset, setShowConfirmReset] = useState(false);
+    const [showPrivacySettings, setShowPrivacySettings] = useState(false);
     const { settings, updateTimeFormat, updateTheme, resetSettings } =
         useSettings();
+    const {
+        consentPreferences,
+        setConsentPreferences,
+        resetConsent,
+        hasConsentBeenSet,
+    } = useCookieConsent();
     const toast = useToast();
 
     const handleChangelogClick = () => {
@@ -47,6 +56,22 @@ export function SettingsPanel({
 
     const handleChangelogClose = () => {
         setShowChangelog(false);
+    };
+
+    const handlePrivacySettingsClick = () => {
+        setShowPrivacySettings(true);
+    };
+
+    const handlePrivacySettingsClose = () => {
+        setShowPrivacySettings(false);
+    };
+
+    const handleClearData = () => {
+        clearNonEssentialStorage();
+        resetConsent();
+        resetSettings();
+        setShowPrivacySettings(false);
+        toast.showSuccess('All data cleared and consent reset', '🗑️');
     };
 
     const handleResetSettings = () => {
@@ -275,6 +300,24 @@ export function SettingsPanel({
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
+                                <ListGroup.Item
+                                    action
+                                    onClick={handlePrivacySettingsClick}
+                                >
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div className="fw-medium">
+                                                <i className="bi bi-shield-check me-2"></i>
+                                                Privacy & Data
+                                            </div>
+                                            <small className="text-muted">
+                                                Cookie consent and data
+                                                management
+                                            </small>
+                                        </div>
+                                        <i className="bi bi-chevron-right text-muted"></i>
+                                    </div>
+                                </ListGroup.Item>
                             </ListGroup>
                         </div>
                     </div>
@@ -373,6 +416,119 @@ export function SettingsPanel({
                 show={showChangelog}
                 onHide={handleChangelogClose}
             />
+
+            {/* Privacy Settings Modal */}
+            <Modal
+                show={showPrivacySettings}
+                onHide={handlePrivacySettingsClose}
+                size="lg"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        <i className="bi bi-shield-check me-2"></i>
+                        Privacy & Data Settings
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="mb-4">
+                        <h6>Cookie Consent Status</h6>
+                        <p className="text-muted">
+                            {hasConsentBeenSet
+                                ? 'You have set your cookie preferences. You can update them below.'
+                                : 'You have not yet set your cookie preferences.'}
+                        </p>
+                    </div>
+
+                    <div className="mb-4">
+                        <h6>Data Storage Categories</h6>
+                        <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Strictly Necessary</strong>
+                                    <div className="small text-muted">
+                                        Required for the app to function
+                                        properly
+                                    </div>
+                                </div>
+                                <span className="badge bg-success">
+                                    Always Enabled
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Functional</strong>
+                                    <div className="small text-muted">
+                                        User preferences and settings
+                                    </div>
+                                </div>
+                                <div className="form-check form-switch">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="functional-toggle"
+                                        checked={consentPreferences.functional}
+                                        onChange={(e) =>
+                                            setConsentPreferences({
+                                                ...consentPreferences,
+                                                functional: e.target.checked,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Analytics</strong>
+                                    <div className="small text-muted">
+                                        Usage analytics (not currently
+                                        implemented)
+                                    </div>
+                                </div>
+                                <span className="badge bg-secondary">
+                                    Not Used
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="alert alert-info">
+                        <strong>Your Privacy:</strong> All data is stored
+                        locally on your device. No personal information is sent
+                        to external servers.
+                    </div>
+
+                    <div className="mb-3">
+                        <h6>Data Management</h6>
+                        <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={handleClearData}
+                        >
+                            <i className="bi bi-trash me-2"></i>
+                            Clear All Data & Reset Consent
+                        </Button>
+                        <div className="small text-muted mt-1">
+                            This will clear all stored preferences and reset
+                            your cookie consent.
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button
+                        variant="secondary"
+                        onClick={handlePrivacySettingsClose}
+                    >
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             {/* Confirm Reset Modal */}
             <Modal show={showConfirmReset} onHide={handleCancelReset} centered>
                 <Modal.Header closeButton>
