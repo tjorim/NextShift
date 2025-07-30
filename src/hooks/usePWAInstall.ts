@@ -10,6 +10,8 @@ interface BeforeInstallPromptEvent extends Event {
  *
  * Detects when the app becomes installable, exposes a boolean indicating installability, and provides a function to trigger the install prompt and await the user's response.
  *
+ * Uses consent-aware storage for remembering user dismissal preferences.
+ *
  * @returns An object containing `isInstallable`, a boolean indicating if the app can be installed, and `promptInstall`, a function that prompts the user to install the app and returns a boolean indicating if the user accepted.
  */
 export function usePWAInstall() {
@@ -18,12 +20,51 @@ export function usePWAInstall() {
     const [isInstallable, setIsInstallable] = useState(false);
     const [isPrompting, setIsPrompting] = useState(false);
 
-    // Check if user previously dismissed auto-prompts (persisted in localStorage)
+    // Check if user previously dismissed auto-prompts (with consent checking)
     const hasUserDismissedAutoPrompt = useCallback(() => {
         try {
-            return localStorage.getItem('pwa-auto-prompt-dismissed') === 'true';
+            // Check if we have functional consent for storing this preference
+            const consentData = window.localStorage.getItem(
+                'nextshift_cookie_consent',
+            );
+            if (!consentData) {
+                return false; // No consent given, don't remember dismissals
+            }
+
+            const parsed = JSON.parse(consentData);
+            if (!parsed?.consentGiven || !parsed?.preferences?.functional) {
+                return false; // No functional consent
+            }
+
+            return localStorage.getItem('nextshift_pwa_dismissed') === 'true';
         } catch {
             return false;
+        }
+    }, []);
+
+    // Store dismissal preference (with consent checking)
+    const setUserDismissedAutoPrompt = useCallback((dismissed: boolean) => {
+        try {
+            // Check if we have functional consent for storing this preference
+            const consentData = window.localStorage.getItem(
+                'nextshift_cookie_consent',
+            );
+            if (!consentData) {
+                return; // No consent given, don't store
+            }
+
+            const parsed = JSON.parse(consentData);
+            if (!parsed?.consentGiven || !parsed?.preferences?.functional) {
+                return; // No functional consent
+            }
+
+            if (dismissed) {
+                localStorage.setItem('nextshift_pwa_dismissed', 'true');
+            } else {
+                localStorage.removeItem('nextshift_pwa_dismissed');
+            }
+        } catch {
+            // Ignore localStorage errors
         }
     }, []);
 
@@ -87,11 +128,7 @@ export function usePWAInstall() {
 
             // If user dismisses our manual prompt, remember this for future auto-prompts
             if (outcome === 'dismissed') {
-                try {
-                    localStorage.setItem('pwa-auto-prompt-dismissed', 'true');
-                } catch {
-                    // Ignore localStorage errors
-                }
+                setUserDismissedAutoPrompt(true);
             }
 
             return outcome === 'accepted';
