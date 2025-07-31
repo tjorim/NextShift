@@ -84,10 +84,56 @@ GitHub Pages only supports **one deployment at a time**, so we can't have live p
 
 If you need live PR preview URLs, consider these alternatives:
 
-1. **Netlify Deploy Previews**: Connect your repo to Netlify for automatic PR previews
-2. **Vercel**: Similar to Netlify, provides automatic PR previews
-3. **Surge.sh**: Can be integrated with GitHub Actions for per-PR deployments
-4. **Custom solution**: Use GitHub Actions to deploy to different domains/subdomains
+1. **Cloudflare Pages** ⭐ (Recommended Free Option)
+   - **Cost**: Completely free for open source projects
+   - **Features**: Automatic PR previews, unlimited builds, custom domains
+   - **Setup**: Connect GitHub repo, automatic deployments on every PR
+   - **Performance**: Global CDN, excellent loading speeds
+
+2. **Netlify Deploy Previews**
+   - **Cost**: Free tier (300 build minutes/month), paid plans from $19/month
+   - **Features**: Automatic PR previews, form handling, serverless functions
+   - **Setup**: Connect GitHub repo via Netlify dashboard
+
+3. **Vercel**
+   - **Cost**: Free for hobby use, paid plans from $20/month for teams
+   - **Features**: Automatic PR previews, serverless functions, analytics
+   - **Setup**: Import project from GitHub
+
+4. **Surge.sh**
+   - **Cost**: Free for static sites, $30/month for custom domains
+   - **Features**: Can be integrated with GitHub Actions for per-PR deployments
+   - **Setup**: Manual GitHub Actions integration required
+
+### 🚀 Recommended: Cloudflare Pages Setup
+
+For the best free PR preview experience, we recommend Cloudflare Pages:
+
+1. **Connect Repository**:
+   - Go to [Cloudflare Pages](https://pages.cloudflare.com/)
+   - Click "Create a project" → "Connect to Git"
+   - Select your NextShift repository
+
+2. **Configure Build Settings**:
+   ```
+   Build command: npm run build
+   Build output directory: dist
+   Root directory: (leave empty)
+   ```
+
+3. **Environment Variables** (if needed):
+   ```
+   VITE_REFERENCE_DATE=2025-07-16
+   VITE_REFERENCE_TEAM=1
+   ```
+
+4. **Features You Get**:
+   - ✅ Automatic deployments on main branch
+   - ✅ PR preview URLs for every pull request
+   - ✅ Custom domain support (free)
+   - ✅ Global CDN performance
+   - ✅ Unlimited builds and bandwidth
+   - ✅ Instant cache purging
 
 ## 🔢 Version Management
 
@@ -105,12 +151,26 @@ Git Tag (v1.2.3)
     ↓
 GitHub Actions extracts version (1.2.3)
     ↓
-Updates package.json
+Updates package.json (build-time only, not committed)
     ↓
 Vite build injects into app (__APP_VERSION__)
     ↓
 Runtime: CONFIG.VERSION = "1.2.3"
 ```
+
+### 🚫 Why package.json Changes Aren't Committed Back
+
+The deployment process **intentionally does NOT** commit the updated `package.json` back to the repository because:
+
+- ✅ **Git tags are the source of truth** - the version should come from the tag, not package.json
+- ✅ **Preserves commit integrity** - the tag points to the exact reviewed commit
+- ✅ **Avoids workflow conflicts** - pushing changes would create commits after the release tag
+- ✅ **Follows semantic versioning best practices** - tags define releases, not file changes
+
+If you need the package.json version updated in the repository, you should:
+1. Update it manually before creating the tag
+2. Ensure the package.json version matches your intended tag version
+3. Then create and push the tag for deployment
 
 ### 📝 Version Display in App
 
@@ -132,9 +192,13 @@ The version is automatically shown in:
 ### For Releases
 
 1. **Ensure main is ready**: All features merged and tested
-2. **Create release tag**: `git tag v1.2.3 && git push origin v1.2.3`
-3. **Monitor deployment**: Watch the Actions tab for deployment status
-4. **Verify live site**: Test the deployed version
+2. **Update package.json version** (optional): `npm version 1.2.3 --no-git-tag-version` 
+3. **Commit version update** (if made): `git add package.json && git commit -m "chore: bump version to 1.2.3"`
+4. **Create release tag**: `git tag v1.2.3 && git push origin v1.2.3`
+5. **Monitor deployment**: Watch the Actions tab for deployment status
+6. **Verify live site**: Test the deployed version
+
+> **Note**: The deployment process will update package.json during build regardless, but updating it beforehand keeps the repository version in sync with releases.
 
 ### 🏷️ Semantic Versioning
 
