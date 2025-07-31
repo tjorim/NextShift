@@ -33,6 +33,69 @@ interface ConsentData {
     consentDate: string;
 }
 
+/**
+ * Migrates existing user data from the old storage structure to the new split structure.
+ * This prevents data loss when users update from versions before the GDPR consent system.
+ */
+function migrateExistingUserData(): void {
+    if (typeof window === 'undefined') return;
+
+    try {
+        // Check if migration is needed
+        const oldUserState = window.localStorage.getItem(
+            'nextshift_user_state',
+        );
+        const onboardingState = window.localStorage.getItem(
+            'nextshift_onboarding_state',
+        );
+        const userPreferences = window.localStorage.getItem(
+            'nextshift_user_preferences',
+        );
+
+        // Only migrate if old data exists and new structure doesn't
+        if (oldUserState && (!onboardingState || !userPreferences)) {
+            const parsed = JSON.parse(oldUserState);
+
+            // Migrate onboarding state to the new key
+            if (
+                !onboardingState &&
+                parsed.hasCompletedOnboarding !== undefined
+            ) {
+                window.localStorage.setItem(
+                    'nextshift_onboarding_state',
+                    JSON.stringify({
+                        hasCompletedOnboarding: parsed.hasCompletedOnboarding,
+                    }),
+                );
+            }
+
+            // Migrate user preferences to the new key (only if consent will be granted)
+            if (
+                !userPreferences &&
+                (parsed.myTeam !== undefined || parsed.settings !== undefined)
+            ) {
+                const preferences = {
+                    myTeam: parsed.myTeam || null,
+                    settings: parsed.settings || {},
+                };
+                window.localStorage.setItem(
+                    'nextshift_user_preferences',
+                    JSON.stringify(preferences),
+                );
+            }
+
+            // Remove old data after successful migration
+            window.localStorage.removeItem('nextshift_user_state');
+
+            console.log(
+                'Successfully migrated user data to new GDPR-compliant storage structure',
+            );
+        }
+    } catch (error) {
+        console.warn('Failed to migrate existing user data:', error);
+    }
+}
+
 const CookieConsentContext = createContext<
     CookieConsentContextType | undefined
 >(undefined);
@@ -67,6 +130,11 @@ export function CookieConsentProvider({
 
     const setConsentPreferences = useCallback(
         (preferences: ConsentPreferences) => {
+            // Run migration before setting consent if this is the first time
+            if (!hasConsentBeenSet && preferences.functional) {
+                migrateExistingUserData();
+            }
+
             setConsentData({
                 preferences: {
                     ...preferences,
@@ -76,7 +144,7 @@ export function CookieConsentProvider({
                 consentDate: new Date().toISOString(),
             });
         },
-        [setConsentData],
+        [setConsentData, hasConsentBeenSet],
     );
 
     const acceptAllCookies = useCallback(() => {

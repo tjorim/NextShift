@@ -37,10 +37,21 @@ function checkStoragePermission(
 /**
  * Consent-aware localStorage hook that respects GDPR cookie preferences.
  *
+ * This hook always updates React state for optimal UX, but only persists to localStorage
+ * when the user has granted consent for the specified category. This allows the app to
+ * function normally even when storage consent is denied, while respecting user preferences.
+ *
  * @param key - The localStorage key
  * @param initialValue - The initial value if nothing is stored
  * @param category - The consent category ('necessary', 'functional', 'analytics')
  * @returns [value, setValue] tuple similar to useState
+ *
+ * @example
+ * // For user preferences (functional data)
+ * const [theme, setTheme] = useConsentAwareLocalStorage('theme', 'light', 'functional');
+ *
+ * // For essential app data (necessary data)
+ * const [onboarding, setOnboarding] = useConsentAwareLocalStorage('onboarding', false, 'necessary');
  */
 export function useConsentAwareLocalStorage<T>(
     key: string,
@@ -117,6 +128,15 @@ export function clearNonEssentialStorage(): void {
     }
 }
 
-// Re-export the original useLocalStorage for backward compatibility
-// and for cases where consent checking isn't needed
+/**
+ * Re-export the original useLocalStorage hook for backward compatibility.
+ *
+ * @remarks
+ * - Use `useLocalStorage` for scenarios where consent checking is not required,
+ *   such as for non-GDPR-sensitive data or legacy code that does not involve
+ *   user preferences.
+ * - Use `useConsentAwareLocalStorage` for GDPR-sensitive data to ensure compliance
+ *   with user consent preferences. This hook respects cookie consent categories
+ *   and prevents unauthorized storage or retrieval of data.
+ */
 export { useLocalStorage } from './useLocalStorage';

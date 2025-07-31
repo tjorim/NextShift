@@ -16,7 +16,6 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import { useConsentAwareLocalStorage } from '../hooks/useConsentAwareLocalStorage';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export type TimeFormat = '12h' | '24h';
 export type Theme = 'light' | 'dark' | 'auto';
@@ -100,9 +99,13 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     }
 
     // Separate essential state (necessary) from preferences (functional)
-    const [onboardingState, setOnboardingState] = useLocalStorage<{
+    const [onboardingState, setOnboardingState] = useConsentAwareLocalStorage<{
         hasCompletedOnboarding: boolean;
-    }>('nextshift_onboarding_state', { hasCompletedOnboarding: false });
+    }>(
+        'nextshift_onboarding_state',
+        { hasCompletedOnboarding: false },
+        'necessary',
+    );
 
     const [userPreferences, setUserPreferences] = useConsentAwareLocalStorage<{
         myTeam: number | null;
