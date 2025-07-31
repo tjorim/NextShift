@@ -470,12 +470,18 @@ export function SettingsPanel({
                                         type="checkbox"
                                         id="functional-toggle"
                                         checked={consentPreferences.functional}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
+                                            const isEnabled = e.target.checked;
                                             setConsentPreferences({
                                                 ...consentPreferences,
-                                                functional: e.target.checked,
-                                            })
-                                        }
+                                                functional: isEnabled,
+                                            });
+
+                                            // Clear functional data immediately when consent is withdrawn
+                                            if (!isEnabled) {
+                                                clearNonEssentialStorage();
+                                            }
+                                        }}
                                     />
                                 </div>
                             </div>
