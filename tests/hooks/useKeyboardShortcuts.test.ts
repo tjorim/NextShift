@@ -8,6 +8,10 @@ describe('useKeyboardShortcuts', () => {
         onPrevious: vi.fn(),
         onNext: vi.fn(),
         onTeamSelect: vi.fn(),
+        onSettings: vi.fn(),
+        onTabToday: vi.fn(),
+        onTabSchedule: vi.fn(),
+        onTabTransfer: vi.fn(),
     };
 
     beforeEach(() => {
@@ -106,5 +110,62 @@ describe('useKeyboardShortcuts', () => {
         // Should not throw when other callbacks are missing
         const event = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
         expect(() => document.dispatchEvent(event)).not.toThrow();
+    });
+
+    it('triggers onSettings when Ctrl+, is pressed', () => {
+        renderHook(() => useKeyboardShortcuts(mockShortcuts));
+
+        const event = new KeyboardEvent('keydown', { key: ',', ctrlKey: true });
+        document.dispatchEvent(event);
+
+        expect(mockShortcuts.onSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('triggers onTabToday when T is pressed', () => {
+        renderHook(() => useKeyboardShortcuts(mockShortcuts));
+
+        const event = new KeyboardEvent('keydown', { key: 't' });
+        document.dispatchEvent(event);
+
+        expect(mockShortcuts.onTabToday).toHaveBeenCalledTimes(1);
+    });
+
+    it('triggers onTabSchedule when S is pressed', () => {
+        renderHook(() => useKeyboardShortcuts(mockShortcuts));
+
+        const event = new KeyboardEvent('keydown', { key: 's' });
+        document.dispatchEvent(event);
+
+        expect(mockShortcuts.onTabSchedule).toHaveBeenCalledTimes(1);
+    });
+
+    it('triggers onTabTransfer when R is pressed', () => {
+        renderHook(() => useKeyboardShortcuts(mockShortcuts));
+
+        const event = new KeyboardEvent('keydown', { key: 'r' });
+        document.dispatchEvent(event);
+
+        expect(mockShortcuts.onTabTransfer).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not trigger tab shortcuts when modifier keys are pressed', () => {
+        renderHook(() => useKeyboardShortcuts(mockShortcuts));
+
+        // Test with Ctrl key
+        const eventWithCtrl = new KeyboardEvent('keydown', { key: 't', ctrlKey: true });
+        document.dispatchEvent(eventWithCtrl);
+
+        // Should trigger onTeamSelect, not onTabToday
+        expect(mockShortcuts.onTeamSelect).toHaveBeenCalledTimes(1);
+        expect(mockShortcuts.onTabToday).not.toHaveBeenCalled();
+
+        vi.clearAllMocks();
+
+        // Test with Alt key
+        const eventWithAlt = new KeyboardEvent('keydown', { key: 's', altKey: true });
+        document.dispatchEvent(eventWithAlt);
+
+        // Should not trigger onTabSchedule
+        expect(mockShortcuts.onTabSchedule).not.toHaveBeenCalled();
     });
 });
