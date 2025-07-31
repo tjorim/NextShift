@@ -174,9 +174,17 @@ npm run test         # Run test suite
 
 ### Deployment
 - **CI/CD**: GitHub Actions with comprehensive workflows
+- **Release Process**: Deployments trigger on git tags (e.g., `v3.2.1`) for controlled releases
+- **PR Testing**: Build artifacts generated for code changes in PRs
 - **Static Hosting**: Deployable to any static hosting service
 - **Caching**: Optimized service worker with asset caching
 - **Performance**: Lighthouse monitoring and optimization
+
+#### Creating a Release
+1. Merge PR to main branch after validation
+2. Create and push a git tag: `git tag v3.2.2 && git push origin v3.2.2`
+3. GitHub Actions will automatically deploy to GitHub Pages
+4. Version from tag is injected into the deployed app
 
 ## What's New in v3.1+
 

@@ -177,6 +177,34 @@ jobs:
             "
           fi
 
+      - name: Build PR preview
+        if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
+        run: |
+          echo "🔨 Building PR preview for testing..."
+          
+          # Build the app for preview
+          npm run build
+          
+          # Create preview info file
+          cat > dist/pr-info.json << EOF
+          {
+            "pr_number": "${{ github.event.number }}",
+            "commit_sha": "${{ github.event.pull_request.head.sha }}",
+            "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "version": "PR-${{ github.event.number }}-$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)"
+          }
+          EOF
+          
+          echo "✅ PR preview build completed"
+
+      - name: Upload PR preview artifact
+        if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-preview-${{ github.event.number }}
+          path: dist/
+          retention-days: 7
+
       - name: Check for version updates
         if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
         run: |
@@ -283,7 +311,8 @@ jobs:
             summary += "\n### 🚀 Ready for Review\n";
 
             if (CORE_CHANGES === 'true' || CONFIG_CHANGES === 'true') {
-              summary += "All automated checks passed! This PR is ready for manual review.\n";
+              summary += "All automated checks passed! This PR is ready for manual review.\n\n";
+              summary += "📦 **PR Preview**: A preview build has been uploaded as an artifact (`pr-preview-" + context.issue.number + "`) for manual testing. Download it from the Actions tab to test the changes locally.\n";
             } else {
               summary += "No code changes detected. This PR primarily contains documentation or workflow updates and is ready for manual review.\n";
             }
