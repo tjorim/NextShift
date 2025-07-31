@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useMemo } from 'react';
+import { clearNonEssentialStorage } from '../hooks/useConsentAwareLocalStorage';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export type ConsentCategory = 'necessary' | 'functional' | 'analytics';
@@ -92,6 +93,8 @@ export function CookieConsentProvider({
             functional: false,
             analytics: false,
         });
+        // Clear any existing functional data when consent is withdrawn
+        clearNonEssentialStorage();
     }, [setConsentPreferences]);
 
     const resetConsent = useCallback(() => {
