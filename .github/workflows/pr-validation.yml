@@ -177,6 +177,25 @@ jobs:
             "
           fi
 
+      - name: Build PR preview
+        if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
+        run: |
+          echo "🔨 Building basic validation build..."
+          
+          # Build the app for validation (not for deployment)
+          npm run build
+          
+          echo "✅ Validation build completed"
+          echo "ℹ️  For downloadable PR preview, see the 'PR Preview Build' workflow"
+
+      - name: Upload PR validation artifacts
+        if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-validation-${{ github.event.number }}
+          path: dist/
+          retention-days: 3
+
       - name: Check for version updates
         if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
         run: |
@@ -283,7 +302,8 @@ jobs:
             summary += "\n### 🚀 Ready for Review\n";
 
             if (CORE_CHANGES === 'true' || CONFIG_CHANGES === 'true') {
-              summary += "All automated checks passed! This PR is ready for manual review.\n";
+              summary += "All automated checks passed! This PR is ready for manual review.\n\n";
+              summary += "📦 **Preview Available**: A detailed preview build with full metadata is available via the 'PR Preview Build' workflow. Look for the comment with download instructions.\n";
             } else {
               summary += "No code changes detected. This PR primarily contains documentation or workflow updates and is ready for manual review.\n";
             }

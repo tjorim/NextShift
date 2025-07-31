@@ -174,9 +174,27 @@ npm run test         # Run test suite
 
 ### Deployment
 - **CI/CD**: GitHub Actions with comprehensive workflows
+- **Release Process**: **Tag-based deployments only** - no deployments on main branch pushes
+- **Version Management**: Automatic version injection from git tags into the app
+- **PR Testing**: Downloadable preview builds for every PR with code changes
 - **Static Hosting**: Deployable to any static hosting service
 - **Caching**: Optimized service worker with asset caching
 - **Performance**: Lighthouse monitoring and optimization
+
+#### 🏷️ Creating a Release
+1. **Merge PR** to main branch after validation and testing
+2. **Create and push a git tag**: `git tag v3.2.2 && git push origin v3.2.2`
+3. **Automatic deployment**: GitHub Actions will deploy to GitHub Pages
+4. **Version injection**: Version from tag is automatically injected into the app
+
+> 📖 **For detailed deployment information**, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+
+#### 🔍 Testing PR Changes
+Every PR automatically generates a preview build that you can download and test locally:
+1. Open your PR on GitHub
+2. Look for the "📦 PR Preview Build" comment
+3. Download the preview artifact from the Actions tab
+4. Extract and serve locally with `npx serve dist`
 
 ## What's New in v3.1+
 
