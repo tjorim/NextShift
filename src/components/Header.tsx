@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -8,6 +7,8 @@ import { SettingsPanel } from './SettingsPanel';
 
 interface HeaderProps {
     onShowAbout?: () => void;
+    showSettings?: boolean;
+    onSettingsToggle?: () => void;
 }
 
 /**
@@ -15,10 +16,10 @@ interface HeaderProps {
  *
  * The header shows the app title, online/offline status, a PWA install button when available, and an About button. When the About button is clicked, it calls the onShowAbout callback prop.
  */
-export function Header({ onShowAbout }: HeaderProps = {}) {
+export function Header({ onShowAbout, showSettings = false, onSettingsToggle }: HeaderProps = {}) {
     const isOnline = useOnlineStatus();
     const { isInstallable, promptInstall } = usePWAInstall();
-    const [showSettings, setShowSettings] = useState(false);
+    // Remove internal settings state since it's now managed externally
 
     const handleShowAbout = () => {
         onShowAbout?.();
@@ -72,7 +73,7 @@ export function Header({ onShowAbout }: HeaderProps = {}) {
                             <Button
                                 variant="outline-light"
                                 size="sm"
-                                onClick={() => setShowSettings(true)}
+                                onClick={() => onSettingsToggle?.()}
                                 aria-label="Settings"
                                 className="header-button"
                             >
@@ -89,7 +90,7 @@ export function Header({ onShowAbout }: HeaderProps = {}) {
             {/* Settings Panel */}
             <SettingsPanel
                 show={showSettings}
-                onHide={() => setShowSettings(false)}
+                onHide={() => onSettingsToggle?.()}
                 onShowAbout={onShowAbout}
             />
         </>
