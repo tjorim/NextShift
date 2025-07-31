@@ -1,0 +1,194 @@
+name: Test Tag-Based Deployment System
+
+on:
+  # Manual trigger for testing the deployment system
+  workflow_dispatch:
+    inputs:
+      test_tag:
+        description: 'Test tag to simulate (e.g., v1.0.0-test)'
+        required: true
+        default: 'v1.0.0-test'
+        type: string
+
+jobs:
+  test-deployment-flow:
+    name: Test Deployment Process
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test version extraction
+        id: test-version
+        run: |
+          echo "🧪 Testing version extraction logic..."
+          
+          # Simulate tag-based deployment
+          TEST_TAG="${{ github.event.inputs.test_tag }}"
+          echo "Test tag: $TEST_TAG"
+          
+          if [[ $TEST_TAG == v*.*.* ]]; then
+            VERSION=${TEST_TAG#v}
+            echo "✅ Version extraction successful: $VERSION"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Invalid tag format. Expected: v*.*.*"
+            exit 1
+          fi
+
+      - name: Test package.json version update
+        run: |
+          echo "🧪 Testing package.json version update..."
+          
+          ORIGINAL_VERSION=$(node -p "require('./package.json').version")
+          echo "Original version: $ORIGINAL_VERSION"
+          
+          # Update version (like in deployment workflow)
+          npm version --no-git-tag-version ${{ steps.test-version.outputs.VERSION }}
+          
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "New version: $NEW_VERSION"
+          
+          if [[ "$NEW_VERSION" == "${{ steps.test-version.outputs.VERSION }}" ]]; then
+            echo "✅ Package.json version update successful"
+          else
+            echo "❌ Package.json version update failed"
+            exit 1
+          fi
+          
+          # Restore original version
+          npm version --no-git-tag-version $ORIGINAL_VERSION
+          echo "✅ Version restored"
+
+      - name: Test version injection in build
+        run: |
+          echo "🧪 Testing version injection in build process..."
+          
+          # Update version for build test
+          npm version --no-git-tag-version ${{ steps.test-version.outputs.VERSION }}
+          
+          # Build the application
+          npm run build
+          
+          # Check if version is injected correctly
+          if grep -q "${{ steps.test-version.outputs.VERSION }}" dist/assets/js/*.js; then
+            echo "✅ Version injection successful in build"
+          else
+            echo "❌ Version injection failed - version not found in build"
+            exit 1
+          fi
+
+      - name: Test deployment metadata generation
+        run: |
+          echo "🧪 Testing deployment metadata generation..."
+          
+          # Create test deployment info (like in deploy workflow)
+          mkdir -p test_site
+          cat > test_site/deployment-info.json << EOF
+          {
+            "version": "${{ steps.test-version.outputs.VERSION }}",
+            "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit_sha": "${{ github.sha }}",
+            "deployment_trigger": "workflow_dispatch",
+            "tag": "${{ github.event.inputs.test_tag }}",
+            "workflow_run_id": "${{ github.run_id }}",
+            "workflow_run_number": "${{ github.run_number }}"
+          }
+          EOF
+          
+          # Validate JSON structure
+          if node -e "JSON.parse(require('fs').readFileSync('test_site/deployment-info.json', 'utf8'))"; then
+            echo "✅ Deployment metadata generation successful"
+            echo "📋 Generated metadata:"
+            cat test_site/deployment-info.json | jq .
+          else
+            echo "❌ Invalid deployment metadata JSON"
+            exit 1
+          fi
+
+      - name: Test quality checks (simulation)
+        run: |
+          echo "🧪 Testing CI pipeline (quality checks)..."
+          
+          # Run the same checks as in deployment
+          echo "Running linting..."
+          npm run lint
+          echo "✅ Linting passed"
+          
+          echo "Running tests..."
+          npm run test
+          echo "✅ Tests passed"
+          
+          echo "✅ All quality checks passed"
+
+      - name: Test PWA manifest validation
+        run: |
+          echo "🧪 Testing PWA manifest validation..."
+          
+          # Check built manifest
+          if [ -f "dist/manifest.webmanifest" ]; then
+            node -e "
+              const manifest = JSON.parse(require('fs').readFileSync('dist/manifest.webmanifest', 'utf8'));
+              const required = ['name', 'short_name', 'icons', 'start_url', 'display'];
+              
+              required.forEach(field => {
+                if (!manifest[field]) {
+                  console.log(\`❌ Missing required field: \${field}\`);
+                  process.exit(1);
+                } else {
+                  console.log(\`✅ \${field}: present\`);
+                }
+              });
+              
+              console.log('✅ PWA manifest validation successful');
+            "
+          else
+            echo "❌ PWA manifest not found"
+            exit 1
+          fi
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-test-${{ github.run_number }}
+          path: |
+            dist/
+            test_site/
+          retention-days: 1
+
+      - name: Test summary
+        run: |
+          echo "# 🧪 Tag-Based Deployment Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ All Tests Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Extraction**: \`${{ github.event.inputs.test_tag }}\` → \`${{ steps.test-version.outputs.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package.json Update**: ✅ Successful" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Injection**: ✅ Found in build output" >> $GITHUB_STEP_SUMMARY
+          echo "- **Metadata Generation**: ✅ Valid JSON structure" >> $GITHUB_STEP_SUMMARY
+          echo "- **Quality Checks**: ✅ Linting and tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **PWA Manifest**: ✅ Valid structure" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Deployment System Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The tag-based deployment system is working correctly and ready for production use." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 To Deploy for Real:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Create a proper version tag: \`git tag v1.2.3\`" >> $GITHUB_STEP_SUMMARY
+          echo "2. Push the tag: \`git push origin v1.2.3\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. Watch the deployment in Actions tab" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Test completed successfully by GitHub Actions*" >> $GITHUB_STEP_SUMMARY

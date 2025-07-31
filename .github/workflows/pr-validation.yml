@@ -180,30 +180,21 @@ jobs:
       - name: Build PR preview
         if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
         run: |
-          echo "🔨 Building PR preview for testing..."
+          echo "🔨 Building basic validation build..."
           
-          # Build the app for preview
+          # Build the app for validation (not for deployment)
           npm run build
           
-          # Create preview info file
-          cat > dist/pr-info.json << EOF
-          {
-            "pr_number": "${{ github.event.number }}",
-            "commit_sha": "${{ github.event.pull_request.head.sha }}",
-            "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "version": "PR-${{ github.event.number }}-$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)"
-          }
-          EOF
-          
-          echo "✅ PR preview build completed"
+          echo "✅ Validation build completed"
+          echo "ℹ️  For downloadable PR preview, see the 'PR Preview Build' workflow"
 
-      - name: Upload PR preview artifact
+      - name: Upload PR validation artifacts
         if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: pr-preview-${{ github.event.number }}
+          name: pr-validation-${{ github.event.number }}
           path: dist/
-          retention-days: 7
+          retention-days: 3
 
       - name: Check for version updates
         if: env.CORE_CHANGES == 'true' || env.CONFIG_CHANGES == 'true'
@@ -312,7 +303,7 @@ jobs:
 
             if (CORE_CHANGES === 'true' || CONFIG_CHANGES === 'true') {
               summary += "All automated checks passed! This PR is ready for manual review.\n\n";
-              summary += "📦 **PR Preview**: A preview build has been uploaded as an artifact (`pr-preview-" + context.issue.number + "`) for manual testing. Download it from the Actions tab to test the changes locally.\n";
+              summary += "📦 **Preview Available**: A detailed preview build with full metadata is available via the 'PR Preview Build' workflow. Look for the comment with download instructions.\n";
             } else {
               summary += "No code changes detected. This PR primarily contains documentation or workflow updates and is ready for manual review.\n";
             }
