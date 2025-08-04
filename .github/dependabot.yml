@@ -9,8 +9,6 @@ updates:
       time: "09:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    reviewers:
-      - "tjorim"
     assignees:
       - "tjorim"
     commit-message:
@@ -30,8 +28,6 @@ updates:
       time: "09:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 3
-    reviewers:
-      - "tjorim"
     assignees:
       - "tjorim"
     commit-message:
