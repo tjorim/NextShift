@@ -207,19 +207,53 @@ describe('clearNonEssentialStorage', () => {
     });
 
     it('handles localStorage errors gracefully', () => {
-        // Mock localStorage to throw an error
+        // Mock localStorage to throw an error on both getItem and removeItem
         const originalLocalStorage = window.localStorage;
         Object.defineProperty(window, 'localStorage', {
             value: {
                 ...originalLocalStorage,
                 getItem: () => {
-                    throw new Error('Storage error');
+                    throw new Error('Storage getItem error');
+                },
+                removeItem: () => {
+                    throw new Error('Storage removeItem error');
                 },
             },
             writable: true,
         });
 
-        // Should not throw
+        // Should not throw even when both operations fail
+        expect(() => clearNonEssentialStorage()).not.toThrow();
+
+        // Restore localStorage
+        Object.defineProperty(window, 'localStorage', {
+            value: originalLocalStorage,
+            writable: true,
+        });
+    });
+
+    it('handles removeItem errors gracefully during clearing', () => {
+        // Set up some nextshift data
+        window.localStorage.setItem(
+            'nextshift_user_preferences',
+            '{"test":true}',
+        );
+        window.localStorage.setItem('nextshift_pwa_dismissed', 'true');
+
+        const originalLocalStorage = window.localStorage;
+
+        // Mock localStorage to throw errors only on removeItem
+        Object.defineProperty(window, 'localStorage', {
+            value: {
+                ...originalLocalStorage,
+                removeItem: () => {
+                    throw new Error('Storage removeItem error');
+                },
+            },
+            writable: true,
+        });
+
+        // Should not throw despite removeItem failing
         expect(() => clearNonEssentialStorage()).not.toThrow();
 
         // Restore localStorage

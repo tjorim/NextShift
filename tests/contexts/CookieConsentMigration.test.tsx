@@ -1,15 +1,20 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { CookieConsentProvider, useCookieConsent } from '../../src/contexts/CookieConsentContext';
+import {
+    CookieConsentProvider,
+    useCookieConsent,
+} from '../../src/contexts/CookieConsentContext';
 
 // Test component that can trigger consent
 function TestComponent() {
     const { acceptAllCookies } = useCookieConsent();
-    
+
     return (
         <div>
-            <button onClick={acceptAllCookies}>Accept All</button>
+            <button type="button" onClick={acceptAllCookies}>
+                Accept All
+            </button>
             <div>Test Content</div>
         </div>
     );
@@ -32,7 +37,7 @@ describe('Cookie Consent Migration', () => {
 
     it('migrates existing user data when functional consent is granted for the first time', async () => {
         const user = userEvent.setup();
-        
+
         // Setup: Add old-style user data
         const oldUserState = {
             hasCompletedOnboarding: true,
@@ -43,7 +48,10 @@ describe('Cookie Consent Migration', () => {
                 notifications: 'on',
             },
         };
-        localStorage.setItem('nextshift_user_state', JSON.stringify(oldUserState));
+        localStorage.setItem(
+            'nextshift_user_state',
+            JSON.stringify(oldUserState),
+        );
 
         // Verify old data exists and new data doesn't
         expect(localStorage.getItem('nextshift_user_state')).toBeTruthy();
@@ -59,16 +67,20 @@ describe('Cookie Consent Migration', () => {
 
         // Verify migration occurred
         expect(localStorage.getItem('nextshift_user_state')).toBeNull(); // Old data should be removed
-        
-        const migratedOnboarding = localStorage.getItem('nextshift_onboarding_state');
+
+        const migratedOnboarding = localStorage.getItem(
+            'nextshift_onboarding_state',
+        );
         expect(migratedOnboarding).toBeTruthy();
-        expect(JSON.parse(migratedOnboarding!)).toEqual({
+        expect(JSON.parse(migratedOnboarding as string)).toEqual({
             hasCompletedOnboarding: true,
         });
 
-        const migratedPreferences = localStorage.getItem('nextshift_user_preferences');
+        const migratedPreferences = localStorage.getItem(
+            'nextshift_user_preferences',
+        );
         expect(migratedPreferences).toBeTruthy();
-        expect(JSON.parse(migratedPreferences!)).toEqual({
+        expect(JSON.parse(migratedPreferences as string)).toEqual({
             myTeam: 3,
             settings: {
                 timeFormat: '24h',
@@ -78,15 +90,16 @@ describe('Cookie Consent Migration', () => {
         });
     });
 
-    it('does not migrate when functional consent is not granted', async () => {
-        const user = userEvent.setup();
-        
+    it('does not migrate when functional consent is not granted', () => {
         // Setup: Add old-style user data
         const oldUserState = {
             hasCompletedOnboarding: true,
             myTeam: 3,
         };
-        localStorage.setItem('nextshift_user_state', JSON.stringify(oldUserState));
+        localStorage.setItem(
+            'nextshift_user_state',
+            JSON.stringify(oldUserState),
+        );
 
         render(<TestWrapper />);
 
@@ -98,7 +111,7 @@ describe('Cookie Consent Migration', () => {
 
     it('does not migrate data if new structure already exists', async () => {
         const user = userEvent.setup();
-        
+
         // Setup: Add both old and new data
         const oldUserState = {
             hasCompletedOnboarding: false,
@@ -108,9 +121,18 @@ describe('Cookie Consent Migration', () => {
         const newOnboarding = { hasCompletedOnboarding: true };
         const newPreferences = { myTeam: 2, settings: { timeFormat: '24h' } };
 
-        localStorage.setItem('nextshift_user_state', JSON.stringify(oldUserState));
-        localStorage.setItem('nextshift_onboarding_state', JSON.stringify(newOnboarding));
-        localStorage.setItem('nextshift_user_preferences', JSON.stringify(newPreferences));
+        localStorage.setItem(
+            'nextshift_user_state',
+            JSON.stringify(oldUserState),
+        );
+        localStorage.setItem(
+            'nextshift_onboarding_state',
+            JSON.stringify(newOnboarding),
+        );
+        localStorage.setItem(
+            'nextshift_user_preferences',
+            JSON.stringify(newPreferences),
+        );
 
         render(<TestWrapper />);
 
@@ -119,47 +141,62 @@ describe('Cookie Consent Migration', () => {
 
         // Verify old data is preserved and new data is not overwritten
         expect(localStorage.getItem('nextshift_user_state')).toBeTruthy(); // Old data should remain
-        expect(JSON.parse(localStorage.getItem('nextshift_onboarding_state')!)).toEqual(newOnboarding);
-        expect(JSON.parse(localStorage.getItem('nextshift_user_preferences')!)).toEqual(newPreferences);
+        expect(
+            JSON.parse(
+                localStorage.getItem('nextshift_onboarding_state') as string,
+            ),
+        ).toEqual(newOnboarding);
+        expect(
+            JSON.parse(
+                localStorage.getItem('nextshift_user_preferences') as string,
+            ),
+        ).toEqual(newPreferences);
     });
 
     it('handles migration gracefully when old data is malformed', async () => {
         const user = userEvent.setup();
-        
+
         // Setup: Add malformed old data
         localStorage.setItem('nextshift_user_state', 'invalid-json');
 
         // This should not throw an error
         expect(() => render(<TestWrapper />)).not.toThrow();
-        
+
         const acceptButton = screen.getByText('Accept All');
         await user.click(acceptButton);
 
         // Malformed data should be left alone (migration fails gracefully)
-        expect(localStorage.getItem('nextshift_user_state')).toBe('invalid-json');
+        expect(localStorage.getItem('nextshift_user_state')).toBe(
+            'invalid-json',
+        );
     });
 
     it('migrates only onboarding state when user preferences are missing', async () => {
         const user = userEvent.setup();
-        
+
         // Setup: Add old data with only onboarding
         const oldUserState = {
             hasCompletedOnboarding: true,
             // No myTeam or settings
         };
-        localStorage.setItem('nextshift_user_state', JSON.stringify(oldUserState));
+        localStorage.setItem(
+            'nextshift_user_state',
+            JSON.stringify(oldUserState),
+        );
 
         render(<TestWrapper />);
-        
+
         const acceptButton = screen.getByText('Accept All');
         await user.click(acceptButton);
 
         // Verify migration occurred
         expect(localStorage.getItem('nextshift_user_state')).toBeNull();
-        
-        const migratedOnboarding = localStorage.getItem('nextshift_onboarding_state');
+
+        const migratedOnboarding = localStorage.getItem(
+            'nextshift_onboarding_state',
+        );
         expect(migratedOnboarding).toBeTruthy();
-        expect(JSON.parse(migratedOnboarding!)).toEqual({
+        expect(JSON.parse(migratedOnboarding as string)).toEqual({
             hasCompletedOnboarding: true,
         });
 

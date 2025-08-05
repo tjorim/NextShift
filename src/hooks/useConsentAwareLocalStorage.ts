@@ -72,8 +72,8 @@ export function useConsentAwareLocalStorage<T>(
         try {
             const item = window.localStorage.getItem(key);
             return item ? JSON.parse(item) : initialValue;
-        } catch (error) {
-            console.warn(`Error reading localStorage key "${key}":`, error);
+        } catch {
+            // Return initial value if localStorage is corrupted or unavailable
             return initialValue;
         }
     });
@@ -91,10 +91,18 @@ export function useConsentAwareLocalStorage<T>(
                 typeof window !== 'undefined' &&
                 checkStoragePermission(key, category)
             ) {
-                window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                try {
+                    window.localStorage.setItem(
+                        key,
+                        JSON.stringify(valueToStore),
+                    );
+                } catch {
+                    // Handle storage quota exceeded or other localStorage errors silently
+                    // App continues to function normally even if storage fails
+                }
             }
-        } catch (error) {
-            console.warn(`Error setting localStorage key "${key}":`, error);
+        } catch {
+            // Handle any other errors silently - app continues to function
         }
     };
 
@@ -120,11 +128,15 @@ export function clearNonEssentialStorage(): void {
         // Clear non-essential keys
         for (const key of allKeys) {
             if (!essentialKeys.includes(key) && key.startsWith('nextshift_')) {
-                window.localStorage.removeItem(key);
+                try {
+                    window.localStorage.removeItem(key);
+                } catch {
+                    // Handle individual key removal errors silently
+                }
             }
         }
-    } catch (error) {
-        console.warn('Error clearing non-essential storage:', error);
+    } catch {
+        // Handle storage clearing errors silently - app continues to function
     }
 }
 
