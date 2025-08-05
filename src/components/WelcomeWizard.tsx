@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
+import { useCookieConsent } from '../contexts/CookieConsentContext';
 import { CONFIG } from '../utils/config';
 
-type WizardStep = 'welcome' | 'features' | 'team-selection';
+type WizardStep = 'welcome' | 'features' | 'consent' | 'team-selection';
 
 interface WelcomeWizardProps {
     show: boolean;
@@ -47,6 +50,11 @@ export function WelcomeWizard({
     const initialStepRef = useRef(startStep);
     const firstButtonRef = useRef<HTMLButtonElement>(null);
 
+    // Cookie consent integration
+    const { consentPreferences, setConsentPreferences } = useCookieConsent();
+    const [tempConsentPreferences, setTempConsentPreferences] =
+        useState(consentPreferences);
+
     // Sync currentStep when startStep prop changes
     useEffect(() => {
         if (startStep !== initialStepRef.current) {
@@ -54,6 +62,11 @@ export function WelcomeWizard({
             initialStepRef.current = startStep;
         }
     }, [startStep]);
+
+    // Sync temp consent preferences with current consent state
+    useEffect(() => {
+        setTempConsentPreferences(consentPreferences);
+    }, [consentPreferences]);
     const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
 
     const SETTINGS_LOCATION_TEXT = 'Settings panel (⚙️ in the top right)';
@@ -64,8 +77,10 @@ export function WelcomeWizard({
                 return '1';
             case 'features':
                 return '2';
-            case 'team-selection':
+            case 'consent':
                 return '3';
+            case 'team-selection':
+                return '4';
             default:
                 return '1';
         }
@@ -96,12 +111,26 @@ export function WelcomeWizard({
         if (currentStep === 'welcome') {
             setCurrentStep('features');
         } else if (currentStep === 'features') {
+            setCurrentStep('consent');
+        } else if (currentStep === 'consent') {
+            // Save consent preferences before proceeding
+            setConsentPreferences(tempConsentPreferences);
+
+            // If functional cookies declined, skip team selection and complete onboarding
+            if (!tempConsentPreferences.functional) {
+                onSkip?.(); // Complete onboarding without team selection
+                onHide();
+                return;
+            }
+
             setCurrentStep('team-selection');
         }
     };
 
     const prevStep = () => {
         if (currentStep === 'team-selection') {
+            setCurrentStep('consent');
+        } else if (currentStep === 'consent') {
             setCurrentStep('features');
         } else if (currentStep === 'features') {
             setCurrentStep('welcome');
@@ -111,9 +140,11 @@ export function WelcomeWizard({
     const getProgressPercentage = () => {
         switch (currentStep) {
             case 'welcome':
-                return 33;
+                return 25;
             case 'features':
-                return 66;
+                return 50;
+            case 'consent':
+                return 75;
             case 'team-selection':
                 return 100;
             default:
@@ -127,6 +158,8 @@ export function WelcomeWizard({
                 return 'Welcome to NextShift! 👋';
             case 'features':
                 return 'What can NextShift do? ✨';
+            case 'consent':
+                return 'Privacy & Data Preferences 🔒';
             case 'team-selection':
                 return 'Choose Your Experience 🎯';
             default:
@@ -240,11 +273,11 @@ export function WelcomeWizard({
                         </div>
                     </Col>
                 </Row>
-                <div className="alert alert-info mt-4" role="alert">
+                <Alert variant="info" className="mt-4">
                     <i className="bi bi-gear me-2"></i>
                     <strong>Tip:</strong> You can customize your experience
                     anytime in the <b>{SETTINGS_LOCATION_TEXT}</b>.
-                </div>
+                </Alert>
             </div>
             <div className="d-flex justify-content-between">
                 <Button
@@ -262,7 +295,133 @@ export function WelcomeWizard({
                     onClick={nextStep}
                     disabled={isLoading}
                 >
-                    Choose My Experience{' '}
+                    Set Privacy Preferences{' '}
+                    <i className="bi bi-arrow-right ms-1"></i>
+                </Button>
+            </div>
+        </>
+    );
+
+    const renderConsentStep = () => (
+        <>
+            <div className="mb-4">
+                <h5 className="text-center mb-4">
+                    Let's set up your privacy preferences
+                </h5>
+                <p className="text-muted text-center mb-4">
+                    NextShift stores your preferences locally on your device.
+                    Choose what you're comfortable with:
+                </p>
+
+                <Form>
+                    <div className="mb-4">
+                        <Form.Check
+                            type="switch"
+                            id="wizard-necessary-switch"
+                            label={
+                                <div>
+                                    <strong>Strictly Necessary</strong>
+                                    <div className="small text-muted">
+                                        Required for the app to function
+                                        properly. Includes your onboarding
+                                        completion and basic app functionality.
+                                    </div>
+                                </div>
+                            }
+                            checked={true}
+                            disabled={true}
+                            className="mb-3"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <Form.Check
+                            type="switch"
+                            id="wizard-functional-switch"
+                            label={
+                                <div>
+                                    <strong>Functional</strong>
+                                    <div className="small text-muted">
+                                        Stores your preferences like theme, time
+                                        format, and your team selection for a
+                                        personalized experience.
+                                    </div>
+                                </div>
+                            }
+                            checked={tempConsentPreferences.functional}
+                            onChange={(e) =>
+                                setTempConsentPreferences((prev) => ({
+                                    ...prev,
+                                    functional: e.target.checked,
+                                }))
+                            }
+                            className="mb-3"
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <Form.Check
+                            type="switch"
+                            id="wizard-analytics-switch"
+                            label={
+                                <div>
+                                    <strong>Analytics</strong>
+                                    <div className="small text-muted">
+                                        Would help us understand how the app is
+                                        used to improve it. Currently not
+                                        implemented.
+                                    </div>
+                                </div>
+                            }
+                            checked={tempConsentPreferences.analytics}
+                            onChange={(e) =>
+                                setTempConsentPreferences((prev) => ({
+                                    ...prev,
+                                    analytics: e.target.checked,
+                                }))
+                            }
+                            disabled={true}
+                            className="mb-3"
+                        />
+                    </div>
+                </Form>
+
+                <Alert variant="info">
+                    <small>
+                        <strong>Your Privacy:</strong> All data stays on your
+                        device. No personal information is sent to external
+                        servers. You can change these preferences anytime in
+                        Settings.
+                    </small>
+                </Alert>
+
+                {!tempConsentPreferences.functional && (
+                    <Alert variant="warning">
+                        <small>
+                            <strong>Note:</strong> Without functional cookies,
+                            you won't be able to save a team preference. You can
+                            still use NextShift to view all teams' schedules.
+                        </small>
+                    </Alert>
+                )}
+            </div>
+            <div className="d-flex justify-content-between">
+                <Button
+                    variant="outline-secondary"
+                    onClick={prevStep}
+                    disabled={isLoading}
+                    ref={currentStep === 'consent' ? firstButtonRef : undefined}
+                >
+                    <i className="bi bi-arrow-left me-1"></i> Back
+                </Button>
+                <Button
+                    variant="primary"
+                    onClick={nextStep}
+                    disabled={isLoading}
+                >
+                    {tempConsentPreferences.functional
+                        ? 'Continue to Team Selection'
+                        : 'Complete Setup'}{' '}
                     <i className="bi bi-arrow-right ms-1"></i>
                 </Button>
             </div>
@@ -363,7 +522,7 @@ export function WelcomeWizard({
                         className="mb-2"
                     />
                     <div className="d-flex justify-content-between small text-muted">
-                        <span>Step {getStepNumber()} of 3</span>
+                        <span>Step {getStepNumber()} of 4</span>
                         <span>{getProgressPercentage()}% Complete</span>
                     </div>
                 </div>
@@ -378,6 +537,7 @@ export function WelcomeWizard({
                     <>
                         {currentStep === 'welcome' && renderWelcomeStep()}
                         {currentStep === 'features' && renderFeaturesStep()}
+                        {currentStep === 'consent' && renderConsentStep()}
                         {currentStep === 'team-selection' &&
                             renderTeamSelectionStep()}
                     </>

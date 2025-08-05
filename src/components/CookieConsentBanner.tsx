@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
 import { useCookieConsent } from '../contexts/CookieConsentContext';
 
 interface CookieConsentBannerProps {
@@ -186,14 +192,14 @@ export function CookieConsentBanner({ show }: CookieConsentBannerProps) {
                         </div>
                     </Form>
 
-                    <div className="alert alert-info">
+                    <Alert variant="info">
                         <small>
                             <strong>Your Privacy:</strong> All data is stored
                             locally on your device. No personal information is
                             sent to external servers. You can view and delete
                             all stored data in the app settings.
                         </small>
-                    </div>
+                    </Alert>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button
