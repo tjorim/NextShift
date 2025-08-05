@@ -1,3 +1,4 @@
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
@@ -37,14 +38,14 @@ export function AboutModal({ show, onHide }: AboutModalProps) {
                     </div>
                     <h5 className="mb-2">NextShift - Team Shift Tracker</h5>
                     <div className="d-flex justify-content-center align-items-center gap-3 mb-2">
-                        <span className="badge bg-primary">
+                        <Badge bg="primary">
                             <i className="bi bi-tag me-1"></i>Version{' '}
                             {CONFIG.VERSION}
-                        </span>
-                        <span className="badge bg-success">
+                        </Badge>
+                        <Badge bg="success">
                             <i className="bi bi-wifi me-1"></i>
                             {getServiceWorkerStatusText(serviceWorkerStatus)}
-                        </span>
+                        </Badge>
                     </div>
                 </div>
 

@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Offcanvas from 'react-bootstrap/Offcanvas';
@@ -38,7 +41,6 @@ export function SettingsPanel({
     onShowAbout,
 }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
-    const [showConfirmReset, setShowConfirmReset] = useState(false);
     const [showPrivacySettings, setShowPrivacySettings] = useState(false);
     const { settings, updateTimeFormat, updateTheme, resetSettings } =
         useSettings();
@@ -71,19 +73,8 @@ export function SettingsPanel({
         resetConsent();
         resetSettings();
         setShowPrivacySettings(false);
+        onHide(); // Close the settings panel
         toast.showSuccess('All data cleared and consent reset', '🗑️');
-    };
-
-    const handleResetSettings = () => {
-        setShowConfirmReset(true);
-    };
-    const handleConfirmReset = () => {
-        resetSettings();
-        setShowConfirmReset(false);
-        onHide(); // Close the settings panel after reset
-    };
-    const handleCancelReset = () => {
-        setShowConfirmReset(false);
     };
 
     // Open About modal through callback prop
@@ -227,9 +218,12 @@ export function SettingsPanel({
                                         <div>
                                             <div className="fw-medium text-muted">
                                                 Notifications
-                                                <span className="badge bg-secondary ms-2 small">
+                                                <Badge
+                                                    bg="secondary"
+                                                    className="ms-2 small"
+                                                >
                                                     Coming Soon
-                                                </span>
+                                                </Badge>
                                             </div>
                                             <small className="text-muted">
                                                 Shift reminders and alerts
@@ -336,9 +330,12 @@ export function SettingsPanel({
                                             <div className="fw-medium">
                                                 <i className="bi bi-calendar-event me-2"></i>
                                                 Export Schedule{' '}
-                                                <span className="badge bg-secondary ms-2">
+                                                <Badge
+                                                    bg="secondary"
+                                                    className="ms-2"
+                                                >
                                                     Coming Soon
-                                                </span>
+                                                </Badge>
                                             </div>
                                             <small className="text-muted">
                                                 Download as calendar file
@@ -376,23 +373,6 @@ export function SettingsPanel({
                                             </small>
                                         </div>
                                         <i className="bi bi-share-fill text-muted"></i>
-                                    </div>
-                                </ListGroup.Item>
-                                <ListGroup.Item
-                                    action
-                                    onClick={handleResetSettings}
-                                >
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div className="fw-medium text-danger">
-                                                <i className="bi bi-arrow-clockwise me-2"></i>
-                                                Reset Data
-                                            </div>
-                                            <small className="text-muted">
-                                                Clear all preferences
-                                            </small>
-                                        </div>
-                                        <i className="bi bi-trash text-danger"></i>
                                     </div>
                                 </ListGroup.Item>
                             </ListGroup>
@@ -450,9 +430,7 @@ export function SettingsPanel({
                                         properly
                                     </div>
                                 </div>
-                                <span className="badge bg-success">
-                                    Always Enabled
-                                </span>
+                                <Badge bg="success">Always Enabled</Badge>
                             </div>
                         </div>
 
@@ -464,26 +442,23 @@ export function SettingsPanel({
                                         User preferences and settings
                                     </div>
                                 </div>
-                                <div className="form-check form-switch">
-                                    <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="functional-toggle"
-                                        checked={consentPreferences.functional}
-                                        onChange={(e) => {
-                                            const isEnabled = e.target.checked;
-                                            setConsentPreferences({
-                                                ...consentPreferences,
-                                                functional: isEnabled,
-                                            });
+                                <Form.Check
+                                    type="switch"
+                                    id="functional-toggle"
+                                    checked={consentPreferences.functional}
+                                    onChange={(e) => {
+                                        const isEnabled = e.target.checked;
+                                        setConsentPreferences({
+                                            ...consentPreferences,
+                                            functional: isEnabled,
+                                        });
 
-                                            // Clear functional data immediately when consent is withdrawn
-                                            if (!isEnabled) {
-                                                clearNonEssentialStorage();
-                                            }
-                                        }}
-                                    />
-                                </div>
+                                        // Clear functional data immediately when consent is withdrawn
+                                        if (!isEnabled) {
+                                            clearNonEssentialStorage();
+                                        }
+                                    }}
+                                />
                             </div>
                         </div>
 
@@ -496,18 +471,16 @@ export function SettingsPanel({
                                         implemented)
                                     </div>
                                 </div>
-                                <span className="badge bg-secondary">
-                                    Not Used
-                                </span>
+                                <Badge bg="secondary">Not Used</Badge>
                             </div>
                         </div>
                     </div>
 
-                    <div className="alert alert-info">
+                    <Alert variant="info">
                         <strong>Your Privacy:</strong> All data is stored
                         locally on your device. No personal information is sent
                         to external servers.
-                    </div>
+                    </Alert>
 
                     <div className="mb-3">
                         <h6>Data Management</h6>
@@ -531,25 +504,6 @@ export function SettingsPanel({
                         onClick={handlePrivacySettingsClose}
                     >
                         Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-            {/* Confirm Reset Modal */}
-            <Modal show={showConfirmReset} onHide={handleCancelReset} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Reset All Settings?</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to reset all settings to defaults?
-                    This cannot be undone.
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCancelReset}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleConfirmReset}>
-                        Reset
                     </Button>
                 </Modal.Footer>
             </Modal>
