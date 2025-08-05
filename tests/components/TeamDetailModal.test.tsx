@@ -64,7 +64,7 @@ describe('TeamDetailModal', () => {
         // For this test, we assume the context is set up so myTeam === teamNumber
         // The button should be disabled
         const button = screen.getByRole('button', { name: /view transfers/i });
-        expect(button).toBeDisabled();
+        expect(button.hasAttribute('disabled')).toBe(true);
 
         // Tooltip should show correct message when hovered
         if (!button.parentElement) {
@@ -74,14 +74,34 @@ describe('TeamDetailModal', () => {
         const tooltip = await screen.findByText(
             /you are viewing your own team/i,
         );
-        expect(tooltip).toBeInTheDocument();
+        expect(tooltip).toBeTruthy();
     });
 
     it('enables View Transfers button for other teams', () => {
+        // Set functional consent
+        const consentData = {
+            preferences: {
+                necessary: true,
+                functional: true,
+                analytics: false,
+            },
+            consentGiven: true,
+            consentDate: new Date().toISOString(),
+        };
         window.localStorage.setItem(
-            'nextshift_user_state',
+            'nextshift_cookie_consent',
+            JSON.stringify(consentData),
+        );
+
+        window.localStorage.setItem(
+            'nextshift_onboarding_state',
             JSON.stringify({
                 hasCompletedOnboarding: true,
+            }),
+        );
+        window.localStorage.setItem(
+            'nextshift_user_preferences',
+            JSON.stringify({
                 myTeam: 2,
                 settings: {
                     timeFormat: '24h',
@@ -100,6 +120,6 @@ describe('TeamDetailModal', () => {
         );
         // The button should be enabled (unless there are no transfers, but we are not testing that here)
         const button = screen.getByRole('button', { name: /view transfers/i });
-        expect(button).not.toBeDisabled();
+        expect(button.hasAttribute('disabled')).toBe(false);
     });
 });

@@ -31,14 +31,28 @@ interface ConsentData {
     preferences: ConsentPreferences;
     consentGiven: boolean;
     consentDate: string;
+    migrationVersion?: number;
 }
+
+const CURRENT_MIGRATION_VERSION = 1;
 
 /**
  * Migrates existing user data from the old storage structure to the new split structure.
  * This prevents data loss when users update from versions before the GDPR consent system.
+ *
+ * @param currentMigrationVersion - The migration version from stored consent data
+ * @returns The new migration version after successful migration
  */
-function migrateExistingUserData(): void {
-    if (typeof window === 'undefined') return;
+function migrateExistingUserData(currentMigrationVersion?: number): number {
+    if (typeof window === 'undefined') return CURRENT_MIGRATION_VERSION;
+
+    // Skip migration if already performed
+    if (
+        currentMigrationVersion &&
+        currentMigrationVersion >= CURRENT_MIGRATION_VERSION
+    ) {
+        return currentMigrationVersion;
+    }
 
     try {
         // Check if migration is needed
@@ -86,13 +100,12 @@ function migrateExistingUserData(): void {
 
             // Remove old data after successful migration
             window.localStorage.removeItem('nextshift_user_state');
-
-            console.log(
-                'Successfully migrated user data to new GDPR-compliant storage structure',
-            );
         }
-    } catch (error) {
-        console.warn('Failed to migrate existing user data:', error);
+
+        return CURRENT_MIGRATION_VERSION;
+    } catch {
+        // Silently handle migration errors - return current version to prevent retries
+        return currentMigrationVersion || CURRENT_MIGRATION_VERSION;
     }
 }
 
@@ -130,21 +143,39 @@ export function CookieConsentProvider({
 
     const setConsentPreferences = useCallback(
         (preferences: ConsentPreferences) => {
-            // Run migration before setting consent if this is the first time
-            if (!hasConsentBeenSet && preferences.functional) {
-                migrateExistingUserData();
-            }
+            try {
+                // Run migration before setting consent if this is the first time
+                let migrationVersion = consentData?.migrationVersion;
+                if (!hasConsentBeenSet && preferences.functional) {
+                    migrationVersion =
+                        migrateExistingUserData(migrationVersion);
+                }
 
-            setConsentData({
-                preferences: {
-                    ...preferences,
-                    necessary: true, // Always ensure necessary is true
-                },
-                consentGiven: true,
-                consentDate: new Date().toISOString(),
-            });
+                setConsentData({
+                    preferences: {
+                        ...preferences,
+                        necessary: true, // Always ensure necessary is true
+                    },
+                    consentGiven: true,
+                    consentDate: new Date().toISOString(),
+                    migrationVersion:
+                        migrationVersion || CURRENT_MIGRATION_VERSION,
+                });
+            } catch (error) {
+                console.error('Failed to set consent preferences:', error);
+                // Still try to set basic consent without migration
+                setConsentData({
+                    preferences: {
+                        ...preferences,
+                        necessary: true,
+                    },
+                    consentGiven: true,
+                    consentDate: new Date().toISOString(),
+                    migrationVersion: CURRENT_MIGRATION_VERSION,
+                });
+            }
         },
-        [setConsentData, hasConsentBeenSet],
+        [setConsentData, hasConsentBeenSet, consentData?.migrationVersion],
     );
 
     const acceptAllCookies = useCallback(() => {
@@ -156,17 +187,25 @@ export function CookieConsentProvider({
     }, [setConsentPreferences]);
 
     const rejectAllCookies = useCallback(() => {
-        setConsentPreferences({
-            necessary: true,
-            functional: false,
-            analytics: false,
-        });
-        // Clear any existing functional data when consent is withdrawn
-        clearNonEssentialStorage();
+        try {
+            setConsentPreferences({
+                necessary: true,
+                functional: false,
+                analytics: false,
+            });
+            // Clear any existing functional data when consent is withdrawn
+            clearNonEssentialStorage();
+        } catch (error) {
+            console.error('Failed to reject cookies:', error);
+        }
     }, [setConsentPreferences]);
 
     const resetConsent = useCallback(() => {
-        setConsentData(null);
+        try {
+            setConsentData(null);
+        } catch (error) {
+            console.error('Failed to reset consent:', error);
+        }
     }, [setConsentData]);
 
     const canUseStorage = useCallback(
