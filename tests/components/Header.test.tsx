@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../../src/App';
 import { Header } from '../../src/components/Header';
+import { CookieConsentProvider } from '../../src/contexts/CookieConsentContext';
 import { SettingsProvider } from '../../src/contexts/SettingsContext';
 import { ToastProvider } from '../../src/contexts/ToastContext';
 
@@ -38,9 +39,11 @@ const mockGetServiceWorkerStatusText = vi.mocked(getServiceWorkerStatusText);
 
 function renderWithProviders(ui: React.ReactElement) {
     return render(
-        <ToastProvider>
-            <SettingsProvider>{ui}</SettingsProvider>
-        </ToastProvider>,
+        <CookieConsentProvider>
+            <ToastProvider>
+                <SettingsProvider>{ui}</SettingsProvider>
+            </ToastProvider>
+        </CookieConsentProvider>,
     );
 }
 

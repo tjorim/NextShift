@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import { AboutModal } from './components/AboutModal';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
+import {
+    CookieConsentProvider,
+    useCookieConsent,
+} from './contexts/CookieConsentContext';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useServiceWorkerStatus } from './hooks/useServiceWorkerStatus';
@@ -44,6 +49,7 @@ function AppContent() {
         completeOnboardingWithTeam,
         settings,
     } = useSettings();
+    const { hasConsentBeenSet, consentPreferences } = useCookieConsent();
     const { currentDate, setCurrentDate, todayShifts } = useShiftCalculation();
 
     // Handle URL parameters for deep linking
@@ -188,7 +194,15 @@ function AppContent() {
     };
 
     const handleChangeTeam = () => {
-        // Use React's automatic batching to ensure both updates happen together
+        // If consent not set or functional cookies declined, guide user through consent first
+        if (!hasConsentBeenSet || !consentPreferences.functional) {
+            showInfo(
+                'You need to enable functional cookies to save team preferences',
+                '🍪',
+            );
+        }
+
+        // Always show the modal, but start at consent step if needed
         setTeamModalMode('change-team');
         setShowTeamModal(true);
     };
@@ -207,6 +221,14 @@ function AppContent() {
         // If user closes modal (Maybe Later), don't mark onboarding as completed
         // They should see the wizard again on next visit
         setShowTeamModal(false);
+
+        // If consent hasn't been set yet, show a brief message about cookie preferences
+        // This only applies if they somehow completed onboarding without setting consent
+        if (!hasConsentBeenSet && hasCompletedOnboarding) {
+            setTimeout(() => {
+                showInfo('Please set your cookie preferences below', '🍪');
+            }, 500); // Small delay to let modal close animation finish
+        }
     };
 
     const handleShowWhoIsWorking = () => {
@@ -246,8 +268,10 @@ function AppContent() {
                         startStep={
                             teamModalMode === 'onboarding'
                                 ? 'welcome'
-                                : 'team-selection'
-                        } // NEW
+                                : !consentPreferences.functional
+                                  ? 'consent'
+                                  : 'team-selection'
+                        }
                     />
                     <AboutModal
                         show={showAbout}
@@ -258,6 +282,13 @@ function AppContent() {
                         onUpdate={handleUpdateApp}
                         onLater={handleUpdateLater}
                     />
+                    <CookieConsentBanner
+                        show={
+                            !hasConsentBeenSet &&
+                            hasCompletedOnboarding &&
+                            !showTeamModal
+                        }
+                    />
                 </Container>
             </div>
         </ErrorBoundary>
@@ -266,11 +297,13 @@ function AppContent() {
 
 function App() {
     return (
-        <SettingsProvider>
-            <ToastProvider>
-                <AppContent />
-            </ToastProvider>
-        </SettingsProvider>
+        <CookieConsentProvider>
+            <SettingsProvider>
+                <ToastProvider>
+                    <AppContent />
+                </ToastProvider>
+            </SettingsProvider>
+        </CookieConsentProvider>
     );
 }
 
