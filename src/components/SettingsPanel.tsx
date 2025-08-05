@@ -9,6 +9,7 @@ import { useToast } from '../contexts/ToastContext';
 import { CONFIG } from '../utils/config';
 import { shareApp, shareTodayView } from '../utils/share';
 import { ChangelogModal } from './ChangelogModal';
+import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
 
 interface SettingsPanelProps {
     show: boolean;
@@ -37,6 +38,7 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
     const [showConfirmReset, setShowConfirmReset] = useState(false);
+    const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
     const { settings, updateTimeFormat, updateTheme, resetSettings } =
         useSettings();
     const toast = useToast();
@@ -47,6 +49,14 @@ export function SettingsPanel({
 
     const handleChangelogClose = () => {
         setShowChangelog(false);
+    };
+
+    const handleKeyboardHelpClick = () => {
+        setShowKeyboardHelp(true);
+    };
+
+    const handleKeyboardHelpClose = () => {
+        setShowKeyboardHelp(false);
     };
 
     const handleResetSettings = () => {
@@ -259,6 +269,23 @@ export function SettingsPanel({
                                 </ListGroup.Item>
                                 <ListGroup.Item
                                     action
+                                    onClick={handleKeyboardHelpClick}
+                                >
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div className="fw-medium">
+                                                <i className="bi bi-keyboard me-2"></i>
+                                                Keyboard Shortcuts
+                                            </div>
+                                            <small className="text-muted">
+                                                View available keyboard shortcuts
+                                            </small>
+                                        </div>
+                                        <i className="bi bi-chevron-right text-muted"></i>
+                                    </div>
+                                </ListGroup.Item>
+                                <ListGroup.Item
+                                    action
                                     onClick={handleAboutHelpClick}
                                 >
                                     <div className="d-flex justify-content-between align-items-center">
@@ -391,6 +418,12 @@ export function SettingsPanel({
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {/* Keyboard Shortcuts Help Modal */}
+            <KeyboardShortcutsHelp
+                show={showKeyboardHelp}
+                onHide={handleKeyboardHelpClose}
+            />
         </>
     );
 }

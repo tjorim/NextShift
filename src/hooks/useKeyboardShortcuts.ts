@@ -5,6 +5,10 @@ interface KeyboardShortcuts {
     onPrevious?: () => void;
     onNext?: () => void;
     onTeamSelect?: () => void;
+    onSettings?: () => void;
+    onTabToday?: () => void;
+    onTabSchedule?: () => void;
+    onTabTransfer?: () => void;
 }
 
 /**
@@ -12,7 +16,19 @@ interface KeyboardShortcuts {
  *
  * Registers a keydown event listener on the document to trigger the corresponding callback in `shortcuts` when specific keys or key combinations are pressed. Shortcut handling is disabled when the focus is on input, textarea, select, or contentEditable elements.
  *
- * @param shortcuts - Object with optional callbacks for "today", "previous", "next", and "team select" actions, invoked when their respective shortcuts are pressed
+ * Supported shortcuts:
+ * - Ctrl/Cmd+H: Jump to today (onToday)
+ * - Ctrl/Cmd+K: Previous day/week (onPrevious)
+ * - Ctrl/Cmd+J: Next day/week (onNext)
+ * - Ctrl/Cmd+T: Team selection (onTeamSelect)
+ * - Ctrl/Cmd+,: Settings panel toggle (onSettings)
+ * - T: Switch to Today tab (onTabToday)
+ * - S: Switch to Schedule tab (onTabSchedule)
+ * - R: Switch to Transfers tab (onTabTransfer)
+ * - ArrowLeft: Previous (context-aware) (onPrevious)
+ * - ArrowRight: Next (context-aware) (onNext)
+ *
+ * @param shortcuts - Object with optional callbacks for various keyboard shortcuts
  */
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
     useEffect(() => {
@@ -80,6 +96,17 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
                             );
                         }
                         break;
+                    case ',':
+                        event.preventDefault?.();
+                        try {
+                            shortcuts.onSettings?.();
+                        } catch (error) {
+                            console.error(
+                                'Error in onSettings callback:',
+                                error,
+                            );
+                        }
+                        break;
                 }
             }
 
@@ -105,6 +132,45 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts) {
                             shortcuts.onNext?.();
                         } catch (error) {
                             console.error('Error in onNext callback:', error);
+                        }
+                    }
+                    break;
+                case 't':
+                    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+                        event.preventDefault?.();
+                        try {
+                            shortcuts.onTabToday?.();
+                        } catch (error) {
+                            console.error(
+                                'Error in onTabToday callback:',
+                                error,
+                            );
+                        }
+                    }
+                    break;
+                case 's':
+                    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+                        event.preventDefault?.();
+                        try {
+                            shortcuts.onTabSchedule?.();
+                        } catch (error) {
+                            console.error(
+                                'Error in onTabSchedule callback:',
+                                error,
+                            );
+                        }
+                    }
+                    break;
+                case 'r':
+                    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+                        event.preventDefault?.();
+                        try {
+                            shortcuts.onTabTransfer?.();
+                        } catch (error) {
+                            console.error(
+                                'Error in onTabTransfer callback:',
+                                error,
+                            );
                         }
                     }
                     break;
