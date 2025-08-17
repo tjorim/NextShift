@@ -17,7 +17,7 @@
         "test:watch": "vitest",
         "analyze": "vite build --mode analyze",
         "generate-changelog": "tsx scripts/generate-changelog.ts",
-        "generate-icons": "tsx scripts/generate-icons.js"
+        "generate-icons": "tsx scripts/generate-icons.ts"
     },
     "repository": {
         "type": "git",
@@ -60,7 +60,7 @@
         "vitest": "^3.2.4"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=20.19.0"
     },
     "dependencies": {
         "bootstrap": "^5.3.7",

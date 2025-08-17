@@ -108,6 +108,5 @@ function main() {
     console.log('✅ CHANGELOG.md generated successfully');
 }
 
-if (require.main === module) {
-    main();
-}
+// Run the generator
+main();

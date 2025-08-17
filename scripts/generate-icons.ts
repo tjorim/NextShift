@@ -5,23 +5,29 @@
  * Generates PWA and favicon icons for the NextShift application
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
+import { writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { createCanvas } from 'canvas';
 
-const ICONS_DIR = path.join(process.cwd(), 'public', 'assets', 'icons');
+const ICONS_DIR = join(process.cwd(), 'public', 'assets', 'icons');
+
+interface IconConfig {
+    size: number;
+    filename: string;
+    name: string;
+}
 
 // Ensure icons directory exists
-if (!fs.existsSync(ICONS_DIR)) {
-    fs.mkdirSync(ICONS_DIR, { recursive: true });
+if (!existsSync(ICONS_DIR)) {
+    mkdirSync(ICONS_DIR, { recursive: true });
 }
 
 /**
  * Create a NextShift icon with clock design
- * @param {number} size - Icon size in pixels
- * @returns {Canvas} Canvas with the icon
+ * @param size - Icon size in pixels
+ * @returns Canvas with the icon
  */
-function createIcon(size) {
+function createIcon(size: number) {
     const canvas = createCanvas(size, size);
     const ctx = canvas.getContext('2d');
 
@@ -105,8 +111,8 @@ function createIcon(size) {
 /**
  * Generate and save icon files
  */
-function generateIcons() {
-    const icons = [
+function generateIcons(): void {
+    const icons: IconConfig[] = [
         { size: 16, filename: 'icon-16.png', name: '16x16 Favicon' },
         { size: 32, filename: 'icon-32.png', name: '32x32 Favicon' },
         { size: 48, filename: 'icon-48.png', name: '48x48 Favicon' },
@@ -119,9 +125,9 @@ function generateIcons() {
     icons.forEach(({ size, filename, name }) => {
         const canvas = createIcon(size);
         const buffer = canvas.toBuffer('image/png');
-        const filePath = path.join(ICONS_DIR, filename);
+        const filePath = join(ICONS_DIR, filename);
 
-        fs.writeFileSync(filePath, buffer);
+        writeFileSync(filePath, buffer);
         const sizeKB = (buffer.length / 1024).toFixed(1);
         console.log(`✅ Generated ${name}: ${filename} (${sizeKB}KB)`);
     });
