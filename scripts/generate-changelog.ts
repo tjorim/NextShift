@@ -2,7 +2,7 @@
 
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { changelogData, futurePlans } from '../src/data/changelog.js';
+import { changelogData, futurePlans } from '../src/data/changelog';
 
 function generateChangelog(): string {
     const header = `# Changelog
