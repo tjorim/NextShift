@@ -5,7 +5,7 @@
  * Generates PWA and favicon icons for the NextShift application
  */
 
-import { writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createCanvas } from 'canvas';
 
@@ -140,6 +140,6 @@ function generateIcons(): void {
 try {
     generateIcons();
 } catch (error) {
-    console.error('❌ Error generating icons:', error.message);
+    console.error('❌ Error generating icons:', (error as Error).message);
     process.exit(1);
 }
