@@ -9,6 +9,7 @@ import { useToast } from '../contexts/ToastContext';
 import { CONFIG } from '../utils/config';
 import { shareApp, shareTodayView } from '../utils/share';
 import { ChangelogModal } from './ChangelogModal';
+import { ExportModal } from './ExportModal';
 
 interface SettingsPanelProps {
     show: boolean;
@@ -37,6 +38,7 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
     const [showConfirmReset, setShowConfirmReset] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
     const { settings, updateTimeFormat, updateTheme, resetSettings } =
         useSettings();
     const toast = useToast();
@@ -47,6 +49,14 @@ export function SettingsPanel({
 
     const handleChangelogClose = () => {
         setShowChangelog(false);
+    };
+
+    const handleExportClick = () => {
+        setShowExportModal(true);
+    };
+
+    const handleExportClose = () => {
+        setShowExportModal(false);
     };
 
     const handleResetSettings = () => {
@@ -287,15 +297,12 @@ export function SettingsPanel({
                                 Quick Actions
                             </h6>
                             <ListGroup variant="flush">
-                                <ListGroup.Item action disabled>
+                                <ListGroup.Item action onClick={handleExportClick}>
                                     <div className="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div className="fw-medium">
                                                 <i className="bi bi-calendar-event me-2"></i>
-                                                Export Schedule{' '}
-                                                <span className="badge bg-secondary ms-2">
-                                                    Coming Soon
-                                                </span>
+                                                Export Schedule
                                             </div>
                                             <small className="text-muted">
                                                 Download as calendar file
@@ -372,6 +379,11 @@ export function SettingsPanel({
             <ChangelogModal
                 show={showChangelog}
                 onHide={handleChangelogClose}
+            />
+            {/* Export Modal */}
+            <ExportModal
+                show={showExportModal}
+                onHide={handleExportClose}
             />
             {/* Confirm Reset Modal */}
             <Modal show={showConfirmReset} onHide={handleCancelReset} centered>
