@@ -109,4 +109,9 @@ function main() {
 }
 
 // Run the generator
-main();
+try {
+    main();
+} catch (error) {
+    console.error('❌ Error generating changelog:', (error as Error).message);
+    process.exit(1);
+}
