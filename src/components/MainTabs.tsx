@@ -2,6 +2,7 @@ import type { Dayjs } from 'dayjs';
 import { useEffect, useId, useState } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { dayjs } from '../utils/dateTimeUtils';
 import type { ShiftResult } from '../utils/shiftCalculations';
 import { ScheduleView } from './ScheduleView';
@@ -16,6 +17,8 @@ interface MainTabsProps {
     todayShifts: ShiftResult[];
     activeTab?: string;
     onTabChange?: (tab: string) => void;
+    onSettingsToggle?: () => void;
+    onTeamSelect?: () => void;
 }
 
 /**
@@ -29,6 +32,8 @@ interface MainTabsProps {
  * @param todayShifts - Array of shift results for today
  * @param activeTab - The currently active tab (defaults to 'today')
  * @param onTabChange - Callback invoked when the active tab changes
+ * @param onSettingsToggle - Optional callback to toggle the settings panel
+ * @param onTeamSelect - Optional callback to open team selection dialog
  * @returns The rendered tabbed interface component.
  */
 export function MainTabs({
@@ -38,6 +43,8 @@ export function MainTabs({
     todayShifts,
     activeTab = 'today',
     onTabChange,
+    onSettingsToggle,
+    onTeamSelect,
 }: MainTabsProps) {
     const tabsId = useId();
     const [activeKey, setActiveKey] = useState<string>(activeTab);
@@ -65,6 +72,29 @@ export function MainTabs({
     const handleCloseTeamDetail = () => {
         setShowTeamDetail(false);
     };
+
+    // Keyboard shortcuts for tab navigation and actions
+    useKeyboardShortcuts({
+        onTabToday: () => {
+            setActiveKey('today');
+            onTabChange?.('today');
+        },
+        onTabSchedule: () => {
+            setActiveKey('schedule');
+            onTabChange?.('schedule');
+        },
+        onTabTransfer: () => {
+            setActiveKey('transfer');
+            onTabChange?.('transfer');
+        },
+        onSettings: () => {
+            onSettingsToggle?.();
+        },
+        onToday: handleTodayClick,
+        onTeamSelect: () => {
+            onTeamSelect?.();
+        },
+    });
 
     return (
         <>

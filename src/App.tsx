@@ -35,6 +35,7 @@ function AppContent() {
     const [activeTab, setActiveTab] = useState('today');
     const [showAbout, setShowAbout] = useState(false);
     const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const { showSuccess, showInfo } = useToast();
     const serviceWorkerStatus = useServiceWorkerStatus();
     const {
@@ -216,11 +217,19 @@ function AppContent() {
         showInfo("Switched to Today view to see who's working", '👥');
     };
 
+    const handleSettingsToggle = () => {
+        setShowSettings(!showSettings);
+    };
+
     return (
         <ErrorBoundary>
             <div className="min-vh-100">
                 <Container fluid>
-                    <Header onShowAbout={() => setShowAbout(true)} />
+                    <Header 
+                        onShowAbout={() => setShowAbout(true)}
+                        showSettings={showSettings}
+                        onSettingsToggle={handleSettingsToggle}
+                    />
                     <ErrorBoundary>
                         <CurrentStatus
                             myTeam={myTeam}
@@ -236,6 +245,8 @@ function AppContent() {
                             todayShifts={todayShifts}
                             activeTab={activeTab}
                             onTabChange={setActiveTab}
+                            onTeamSelect={handleChangeTeam}
+                            onSettingsToggle={handleSettingsToggle}
                         />
                     </ErrorBoundary>
                     <WelcomeWizard
