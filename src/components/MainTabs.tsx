@@ -1,5 +1,5 @@
 import type { Dayjs } from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { dayjs } from '../utils/dateTimeUtils';
@@ -39,6 +39,7 @@ export function MainTabs({
     activeTab = 'today',
     onTabChange,
 }: MainTabsProps) {
+    const tabsId = useId();
     const [activeKey, setActiveKey] = useState<string>(activeTab);
     const [showTeamDetail, setShowTeamDetail] = useState(false);
     const [selectedTeamForDetail, setSelectedTeamForDetail] =
@@ -74,7 +75,7 @@ export function MainTabs({
                     setActiveKey(newKey);
                     onTabChange?.(newKey);
                 }}
-                id="mainTabs"
+                id={tabsId}
             >
                 <Tab
                     eventKey="today"

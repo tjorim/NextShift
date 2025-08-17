@@ -38,6 +38,11 @@ export function TransferView({
     // Generate unique ID for tooltips
     const handoverTooltipId = useId();
     const takeoverTooltipId = useId();
+    // Generate unique IDs for form elements
+    const otherTeamSelectId = useId();
+    const showPastCheckboxId = useId();
+    const startDateId = useId();
+    const endDateId = useId();
     // Validate and sanitize user's team prop
     let myTeam = inputMyTeam;
     if (
@@ -123,17 +128,19 @@ export function TransferView({
                         <Row className="mb-3">
                             <Col md={4}>
                                 <Form.Label
-                                    htmlFor="otherTeam"
+                                    htmlFor={otherTeamSelectId}
                                     className="fw-semibold"
                                 >
                                     <i className="bi bi-people me-1"></i>
                                     View transfers with Team:
                                 </Form.Label>
                                 <Form.Select
-                                    id="otherTeam"
+                                    id={otherTeamSelectId}
                                     value={otherTeam}
                                     onChange={(e) =>
-                                        setOtherTeam(parseInt(e.target.value))
+                                        setOtherTeam(
+                                            parseInt(e.target.value, 10),
+                                        )
                                     }
                                 >
                                     {availableOtherTeams.map((teamNumber) => (
@@ -149,7 +156,7 @@ export function TransferView({
                             <Col md={8}>
                                 <Form.Check
                                     type="checkbox"
-                                    id="useCustomRange"
+                                    id={showPastCheckboxId}
                                     label="Filter by custom date range"
                                     checked={useCustomRange}
                                     onChange={(e) =>
@@ -164,7 +171,7 @@ export function TransferView({
                             <Row className="mb-3">
                                 <Col md={5}>
                                     <Form.Label
-                                        htmlFor="startDate"
+                                        htmlFor={startDateId}
                                         className="fw-semibold"
                                     >
                                         <i className="bi bi-calendar-range me-1"></i>
@@ -172,7 +179,7 @@ export function TransferView({
                                     </Form.Label>
                                     <Form.Control
                                         type="date"
-                                        id="startDate"
+                                        id={startDateId}
                                         value={customStartDate}
                                         onChange={(e) =>
                                             setCustomStartDate(e.target.value)
@@ -181,14 +188,14 @@ export function TransferView({
                                 </Col>
                                 <Col md={5}>
                                     <Form.Label
-                                        htmlFor="endDate"
+                                        htmlFor={endDateId}
                                         className="fw-semibold"
                                     >
                                         End Date:
                                     </Form.Label>
                                     <Form.Control
                                         type="date"
-                                        id="endDate"
+                                        id={endDateId}
                                         value={customEndDate}
                                         onChange={(e) =>
                                             setCustomEndDate(e.target.value)
