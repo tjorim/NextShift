@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useId, useMemo } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -46,6 +46,9 @@ export function TeamDetailModal({
     teamNumber,
     onViewTransfers,
 }: TeamDetailModalProps) {
+    const calendarTooltipId = useId();
+    const transfersDisabledTooltipId = useId();
+    const transfersTooltipId = useId();
     // Generate 7-day schedule for the team
     const weekSchedule = useMemo(() => {
         const today = dayjs();
@@ -361,7 +364,7 @@ export function TeamDetailModal({
                             <OverlayTrigger
                                 placement="top"
                                 overlay={
-                                    <Tooltip id="calendar-coming-soon-tooltip">
+                                    <Tooltip id={calendarTooltipId}>
                                         Live calendar sync coming soon!
                                     </Tooltip>
                                 }
@@ -391,13 +394,15 @@ export function TeamDetailModal({
                                 placement="top"
                                 overlay={
                                     isViewingOwnTeam ? (
-                                        <Tooltip id="transfers-tooltip-disabled">
+                                        <Tooltip
+                                            id={transfersDisabledTooltipId}
+                                        >
                                             You are viewing your own team.
                                             Transfers are only shown for other
                                             teams.
                                         </Tooltip>
                                     ) : (
-                                        <Tooltip id="transfers-tooltip">
+                                        <Tooltip id={transfersTooltipId}>
                                             View transfers between your team and
                                             this team
                                         </Tooltip>
