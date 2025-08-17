@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
-import { CONFIG } from '../utils/config';
+import { TeamSelector } from './common/TeamSelector';
 
 type WizardStep = 'welcome' | 'features' | 'team-selection';
 
@@ -54,7 +54,6 @@ export function WelcomeWizard({
             initialStepRef.current = startStep;
         }
     }, [startStep]);
-    const teams = Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1);
 
     const SETTINGS_LOCATION_TEXT = 'Settings panel (⚙️ in the top right)';
 
@@ -82,8 +81,10 @@ export function WelcomeWizard({
         }
     };
 
-    const handleTeamSelect = (team: number) => {
-        onTeamSelect(team);
+    const handleTeamSelect = (team: number | null) => {
+        if (team !== null) {
+            onTeamSelect(team);
+        }
         // Don't call onHide() here - let the parent component handle modal hiding
     };
 
@@ -286,27 +287,13 @@ export function WelcomeWizard({
                     Get personalized features like countdown timers and shift
                     progress tracking.
                 </p>
-                <Row className="g-2" aria-label="Select your team">
-                    {teams.map((team) => (
-                        <Col key={team} xs={6} sm={4} md={4}>
-                            <Button
-                                variant="outline-primary"
-                                className="w-100 team-btn"
-                                onClick={() => handleTeamSelect(team)}
-                                disabled={isLoading}
-                                aria-label={`Select Team ${team}`}
-                                ref={
-                                    currentStep === 'team-selection' &&
-                                    team === 1
-                                        ? firstButtonRef
-                                        : undefined
-                                }
-                            >
-                                Team {team}
-                            </Button>
-                        </Col>
-                    ))}
-                </Row>
+                <TeamSelector
+                    selectedTeam={null}
+                    onTeamSelect={handleTeamSelect}
+                    variant="buttons"
+                    disabled={isLoading}
+                    aria-label="Select your team"
+                />
             </div>
 
             <hr />

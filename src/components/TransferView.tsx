@@ -15,6 +15,7 @@ import {
     getShiftByCode,
     getShiftDisplayName,
 } from '../utils/shiftCalculations';
+import { TeamSelector } from './common/TeamSelector';
 
 interface TransferViewProps {
     myTeam: number | null; // The user's team from onboarding
@@ -59,7 +60,6 @@ export function TransferView({
     // Use the transfer calculations hook
     const {
         transfers,
-        availableOtherTeams,
         otherTeam,
         setOtherTeam,
         hasMoreTransfers,
@@ -122,29 +122,15 @@ export function TransferView({
                         {/* Controls */}
                         <Row className="mb-3">
                             <Col md={4}>
-                                <Form.Label
-                                    htmlFor="otherTeam"
-                                    className="fw-semibold"
-                                >
-                                    <i className="bi bi-people me-1"></i>
-                                    View transfers with Team:
-                                </Form.Label>
-                                <Form.Select
-                                    id="otherTeam"
-                                    value={otherTeam}
-                                    onChange={(e) =>
-                                        setOtherTeam(parseInt(e.target.value))
-                                    }
-                                >
-                                    {availableOtherTeams.map((teamNumber) => (
-                                        <option
-                                            key={teamNumber}
-                                            value={teamNumber}
-                                        >
-                                            Team {teamNumber}
-                                        </option>
-                                    ))}
-                                </Form.Select>
+                                <TeamSelector
+                                    selectedTeam={otherTeam}
+                                    onTeamSelect={(team) => setOtherTeam(team!)}
+                                    variant="dropdown"
+                                    label="View transfers with Team:"
+                                    showIcon={true}
+                                    excludeTeams={myTeam ? [myTeam] : []}
+                                    aria-label="Select team to view transfers with"
+                                />
                             </Col>
                             <Col md={8}>
                                 <Form.Check
