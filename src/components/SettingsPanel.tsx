@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
@@ -41,6 +41,7 @@ export function SettingsPanel({
     onShowAbout,
 }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
+    const functionalToggleId = useId();
     const [showPrivacySettings, setShowPrivacySettings] = useState(false);
     const { settings, updateTimeFormat, updateTheme, resetSettings } =
         useSettings();
@@ -444,7 +445,7 @@ export function SettingsPanel({
                                 </div>
                                 <Form.Check
                                     type="switch"
-                                    id="functional-toggle"
+                                    id={functionalToggleId}
                                     checked={consentPreferences.functional}
                                     onChange={(e) => {
                                         const isEnabled = e.target.checked;

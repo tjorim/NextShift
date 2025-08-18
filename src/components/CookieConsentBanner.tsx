@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -23,6 +23,9 @@ interface CookieConsentBannerProps {
  */
 export function CookieConsentBanner({ show }: CookieConsentBannerProps) {
     const [showCustomize, setShowCustomize] = useState(false);
+    const necessarySwitchId = useId();
+    const functionalSwitchId = useId();
+    const analyticsSwitchId = useId();
     const {
         consentPreferences,
         setConsentPreferences,
@@ -123,7 +126,7 @@ export function CookieConsentBanner({ show }: CookieConsentBannerProps) {
                         <div className="mb-4">
                             <Form.Check
                                 type="switch"
-                                id="necessary-switch"
+                                id={necessarySwitchId}
                                 label={
                                     <div>
                                         <strong>Strictly Necessary</strong>
@@ -143,7 +146,7 @@ export function CookieConsentBanner({ show }: CookieConsentBannerProps) {
                         <div className="mb-4">
                             <Form.Check
                                 type="switch"
-                                id="functional-switch"
+                                id={functionalSwitchId}
                                 label={
                                     <div>
                                         <strong>Functional</strong>
@@ -168,7 +171,7 @@ export function CookieConsentBanner({ show }: CookieConsentBannerProps) {
                         <div className="mb-4">
                             <Form.Check
                                 type="switch"
-                                id="analytics-switch"
+                                id={analyticsSwitchId}
                                 label={
                                     <div>
                                         <strong>Analytics</strong>

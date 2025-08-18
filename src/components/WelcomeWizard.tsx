@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -54,6 +54,11 @@ export function WelcomeWizard({
     const { consentPreferences, setConsentPreferences } = useCookieConsent();
     const [tempConsentPreferences, setTempConsentPreferences] =
         useState(consentPreferences);
+
+    // Generate unique IDs for form elements
+    const wizardNecessarySwitchId = useId();
+    const wizardFunctionalSwitchId = useId();
+    const wizardAnalyticsSwitchId = useId();
 
     // Sync currentStep when startStep prop changes
     useEffect(() => {
@@ -317,7 +322,7 @@ export function WelcomeWizard({
                     <div className="mb-4">
                         <Form.Check
                             type="switch"
-                            id="wizard-necessary-switch"
+                            id={wizardNecessarySwitchId}
                             label={
                                 <div>
                                     <strong>Strictly Necessary</strong>
@@ -337,7 +342,7 @@ export function WelcomeWizard({
                     <div className="mb-4">
                         <Form.Check
                             type="switch"
-                            id="wizard-functional-switch"
+                            id={wizardFunctionalSwitchId}
                             label={
                                 <div>
                                     <strong>Functional</strong>
@@ -362,7 +367,7 @@ export function WelcomeWizard({
                     <div className="mb-4">
                         <Form.Check
                             type="switch"
-                            id="wizard-analytics-switch"
+                            id={wizardAnalyticsSwitchId}
                             label={
                                 <div>
                                     <strong>Analytics</strong>
