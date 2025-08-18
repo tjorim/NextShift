@@ -4,6 +4,7 @@ import {
     clearNonNecessaryStorage,
     useLocalStorage,
 } from '../hooks/useLocalStorage';
+import { defaultSettings } from './SettingsContext';
 
 export type ConsentCategory = 'necessary' | 'functional' | 'analytics';
 
@@ -92,7 +93,10 @@ function migrateExistingUserData(currentMigrationVersion?: number): number {
             ) {
                 const preferences = {
                     myTeam: parsed.myTeam || null,
-                    settings: parsed.settings || {},
+                    settings: {
+                        ...defaultSettings,
+                        ...(parsed.settings || {}),
+                    },
                 };
                 window.localStorage.setItem(
                     'nextshift_user_preferences',

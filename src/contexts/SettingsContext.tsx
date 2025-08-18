@@ -42,7 +42,7 @@ interface SettingsContextType {
     completeOnboardingWithTeam: (team: number | null) => void;
 }
 
-const defaultSettings: UserSettings = {
+export const defaultSettings: UserSettings = {
     timeFormat: '24h',
     theme: 'auto',
     notifications: 'off',
