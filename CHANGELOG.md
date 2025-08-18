@@ -16,6 +16,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Floating action buttons
 - Accordion for organized data
 
+## [3.3.0] - 2025-08-18
+
+### Added
+- Cookie Consent System: GDPR-compliant privacy controls integrated into app flow
+- CookieConsentProvider context for managing consent preferences application-wide
+- Consent-aware localStorage hook that respects user preferences
+- Data categorization: Strictly Necessary (always enabled), Functional (requires consent), Analytics (not implemented)
+- Automatic data migration system for existing users to prevent data loss
+- Custom event system for same-tab consent changes (nextshift:consent-changed)
+- Privacy Settings in Settings Panel: New Privacy & Data modal with toggle controls
+- Enhanced Welcome Wizard: Integrated consent into onboarding flow (4-step wizard)
+- Consent-Aware Team Features: Team selection respects functional cookie preferences
+- Toast notifications for consent-related actions
+
+### Changed
+- App Architecture: Wrapped entire app in CookieConsentProvider for global consent state
+- Data Storage Pattern: Split user data into consent-categorized storage locations
+- Welcome Wizard Flow: Extended from 3 to 4 steps with integrated privacy preferences
+- Settings Panel: Replaced generic Reset Data with comprehensive privacy controls
+- Team Selection Logic: Now consent-aware with graceful fallback for declined functional cookies
+
+### Fixed
+- Data Migration: Seamless migration of existing user preferences to consent-aware structure
+- Cross-test Contamination: Fixed test cleanup to properly restore mocked globals
+- Same-tab Event Handling: Custom events ensure consent changes are immediately reflected across components
+
+### GDPR Privacy Compliance System
+Implemented comprehensive cookie consent system with CookieConsentContext, consent-aware useLocalStorage hook, automatic data migration, and integrated privacy controls. Enhanced Welcome Wizard with 4-step flow including privacy preferences. Added Privacy & Data section to Settings with granular consent management.
+
 ## [3.2.0] - 2025-07-27
 
 ### Added
@@ -150,12 +179,12 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 
 ## Version Planning
 
-### v3.3.0 - Interactive Features Phase 2
+### v3.4.0 - Interactive Features Phase 2
 - Enhanced data presentation
 - Advanced navigation options
 - Calendar integration features
 
-### v3.4.0 - Mobile & Advanced UX Phase 3
+### v3.5.0 - Mobile & Advanced UX Phase 3
 - Mobile carousel for team browsing
 - Advanced accessibility features
 - Floating action buttons
@@ -168,6 +197,7 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 - Data export capabilities
 
 [Unreleased]: https://github.com/tjorim/NextShift/compare/v3.2.0...HEAD
+[3.3.0]: https://github.com/tjorim/NextShift/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/tjorim/NextShift/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/tjorim/NextShift/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/tjorim/NextShift/compare/v2.0.0...v3.0.0
