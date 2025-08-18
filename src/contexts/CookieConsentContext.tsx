@@ -66,8 +66,8 @@ function migrateExistingUserData(currentMigrationVersion?: number): number {
             'nextshift_user_preferences',
         );
 
-        // Only migrate if old data exists and new structure doesn't
-        if (oldUserState && (!onboardingState || !userPreferences)) {
+        // Only migrate if old data exists and both new structures are missing
+        if (oldUserState && (!onboardingState && !userPreferences)) {
             const parsed = JSON.parse(oldUserState);
 
             // Migrate onboarding state to the new key

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import { AboutModal } from './components/AboutModal';
-import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
@@ -281,13 +280,6 @@ function AppContent() {
                         show={showUpdatePrompt}
                         onUpdate={handleUpdateApp}
                         onLater={handleUpdateLater}
-                    />
-                    <CookieConsentBanner
-                        show={
-                            !hasConsentBeenSet &&
-                            hasCompletedOnboarding &&
-                            !showTeamModal
-                        }
                     />
                 </Container>
             </div>

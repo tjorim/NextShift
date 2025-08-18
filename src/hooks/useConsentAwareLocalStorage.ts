@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ConsentCategory } from '../contexts/CookieConsentContext';
 
 /**
@@ -77,6 +77,45 @@ export function useConsentAwareLocalStorage<T>(
             return initialValue;
         }
     });
+
+    // React to consent changes by listening to storage events and re-checking permissions
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const handleStorageChange = (e: StorageEvent) => {
+            // Only react to consent changes
+            if (e.key === 'nextshift_cookie_consent') {
+                // Re-check permission and potentially clear data if consent withdrawn
+                if (!checkStoragePermission(key, category)) {
+                    // If permission is withdrawn, revert to initial value
+                    setStoredValue(initialValue);
+                    // Also remove from localStorage if it exists
+                    try {
+                        window.localStorage.removeItem(key);
+                    } catch {
+                        // Ignore errors
+                    }
+                } else {
+                    // If permission is granted, try to load from localStorage
+                    try {
+                        const item = window.localStorage.getItem(key);
+                        if (item) {
+                            setStoredValue(JSON.parse(item));
+                        }
+                    } catch {
+                        // Ignore errors
+                    }
+                }
+            }
+        };
+
+        // Listen for storage changes (including consent changes)
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, [key, category, initialValue]);
 
     const setValue = (value: T | ((prev: T) => T)) => {
         try {

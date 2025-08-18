@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import type React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TeamDetailModal } from '../../src/components/TeamDetailModal';
@@ -64,7 +65,7 @@ describe('TeamDetailModal', () => {
         // For this test, we assume the context is set up so myTeam === teamNumber
         // The button should be disabled
         const button = screen.getByRole('button', { name: /view transfers/i });
-        expect(button.hasAttribute('disabled')).toBe(true);
+        expect(button).toBeDisabled();
 
         // Tooltip should show correct message when hovered
         if (!button.parentElement) {
@@ -120,6 +121,6 @@ describe('TeamDetailModal', () => {
         );
         // The button should be enabled (unless there are no transfers, but we are not testing that here)
         const button = screen.getByRole('button', { name: /view transfers/i });
-        expect(button.hasAttribute('disabled')).toBe(false);
+        expect(button).not.toBeDisabled();
     });
 });
