@@ -1,6 +1,6 @@
 {
     "name": "nextshift",
-    "version": "3.2.1",
+    "version": "3.3.0",
     "type": "module",
     "description": "Team Shift Tracker PWA for 5-team continuous (24/7) schedule",
     "main": "dist/index.js",
