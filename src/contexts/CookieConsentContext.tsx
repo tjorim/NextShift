@@ -107,7 +107,11 @@ function migrateExistingUserData(currentMigrationVersion?: number): number {
         return CURRENT_MIGRATION_VERSION;
     } catch (error) {
         // Log migration errors for easier debugging
-        console.error('Failed to migrate existing user data:', error);
+        console.error('Migration failed:', {
+            migrationVersion: currentMigrationVersion || 'undefined',
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date().toISOString()
+        });
         // Silently handle migration errors - return current version to prevent retries
         return currentMigrationVersion || CURRENT_MIGRATION_VERSION;
     }

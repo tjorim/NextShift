@@ -114,6 +114,11 @@ export function WelcomeWizard({
         onHide();
     };
 
+    const completeOnboardingWithoutTeamSelection = () => {
+        onSkip?.();
+        onHide();
+    };
+
     const nextStep = () => {
         if (currentStep === 'welcome') {
             setCurrentStep('features');
@@ -125,8 +130,7 @@ export function WelcomeWizard({
 
             // If functional cookies declined, skip team selection and complete onboarding
             if (!tempConsentPreferences.functional) {
-                onSkip?.(); // Complete onboarding without team selection
-                onHide();
+                completeOnboardingWithoutTeamSelection();
                 return;
             }
 
