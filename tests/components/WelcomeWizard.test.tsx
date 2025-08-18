@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
+import type React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../../src/App';
 import { WelcomeWizard } from '../../src/components/WelcomeWizard';
+import { CookieConsentProvider } from '../../src/contexts/CookieConsentContext';
 
 const defaultProps = {
     show: true,
@@ -11,6 +13,11 @@ const defaultProps = {
     onHide: vi.fn(),
     isLoading: false,
 };
+
+// Test wrapper with required providers
+function renderWithProviders(ui: React.ReactElement) {
+    return render(<CookieConsentProvider>{ui}</CookieConsentProvider>);
+}
 
 // Test helper functions
 const findModalTitle = async (text: RegExp) => {
@@ -26,7 +33,7 @@ const waitForStep = async (stepNumber: number, timeout = 3000) => {
     await waitFor(
         () => {
             expect(
-                screen.getByText(new RegExp(`Step ${stepNumber} of 3`, 'i')),
+                screen.getByText(new RegExp(`Step ${stepNumber} of 4`, 'i')),
             ).toBeInTheDocument();
         },
         { timeout },
@@ -43,25 +50,38 @@ const navigateWizardSteps = async (
     await user.click(getStartedButton);
     await waitForStep(2);
 
-    // Step 2 -> Step 3
-    const chooseButton = await screen.findByRole('button', {
-        name: /Choose My Experience/i,
+    // Step 2 -> Step 3 (consent)
+    const privacyButton = await screen.findByRole('button', {
+        name: /Set Privacy Preferences/i,
     });
-    await user.click(chooseButton);
+    await user.click(privacyButton);
     await waitForStep(3);
+
+    // Step 3 -> Step 4 (team selection)
+    // Enable functional cookies first to see team selection step
+    const functionalSwitch = await screen.findByLabelText(/Functional/);
+    await user.click(functionalSwitch);
+
+    const continueButton = await screen.findByRole('button', {
+        name: /Continue to Team Selection/i,
+    });
+    await user.click(continueButton);
+    await waitForStep(4);
 };
 
 describe('WelcomeWizard', () => {
     describe('Basic rendering', () => {
         it('renders modal when show is true', () => {
-            render(<WelcomeWizard {...defaultProps} />);
+            renderWithProviders(<WelcomeWizard {...defaultProps} />);
             expect(
                 screen.getByRole('heading', { name: /Welcome to NextShift!/i }),
             ).toBeInTheDocument();
         });
 
         it('does not render modal when show is false', () => {
-            render(<WelcomeWizard {...defaultProps} show={false} />);
+            renderWithProviders(
+                <WelcomeWizard {...defaultProps} show={false} />,
+            );
             expect(
                 screen.queryByRole('heading', {
                     name: /Welcome to NextShift!/i,
@@ -71,11 +91,15 @@ describe('WelcomeWizard', () => {
 
         it('renders all team buttons on team selection step', async () => {
             const user = userEvent.setup();
-            render(<WelcomeWizard {...defaultProps} />);
+            renderWithProviders(<WelcomeWizard {...defaultProps} />);
 
             // Navigate to team selection step
             await user.click(screen.getByText("Let's Get Started!"));
-            await user.click(screen.getByText('Choose My Experience'));
+            await user.click(screen.getByText('Set Privacy Preferences'));
+
+            // Enable functional cookies first to see team selection step
+            await user.click(screen.getByLabelText(/Functional/));
+            await user.click(screen.getByText('Continue to Team Selection'));
 
             for (let team = 1; team <= 5; team++) {
                 expect(screen.getByText(`Team ${team}`)).toBeInTheDocument();
@@ -88,7 +112,7 @@ describe('WelcomeWizard', () => {
             const user = userEvent.setup();
             const mockOnTeamSelect = vi.fn();
 
-            render(
+            renderWithProviders(
                 <WelcomeWizard
                     {...defaultProps}
                     onTeamSelect={mockOnTeamSelect}
@@ -97,7 +121,11 @@ describe('WelcomeWizard', () => {
 
             // Navigate to team selection step
             await user.click(screen.getByText("Let's Get Started!"));
-            await user.click(screen.getByText('Choose My Experience'));
+            await user.click(screen.getByText('Set Privacy Preferences'));
+
+            // Enable functional cookies first to see team selection step
+            await user.click(screen.getByLabelText(/Functional/));
+            await user.click(screen.getByText('Continue to Team Selection'));
 
             const team3Button = screen.getByText('Team 3');
             await user.click(team3Button);
@@ -108,14 +136,18 @@ describe('WelcomeWizard', () => {
 
     describe('Loading state', () => {
         it('shows loading spinner when isLoading is true', () => {
-            render(<WelcomeWizard {...defaultProps} isLoading={true} />);
+            renderWithProviders(
+                <WelcomeWizard {...defaultProps} isLoading={true} />,
+            );
             expect(
                 screen.getByText('Setting up your experience...'),
             ).toBeInTheDocument();
         });
 
         it('hides wizard content when loading', () => {
-            render(<WelcomeWizard {...defaultProps} isLoading={true} />);
+            renderWithProviders(
+                <WelcomeWizard {...defaultProps} isLoading={true} />,
+            );
 
             // Wizard content should not be present when loading
             expect(
@@ -127,7 +159,9 @@ describe('WelcomeWizard', () => {
     describe('Modal behavior', () => {
         it('accepts onHide callback prop', () => {
             const mockOnHide = vi.fn();
-            render(<WelcomeWizard {...defaultProps} onHide={mockOnHide} />);
+            renderWithProviders(
+                <WelcomeWizard {...defaultProps} onHide={mockOnHide} />,
+            );
 
             // Modal renders without errors and accepts the callback
             expect(
@@ -138,11 +172,14 @@ describe('WelcomeWizard', () => {
     });
 
     describe('Integration tests', () => {
+        let originalLocalStorage: Storage;
+
         beforeEach(() => {
             // Clear localStorage and ensure consistent test state
             vi.clearAllMocks();
 
             // Mock localStorage to ensure clean state
+            originalLocalStorage = window.localStorage;
             Object.defineProperty(window, 'localStorage', {
                 value: {
                     clear: vi.fn(),
@@ -163,7 +200,12 @@ describe('WelcomeWizard', () => {
         });
 
         afterEach(() => {
-            window.localStorage.clear();
+            // Restore original localStorage to prevent cross-test leakage
+            Object.defineProperty(window, 'localStorage', {
+                value: originalLocalStorage,
+                writable: true,
+            });
+            window.localStorage.clear?.();
             vi.clearAllMocks();
             // Clean up any DOM modifications
             document.body.className = '';
@@ -191,8 +233,10 @@ describe('WelcomeWizard', () => {
 
             // Simulate reset
             fireEvent.click(screen.getByLabelText(/Settings/i));
-            fireEvent.click(screen.getByText(/Reset Data/i));
-            fireEvent.click(screen.getByText(/^Reset$/));
+            fireEvent.click(screen.getByText(/Privacy & Data/i));
+            fireEvent.click(
+                screen.getByText(/Clear All Data & Reset Consent/i),
+            );
 
             const welcomeHeadingsAfterReset =
                 await screen.findAllByText(/Welcome to NextShift/i);
@@ -227,8 +271,10 @@ describe('WelcomeWizard', () => {
 
             // Should be able to open settings and reset again
             await user.click(screen.getByLabelText(/Settings/i));
-            await user.click(screen.getByText(/Reset Data/i));
-            await user.click(screen.getByText(/^Reset$/));
+            await user.click(screen.getByText(/Privacy & Data/i));
+            await user.click(
+                screen.getByText(/Clear All Data & Reset Consent/i),
+            );
 
             const welcomeHeadingsAfterReset =
                 await screen.findAllByText(/Welcome to NextShift/i);
@@ -244,13 +290,13 @@ describe('WelcomeWizard', () => {
 
             // Verify welcome wizard appears with correct initial step
             await findModalTitle(/Welcome to NextShift/i);
-            expect(screen.getByText(/Step 1 of 3/i)).toBeInTheDocument();
+            expect(screen.getByText(/Step 1 of 4/i)).toBeInTheDocument();
 
             // Navigate through wizard steps and verify progress indicators
             await navigateWizardSteps(user);
 
             // Verify we reached the final step
-            expect(screen.getByText(/Step 3 of 3/i)).toBeInTheDocument();
+            expect(screen.getByText(/Step 4 of 4/i)).toBeInTheDocument();
         });
     });
 });

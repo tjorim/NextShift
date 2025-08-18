@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { CookieConsentProvider } from '../../src/contexts/CookieConsentContext';
 import {
     SettingsProvider,
     useSettings,
@@ -8,13 +9,34 @@ import {
 
 describe('SettingsContext unified user state', () => {
     function wrapper({ children }: { children: ReactNode }) {
-        return <SettingsProvider>{children}</SettingsProvider>;
+        return (
+            <CookieConsentProvider>
+                <SettingsProvider>{children}</SettingsProvider>
+            </CookieConsentProvider>
+        );
     }
 
     afterEach(() => {
         window.localStorage.clear();
         document.body.removeAttribute('data-bs-theme');
     });
+
+    // Helper to set functional consent for tests
+    const setFunctionalConsent = () => {
+        const consentData = {
+            preferences: {
+                necessary: true,
+                functional: true,
+                analytics: false,
+            },
+            consentGiven: true,
+            consentDate: new Date().toISOString(),
+        };
+        window.localStorage.setItem(
+            'nextshift_cookie_consent',
+            JSON.stringify(consentData),
+        );
+    };
 
     it('provides default values and mutators', () => {
         const { result } = renderHook(() => useSettings(), { wrapper });
@@ -26,6 +48,7 @@ describe('SettingsContext unified user state', () => {
     });
 
     it('updates settings and user state', async () => {
+        setFunctionalConsent(); // Enable functional storage for this test
         const { result } = renderHook(() => useSettings(), { wrapper });
         await act(async () => {
             result.current.updateTimeFormat('12h');
@@ -50,6 +73,7 @@ describe('SettingsContext unified user state', () => {
     });
 
     it('resets all user state', () => {
+        setFunctionalConsent(); // Enable functional storage for this test
         const { result } = renderHook(() => useSettings(), { wrapper });
         act(() => {
             result.current.setMyTeam(2);
@@ -96,6 +120,7 @@ describe('SettingsContext unified user state', () => {
     });
 
     it('resetSettings clears unified key and does not leave old keys', () => {
+        setFunctionalConsent(); // Enable functional storage for this test
         const { result } = renderHook(() => useSettings(), { wrapper });
         act(() => {
             result.current.setMyTeam(1);
@@ -105,10 +130,21 @@ describe('SettingsContext unified user state', () => {
         act(() => {
             result.current.resetSettings();
         });
-        const stored = window.localStorage.getItem('nextshift_user_state');
-        expect(stored).not.toBeNull();
-        expect(JSON.parse(stored || '{}')).toEqual({
+
+        // Check the new separate storage keys
+        const onboardingStored = window.localStorage.getItem(
+            'nextshift_necessary_onboarding_state',
+        );
+        expect(onboardingStored).not.toBeNull();
+        expect(JSON.parse(onboardingStored || '{}')).toEqual({
             hasCompletedOnboarding: false,
+        });
+
+        const preferencesStored = window.localStorage.getItem(
+            'nextshift_user_preferences',
+        );
+        expect(preferencesStored).not.toBeNull();
+        expect(JSON.parse(preferencesStored || '{}')).toEqual({
             myTeam: null,
             settings: {
                 timeFormat: '24h',
@@ -116,16 +152,17 @@ describe('SettingsContext unified user state', () => {
                 notifications: 'off',
             },
         });
+
+        // Check that old keys are still null
         expect(
             window.localStorage.getItem('hasCompletedOnboarding'),
         ).toBeNull();
-        expect(
-            window.localStorage.getItem('nextshift_user_preferences'),
-        ).toBeNull();
         expect(window.localStorage.getItem('userSettings')).toBeNull();
+        expect(window.localStorage.getItem('nextshift_user_state')).toBeNull();
     });
 
     it('updates theme setting without DOM side effects', () => {
+        setFunctionalConsent(); // Enable functional storage for this test
         const { result } = renderHook(() => useSettings(), { wrapper });
 
         // Initially should be 'auto'

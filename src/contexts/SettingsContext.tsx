@@ -42,7 +42,7 @@ interface SettingsContextType {
     completeOnboardingWithTeam: (team: number | null) => void;
 }
 
-const defaultSettings: UserSettings = {
+export const defaultSettings: UserSettings = {
     timeFormat: '24h',
     theme: 'auto',
     notifications: 'off',
@@ -76,7 +76,10 @@ interface SettingsProviderProps {
  * - Theme preference (light/dark/auto)
  * - Notification settings (on/off)
  *
- * All settings are persisted to localStorage and restored on app load.
+ * GDPR Compliance:
+ * - Onboarding completion is stored as "necessary" (required for app functionality)
+ * - User preferences are stored as "functional" (requires user consent)
+ * - All settings are persisted to localStorage with appropriate consent checking
  */
 export function SettingsProvider({ children }: SettingsProviderProps) {
     function validateUserState(state: unknown): state is NextShiftUserState {
@@ -95,77 +98,110 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         return true;
     }
 
-    const [rawUserState, setUserState] = useLocalStorage<NextShiftUserState>(
-        'nextshift_user_state',
-        defaultUserState,
+    // Separate necessary state (necessary) from preferences (functional)
+    const [onboardingState, setOnboardingState] = useLocalStorage<{
+        hasCompletedOnboarding: boolean;
+    }>(
+        'nextshift_necessary_onboarding_state',
+        { hasCompletedOnboarding: false },
+        'necessary',
     );
+
+    const [userPreferences, setUserPreferences] = useLocalStorage<{
+        myTeam: number | null;
+        settings: UserSettings;
+    }>(
+        'nextshift_user_preferences',
+        {
+            myTeam: null,
+            settings: defaultSettings,
+        },
+        'functional',
+    );
+
+    // Reconstruct the full user state for backward compatibility
+    const rawUserState: NextShiftUserState = {
+        hasCompletedOnboarding: onboardingState.hasCompletedOnboarding,
+        myTeam: userPreferences.myTeam,
+        settings: userPreferences.settings,
+    };
+
     const userState: NextShiftUserState = validateUserState(rawUserState)
         ? rawUserState
         : defaultUserState;
 
+    // Helper to update user preferences
+    const updateUserPreferences = useCallback(
+        (updater: (prev: typeof userPreferences) => typeof userPreferences) => {
+            setUserPreferences(updater);
+        },
+        [setUserPreferences],
+    );
+
     const updateTimeFormat = useCallback(
         (format: TimeFormat) => {
-            setUserState((prev: NextShiftUserState) => ({
+            updateUserPreferences((prev) => ({
                 ...prev,
                 settings: { ...prev.settings, timeFormat: format },
             }));
         },
-        [setUserState],
+        [updateUserPreferences],
     );
 
     const updateTheme = useCallback(
         (theme: Theme) => {
-            setUserState((prev: NextShiftUserState) => ({
+            updateUserPreferences((prev) => ({
                 ...prev,
                 settings: { ...prev.settings, theme },
             }));
         },
-        [setUserState],
+        [updateUserPreferences],
     );
 
     const updateNotifications = useCallback(
         (notifications: NotificationSetting) => {
-            setUserState((prev: NextShiftUserState) => ({
+            updateUserPreferences((prev) => ({
                 ...prev,
                 settings: { ...prev.settings, notifications },
             }));
         },
-        [setUserState],
+        [updateUserPreferences],
     );
 
     const resetSettings = useCallback(() => {
-        setUserState(defaultUserState);
-    }, [setUserState]);
+        setOnboardingState({ hasCompletedOnboarding: false });
+        setUserPreferences({
+            myTeam: null,
+            settings: defaultSettings,
+        });
+    }, [setOnboardingState, setUserPreferences]);
 
     const setMyTeam = useCallback(
         (team: number | null) => {
-            setUserState((prev: NextShiftUserState) => ({
+            updateUserPreferences((prev) => ({
                 ...prev,
                 myTeam: team,
             }));
         },
-        [setUserState],
+        [updateUserPreferences],
     );
 
     const setHasCompletedOnboarding = useCallback(
         (completed: boolean) => {
-            setUserState((prev: NextShiftUserState) => ({
-                ...prev,
-                hasCompletedOnboarding: completed,
-            }));
+            setOnboardingState({ hasCompletedOnboarding: completed });
         },
-        [setUserState],
+        [setOnboardingState],
     );
 
     const completeOnboardingWithTeam = useCallback(
         (team: number | null) => {
-            setUserState((prev: NextShiftUserState) => ({
+            setOnboardingState({ hasCompletedOnboarding: true });
+            updateUserPreferences((prev) => ({
                 ...prev,
                 myTeam: team,
-                hasCompletedOnboarding: true,
             }));
         },
-        [setUserState],
+        [setOnboardingState, updateUserPreferences],
     );
 
     const contextValue: SettingsContextType = useMemo(
