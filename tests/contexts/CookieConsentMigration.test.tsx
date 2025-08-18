@@ -55,7 +55,9 @@ describe('Cookie Consent Migration', () => {
 
         // Verify old data exists and new data doesn't
         expect(localStorage.getItem('nextshift_user_state')).toBeTruthy();
-        expect(localStorage.getItem('nextshift_onboarding_state')).toBeNull();
+        expect(
+            localStorage.getItem('nextshift_necessary_onboarding_state'),
+        ).toBeNull();
         expect(localStorage.getItem('nextshift_user_preferences')).toBeNull();
 
         // Render component
@@ -69,7 +71,7 @@ describe('Cookie Consent Migration', () => {
         expect(localStorage.getItem('nextshift_user_state')).toBeNull(); // Old data should be removed
 
         const migratedOnboarding = localStorage.getItem(
-            'nextshift_onboarding_state',
+            'nextshift_necessary_onboarding_state',
         );
         expect(migratedOnboarding).toBeTruthy();
         expect(JSON.parse(migratedOnboarding as string)).toEqual({
@@ -105,7 +107,9 @@ describe('Cookie Consent Migration', () => {
 
         // Don't click accept - no migration should happen
         expect(localStorage.getItem('nextshift_user_state')).toBeTruthy(); // Old data should remain
-        expect(localStorage.getItem('nextshift_onboarding_state')).toBeNull();
+        expect(
+            localStorage.getItem('nextshift_necessary_onboarding_state'),
+        ).toBeNull();
         expect(localStorage.getItem('nextshift_user_preferences')).toBeNull();
     });
 
@@ -126,7 +130,7 @@ describe('Cookie Consent Migration', () => {
             JSON.stringify(oldUserState),
         );
         localStorage.setItem(
-            'nextshift_onboarding_state',
+            'nextshift_necessary_onboarding_state',
             JSON.stringify(newOnboarding),
         );
         localStorage.setItem(
@@ -143,7 +147,9 @@ describe('Cookie Consent Migration', () => {
         expect(localStorage.getItem('nextshift_user_state')).toBeTruthy(); // Old data should remain
         expect(
             JSON.parse(
-                localStorage.getItem('nextshift_onboarding_state') as string,
+                localStorage.getItem(
+                    'nextshift_necessary_onboarding_state',
+                ) as string,
             ),
         ).toEqual(newOnboarding);
         expect(
@@ -193,7 +199,7 @@ describe('Cookie Consent Migration', () => {
         expect(localStorage.getItem('nextshift_user_state')).toBeNull();
 
         const migratedOnboarding = localStorage.getItem(
-            'nextshift_onboarding_state',
+            'nextshift_necessary_onboarding_state',
         );
         expect(migratedOnboarding).toBeTruthy();
         expect(JSON.parse(migratedOnboarding as string)).toEqual({

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useConsentAwareLocalStorage } from './useConsentAwareLocalStorage';
+import { useLocalStorage } from './useLocalStorage';
 
 interface BeforeInstallPromptEvent extends Event {
     prompt(): Promise<void>;
@@ -23,11 +23,7 @@ export function usePWAInstall() {
 
     // Use consent-aware storage for dismissal preference
     const [hasUserDismissedAutoPrompt, setUserDismissedAutoPrompt] =
-        useConsentAwareLocalStorage(
-            'nextshift_pwa_dismissed',
-            false,
-            'functional',
-        );
+        useLocalStorage('nextshift_pwa_dismissed', false, 'functional');
 
     useEffect(() => {
         // Early return if window or necessary methods are not available

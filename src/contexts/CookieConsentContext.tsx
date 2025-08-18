@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useMemo } from 'react';
-import { clearNonEssentialStorage } from '../hooks/useConsentAwareLocalStorage';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import {
+    clearNonNecessaryStorage,
+    useLocalStorage,
+} from '../hooks/useLocalStorage';
 
 export type ConsentCategory = 'necessary' | 'functional' | 'analytics';
 
@@ -60,7 +62,7 @@ function migrateExistingUserData(currentMigrationVersion?: number): number {
             'nextshift_user_state',
         );
         const onboardingState = window.localStorage.getItem(
-            'nextshift_onboarding_state',
+            'nextshift_necessary_onboarding_state',
         );
         const userPreferences = window.localStorage.getItem(
             'nextshift_user_preferences',
@@ -76,7 +78,7 @@ function migrateExistingUserData(currentMigrationVersion?: number): number {
                 parsed.hasCompletedOnboarding !== undefined
             ) {
                 window.localStorage.setItem(
-                    'nextshift_onboarding_state',
+                    'nextshift_necessary_onboarding_state',
                     JSON.stringify({
                         hasCompletedOnboarding: parsed.hasCompletedOnboarding,
                     }),
@@ -137,6 +139,7 @@ export function CookieConsentProvider({
     const [consentData, setConsentData] = useLocalStorage<ConsentData | null>(
         'nextshift_cookie_consent',
         null,
+        'necessary',
     );
 
     const hasConsentBeenSet = Boolean(consentData?.consentGiven);
@@ -184,10 +187,10 @@ export function CookieConsentProvider({
             // Purge functional/analytics data if functional was disabled
             if (wasFunctionalEnabled && !preferences.functional) {
                 try {
-                    clearNonEssentialStorage();
+                    clearNonNecessaryStorage();
                 } catch (error) {
                     console.error(
-                        'Failed to clear non-essential storage:',
+                        'Failed to clear non-necessary storage:',
                         error,
                     );
                 }
@@ -217,7 +220,7 @@ export function CookieConsentProvider({
                 analytics: false,
             });
             // Clear any existing functional data when consent is withdrawn
-            clearNonEssentialStorage();
+            clearNonNecessaryStorage();
         } catch (error) {
             console.error('Failed to reject cookies:', error);
         }

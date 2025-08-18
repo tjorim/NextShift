@@ -36,7 +36,7 @@ describe('TeamDetailModal', () => {
 
         // Set user preferences with the new storage structure
         window.localStorage.setItem(
-            'nextshift_onboarding_state',
+            'nextshift_necessary_onboarding_state',
             JSON.stringify({
                 hasCompletedOnboarding: true,
             }),
@@ -95,7 +95,7 @@ describe('TeamDetailModal', () => {
         );
 
         window.localStorage.setItem(
-            'nextshift_onboarding_state',
+            'nextshift_necessary_onboarding_state',
             JSON.stringify({
                 hasCompletedOnboarding: true,
             }),

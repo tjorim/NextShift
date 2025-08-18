@@ -64,7 +64,7 @@ describe('CookieConsentContext', () => {
         expect(result.current.canUseStorage('functional')).toBe(true);
     });
 
-    it('rejects all non-essential cookies', () => {
+    it('rejects all non-necessary cookies', () => {
         const { result } = renderHook(() => useCookieConsent(), { wrapper });
 
         act(() => {

@@ -10,7 +10,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useCookieConsent } from '../contexts/CookieConsentContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
-import { clearNonEssentialStorage } from '../hooks/useConsentAwareLocalStorage';
+import { clearNonNecessaryStorage } from '../hooks/useLocalStorage';
 import { CONFIG } from '../utils/config';
 import { shareApp, shareTodayView } from '../utils/share';
 import { ChangelogModal } from './ChangelogModal';
@@ -71,7 +71,7 @@ export function SettingsPanel({
 
     const handleClearData = () => {
         try {
-            clearNonEssentialStorage();
+            clearNonNecessaryStorage();
             resetConsent();
             resetSettings();
             setShowPrivacySettings(false);
@@ -461,7 +461,7 @@ export function SettingsPanel({
 
                                         // Clear functional data immediately when consent is withdrawn
                                         if (!isEnabled) {
-                                            clearNonEssentialStorage();
+                                            clearNonNecessaryStorage();
                                         }
                                     }}
                                 />

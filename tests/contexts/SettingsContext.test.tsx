@@ -133,7 +133,7 @@ describe('SettingsContext unified user state', () => {
 
         // Check the new separate storage keys
         const onboardingStored = window.localStorage.getItem(
-            'nextshift_onboarding_state',
+            'nextshift_necessary_onboarding_state',
         );
         expect(onboardingStored).not.toBeNull();
         expect(JSON.parse(onboardingStored || '{}')).toEqual({
