@@ -70,12 +70,17 @@ export function SettingsPanel({
     };
 
     const handleClearData = () => {
-        clearNonEssentialStorage();
-        resetConsent();
-        resetSettings();
-        setShowPrivacySettings(false);
-        onHide(); // Close the settings panel
-        toast.showSuccess('All data cleared and consent reset', '🗑️');
+        try {
+            clearNonEssentialStorage();
+            resetConsent();
+            resetSettings();
+            setShowPrivacySettings(false);
+            onHide(); // Close the settings panel
+            toast.showSuccess('All data cleared and consent reset', '🗑️');
+        } catch (error) {
+            console.error('Failed to clear data and reset consent:', error);
+            toast.showError('Could not clear all data. Please try again.', '⚠️');
+        }
     };
 
     // Open About modal through callback prop

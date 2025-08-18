@@ -17,6 +17,7 @@ interface WelcomeWizardProps {
     onTeamSelect: (team: number) => void;
     onSkip?: () => void;
     onHide: () => void;
+    onExited?: () => void; // NEW: callback when modal exit animation completes
     isLoading?: boolean;
     startStep?: WizardStep; // NEW: allows controlling initial step
 }
@@ -43,6 +44,7 @@ export function WelcomeWizard({
     onTeamSelect,
     onSkip,
     onHide,
+    onExited,
     isLoading = false,
     startStep = 'welcome', // NEW: default to 'welcome'
 }: WelcomeWizardProps) {
@@ -508,6 +510,7 @@ export function WelcomeWizard({
         <Modal
             show={show}
             onHide={onHide}
+            onExited={onExited}
             backdrop="static"
             keyboard={false}
             centered

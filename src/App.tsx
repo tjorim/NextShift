@@ -220,13 +220,14 @@ function AppContent() {
         // If user closes modal (Maybe Later), don't mark onboarding as completed
         // They should see the wizard again on next visit
         setShowTeamModal(false);
+    };
 
+    const handleTeamModalExited = () => {
         // If consent hasn't been set yet, show a brief message about cookie preferences
         // This only applies if they somehow completed onboarding without setting consent
+        // This runs after the modal exit animation completes
         if (!hasConsentBeenSet && hasCompletedOnboarding) {
-            setTimeout(() => {
-                showInfo('Please set your cookie preferences below', '🍪');
-            }, 500); // Small delay to let modal close animation finish
+            showInfo('Please set your cookie preferences below', '🍪');
         }
     };
 
@@ -264,6 +265,7 @@ function AppContent() {
                         onTeamSelect={handleTeamSelect}
                         onSkip={handleSkipTeamSelection}
                         onHide={handleTeamModalHide}
+                        onExited={handleTeamModalExited}
                         startStep={
                             teamModalMode === 'onboarding'
                                 ? 'welcome'

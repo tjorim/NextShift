@@ -67,7 +67,7 @@ function migrateExistingUserData(currentMigrationVersion?: number): number {
         );
 
         // Only migrate if old data exists and both new structures are missing
-        if (oldUserState && (!onboardingState && !userPreferences)) {
+        if (oldUserState && !onboardingState && !userPreferences) {
             const parsed = JSON.parse(oldUserState);
 
             // Migrate onboarding state to the new key
@@ -103,7 +103,9 @@ function migrateExistingUserData(currentMigrationVersion?: number): number {
         }
 
         return CURRENT_MIGRATION_VERSION;
-    } catch {
+    } catch (error) {
+        // Log migration errors for easier debugging
+        console.error('Failed to migrate existing user data:', error);
         // Silently handle migration errors - return current version to prevent retries
         return currentMigrationVersion || CURRENT_MIGRATION_VERSION;
     }
@@ -143,6 +145,10 @@ export function CookieConsentProvider({
 
     const setConsentPreferences = useCallback(
         (preferences: ConsentPreferences) => {
+            // Track if functional was previously enabled to handle data purging
+            const wasFunctionalEnabled =
+                consentData?.preferences.functional === true;
+
             try {
                 // Run migration before setting consent if this is the first time
                 let migrationVersion = consentData?.migrationVersion;
@@ -174,8 +180,25 @@ export function CookieConsentProvider({
                     migrationVersion: CURRENT_MIGRATION_VERSION,
                 });
             }
+
+            // Purge functional/analytics data if functional was disabled
+            if (wasFunctionalEnabled && !preferences.functional) {
+                try {
+                    clearNonEssentialStorage();
+                } catch (error) {
+                    console.error(
+                        'Failed to clear non-essential storage:',
+                        error,
+                    );
+                }
+            }
         },
-        [setConsentData, hasConsentBeenSet, consentData?.migrationVersion],
+        [
+            setConsentData,
+            hasConsentBeenSet,
+            consentData?.migrationVersion,
+            consentData?.preferences.functional,
+        ],
     );
 
     const acceptAllCookies = useCallback(() => {

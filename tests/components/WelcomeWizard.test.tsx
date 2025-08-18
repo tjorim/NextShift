@@ -172,11 +172,14 @@ describe('WelcomeWizard', () => {
     });
 
     describe('Integration tests', () => {
+        let originalLocalStorage: Storage;
+
         beforeEach(() => {
             // Clear localStorage and ensure consistent test state
             vi.clearAllMocks();
 
             // Mock localStorage to ensure clean state
+            originalLocalStorage = window.localStorage;
             Object.defineProperty(window, 'localStorage', {
                 value: {
                     clear: vi.fn(),
@@ -197,7 +200,12 @@ describe('WelcomeWizard', () => {
         });
 
         afterEach(() => {
-            window.localStorage.clear();
+            // Restore original localStorage to prevent cross-test leakage
+            Object.defineProperty(window, 'localStorage', {
+                value: originalLocalStorage,
+                writable: true,
+            });
+            window.localStorage.clear?.();
             vi.clearAllMocks();
             // Clean up any DOM modifications
             document.body.className = '';

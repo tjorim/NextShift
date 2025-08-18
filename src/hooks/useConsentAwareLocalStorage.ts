@@ -155,7 +155,9 @@ export function clearNonEssentialStorage(): void {
     if (typeof window === 'undefined') return;
 
     try {
-        // List of essential keys that should never be cleared
+        // ⚠️ IMPORTANT: List of essential keys that should never be cleared
+        // DEVELOPERS: When adding new "necessary" storage items anywhere in the app,
+        // you MUST update this list to prevent data loss when users withdraw consent!
         const essentialKeys = [
             'nextshift_cookie_consent', // Consent preferences themselves
             'nextshift_onboarding_state', // Essential for app functionality

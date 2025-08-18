@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../../src/App';
 import { SettingsProvider } from '../../src/contexts/SettingsContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
@@ -258,10 +258,32 @@ describe('App', () => {
     });
 
     describe('Update Prompt Functionality', () => {
+        let originalNavigator: Navigator;
+        let originalLocation: Location;
+
         beforeEach(() => {
             vi.clearAllMocks();
             // Reset service worker status
             mockServiceWorkerStatus.isWaiting = false;
+            // Capture original global objects
+            originalNavigator = navigator;
+            originalLocation = window.location;
+        });
+
+        afterEach(() => {
+            // Restore original global objects to prevent cross-test leakage
+            if (originalNavigator !== navigator) {
+                Object.defineProperty(window, 'navigator', {
+                    value: originalNavigator,
+                    configurable: true,
+                });
+            }
+            if (originalLocation !== window.location) {
+                Object.defineProperty(window, 'location', {
+                    value: originalLocation,
+                    configurable: true,
+                });
+            }
         });
 
         it('does not show update prompt when no update is waiting', () => {
