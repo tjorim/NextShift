@@ -258,32 +258,28 @@ describe('App', () => {
     });
 
     describe('Update Prompt Functionality', () => {
-        let originalNavigator: Navigator;
         let originalLocation: Location;
+        let originalServiceWorker: ServiceWorkerContainer;
 
         beforeEach(() => {
             vi.clearAllMocks();
             // Reset service worker status
             mockServiceWorkerStatus.isWaiting = false;
             // Capture original global objects
-            originalNavigator = navigator;
             originalLocation = window.location;
+            originalServiceWorker = navigator.serviceWorker;
         });
 
         afterEach(() => {
-            // Restore original global objects to prevent cross-test leakage
-            if (originalNavigator !== navigator) {
-                Object.defineProperty(window, 'navigator', {
-                    value: originalNavigator,
-                    configurable: true,
-                });
-            }
-            if (originalLocation !== window.location) {
-                Object.defineProperty(window, 'location', {
-                    value: originalLocation,
-                    configurable: true,
-                });
-            }
+            // Restore original globals to prevent cross-test leakage
+            Object.defineProperty(navigator, 'serviceWorker', {
+                value: originalServiceWorker,
+                configurable: true,
+            });
+            Object.defineProperty(window, 'location', {
+                value: originalLocation,
+                configurable: true,
+            });
         });
 
         it('does not show update prompt when no update is waiting', () => {
@@ -326,7 +322,7 @@ describe('App', () => {
                 },
             };
 
-            let controllerChangeListener: (() => void) | null = null;
+            let controllerChangeListener: (() => void) | undefined;
 
             Object.defineProperty(navigator, 'serviceWorker', {
                 value: {

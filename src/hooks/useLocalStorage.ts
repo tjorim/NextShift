@@ -82,38 +82,50 @@ export function useLocalStorage<T>(
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
-        const handleStorageChange = (e: StorageEvent) => {
-            // Only react to consent changes
-            if (e.key === 'nextshift_cookie_consent') {
-                // Re-check permission and potentially clear data if consent withdrawn
-                if (!checkStoragePermission(key, category)) {
-                    // If permission is withdrawn, revert to initial value
-                    setStoredValue(initialValue);
-                    // Also remove from localStorage if it exists
-                    try {
-                        window.localStorage.removeItem(key);
-                    } catch {
-                        // Ignore errors
+        const reconcilePermission = () => {
+            if (!checkStoragePermission(key, category)) {
+                setStoredValue(initialValue);
+                try {
+                    window.localStorage.removeItem(key);
+                } catch {
+                    // Ignore errors
+                }
+            } else {
+                try {
+                    const item = window.localStorage.getItem(key);
+                    if (item) {
+                        setStoredValue(JSON.parse(item));
                     }
-                } else {
-                    // If permission is granted, try to load from localStorage
-                    try {
-                        const item = window.localStorage.getItem(key);
-                        if (item) {
-                            setStoredValue(JSON.parse(item));
-                        }
-                    } catch {
-                        // Ignore errors
-                    }
+                } catch {
+                    // Ignore errors
                 }
             }
         };
 
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'nextshift_cookie_consent') {
+                reconcilePermission();
+            }
+        };
+
+        const handleConsentChanged = () => {
+            reconcilePermission();
+        };
+
         // Listen for storage changes (including consent changes)
         window.addEventListener('storage', handleStorageChange);
+        // Custom in-tab event for immediate updates
+        window.addEventListener(
+            'nextshift:consent-changed',
+            handleConsentChanged,
+        );
 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener(
+                'nextshift:consent-changed',
+                handleConsentChanged,
+            );
         };
     }, [key, category, initialValue]);
 

@@ -40,6 +40,19 @@ interface ConsentData {
 const CURRENT_MIGRATION_VERSION = 1;
 
 /**
+ * Emits a custom event to notify same-tab components of consent changes.
+ * The storage event only fires in other tabs, so we need this for same-tab reactivity.
+ */
+function emitConsentChangedEvent(): void {
+    if (typeof window === 'undefined') return;
+    try {
+        window.dispatchEvent(new CustomEvent('nextshift:consent-changed'));
+    } catch {
+        // Ignore event emission errors
+    }
+}
+
+/**
  * Migrates existing user data from the old storage structure to the new split structure.
  * This prevents data loss when users update from versions before the GDPR consent system.
  *
@@ -178,6 +191,7 @@ export function CookieConsentProvider({
                     migrationVersion:
                         migrationVersion || CURRENT_MIGRATION_VERSION,
                 });
+                emitConsentChangedEvent();
             } catch (error) {
                 console.error('Failed to set consent preferences:', error);
                 // Still try to set basic consent without migration
@@ -190,6 +204,7 @@ export function CookieConsentProvider({
                     consentDate: new Date().toISOString(),
                     migrationVersion: CURRENT_MIGRATION_VERSION,
                 });
+                emitConsentChangedEvent();
             }
 
             // Purge functional/analytics data if functional was disabled
@@ -237,6 +252,7 @@ export function CookieConsentProvider({
     const resetConsent = useCallback(() => {
         try {
             setConsentData(null);
+            emitConsentChangedEvent();
         } catch (error) {
             console.error('Failed to reset consent:', error);
         }
