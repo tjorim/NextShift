@@ -1,23 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GenericStatus } from '../../../src/components/status/GenericStatus';
-import { SettingsProvider } from '../../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../../src/contexts/ToastContext';
 import { dayjs } from '../../../src/utils/dateTimeUtils';
 import * as shiftCalculations from '../../../src/utils/shiftCalculations';
+import { renderWithProviders } from '../../utils/renderWithProviders';
 
 // Mock dependencies
 vi.mock('../../../src/utils/shiftCalculations', () => ({
     getShiftByCode: vi.fn(),
 }));
-
-function renderWithProviders(ui: React.ReactElement) {
-    return render(
-        <ToastProvider>
-            <SettingsProvider>{ui}</SettingsProvider>
-        </ToastProvider>,
-    );
-}
 
 describe('GenericStatus Component', () => {
     const mockCurrentWorkingTeam = {

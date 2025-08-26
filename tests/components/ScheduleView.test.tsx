@@ -1,11 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ScheduleView } from '../../src/components/ScheduleView';
-import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../src/contexts/ToastContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 // Mock the dependencies
 vi.mock('../../src/hooks/useKeyboardShortcuts', () => ({
@@ -104,14 +103,6 @@ const defaultProps = {
     currentDate: dayjs('2025-01-15'),
     setCurrentDate: vi.fn(),
 };
-
-function renderWithProviders(ui: React.ReactElement) {
-    return render(
-        <ToastProvider>
-            <SettingsProvider>{ui}</SettingsProvider>
-        </ToastProvider>,
-    );
-}
 
 describe('ScheduleView', () => {
     describe('Basic rendering', () => {

@@ -1,12 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { TodayView } from '../../src/components/TodayView';
-import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../src/contexts/ToastContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
 import type { ShiftResult } from '../../src/utils/shiftCalculations';
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 // Mock shift calculation utilities
 vi.mock('../../src/utils/shiftCalculations', () => ({
@@ -21,14 +20,6 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
         className: 'shift-morning',
     })),
 }));
-
-function renderWithProviders(ui: React.ReactElement) {
-    return render(
-        <ToastProvider>
-            <SettingsProvider>{ui}</SettingsProvider>
-        </ToastProvider>,
-    );
-}
 
 const mockTodayShifts: ShiftResult[] = [
     {

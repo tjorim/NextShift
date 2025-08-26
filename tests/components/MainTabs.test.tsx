@@ -1,11 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { MainTabs } from '../../src/components/MainTabs';
-import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../src/contexts/ToastContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
+import {
+    AllTheProviders,
+    renderWithProviders,
+} from '../utils/renderWithProviders';
 
 // Mock the child components
 vi.mock('../../src/components/TodayView', () => ({
@@ -34,18 +36,6 @@ const defaultProps = {
     activeTab: 'today',
     onTabChange: vi.fn(),
 };
-
-function renderWithProviders(ui: React.ReactElement) {
-    return render(wrapWithProviders(ui));
-}
-
-function wrapWithProviders(ui: React.ReactElement) {
-    return (
-        <ToastProvider>
-            <SettingsProvider>{ui}</SettingsProvider>
-        </ToastProvider>
-    );
-}
 
 describe('MainTabs', () => {
     describe('Tab rendering', () => {
@@ -114,9 +104,9 @@ describe('MainTabs', () => {
             expect(screen.getByTestId('today-view')).toBeInTheDocument();
 
             rerender(
-                wrapWithProviders(
-                    <MainTabs {...defaultProps} activeTab="transfer" />,
-                ),
+                <AllTheProviders>
+                    <MainTabs {...defaultProps} activeTab="transfer" />
+                </AllTheProviders>,
             );
             expect(screen.getByTestId('transfer-view')).toBeInTheDocument();
         });

@@ -1,21 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import type React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TeamDetailModal } from '../../src/components/TeamDetailModal';
-import { CookieConsentProvider } from '../../src/contexts/CookieConsentContext';
-import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../src/contexts/ToastContext';
-
-function renderWithSettings(ui: React.ReactElement) {
-    return render(
-        <CookieConsentProvider>
-            <ToastProvider>
-                <SettingsProvider>{ui}</SettingsProvider>
-            </ToastProvider>
-        </CookieConsentProvider>,
-    );
-}
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 describe('TeamDetailModal', () => {
     it('disables View Transfers button and shows tooltip when viewing own team', async () => {
@@ -52,7 +39,7 @@ describe('TeamDetailModal', () => {
                 },
             }),
         );
-        renderWithSettings(
+        renderWithProviders(
             <TeamDetailModal
                 show={true}
                 onHide={() => {}}
@@ -111,7 +98,7 @@ describe('TeamDetailModal', () => {
                 },
             }),
         );
-        renderWithSettings(
+        renderWithProviders(
             <TeamDetailModal
                 show={true}
                 onHide={() => {}}
