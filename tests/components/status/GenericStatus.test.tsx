@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GenericStatus } from '../../../src/components/status/GenericStatus';
 import { SettingsProvider } from '../../../src/contexts/SettingsContext';
 import { ToastProvider } from '../../../src/contexts/ToastContext';
@@ -23,7 +23,7 @@ describe('GenericStatus Component', () => {
     const mockCurrentWorkingTeam = {
         date: dayjs('2024-01-15'),
         shift: {
-            code: 'M',
+            code: 'M' as const,
             name: 'Morning',
             hours: '07:00-15:00',
             start: 7,
@@ -38,7 +38,7 @@ describe('GenericStatus Component', () => {
         vi.clearAllMocks();
 
         vi.mocked(shiftCalculations.getShiftByCode).mockReturnValue({
-            code: 'M',
+            code: 'M' as const,
             emoji: '🌅',
             name: 'Morning',
             hours: '07:00-15:00',
@@ -122,6 +122,28 @@ describe('GenericStatus Component', () => {
             renderWithProviders(<GenericStatus currentWorkingTeam={offTeam} />);
 
             expect(screen.getByText('Off')).toBeInTheDocument();
+        });
+
+        it('should handle midnight shift correctly (start: 0)', () => {
+            const midnightShift = {
+                ...mockCurrentWorkingTeam,
+                shift: {
+                    ...mockCurrentWorkingTeam.shift,
+                    code: 'N' as const,
+                    name: 'Night',
+                    start: 0,
+                    end: 7,
+                    hours: '00:00-07:00',
+                },
+            };
+
+            renderWithProviders(
+                <GenericStatus currentWorkingTeam={midnightShift} />,
+            );
+
+            // Should render localized time instead of fallback hours
+            expect(screen.getByText('00:00–07:00')).toBeInTheDocument();
+            expect(screen.queryByText('00:00-07:00')).not.toBeInTheDocument();
         });
     });
 

@@ -28,7 +28,8 @@ import {
     getShiftCode,
 } from '../utils/shiftCalculations';
 import { ShiftTimeline } from './ShiftTimeline';
-import { GenericStatus, PersonalizedStatus } from './status';
+import { GenericStatus } from './status/GenericStatus';
+import { PersonalizedStatus } from './status/PersonalizedStatus';
 
 interface CurrentStatusProps {
     myTeam: number | null; // The user's team from onboarding

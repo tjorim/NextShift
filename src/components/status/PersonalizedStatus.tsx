@@ -27,8 +27,15 @@ interface PersonalizedStatusProps {
 }
 
 /**
- * Renders personalized shift status for a selected team.
- * Shows current shift details, off-day progress, and next shift countdown.
+ * Renders personalized shift status for a user's selected team.
+ * Shows current shift details, off-day progress, and next shift countdown with real-time updates.
+ *
+ * @param myTeam - The user's selected team number (1-5)
+ * @param currentShift - The team's current shift, or null if off duty
+ * @param nextShift - The team's next scheduled shift
+ * @param offDayProgress - Progress through off days (when team is not working)
+ * @param countdown - Live countdown to next shift start
+ * @param nextShiftStartTime - Exact start time of next shift for countdown calculation
  */
 export function PersonalizedStatus({
     myTeam,
@@ -64,12 +71,14 @@ export function PersonalizedStatus({
                                                 </strong>
                                                 <br />
                                                 {(() => {
-                                                    const shift =
+                                                    const shiftMeta =
                                                         getShiftByCode(
                                                             currentShift.shift
                                                                 .code,
                                                         );
-                                                    return `${shift.emoji} ${shift.name} shift (${shift.start && shift.end ? getLocalizedShiftTime(shift.start, shift.end, settings.timeFormat) : shift.hours})`;
+                                                    if (!shiftMeta)
+                                                        return 'Unknown shift';
+                                                    return `${shiftMeta.emoji} ${shiftMeta.name} shift (${shiftMeta.start != null && shiftMeta.end != null ? getLocalizedShiftTime(shiftMeta.start, shiftMeta.end, settings.timeFormat) : shiftMeta.hours})`;
                                                 })()}
                                                 <br />
                                                 <em>
@@ -79,15 +88,22 @@ export function PersonalizedStatus({
                                             </Tooltip>
                                         }
                                     >
-                                        <Badge
-                                            className={`shift-code shift-badge-lg cursor-help ${getShiftByCode(currentShift.shift.code).className}`}
-                                        >
-                                            Team {myTeam}:{' '}
-                                            {currentShift.shift.name}
-                                        </Badge>
+                                        {(() => {
+                                            const shiftMeta = getShiftByCode(
+                                                currentShift.shift.code,
+                                            );
+                                            return (
+                                                <Badge
+                                                    className={`shift-code shift-badge-lg cursor-help ${shiftMeta?.className ?? ''}`}
+                                                >
+                                                    Team {myTeam}:{' '}
+                                                    {currentShift.shift.name}
+                                                </Badge>
+                                            );
+                                        })()}
                                     </OverlayTrigger>
-                                    {currentShift.shift.start &&
-                                        currentShift.shift.end && (
+                                    {currentShift.shift.start != null &&
+                                        currentShift.shift.end != null && (
                                             <div className="small text-muted mt-1">
                                                 {getLocalizedShiftTime(
                                                     currentShift.shift.start,
@@ -105,11 +121,27 @@ export function PersonalizedStatus({
                                                     {offDayProgress.total}
                                                 </div>
                                                 <ProgressBar
-                                                    now={
-                                                        (offDayProgress.current /
-                                                            offDayProgress.total) *
-                                                        100
-                                                    }
+                                                    now={(() => {
+                                                        const {
+                                                            current,
+                                                            total,
+                                                        } = offDayProgress;
+                                                        if (
+                                                            !total ||
+                                                            total <= 0
+                                                        )
+                                                            return 0;
+                                                        const percentage =
+                                                            (current / total) *
+                                                            100;
+                                                        return Math.min(
+                                                            Math.max(
+                                                                percentage,
+                                                                0,
+                                                            ),
+                                                            100,
+                                                        );
+                                                    })()}
                                                     variant="info"
                                                     className="progress-thin"
                                                     aria-label={`Off day progress: ${offDayProgress.current} of ${offDayProgress.total} days`}
@@ -137,8 +169,8 @@ export function PersonalizedStatus({
                                         {nextShift.shift.name}
                                     </div>
                                     <div className="small text-muted">
-                                        {nextShift.shift.start &&
-                                        nextShift.shift.end
+                                        {nextShift.shift.start != null &&
+                                        nextShift.shift.end != null
                                             ? getLocalizedShiftTime(
                                                   nextShift.shift.start,
                                                   nextShift.shift.end,
@@ -149,7 +181,11 @@ export function PersonalizedStatus({
                                     {countdown &&
                                         !countdown.isExpired &&
                                         nextShiftStartTime && (
-                                            <Badge bg="info" className="mt-2">
+                                            <Badge
+                                                bg="info"
+                                                className="mt-2"
+                                                aria-live="polite"
+                                            >
                                                 ⏰ Starts in{' '}
                                                 {countdown.formatted}
                                             </Badge>

@@ -77,7 +77,8 @@ function TeamCard({
                                     <>
                                         {shift.emoji} <em>{shift.name}</em>
                                         <br />
-                                        {shift.start && shift.end
+                                        {shift.start != null &&
+                                        shift.end != null
                                             ? getLocalizedShiftTime(
                                                   shift.start,
                                                   shift.end,

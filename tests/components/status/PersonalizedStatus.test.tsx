@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PersonalizedStatus } from '../../../src/components/status/PersonalizedStatus';
 import { SettingsProvider } from '../../../src/contexts/SettingsContext';
 import { ToastProvider } from '../../../src/contexts/ToastContext';
@@ -23,7 +23,7 @@ describe('PersonalizedStatus Component', () => {
     const mockCurrentShift = {
         date: dayjs('2024-01-15'),
         shift: {
-            code: 'M',
+            code: 'M' as const,
             name: 'Morning',
             hours: '07:00-15:00',
             start: 7,
@@ -37,7 +37,7 @@ describe('PersonalizedStatus Component', () => {
     const mockNextShift = {
         date: dayjs('2024-01-16'),
         shift: {
-            code: 'E',
+            code: 'E' as const,
             name: 'Evening',
             hours: '15:00-23:00',
             start: 15,
@@ -71,7 +71,7 @@ describe('PersonalizedStatus Component', () => {
         vi.clearAllMocks();
 
         vi.mocked(shiftCalculations.getShiftByCode).mockReturnValue({
-            code: 'M',
+            code: 'M' as const,
             emoji: '🌅',
             name: 'Morning',
             hours: '07:00-15:00',
@@ -165,7 +165,7 @@ describe('PersonalizedStatus Component', () => {
                     ...mockCurrentShift.shift,
                     isWorking: false,
                     name: 'Off',
-                    code: 'O',
+                    code: 'O' as const,
                 },
             };
 
@@ -252,6 +252,78 @@ describe('PersonalizedStatus Component', () => {
 
             const progressBar = screen.getByRole('progressbar');
             expect(progressBar).toHaveAttribute('aria-valuenow', '75');
+        });
+
+        it('should handle division by zero in progress bar', () => {
+            const offShift = {
+                ...mockCurrentShift,
+                shift: {
+                    ...mockCurrentShift.shift,
+                    isWorking: false,
+                },
+            };
+
+            renderWithProviders(
+                <PersonalizedStatus
+                    myTeam={1}
+                    currentShift={offShift}
+                    nextShift={mockNextShift}
+                    offDayProgress={{ current: 2, total: 0 }}
+                    countdown={mockCountdown}
+                    nextShiftStartTime={mockNextShiftStartTime}
+                />,
+            );
+
+            const progressBar = screen.getByRole('progressbar');
+            expect(progressBar).toHaveAttribute('aria-valuenow', '0');
+        });
+
+        it('should cap progress bar at 100% when current > total', () => {
+            const offShift = {
+                ...mockCurrentShift,
+                shift: {
+                    ...mockCurrentShift.shift,
+                    isWorking: false,
+                },
+            };
+
+            renderWithProviders(
+                <PersonalizedStatus
+                    myTeam={1}
+                    currentShift={offShift}
+                    nextShift={mockNextShift}
+                    offDayProgress={{ current: 5, total: 4 }}
+                    countdown={mockCountdown}
+                    nextShiftStartTime={mockNextShiftStartTime}
+                />,
+            );
+
+            const progressBar = screen.getByRole('progressbar');
+            expect(progressBar).toHaveAttribute('aria-valuenow', '100');
+        });
+
+        it('should handle negative current value in progress bar', () => {
+            const offShift = {
+                ...mockCurrentShift,
+                shift: {
+                    ...mockCurrentShift.shift,
+                    isWorking: false,
+                },
+            };
+
+            renderWithProviders(
+                <PersonalizedStatus
+                    myTeam={1}
+                    currentShift={offShift}
+                    nextShift={mockNextShift}
+                    offDayProgress={{ current: -1, total: 4 }}
+                    countdown={mockCountdown}
+                    nextShiftStartTime={mockNextShiftStartTime}
+                />,
+            );
+
+            const progressBar = screen.getByRole('progressbar');
+            expect(progressBar).toHaveAttribute('aria-valuenow', '0');
         });
     });
 
@@ -380,6 +452,35 @@ describe('PersonalizedStatus Component', () => {
             );
 
             expect(screen.getByText('Off')).toBeInTheDocument();
+        });
+
+        it('should handle midnight shifts correctly (start: 0)', () => {
+            const midnightShift = {
+                ...mockCurrentShift,
+                shift: {
+                    ...mockCurrentShift.shift,
+                    code: 'N' as const,
+                    name: 'Night',
+                    start: 0,
+                    end: 7,
+                    hours: '00:00-07:00',
+                },
+            };
+
+            renderWithProviders(
+                <PersonalizedStatus
+                    myTeam={1}
+                    currentShift={midnightShift}
+                    nextShift={mockNextShift}
+                    offDayProgress={null}
+                    countdown={mockCountdown}
+                    nextShiftStartTime={mockNextShiftStartTime}
+                />,
+            );
+
+            // Should render localized time instead of fallback hours
+            expect(screen.getByText('00:00–07:00')).toBeInTheDocument();
+            expect(screen.queryByText('00:00-07:00')).not.toBeInTheDocument();
         });
     });
 

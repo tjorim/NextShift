@@ -4,16 +4,20 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { useSettings } from '../../contexts/SettingsContext';
 import { getLocalizedShiftTime } from '../../utils/dateTimeUtils';
-import type { ShiftResult } from '../../utils/shiftCalculations';
-import { getShiftByCode } from '../../utils/shiftCalculations';
+import {
+    getShiftByCode,
+    type ShiftResult,
+} from '../../utils/shiftCalculations';
 
 interface GenericStatusProps {
     currentWorkingTeam: ShiftResult | null;
 }
 
 /**
- * Renders generic shift status when no team is selected.
- * Shows which team is currently working and encourages team selection.
+ * Renders shift status when no team is selected by the user.
+ * Shows which team is currently working and encourages team selection for personalized features.
+ *
+ * @param currentWorkingTeam - The team currently working, or null if no teams are working
  */
 export function GenericStatus({ currentWorkingTeam }: GenericStatusProps) {
     const { settings } = useSettings();
@@ -30,15 +34,30 @@ export function GenericStatus({ currentWorkingTeam }: GenericStatusProps) {
                             <div>
                                 {currentWorkingTeam ? (
                                     <div>
-                                        <Badge
-                                            className={`shift-code shift-badge-lg ${getShiftByCode(currentWorkingTeam.shift.code).className}`}
-                                        >
-                                            Team {currentWorkingTeam.teamNumber}
-                                            : {currentWorkingTeam.shift.name}
-                                        </Badge>
+                                        {(() => {
+                                            const shiftMeta = getShiftByCode(
+                                                currentWorkingTeam.shift.code,
+                                            );
+                                            return (
+                                                <Badge
+                                                    className={`shift-code shift-badge-lg ${shiftMeta?.className ?? ''}`}
+                                                >
+                                                    Team{' '}
+                                                    {
+                                                        currentWorkingTeam.teamNumber
+                                                    }
+                                                    :{' '}
+                                                    {
+                                                        currentWorkingTeam.shift
+                                                            .name
+                                                    }
+                                                </Badge>
+                                            );
+                                        })()}
                                         <div className="small text-muted mt-1">
-                                            {currentWorkingTeam.shift.start &&
-                                            currentWorkingTeam.shift.end
+                                            {currentWorkingTeam.shift.start !=
+                                                null &&
+                                            currentWorkingTeam.shift.end != null
                                                 ? getLocalizedShiftTime(
                                                       currentWorkingTeam.shift
                                                           .start,
