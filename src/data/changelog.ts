@@ -14,9 +14,43 @@ export interface ChangelogVersion {
 
 export const changelogData: ChangelogVersion[] = [
     {
+        version: '3.3.0',
+        date: '2025-08-18',
+        status: 'current',
+        added: [
+            'Cookie Consent System: GDPR-compliant privacy controls integrated into app flow',
+            'CookieConsentProvider context for managing consent preferences application-wide',
+            'Consent-aware localStorage hook that respects user preferences',
+            'Data categorization: Strictly Necessary (always enabled), Functional (requires consent), Analytics (not implemented)',
+            'Automatic data migration system for existing users to prevent data loss',
+            'Custom event system for same-tab consent changes (nextshift:consent-changed)',
+            'Privacy Settings in Settings Panel: New Privacy & Data modal with toggle controls',
+            'Enhanced Welcome Wizard: Integrated consent into onboarding flow (4-step wizard)',
+            'Consent-Aware Team Features: Team selection respects functional cookie preferences',
+            'Toast notifications for consent-related actions',
+        ],
+        changed: [
+            'App Architecture: Wrapped entire app in CookieConsentProvider for global consent state',
+            'Data Storage Pattern: Split user data into consent-categorized storage locations',
+            'Welcome Wizard Flow: Extended from 3 to 4 steps with integrated privacy preferences',
+            'Settings Panel: Replaced generic Reset Data with comprehensive privacy controls',
+            'Team Selection Logic: Now consent-aware with graceful fallback for declined functional cookies',
+        ],
+        fixed: [
+            'Data Migration: Seamless migration of existing user preferences to consent-aware structure',
+            'Cross-test Contamination: Fixed test cleanup to properly restore mocked globals',
+            'Same-tab Event Handling: Custom events ensure consent changes are immediately reflected across components',
+        ],
+        technicalDetails: {
+            title: 'GDPR Privacy Compliance System',
+            description:
+                'Implemented comprehensive cookie consent system with CookieConsentContext, consent-aware useLocalStorage hook, automatic data migration, and integrated privacy controls. Enhanced Welcome Wizard with 4-step flow including privacy preferences. Added Privacy & Data section to Settings with granular consent management.',
+        },
+    },
+    {
         version: '3.2.0',
         date: '2025-07-27',
-        status: 'current',
+        status: 'released',
         added: [
             'Welcome Wizard: Interactive onboarding experience for new users',
             'Optional Team Selection: Users can skip team selection and browse all teams',
@@ -167,7 +201,7 @@ export const changelogData: ChangelogVersion[] = [
 ];
 
 export const futurePlans = {
-    'v3.3.0': {
+    'v3.4.0': {
         title: 'Interactive Features Phase 2',
         features: [
             'Enhanced data presentation',
@@ -175,7 +209,7 @@ export const futurePlans = {
             'Calendar integration features',
         ],
     },
-    'v3.4.0': {
+    'v3.5.0': {
         title: 'Mobile & Advanced UX Phase 3',
         features: [
             'Mobile carousel for team browsing',

@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import { useCookieConsent } from '../contexts/CookieConsentContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
+import { clearNonNecessaryStorage } from '../hooks/useLocalStorage';
 import { CONFIG } from '../utils/config';
 import { shareApp, shareTodayView } from '../utils/share';
 import { ChangelogModal } from './ChangelogModal';
@@ -36,9 +41,16 @@ export function SettingsPanel({
     onShowAbout,
 }: SettingsPanelProps) {
     const [showChangelog, setShowChangelog] = useState(false);
-    const [showConfirmReset, setShowConfirmReset] = useState(false);
+    const functionalToggleId = useId();
+    const [showPrivacySettings, setShowPrivacySettings] = useState(false);
     const { settings, updateTimeFormat, updateTheme, resetSettings } =
         useSettings();
+    const {
+        consentPreferences,
+        setConsentPreferences,
+        resetConsent,
+        hasConsentBeenSet,
+    } = useCookieConsent();
     const toast = useToast();
 
     const handleChangelogClick = () => {
@@ -49,16 +61,26 @@ export function SettingsPanel({
         setShowChangelog(false);
     };
 
-    const handleResetSettings = () => {
-        setShowConfirmReset(true);
+    const handlePrivacySettingsClick = () => {
+        setShowPrivacySettings(true);
     };
-    const handleConfirmReset = () => {
-        resetSettings();
-        setShowConfirmReset(false);
-        onHide(); // Close the settings panel after reset
+
+    const handlePrivacySettingsClose = () => {
+        setShowPrivacySettings(false);
     };
-    const handleCancelReset = () => {
-        setShowConfirmReset(false);
+
+    const handleClearData = () => {
+        try {
+            clearNonNecessaryStorage();
+            resetConsent();
+            resetSettings();
+            setShowPrivacySettings(false);
+            onHide(); // Close the settings panel
+            toast.showSuccess('All data cleared and consent reset', '🗑️');
+        } catch (error) {
+            console.error('Failed to clear data and reset consent:', error);
+            toast.showError('Could not clear all data. Please try again.', '⚠️');
+        }
     };
 
     // Open About modal through callback prop
@@ -202,9 +224,12 @@ export function SettingsPanel({
                                         <div>
                                             <div className="fw-medium text-muted">
                                                 Notifications
-                                                <span className="badge bg-secondary ms-2 small">
+                                                <Badge
+                                                    bg="secondary"
+                                                    className="ms-2 small"
+                                                >
                                                     Coming Soon
-                                                </span>
+                                                </Badge>
                                             </div>
                                             <small className="text-muted">
                                                 Shift reminders and alerts
@@ -275,6 +300,24 @@ export function SettingsPanel({
                                         <i className="bi bi-chevron-right text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
+                                <ListGroup.Item
+                                    action
+                                    onClick={handlePrivacySettingsClick}
+                                >
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div className="fw-medium">
+                                                <i className="bi bi-shield-check me-2"></i>
+                                                Privacy & Data
+                                            </div>
+                                            <small className="text-muted">
+                                                Cookie consent and data
+                                                management
+                                            </small>
+                                        </div>
+                                        <i className="bi bi-chevron-right text-muted"></i>
+                                    </div>
+                                </ListGroup.Item>
                             </ListGroup>
                         </div>
                     </div>
@@ -293,9 +336,12 @@ export function SettingsPanel({
                                             <div className="fw-medium">
                                                 <i className="bi bi-calendar-event me-2"></i>
                                                 Export Schedule{' '}
-                                                <span className="badge bg-secondary ms-2">
+                                                <Badge
+                                                    bg="secondary"
+                                                    className="ms-2"
+                                                >
                                                     Coming Soon
-                                                </span>
+                                                </Badge>
                                             </div>
                                             <small className="text-muted">
                                                 Download as calendar file
@@ -335,23 +381,6 @@ export function SettingsPanel({
                                         <i className="bi bi-share-fill text-muted"></i>
                                     </div>
                                 </ListGroup.Item>
-                                <ListGroup.Item
-                                    action
-                                    onClick={handleResetSettings}
-                                >
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div className="fw-medium text-danger">
-                                                <i className="bi bi-arrow-clockwise me-2"></i>
-                                                Reset Data
-                                            </div>
-                                            <small className="text-muted">
-                                                Clear all preferences
-                                            </small>
-                                        </div>
-                                        <i className="bi bi-trash text-danger"></i>
-                                    </div>
-                                </ListGroup.Item>
                             </ListGroup>
                         </div>
                     </div>
@@ -373,21 +402,114 @@ export function SettingsPanel({
                 show={showChangelog}
                 onHide={handleChangelogClose}
             />
-            {/* Confirm Reset Modal */}
-            <Modal show={showConfirmReset} onHide={handleCancelReset} centered>
+
+            {/* Privacy Settings Modal */}
+            <Modal
+                show={showPrivacySettings}
+                onHide={handlePrivacySettingsClose}
+                size="lg"
+            >
                 <Modal.Header closeButton>
-                    <Modal.Title>Reset All Settings?</Modal.Title>
+                    <Modal.Title>
+                        <i className="bi bi-shield-check me-2"></i>
+                        Privacy & Data Settings
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Are you sure you want to reset all settings to defaults?
-                    This cannot be undone.
+                    <div className="mb-4">
+                        <h6>Cookie Consent Status</h6>
+                        <p className="text-muted">
+                            {hasConsentBeenSet
+                                ? 'You have set your cookie preferences. You can update them below.'
+                                : 'You have not yet set your cookie preferences.'}
+                        </p>
+                    </div>
+
+                    <div className="mb-4">
+                        <h6>Data Storage Categories</h6>
+                        <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Strictly Necessary</strong>
+                                    <div className="small text-muted">
+                                        Required for the app to function
+                                        properly
+                                    </div>
+                                </div>
+                                <Badge bg="success">Always Enabled</Badge>
+                            </div>
+                        </div>
+
+                        <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Functional</strong>
+                                    <div className="small text-muted">
+                                        User preferences and settings
+                                    </div>
+                                </div>
+                                <Form.Check
+                                    type="switch"
+                                    id={functionalToggleId}
+                                    checked={consentPreferences.functional}
+                                    onChange={(e) => {
+                                        const isEnabled = e.target.checked;
+                                        setConsentPreferences({
+                                            ...consentPreferences,
+                                            functional: isEnabled,
+                                        });
+
+                                        // Clear functional data immediately when consent is withdrawn
+                                        if (!isEnabled) {
+                                            clearNonNecessaryStorage();
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="mb-3">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Analytics</strong>
+                                    <div className="small text-muted">
+                                        Usage analytics (not currently
+                                        implemented)
+                                    </div>
+                                </div>
+                                <Badge bg="secondary">Not Used</Badge>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Alert variant="info">
+                        <strong>Your Privacy:</strong> All data is stored
+                        locally on your device. No personal information is sent
+                        to external servers.
+                    </Alert>
+
+                    <div className="mb-3">
+                        <h6>Data Management</h6>
+                        <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={handleClearData}
+                        >
+                            <i className="bi bi-trash me-2"></i>
+                            Clear All Data & Reset Consent
+                        </Button>
+                        <div className="small text-muted mt-1">
+                            This will clear all stored preferences and reset
+                            your cookie consent.
+                        </div>
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCancelReset}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleConfirmReset}>
-                        Reset
+                    <Button
+                        variant="secondary"
+                        onClick={handlePrivacySettingsClose}
+                    >
+                        Close
                     </Button>
                 </Modal.Footer>
             </Modal>

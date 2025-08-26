@@ -108,6 +108,10 @@ function main() {
     console.log('✅ CHANGELOG.md generated successfully');
 }
 
-if (require.main === module) {
+// Run the generator
+try {
     main();
+} catch (error) {
+    console.error('❌ Error generating changelog:', (error as Error).message);
+    process.exit(1);
 }

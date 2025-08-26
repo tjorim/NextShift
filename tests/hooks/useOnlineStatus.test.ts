@@ -47,7 +47,7 @@ describe('useOnlineStatus', () => {
 
         it('defaults to true when navigator is undefined', () => {
             const originalNavigator = globalThis.navigator;
-            // @ts-ignore
+            // @ts-expect-error
             delete globalThis.navigator;
 
             const { result } = renderHook(() => useOnlineStatus());

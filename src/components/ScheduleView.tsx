@@ -1,4 +1,5 @@
 import type { Dayjs } from 'dayjs';
+import { useId } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -38,6 +39,7 @@ export function ScheduleView({
     currentDate,
     setCurrentDate,
 }: ScheduleViewProps) {
+    const datePickerId = useId();
     // Validate and sanitize myTeam prop
     let myTeam = inputMyTeam;
     if (
@@ -133,14 +135,14 @@ export function ScheduleView({
                 <div className="d-flex justify-content-between align-items-center gap-3">
                     <div className="d-flex align-items-center gap-2">
                         <Form.Label
-                            htmlFor="datePicker"
+                            htmlFor={datePickerId}
                             className="mb-0 small text-muted"
                         >
                             🎯 Jump to date:
                         </Form.Label>
                         <Form.Control
                             type="date"
-                            id="datePicker"
+                            id={datePickerId}
                             size="sm"
                             value={currentDate.format('YYYY-MM-DD')}
                             onChange={(e) => handleDateChange(e.target.value)}

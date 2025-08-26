@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -56,7 +56,7 @@ jobs:
           echo "Running custom PWA compliance checks..."
 
           # Check if PWA is installable using temporary script file
-          cat > validate-pwa.js << 'EOF'
+          cat > validate-pwa.cjs << 'EOF'
           const fs = require('fs');
 
           console.log('🔍 Checking PWA compliance...');
@@ -92,8 +92,8 @@ jobs:
           }
           EOF
 
-          node validate-pwa.js
-          rm validate-pwa.js
+          node validate-pwa.cjs
+          rm validate-pwa.cjs
 
       - name: Performance summary
         run: |
