@@ -30,7 +30,7 @@ export const formatDisplayDate = (date: Date): string => {
 export const getISOWeekYear2Digit = (
     date: string | Date | dayjs.Dayjs,
 ): string => {
-    return dayjs(date).isoWeekYear().toString().slice(-2);
+    return String(dayjs(date).isoWeekYear()).slice(-2);
 };
 
 /**
@@ -39,7 +39,7 @@ export const getISOWeekYear2Digit = (
  * @returns The 2-digit ISO week number
  */
 export const getISOWeek2Digit = (date: string | Date | dayjs.Dayjs): string => {
-    return dayjs(date).isoWeek().toString().padStart(2, '0');
+    return String(dayjs(date).isoWeek()).padStart(2, '0');
 };
 
 /**

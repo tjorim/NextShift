@@ -93,7 +93,7 @@ export function ChangelogModal({ show, onHide }: ChangelogModalProps) {
                 >
                     {changelogData.map((version, index) => (
                         <Accordion.Item
-                            eventKey={index.toString()}
+                            eventKey={String(index)}
                             key={version.version}
                         >
                             <Accordion.Header>
