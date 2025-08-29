@@ -152,6 +152,45 @@ export function CurrentStatus({
     // Countdown to next shift
     const countdown = useCountdown(nextShiftStartTime);
 
+    // Calculate current shift end time for countdown (when user is currently working)
+    const currentShiftEndTime = useMemo(() => {
+        if (!validatedTeam || !currentShift || !currentShift.shift.isWorking) return null;
+        if (!currentShift.shift.start || !currentShift.shift.end) return null;
+
+        // Check if we're currently within the shift time range
+        const currentHour = liveTime.hour();
+        const { start, end } = currentShift.shift;
+        
+        let isCurrentlyInShift = false;
+        if (start > end) {
+            // Night shift: 23:00 to 07:00 (next day)
+            isCurrentlyInShift = currentHour >= start || currentHour < end;
+        } else {
+            // Day/Evening shift: normal range
+            isCurrentlyInShift = currentHour >= start && currentHour < end;
+        }
+
+        if (!isCurrentlyInShift) return null;
+
+        const shiftDay = currentShift.date;
+        const endHour = currentShift.shift.end;
+
+        // Create datetime for the shift end
+        let endTime = shiftDay.hour(endHour).minute(0).second(0);
+
+        // Handle night shift that ends the next day (23:00-07:00)
+        if (currentShift.shift.start! > currentShift.shift.end!) {
+            // Night shift ends on the next calendar day
+            endTime = endTime.add(1, 'day');
+        }
+
+        // Only return if the end time is in the future
+        return endTime.isAfter(liveTime) ? endTime : null;
+    }, [validatedTeam, currentShift, liveTime]);
+
+    // Countdown to current shift end
+    const currentShiftCountdown = useCountdown(currentShiftEndTime);
+
     // Get current time's shift code for live display
     const currentTimeShiftCode = useMemo(() => {
         const hour = liveTime.hour();
@@ -325,6 +364,16 @@ export function CurrentStatus({
                                                                 settings.timeFormat,
                                                             )}
                                                         </div>
+                                                    )}
+                                                {currentShiftCountdown &&
+                                                    !currentShiftCountdown.isExpired &&
+                                                    currentShiftEndTime && (
+                                                        <Badge
+                                                            bg="success"
+                                                            className="mt-2"
+                                                        >
+                                                            ⏱️ {currentShiftCountdown.formatted} left
+                                                        </Badge>
                                                     )}
                                                 {!currentShift.shift
                                                     .isWorking &&

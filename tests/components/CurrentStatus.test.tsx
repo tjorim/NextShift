@@ -5,6 +5,7 @@ import { CurrentStatus } from '../../src/components/CurrentStatus';
 import { SettingsProvider } from '../../src/contexts/SettingsContext';
 import { ToastProvider } from '../../src/contexts/ToastContext';
 import * as useCountdownHook from '../../src/hooks/useCountdown';
+import * as useLiveTimeHook from '../../src/hooks/useLiveTime';
 import { dayjs, formatYYWWD } from '../../src/utils/dateTimeUtils';
 import * as shiftCalculations from '../../src/utils/shiftCalculations';
 
@@ -23,6 +24,10 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
 
 vi.mock('../../src/hooks/useCountdown', () => ({
     useCountdown: vi.fn(),
+}));
+
+vi.mock('../../src/hooks/useLiveTime', () => ({
+    useLiveTime: vi.fn(),
 }));
 
 vi.mock('../../src/utils/dateTimeUtils', async (importOriginal) => {
@@ -140,6 +145,11 @@ describe('CurrentStatus Component', () => {
             formatted: '2h 30m',
             isExpired: false,
         });
+        
+        // Mock useLiveTime to return a time within morning shift (7-15)
+        vi.mocked(useLiveTimeHook.useLiveTime).mockReturnValue(
+            dayjs('2024-01-15T10:00:00')
+        );
     });
 
     afterEach(() => {
@@ -525,6 +535,41 @@ describe('CurrentStatus Component', () => {
             expect(
                 vi.mocked(shiftCalculations.calculateShift),
             ).toHaveBeenCalledTimes(initialCallCount);
+        });
+    });
+
+    describe('Current Shift Countdown', () => {
+        it('should not show current shift countdown when user is not working', () => {
+            // Mock that team 1 is off today
+            vi.mocked(shiftCalculations.calculateShift).mockReturnValue({
+                code: 'O',
+                name: 'Off',
+                hours: 'Not working',
+                start: null,
+                end: null,
+                isWorking: false,
+                emoji: '🏠',
+                className: 'shift-off',
+            });
+
+            renderWithProviders(
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
+            );
+
+            expect(screen.queryByText(/⏱️.*left/)).not.toBeInTheDocument();
+        });
+
+        it('should not show current shift countdown when outside shift hours', () => {
+            // Mock time to be outside morning shift (2 AM, which is off-hours)
+            vi.mocked(useLiveTimeHook.useLiveTime).mockReturnValue(
+                dayjs('2024-01-15T02:00:00')
+            );
+
+            renderWithProviders(
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
+            );
+
+            expect(screen.queryByText(/⏱️.*left/)).not.toBeInTheDocument();
         });
     });
 
