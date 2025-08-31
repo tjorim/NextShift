@@ -26,6 +26,7 @@ interface PersonalizedStatusProps {
     offDayProgress: OffDayProgress | null;
     countdown: CountdownResult | null;
     nextShiftStartTime: Dayjs | null;
+    currentShiftCountdown: CountdownResult | null;
 }
 
 /**
@@ -38,6 +39,7 @@ interface PersonalizedStatusProps {
  * @param offDayProgress - Progress through off days (when team is not working)
  * @param countdown - Live countdown to next shift start
  * @param nextShiftStartTime - Exact start time of next shift for countdown calculation
+ * @param currentShiftCountdown - Live countdown to current shift end
  */
 export function PersonalizedStatus({
     myTeam,
@@ -46,6 +48,7 @@ export function PersonalizedStatus({
     offDayProgress,
     countdown,
     nextShiftStartTime,
+    currentShiftCountdown,
 }: PersonalizedStatusProps) {
     const teamTooltipId = useId();
     const { settings } = useSettings();
@@ -125,6 +128,19 @@ export function PersonalizedStatus({
                                                     }
                                                 />
                                             </div>
+                                        )}
+                                    {currentShiftCountdown &&
+                                        !currentShiftCountdown.isExpired && (
+                                            <Badge
+                                                bg="success"
+                                                className="mt-2"
+                                            >
+                                                ⏱️{' '}
+                                                {
+                                                    currentShiftCountdown.formatted
+                                                }{' '}
+                                                left
+                                            </Badge>
                                         )}
                                     {!currentShift.shift.isWorking &&
                                         offDayProgress && (
