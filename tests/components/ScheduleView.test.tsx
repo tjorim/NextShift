@@ -15,15 +15,27 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
     calculateShift: vi.fn((date: string, teamNumber: number) => ({
         teamNumber,
         shift: {
-            type: 'M',
             code: 'M',
+            emoji: '🌅',
             name: 'Morning',
+            hours: '07:00-15:00',
             start: 7,
             end: 15,
             isWorking: true,
+            className: 'shift-morning',
         },
         date: dayjs(date),
-        dateCode: '2503.1M',
+        code: '2503.1M',
+    })),
+    getShiftByCode: vi.fn(() => ({
+        code: 'M',
+        emoji: '🌅',
+        name: 'Morning',
+        hours: '07:00-15:00',
+        start: 7,
+        end: 15,
+        isWorking: true,
+        className: 'shift-morning',
     })),
 }));
 
@@ -68,29 +80,6 @@ vi.mock('../../src/utils/dateTimeUtils', () => {
         getLocalizedShiftTime: vi.fn(() => '07:00–15:00'),
     };
 });
-
-vi.mock('../../src/utils/shiftCalculations', () => ({
-    calculateShift: vi.fn(() => ({
-        code: 'M',
-        emoji: '🌅',
-        name: 'Morning',
-        hours: '07:00-15:00',
-        start: 7,
-        end: 15,
-        isWorking: true,
-        className: 'shift-morning',
-    })),
-    getShiftByCode: vi.fn(() => ({
-        code: 'M',
-        emoji: '🌅',
-        name: 'Morning',
-        hours: '07:00-15:00',
-        start: 7,
-        end: 15,
-        isWorking: true,
-        className: 'shift-morning',
-    })),
-}));
 
 vi.mock('../../src/utils/config', () => ({
     CONFIG: {

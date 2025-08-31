@@ -1,7 +1,15 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+    afterAll,
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    vi,
+} from 'vitest';
 import App from '../../src/App';
 import { Header } from '../../src/components/Header';
 import { renderWithProviders } from '../utils/renderWithProviders';
@@ -168,6 +176,8 @@ describe('Header', () => {
     });
 
     describe('Theme Integration', () => {
+        const originalMatchMedia = window.matchMedia;
+
         beforeEach(() => {
             // Clear any existing theme attribute
             document.documentElement.removeAttribute('data-bs-theme');
@@ -176,6 +186,14 @@ describe('Header', () => {
         afterEach(() => {
             // Clean up theme attribute after each test
             document.documentElement.removeAttribute('data-bs-theme');
+        });
+
+        afterAll(() => {
+            // Restore the original implementation to prevent cross-test side-effects
+            Object.defineProperty(window, 'matchMedia', {
+                writable: true,
+                value: originalMatchMedia,
+            });
         });
 
         it('applies dark theme to document.documentElement when theme is set to dark', async () => {

@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { CookieConsentProvider } from '../../src/contexts/CookieConsentContext';
 import { SettingsProvider } from '../../src/contexts/SettingsContext';
 import { ToastProvider } from '../../src/contexts/ToastContext';
@@ -8,7 +8,7 @@ import { ToastProvider } from '../../src/contexts/ToastContext';
  * Wrapper component that provides all necessary contexts for testing.
  * Use this with rerender() calls.
  */
-export function AllTheProviders({ children }: { children: React.ReactNode }) {
+export function AllTheProviders({ children }: { children: ReactNode }) {
     return (
         <CookieConsentProvider>
             <ToastProvider>
@@ -23,8 +23,12 @@ export function AllTheProviders({ children }: { children: React.ReactNode }) {
  * Provides consistent test setup across all component tests.
  *
  * @param ui - The React element to render
+ * @param options - Optional render options (container, baseElement, etc.)
  * @returns The result from @testing-library/react render function
  */
-export function renderWithProviders(ui: ReactElement) {
-    return render(ui, { wrapper: AllTheProviders });
+export function renderWithProviders(
+    ui: ReactElement,
+    options?: Parameters<typeof render>[1],
+) {
+    return render(ui, { wrapper: AllTheProviders, ...options });
 }

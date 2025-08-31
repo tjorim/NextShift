@@ -8,6 +8,7 @@ interface ShiftBadgeProps {
     teamNumber: number;
     className?: string;
     size?: 'sm' | 'lg';
+    'aria-describedby'?: string;
 }
 
 /**
@@ -26,6 +27,7 @@ export function ShiftBadge({
     teamNumber,
     className = '',
     size = 'lg',
+    'aria-describedby': ariaDescribedBy,
 }: ShiftBadgeProps) {
     const shiftMeta = getShiftByCode(shiftCode);
     const sizeClass = size === 'lg' ? 'shift-badge-lg' : '';
@@ -33,6 +35,7 @@ export function ShiftBadge({
     return (
         <Badge
             className={`shift-code ${sizeClass} ${shiftMeta?.className ?? ''} ${className}`.trim()}
+            aria-describedby={ariaDescribedBy}
         >
             Team {teamNumber}: {shiftName}
         </Badge>

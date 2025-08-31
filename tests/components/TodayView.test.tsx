@@ -8,18 +8,25 @@ import type { ShiftResult } from '../../src/utils/shiftCalculations';
 import { renderWithProviders } from '../utils/renderWithProviders';
 
 // Mock shift calculation utilities
-vi.mock('../../src/utils/shiftCalculations', () => ({
-    getShiftByCode: vi.fn(() => ({
-        code: 'M',
-        emoji: '🌅',
-        name: 'Morning',
-        hours: '07:00-15:00',
-        start: 7,
-        end: 15,
-        isWorking: true,
-        className: 'shift-morning',
-    })),
-}));
+vi.mock('../../src/utils/shiftCalculations', async (importOriginal) => {
+    const actual =
+        await importOriginal<
+            typeof import('../../src/utils/shiftCalculations')
+        >();
+    return {
+        ...actual,
+        getShiftByCode: vi.fn(() => ({
+            code: 'M',
+            emoji: '🌅',
+            name: 'Morning',
+            hours: '07:00-15:00',
+            start: 7,
+            end: 15,
+            isWorking: true,
+            className: 'shift-morning',
+        })),
+    };
+});
 
 const mockTodayShifts: ShiftResult[] = [
     {

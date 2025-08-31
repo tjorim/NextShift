@@ -33,6 +33,7 @@ function TeamCard({
     onTeamClick?: (teamNumber: number) => void;
 }) {
     const { settings } = useSettings();
+    const shift = getShiftByCode(shiftResult.shift.code);
 
     const cardContent = (
         <>
@@ -69,30 +70,20 @@ function TeamCard({
                                 Shift Code: {shiftResult.shift.code}
                             </strong>
                             <br />
-                            {(() => {
-                                const shift = getShiftByCode(
-                                    shiftResult.shift.code,
-                                );
-                                return (
-                                    <>
-                                        {shift.emoji} <em>{shift.name}</em>
-                                        <br />
-                                        {shift.start != null &&
-                                        shift.end != null
-                                            ? getLocalizedShiftTime(
-                                                  shift.start,
-                                                  shift.end,
-                                                  settings.timeFormat,
-                                              )
-                                            : shift.hours}
-                                    </>
-                                );
-                            })()}
+                            {shift.emoji} <em>{shift.name}</em>
+                            <br />
+                            {shift.start != null && shift.end != null
+                                ? getLocalizedShiftTime(
+                                      shift.start,
+                                      shift.end,
+                                      settings.timeFormat,
+                                  )
+                                : shift.hours}
                         </Tooltip>
                     }
                 >
                     <Badge
-                        className={`shift-code cursor-help ${getShiftByCode(shiftResult.shift.code).className}`}
+                        className={`shift-code cursor-help ${shift.className}`}
                     >
                         {shiftResult.shift.code}
                     </Badge>

@@ -49,6 +49,9 @@ export function PersonalizedStatus({
 }: PersonalizedStatusProps) {
     const teamTooltipId = useId();
     const { settings } = useSettings();
+    const shiftMeta = currentShift
+        ? getShiftByCode(currentShift.shift.code)
+        : null;
 
     // Calculate off-day progress percentage with proper bounds checking
     const offDayProgressPercentage = useMemo(() => {
@@ -87,9 +90,7 @@ export function PersonalizedStatus({
                                                 </strong>
                                                 <br />
                                                 {formatShiftDisplay(
-                                                    getShiftByCode(
-                                                        currentShift.shift.code,
-                                                    ),
+                                                    shiftMeta,
                                                     settings.timeFormat,
                                                 )}
                                                 <br />
@@ -105,6 +106,7 @@ export function PersonalizedStatus({
                                             shiftName={currentShift.shift.name}
                                             teamNumber={myTeam}
                                             className="cursor-help"
+                                            aria-describedby={teamTooltipId}
                                         />
                                     </OverlayTrigger>
                                     {currentShift.shift.start != null &&

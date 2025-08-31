@@ -4,10 +4,7 @@ import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { MainTabs } from '../../src/components/MainTabs';
 import { dayjs } from '../../src/utils/dateTimeUtils';
-import {
-    AllTheProviders,
-    renderWithProviders,
-} from '../utils/renderWithProviders';
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 // Mock the child components
 vi.mock('../../src/components/TodayView', () => ({
@@ -103,11 +100,7 @@ describe('MainTabs', () => {
             );
             expect(screen.getByTestId('today-view')).toBeInTheDocument();
 
-            rerender(
-                <AllTheProviders>
-                    <MainTabs {...defaultProps} activeTab="transfer" />
-                </AllTheProviders>,
-            );
+            rerender(<MainTabs {...defaultProps} activeTab="transfer" />);
             expect(screen.getByTestId('transfer-view')).toBeInTheDocument();
         });
     });

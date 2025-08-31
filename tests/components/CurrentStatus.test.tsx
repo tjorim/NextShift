@@ -5,10 +5,7 @@ import { CurrentStatus } from '../../src/components/CurrentStatus';
 import * as useCountdownHook from '../../src/hooks/useCountdown';
 import { dayjs, formatYYWWD } from '../../src/utils/dateTimeUtils';
 import * as shiftCalculations from '../../src/utils/shiftCalculations';
-import {
-    AllTheProviders,
-    renderWithProviders,
-} from '../utils/renderWithProviders';
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 // Mock dependencies
 vi.mock('../../src/utils/shiftCalculations', () => ({
@@ -232,7 +229,15 @@ describe('CurrentStatus Component', () => {
             );
 
             expect(screen.getByText('Your Next Shift')).toBeInTheDocument();
-            expect(screen.getByText(/2024-01-15.*Evening/)).toBeInTheDocument();
+            expect(
+                screen.getByText(
+                    (text) =>
+                        /Evening/.test(text) &&
+                        /\b(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s+[A-Za-z]{3}\s+\d{1,2}|\d{4}-\d{2}-\d{2})\s*-/.test(
+                            text,
+                        ),
+                ),
+            ).toBeInTheDocument();
             expect(screen.getByText('15:00–23:00')).toBeInTheDocument();
         });
     });
@@ -481,9 +486,7 @@ describe('CurrentStatus Component', () => {
             );
 
             rerender(
-                <AllTheProviders>
-                    <CurrentStatus myTeam={2} onChangeTeam={mockOnChangeTeam} />
-                </AllTheProviders>,
+                <CurrentStatus myTeam={2} onChangeTeam={mockOnChangeTeam} />,
             );
 
             expect(shiftCalculations.calculateShift).toHaveBeenCalledWith(
@@ -505,9 +508,7 @@ describe('CurrentStatus Component', () => {
 
             // Rerender with same props - might trigger recalculation due to provider wrapper behavior
             rerender(
-                <AllTheProviders>
-                    <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />
-                </AllTheProviders>,
+                <CurrentStatus myTeam={1} onChangeTeam={mockOnChangeTeam} />,
             );
 
             // The important thing is that the component still renders correctly with the same props
