@@ -1,11 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { ScheduleView } from '../../src/components/ScheduleView';
-import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../src/contexts/ToastContext';
 import { dayjs } from '../../src/utils/dateTimeUtils';
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 // Mock the dependencies
 vi.mock('../../src/hooks/useKeyboardShortcuts', () => ({
@@ -16,15 +15,27 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
     calculateShift: vi.fn((date: string, teamNumber: number) => ({
         teamNumber,
         shift: {
-            type: 'M',
             code: 'M',
+            emoji: '🌅',
             name: 'Morning',
+            hours: '07:00-15:00',
             start: 7,
             end: 15,
             isWorking: true,
+            className: 'shift-morning',
         },
         date: dayjs(date),
-        dateCode: '2503.1M',
+        code: '2503.1M',
+    })),
+    getShiftByCode: vi.fn(() => ({
+        code: 'M',
+        emoji: '🌅',
+        name: 'Morning',
+        hours: '07:00-15:00',
+        start: 7,
+        end: 15,
+        isWorking: true,
+        className: 'shift-morning',
     })),
 }));
 
@@ -70,29 +81,6 @@ vi.mock('../../src/utils/dateTimeUtils', () => {
     };
 });
 
-vi.mock('../../src/utils/shiftCalculations', () => ({
-    calculateShift: vi.fn(() => ({
-        code: 'M',
-        emoji: '🌅',
-        name: 'Morning',
-        hours: '07:00-15:00',
-        start: 7,
-        end: 15,
-        isWorking: true,
-        className: 'shift-morning',
-    })),
-    getShiftByCode: vi.fn(() => ({
-        code: 'M',
-        emoji: '🌅',
-        name: 'Morning',
-        hours: '07:00-15:00',
-        start: 7,
-        end: 15,
-        isWorking: true,
-        className: 'shift-morning',
-    })),
-}));
-
 vi.mock('../../src/utils/config', () => ({
     CONFIG: {
         TEAMS_COUNT: 5,
@@ -104,14 +92,6 @@ const defaultProps = {
     currentDate: dayjs('2025-01-15'),
     setCurrentDate: vi.fn(),
 };
-
-function renderWithProviders(ui: React.ReactElement) {
-    return render(
-        <ToastProvider>
-            <SettingsProvider>{ui}</SettingsProvider>
-        </ToastProvider>,
-    );
-}
 
 describe('ScheduleView', () => {
     describe('Basic rendering', () => {

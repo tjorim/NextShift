@@ -1,58 +1,14 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import type React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TeamDetailModal } from '../../src/components/TeamDetailModal';
-import { CookieConsentProvider } from '../../src/contexts/CookieConsentContext';
-import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../src/contexts/ToastContext';
-
-function renderWithSettings(ui: React.ReactElement) {
-    return render(
-        <CookieConsentProvider>
-            <ToastProvider>
-                <SettingsProvider>{ui}</SettingsProvider>
-            </ToastProvider>
-        </CookieConsentProvider>,
-    );
-}
+import { setupLocalStorage } from '../utils/localStorageHelpers';
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 describe('TeamDetailModal', () => {
     it('disables View Transfers button and shows tooltip when viewing own team', async () => {
-        // Set functional consent
-        const consentData = {
-            preferences: {
-                necessary: true,
-                functional: true,
-                analytics: false,
-            },
-            consentGiven: true,
-            consentDate: new Date().toISOString(),
-        };
-        window.localStorage.setItem(
-            'nextshift_cookie_consent',
-            JSON.stringify(consentData),
-        );
-
-        // Set user preferences with the new storage structure
-        window.localStorage.setItem(
-            'nextshift_necessary_onboarding_state',
-            JSON.stringify({
-                hasCompletedOnboarding: true,
-            }),
-        );
-        window.localStorage.setItem(
-            'nextshift_user_preferences',
-            JSON.stringify({
-                myTeam: 2,
-                settings: {
-                    timeFormat: '24h',
-                    theme: 'auto',
-                    notifications: 'off',
-                },
-            }),
-        );
-        renderWithSettings(
+        setupLocalStorage({ myTeam: 2 });
+        renderWithProviders(
             <TeamDetailModal
                 show={true}
                 onHide={() => {}}
@@ -79,39 +35,9 @@ describe('TeamDetailModal', () => {
     });
 
     it('enables View Transfers button for other teams', () => {
-        // Set functional consent
-        const consentData = {
-            preferences: {
-                necessary: true,
-                functional: true,
-                analytics: false,
-            },
-            consentGiven: true,
-            consentDate: new Date().toISOString(),
-        };
-        window.localStorage.setItem(
-            'nextshift_cookie_consent',
-            JSON.stringify(consentData),
-        );
+        setupLocalStorage({ myTeam: 2 });
 
-        window.localStorage.setItem(
-            'nextshift_necessary_onboarding_state',
-            JSON.stringify({
-                hasCompletedOnboarding: true,
-            }),
-        );
-        window.localStorage.setItem(
-            'nextshift_user_preferences',
-            JSON.stringify({
-                myTeam: 2,
-                settings: {
-                    timeFormat: '24h',
-                    theme: 'auto',
-                    notifications: 'off',
-                },
-            }),
-        );
-        renderWithSettings(
+        renderWithProviders(
             <TeamDetailModal
                 show={true}
                 onHide={() => {}}
