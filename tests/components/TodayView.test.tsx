@@ -15,16 +15,70 @@ vi.mock('../../src/utils/shiftCalculations', async (importOriginal) => {
         >();
     return {
         ...actual,
-        getShiftByCode: vi.fn(() => ({
-            code: 'M',
-            emoji: '🌅',
-            name: 'Morning',
-            hours: '07:00-15:00',
-            start: 7,
-            end: 15,
-            isWorking: true,
-            className: 'shift-morning',
-        })),
+        getShiftByCode: vi.fn((code) => {
+            const shifts = {
+                M: {
+                    code: 'M',
+                    emoji: '🌅',
+                    name: 'Morning',
+                    hours: '07:00-15:00',
+                    start: 7,
+                    end: 15,
+                    isWorking: true,
+                    className: 'shift-morning',
+                },
+                E: {
+                    code: 'E',
+                    emoji: '🌆',
+                    name: 'Evening',
+                    hours: '15:00-23:00',
+                    start: 15,
+                    end: 23,
+                    isWorking: true,
+                    className: 'shift-evening',
+                },
+                O: {
+                    code: 'O',
+                    emoji: '🏠',
+                    name: 'Off',
+                    hours: '',
+                    start: null,
+                    end: null,
+                    isWorking: false,
+                    className: 'shift-off',
+                },
+            };
+            return shifts[code] || shifts.M;
+        }),
+        getShiftDisplayName: vi.fn((shift) => `${shift.emoji} ${shift.name}`),
+        getOffDayProgress: vi.fn((_date, teamNumber) => {
+            // Return mock off-day progress for team 3 (which is off in our test data)
+            if (teamNumber === 3) {
+                return {
+                    current: 2,
+                    total: 4,
+                };
+            }
+            return null;
+        }),
+        getNextShift: vi.fn((_date, teamNumber) => {
+            // Return mock next shift for team 3 (which is off in our test data)
+            if (teamNumber === 3) {
+                return {
+                    date: dayjs('2025-01-17'), // Returns in 2 days
+                    shift: {
+                        code: 'M',
+                        name: '🌅 Morning',
+                        hours: '07:00-15:00',
+                        start: 7,
+                        end: 15,
+                        isWorking: true,
+                    },
+                    code: '2503.5M',
+                };
+            }
+            return null;
+        }),
     };
 });
 
@@ -92,7 +146,7 @@ describe('TodayView', () => {
 
             expect(screen.getByText(/🌅 Morning/)).toBeInTheDocument();
             expect(screen.getByText(/🌆 Evening/)).toBeInTheDocument();
-            expect(screen.getByText(/🏠 Off/)).toBeInTheDocument();
+            expect(screen.getByText(/Day 2\/4 off/)).toBeInTheDocument();
             expect(screen.getByText(/Not working today/)).toBeInTheDocument();
         });
 
@@ -158,7 +212,7 @@ describe('TodayView', () => {
         it('shows off status for non-working teams', () => {
             renderWithProviders(<TodayView {...defaultProps} />);
 
-            expect(screen.getByText(/🏠 Off/)).toBeInTheDocument();
+            expect(screen.getByText(/Day 2\/4 off/)).toBeInTheDocument();
             expect(screen.getByText(/Not working today/)).toBeInTheDocument();
         });
 
@@ -170,7 +224,7 @@ describe('TodayView', () => {
             renderWithProviders(<TodayView {...defaultProps} />);
 
             // Team 3 is off, so should never show active badge
-            const offTeamBadges = screen.getAllByText(/🏠 Off/);
+            const offTeamBadges = screen.getAllByText(/Day 2\/4 off/);
             expect(offTeamBadges.length).toBeGreaterThan(0);
             expect(screen.queryByText('Active')).not.toBeInTheDocument();
         });

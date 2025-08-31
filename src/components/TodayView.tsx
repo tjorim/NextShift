@@ -11,8 +11,13 @@ import {
     getISOWeekYear2Digit,
     getLocalizedShiftTime,
 } from '../utils/dateTimeUtils';
-import type { ShiftResult } from '../utils/shiftCalculations';
-import { getShiftByCode } from '../utils/shiftCalculations';
+import type { OffDayProgress, ShiftResult } from '../utils/shiftCalculations';
+import {
+    getNextShift,
+    getOffDayProgress,
+    getShiftByCode,
+    getShiftDisplayName,
+} from '../utils/shiftCalculations';
 
 interface TodayViewProps {
     todayShifts: ShiftResult[];
@@ -34,6 +39,15 @@ function TeamCard({
 }) {
     const { settings } = useSettings();
     const shift = getShiftByCode(shiftResult.shift.code);
+
+    // Calculate off-day progress and next shift for teams that are not working
+    const offDayProgress: OffDayProgress | null = !shiftResult.shift.isWorking
+        ? getOffDayProgress(shiftResult.date, shiftResult.teamNumber)
+        : null;
+
+    const nextShift = !shiftResult.shift.isWorking
+        ? getNextShift(shiftResult.date, shiftResult.teamNumber)
+        : null;
 
     const cardContent = (
         <>
@@ -89,16 +103,46 @@ function TeamCard({
                     </Badge>
                 </OverlayTrigger>
             </div>
-            <div className="text-muted small">
-                {shiftResult.shift.name}
-                <br />
-                {shiftResult.shift.isWorking
-                    ? getLocalizedShiftTime(
-                          shiftResult.shift.start,
-                          shiftResult.shift.end,
-                          settings.timeFormat,
-                      )
-                    : 'Not working today'}
+            <div className="small">
+                {shiftResult.shift.isWorking ? (
+                    <>
+                        {getShiftDisplayName(shift)}
+                        <br />
+                        {getLocalizedShiftTime(
+                            shiftResult.shift.start,
+                            shiftResult.shift.end,
+                            settings.timeFormat,
+                        )}
+                    </>
+                ) : offDayProgress && nextShift ? (
+                    <>
+                        <OverlayTrigger
+                            placement="bottom"
+                            overlay={
+                                <Tooltip
+                                    id={`off-tooltip-${shiftResult.teamNumber}`}
+                                >
+                                    Returns{' '}
+                                    {nextShift.date.format('dddd, MMM D')} -{' '}
+                                    {nextShift.shift.name}
+                                </Tooltip>
+                            }
+                        >
+                            <span className="help-underline">
+                                🏠 Day {offDayProgress.current}/
+                                {offDayProgress.total} off
+                            </span>
+                        </OverlayTrigger>
+                        <br />
+                        Not working today
+                    </>
+                ) : (
+                    <>
+                        {shiftResult.shift.name}
+                        <br />
+                        Not working today
+                    </>
+                )}
             </div>
             <div className="text-muted small mt-1">
                 <OverlayTrigger
