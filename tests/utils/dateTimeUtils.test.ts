@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
     dayjs,
+    formatShiftDisplay,
     formatYYWWD,
     getISOWeek2Digit,
     getISOWeekday,
@@ -167,7 +168,7 @@ describe('Date Time Utils', () => {
         it('should maintain consistency across week boundaries', () => {
             // Test a full week to ensure consistency
             const monday = new Date('2025-05-12');
-            const weekDays = [];
+            const weekDays: string[] = [];
 
             for (let i = 0; i < 7; i++) {
                 const day = dayjs(monday).add(i, 'day');
@@ -190,6 +191,72 @@ describe('Date Time Utils', () => {
                 `${weekPrefix}.6`, // Saturday
                 `${weekPrefix}.7`, // Sunday
             ]);
+        });
+    });
+
+    describe('formatShiftDisplay Function', () => {
+        it('should format shift with emoji, name and localized time', () => {
+            const shiftMeta = {
+                emoji: '🌅',
+                name: 'Morning',
+                start: 7,
+                end: 15,
+                hours: '07:00-15:00',
+            };
+            const result = formatShiftDisplay(shiftMeta, '24h');
+            expect(result).toBe('🌅 Morning shift (07:00–15:00)');
+        });
+
+        it('should format shift without emoji', () => {
+            const shiftMeta = {
+                name: 'Evening',
+                start: 15,
+                end: 23,
+                hours: '15:00-23:00',
+            };
+            const result = formatShiftDisplay(shiftMeta, '24h');
+            expect(result).toBe('Evening shift (15:00–23:00)');
+        });
+
+        it('should fallback to hours string when no start/end times', () => {
+            const shiftMeta = {
+                emoji: '🏠',
+                name: 'Off',
+                start: null,
+                end: null,
+                hours: 'Not working',
+            };
+            const result = formatShiftDisplay(shiftMeta, '24h');
+            expect(result).toBe('🏠 Off shift (Not working)');
+        });
+
+        it('should handle 12h format', () => {
+            const shiftMeta = {
+                emoji: '🌙',
+                name: 'Night',
+                start: 23,
+                end: 7,
+                hours: '23:00-07:00',
+            };
+            const result = formatShiftDisplay(shiftMeta, '12h');
+            expect(result).toBe('🌙 Night shift (11:00 PM–07:00 AM)');
+        });
+
+        it('should return "Unknown shift" when shiftMeta is null', () => {
+            const result = formatShiftDisplay(null, '24h');
+            expect(result).toBe('Unknown shift');
+        });
+
+        it('should handle partial start/end times', () => {
+            const shiftMeta = {
+                emoji: '⚡',
+                name: 'Partial',
+                start: 7,
+                end: null,
+                hours: '07:00-??:??',
+            };
+            const result = formatShiftDisplay(shiftMeta, '24h');
+            expect(result).toBe('⚡ Partial shift (07:00-??:??)');
         });
     });
 });

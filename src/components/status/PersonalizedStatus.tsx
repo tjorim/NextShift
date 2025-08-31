@@ -1,5 +1,5 @@
 import type { Dayjs } from 'dayjs';
-import { useId } from 'react';
+import { useId, useMemo } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
@@ -9,13 +9,15 @@ import Row from 'react-bootstrap/Row';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSettings } from '../../contexts/SettingsContext';
 import type { CountdownResult } from '../../hooks/useCountdown';
-import { getLocalizedShiftTime } from '../../utils/dateTimeUtils';
+import { formatShiftDisplay } from '../../utils/dateTimeUtils';
 import type {
     NextShiftResult,
     OffDayProgress,
     ShiftResult,
 } from '../../utils/shiftCalculations';
 import { getShiftByCode } from '../../utils/shiftCalculations';
+import { ShiftBadge } from '../shared/ShiftBadge';
+import { ShiftTimeDisplay } from '../shared/ShiftTimeDisplay';
 
 interface PersonalizedStatusProps {
     myTeam: number;
@@ -48,6 +50,20 @@ export function PersonalizedStatus({
     const teamTooltipId = useId();
     const { settings } = useSettings();
 
+    // Calculate off-day progress percentage with proper bounds checking
+    const offDayProgressPercentage = useMemo(() => {
+        if (
+            !offDayProgress ||
+            !offDayProgress.total ||
+            offDayProgress.total <= 0
+        ) {
+            return 0;
+        }
+        const percentage =
+            (offDayProgress.current / offDayProgress.total) * 100;
+        return Math.min(Math.max(percentage, 0), 100);
+    }, [offDayProgress]);
+
     return (
         <Row>
             <Col md={6}>
@@ -70,16 +86,12 @@ export function PersonalizedStatus({
                                                     {currentShift.shift.code}
                                                 </strong>
                                                 <br />
-                                                {(() => {
-                                                    const shiftMeta =
-                                                        getShiftByCode(
-                                                            currentShift.shift
-                                                                .code,
-                                                        );
-                                                    if (!shiftMeta)
-                                                        return 'Unknown shift';
-                                                    return `${shiftMeta.emoji} ${shiftMeta.name} shift (${shiftMeta.start != null && shiftMeta.end != null ? getLocalizedShiftTime(shiftMeta.start, shiftMeta.end, settings.timeFormat) : shiftMeta.hours})`;
-                                                })()}
+                                                {formatShiftDisplay(
+                                                    getShiftByCode(
+                                                        currentShift.shift.code,
+                                                    ),
+                                                    settings.timeFormat,
+                                                )}
                                                 <br />
                                                 <em>
                                                     Full code:{' '}
@@ -88,28 +100,28 @@ export function PersonalizedStatus({
                                             </Tooltip>
                                         }
                                     >
-                                        {(() => {
-                                            const shiftMeta = getShiftByCode(
-                                                currentShift.shift.code,
-                                            );
-                                            return (
-                                                <Badge
-                                                    className={`shift-code shift-badge-lg cursor-help ${shiftMeta?.className ?? ''}`}
-                                                >
-                                                    Team {myTeam}:{' '}
-                                                    {currentShift.shift.name}
-                                                </Badge>
-                                            );
-                                        })()}
+                                        <ShiftBadge
+                                            shiftCode={currentShift.shift.code}
+                                            shiftName={currentShift.shift.name}
+                                            teamNumber={myTeam}
+                                            className="cursor-help"
+                                        />
                                     </OverlayTrigger>
                                     {currentShift.shift.start != null &&
                                         currentShift.shift.end != null && (
                                             <div className="small text-muted mt-1">
-                                                {getLocalizedShiftTime(
-                                                    currentShift.shift.start,
-                                                    currentShift.shift.end,
-                                                    settings.timeFormat,
-                                                )}
+                                                <ShiftTimeDisplay
+                                                    start={
+                                                        currentShift.shift.start
+                                                    }
+                                                    end={currentShift.shift.end}
+                                                    hours={
+                                                        currentShift.shift.hours
+                                                    }
+                                                    timeFormat={
+                                                        settings.timeFormat
+                                                    }
+                                                />
                                             </div>
                                         )}
                                     {!currentShift.shift.isWorking &&
@@ -121,27 +133,9 @@ export function PersonalizedStatus({
                                                     {offDayProgress.total}
                                                 </div>
                                                 <ProgressBar
-                                                    now={(() => {
-                                                        const {
-                                                            current,
-                                                            total,
-                                                        } = offDayProgress;
-                                                        if (
-                                                            !total ||
-                                                            total <= 0
-                                                        )
-                                                            return 0;
-                                                        const percentage =
-                                                            (current / total) *
-                                                            100;
-                                                        return Math.min(
-                                                            Math.max(
-                                                                percentage,
-                                                                0,
-                                                            ),
-                                                            100,
-                                                        );
-                                                    })()}
+                                                    now={
+                                                        offDayProgressPercentage
+                                                    }
                                                     variant="info"
                                                     className="progress-thin"
                                                     aria-label={`Off day progress: ${offDayProgress.current} of ${offDayProgress.total} days`}
@@ -169,14 +163,12 @@ export function PersonalizedStatus({
                                         {nextShift.shift.name}
                                     </div>
                                     <div className="small text-muted">
-                                        {nextShift.shift.start != null &&
-                                        nextShift.shift.end != null
-                                            ? getLocalizedShiftTime(
-                                                  nextShift.shift.start,
-                                                  nextShift.shift.end,
-                                                  settings.timeFormat,
-                                              )
-                                            : nextShift.shift.hours}
+                                        <ShiftTimeDisplay
+                                            start={nextShift.shift.start}
+                                            end={nextShift.shift.end}
+                                            hours={nextShift.shift.hours}
+                                            timeFormat={settings.timeFormat}
+                                        />
                                     </div>
                                     {countdown &&
                                         !countdown.isExpired &&

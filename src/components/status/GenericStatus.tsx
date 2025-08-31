@@ -3,11 +3,9 @@ import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { useSettings } from '../../contexts/SettingsContext';
-import { getLocalizedShiftTime } from '../../utils/dateTimeUtils';
-import {
-    getShiftByCode,
-    type ShiftResult,
-} from '../../utils/shiftCalculations';
+import type { ShiftResult } from '../../utils/shiftCalculations';
+import { ShiftBadge } from '../shared/ShiftBadge';
+import { ShiftTimeDisplay } from '../shared/ShiftTimeDisplay';
 
 interface GenericStatusProps {
     currentWorkingTeam: ShiftResult | null;
@@ -34,39 +32,32 @@ export function GenericStatus({ currentWorkingTeam }: GenericStatusProps) {
                             <div>
                                 {currentWorkingTeam ? (
                                     <div>
-                                        {(() => {
-                                            const shiftMeta = getShiftByCode(
-                                                currentWorkingTeam.shift.code,
-                                            );
-                                            return (
-                                                <Badge
-                                                    className={`shift-code shift-badge-lg ${shiftMeta?.className ?? ''}`}
-                                                >
-                                                    Team{' '}
-                                                    {
-                                                        currentWorkingTeam.teamNumber
-                                                    }
-                                                    :{' '}
-                                                    {
-                                                        currentWorkingTeam.shift
-                                                            .name
-                                                    }
-                                                </Badge>
-                                            );
-                                        })()}
+                                        <ShiftBadge
+                                            shiftCode={
+                                                currentWorkingTeam.shift.code
+                                            }
+                                            shiftName={
+                                                currentWorkingTeam.shift.name
+                                            }
+                                            teamNumber={
+                                                currentWorkingTeam.teamNumber
+                                            }
+                                        />
                                         <div className="small text-muted mt-1">
-                                            {currentWorkingTeam.shift.start !=
-                                                null &&
-                                            currentWorkingTeam.shift.end != null
-                                                ? getLocalizedShiftTime(
-                                                      currentWorkingTeam.shift
-                                                          .start,
-                                                      currentWorkingTeam.shift
-                                                          .end,
-                                                      settings.timeFormat,
-                                                  )
-                                                : currentWorkingTeam.shift
-                                                      .hours}
+                                            <ShiftTimeDisplay
+                                                start={
+                                                    currentWorkingTeam.shift
+                                                        .start
+                                                }
+                                                end={
+                                                    currentWorkingTeam.shift.end
+                                                }
+                                                hours={
+                                                    currentWorkingTeam.shift
+                                                        .hours
+                                                }
+                                                timeFormat={settings.timeFormat}
+                                            />
                                         </div>
                                         <div className="small text-success mt-2">
                                             ✅ Currently working
