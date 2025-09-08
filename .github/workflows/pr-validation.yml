@@ -248,7 +248,7 @@ jobs:
           fi
 
       - name: PR Summary
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { CORE_CHANGES, CONFIG_CHANGES, WORKFLOW_CHANGES, DOC_CHANGES } = process.env;
