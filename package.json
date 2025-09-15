@@ -63,7 +63,7 @@
         "node": ">=20.19.0"
     },
     "dependencies": {
-        "bootstrap": "^5.3.7",
+        "bootstrap": "^5.3.8",
         "bootstrap-icons": "^1.13.1",
         "dayjs": "^1.11.13",
         "react": "^19.1.1",
