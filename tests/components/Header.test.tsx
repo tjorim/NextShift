@@ -1,12 +1,18 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+    afterAll,
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    vi,
+} from 'vitest';
 import App from '../../src/App';
 import { Header } from '../../src/components/Header';
-import { CookieConsentProvider } from '../../src/contexts/CookieConsentContext';
-import { SettingsProvider } from '../../src/contexts/SettingsContext';
-import { ToastProvider } from '../../src/contexts/ToastContext';
+import { renderWithProviders } from '../utils/renderWithProviders';
 
 // Mock the hooks
 vi.mock('../../src/hooks/useOnlineStatus', () => ({
@@ -36,16 +42,6 @@ const mockUseOnlineStatus = vi.mocked(useOnlineStatus);
 const mockUsePWAInstall = vi.mocked(usePWAInstall);
 const mockUseServiceWorkerStatus = vi.mocked(useServiceWorkerStatus);
 const mockGetServiceWorkerStatusText = vi.mocked(getServiceWorkerStatusText);
-
-function renderWithProviders(ui: React.ReactElement) {
-    return render(
-        <CookieConsentProvider>
-            <ToastProvider>
-                <SettingsProvider>{ui}</SettingsProvider>
-            </ToastProvider>
-        </CookieConsentProvider>,
-    );
-}
 
 beforeEach(() => {
     mockUseOnlineStatus.mockReturnValue(true);
@@ -180,6 +176,8 @@ describe('Header', () => {
     });
 
     describe('Theme Integration', () => {
+        const originalMatchMedia = window.matchMedia;
+
         beforeEach(() => {
             // Clear any existing theme attribute
             document.documentElement.removeAttribute('data-bs-theme');
@@ -188,6 +186,14 @@ describe('Header', () => {
         afterEach(() => {
             // Clean up theme attribute after each test
             document.documentElement.removeAttribute('data-bs-theme');
+        });
+
+        afterAll(() => {
+            // Restore the original implementation to prevent cross-test side-effects
+            Object.defineProperty(window, 'matchMedia', {
+                writable: true,
+                value: originalMatchMedia,
+            });
         });
 
         it('applies dark theme to document.documentElement when theme is set to dark', async () => {
