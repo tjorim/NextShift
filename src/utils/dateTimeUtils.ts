@@ -30,7 +30,7 @@ export const formatDisplayDate = (date: Date): string => {
 export const getISOWeekYear2Digit = (
     date: string | Date | dayjs.Dayjs,
 ): string => {
-    return dayjs(date).isoWeekYear().toString().slice(-2);
+    return String(dayjs(date).isoWeekYear()).slice(-2);
 };
 
 /**
@@ -39,7 +39,7 @@ export const getISOWeekYear2Digit = (
  * @returns The 2-digit ISO week number
  */
 export const getISOWeek2Digit = (date: string | Date | dayjs.Dayjs): string => {
-    return dayjs(date).isoWeek().toString().padStart(2, '0');
+    return String(dayjs(date).isoWeek()).padStart(2, '0');
 };
 
 /**
@@ -103,4 +103,31 @@ export function getLocalizedShiftTime(
     if (start != null) return format(start);
     if (end != null) return format(end === 0 ? 24 : end);
     return null;
+}
+
+/**
+ * Formats shift display text with emoji, name, and localized time.
+ * Uses localized time format when start/end hours are available, falls back to hours string.
+ * @param shiftMeta - The shift metadata object with emoji, name, start, end, and hours
+ * @param timeFormat - User's preferred time format ('12h' or '24h')
+ * @returns Formatted shift display string or 'Unknown shift' if shiftMeta is null
+ */
+export function formatShiftDisplay(
+    shiftMeta: {
+        emoji?: string;
+        name: string;
+        start: number | null;
+        end: number | null;
+        hours: string;
+    } | null,
+    timeFormat: '12h' | '24h',
+): string {
+    if (!shiftMeta) return 'Unknown shift';
+
+    const timeDisplay =
+        shiftMeta.start != null && shiftMeta.end != null
+            ? getLocalizedShiftTime(shiftMeta.start, shiftMeta.end, timeFormat)
+            : shiftMeta.hours;
+
+    return `${shiftMeta.emoji || ''} ${shiftMeta.name} shift (${timeDisplay})`.trim();
 }

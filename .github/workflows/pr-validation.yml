@@ -40,11 +40,24 @@ jobs:
               echo "⚠️  Failed to fetch from PR base repository, falling back to origin default branch"
               git fetch --no-tags --depth=1 origin ${{ github.event.repository.default_branch }}
             }
-            CHANGED_FILES=$(git diff --name-only FETCH_HEAD...HEAD)
+            # Find merge base explicitly to handle grafted commits
+            MERGE_BASE=$(git merge-base FETCH_HEAD HEAD || true)
+            if [ -z "$MERGE_BASE" ]; then
+              echo "⚠️  No merge base found; falling back to FETCH_HEAD"
+              MERGE_BASE="FETCH_HEAD"
+            fi
+            CHANGED_FILES=$(git diff --name-only "${MERGE_BASE}..HEAD" || true)
           else
             echo "📥 Not a PR context, comparing with default branch"
             git fetch --no-tags --depth=1 origin ${{ github.event.repository.default_branch }}
-            CHANGED_FILES=$(git diff --name-only origin/${{ github.event.repository.default_branch }}...HEAD)
+            # Find merge base explicitly to handle grafted commits
+            MERGE_BASE=$(git merge-base "origin/${{ github.event.repository.default_branch }}" HEAD || true)
+            if [ -n "$MERGE_BASE" ]; then
+              CHANGED_FILES=$(git diff --name-only "$MERGE_BASE"..HEAD)
+            else
+              echo "⚠️  No merge base found; falling back to origin/${{ github.event.repository.default_branch }}..HEAD"
+              CHANGED_FILES=$(git diff --name-only "origin/${{ github.event.repository.default_branch }}"..HEAD || true)
+            fi
           fi
 
           echo "📝 Changed files:"
