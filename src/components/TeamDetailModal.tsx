@@ -17,6 +17,7 @@ import {
     calculateShift,
     getCurrentShiftDay,
     getShiftByCode,
+    getShiftDisplayName,
 } from '../utils/shiftCalculations';
 
 interface TeamDetailModalProps {
@@ -141,25 +142,29 @@ export function TeamDetailModal({
                                     Current Status
                                 </h6>
                                 <div className="d-flex align-items-center gap-2">
-                                    {currentStatus?.shift.code === 'O' ? (
-                                        <Badge bg="secondary" pill>
-                                            <i className="bi bi-house me-1"></i>
-                                            Off Duty
-                                        </Badge>
-                                    ) : (
-                                        <Badge
-                                            className={
-                                                getShiftByCode(
-                                                    currentStatus?.shift.code,
-                                                ).className
-                                            }
-                                            pill
-                                        >
-                                            <i className="bi bi-briefcase me-1"></i>
-                                            {currentStatus?.shift.name ||
-                                                'Unknown'}
-                                        </Badge>
-                                    )}
+                                    <Badge
+                                        bg={
+                                            currentStatus?.shift.code === 'O'
+                                                ? 'secondary'
+                                                : undefined
+                                        }
+                                        className={
+                                            currentStatus?.shift.code !== 'O'
+                                                ? getShiftByCode(
+                                                      currentStatus?.shift.code,
+                                                  ).className
+                                                : undefined
+                                        }
+                                        pill
+                                    >
+                                        {currentStatus
+                                            ? getShiftDisplayName(
+                                                  getShiftByCode(
+                                                      currentStatus.shift.code,
+                                                  ),
+                                              )
+                                            : 'Unknown'}
+                                    </Badge>
                                     <small className="text-muted">
                                         {currentStatus?.date.format(
                                             'dddd, MMM D',
@@ -179,7 +184,11 @@ export function TeamDetailModal({
                                         }
                                         pill
                                     >
-                                        {nextShift.shift.name}
+                                        {getShiftDisplayName(
+                                            getShiftByCode(
+                                                nextShift.shift.code,
+                                            ),
+                                        )}
                                     </Badge>
                                     <small className="text-muted d-block">
                                         {nextShift.date.format('MMM D')}
@@ -238,22 +247,27 @@ export function TeamDetailModal({
                                         </td>
                                         <td>{day.date.format('ddd')}</td>
                                         <td>
-                                            {day.shift.code === 'O' ? (
-                                                <Badge bg="secondary" pill>
-                                                    Off
-                                                </Badge>
-                                            ) : (
-                                                <Badge
-                                                    className={
-                                                        getShiftByCode(
-                                                            day.shift.code,
-                                                        ).className
-                                                    }
-                                                    pill
-                                                >
-                                                    {day.shift.name}
-                                                </Badge>
-                                            )}
+                                            <Badge
+                                                bg={
+                                                    day.shift.code === 'O'
+                                                        ? 'secondary'
+                                                        : undefined
+                                                }
+                                                className={
+                                                    day.shift.code !== 'O'
+                                                        ? getShiftByCode(
+                                                              day.shift.code,
+                                                          ).className
+                                                        : undefined
+                                                }
+                                                pill
+                                            >
+                                                {getShiftDisplayName(
+                                                    getShiftByCode(
+                                                        day.shift.code,
+                                                    ),
+                                                )}
+                                            </Badge>
                                         </td>
                                         <td>
                                             <small className="text-muted">
