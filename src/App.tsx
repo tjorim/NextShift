@@ -101,6 +101,18 @@ function AppContent() {
         }
     }, [hasCompletedOnboarding, setMyTeam, setCurrentDate]); // Run when onboarding completes
 
+    // Sync terminal mode with browser back/forward navigation
+    // This ensures the URL stays as the source of truth for terminal mode
+    useEffect(() => {
+        const handlePopState = () => {
+            const params = new URLSearchParams(window.location.search);
+            setTerminalMode(params.get('view') === 'terminal');
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
     // Show welcome wizard only on first visit (never completed onboarding)
     useEffect(() => {
         if (!hasCompletedOnboarding) {

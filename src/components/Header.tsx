@@ -14,7 +14,11 @@ interface HeaderProps {
 /**
  * Displays the top navigation bar for the NextShift application.
  *
- * The header shows the app title, online/offline status, a PWA install button when available, and an About button. When the About button is clicked, it calls the onShowAbout callback prop.
+ * The header shows the app title, online/offline status, a PWA install button when available,
+ * and action buttons for Terminal view and About modal.
+ *
+ * @param onShowAbout - Optional callback invoked when the About button is clicked
+ * @param onToggleTerminal - Optional callback invoked when the Terminal button is clicked to toggle terminal view mode
  */
 export function Header({ onShowAbout, onToggleTerminal }: HeaderProps = {}) {
     const isOnline = useOnlineStatus();
