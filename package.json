@@ -4,9 +4,14 @@
     "type": "module",
     "description": "Team Shift Tracker PWA for 5-team continuous (24/7) schedule",
     "main": "dist/index.js",
+    "bin": {
+        "nextshift-tui": "./dist-tui/index.js"
+    },
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
+        "build:tui": "node scripts/build-tui.mjs && chmod +x dist-tui/index.js",
+        "tui": "npm run build:tui && node dist-tui/index.js",
         "preview": "vite preview",
         "typecheck": "tsc --noEmit",
         "lint": "biome check .",
@@ -39,15 +44,17 @@
     "homepage": "https://github.com/tjorim/NextShift#readme",
     "devDependencies": {
         "@biomejs/biome": "^2.3.1",
+        "@sindresorhus/is": "^7.1.1",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",
         "@types/node": "^24.10.0",
-        "@types/react": "^19.2.2",
+        "@types/react": "^19.2.4",
         "@types/react-dom": "^19.2.2",
         "@vitejs/plugin-react": "^5.1.0",
         "@vitest/ui": "^4.0.8",
         "canvas": "^3.2.0",
+        "esbuild": "^0.27.0",
         "happy-dom": "^20.0.10",
         "lightningcss": "^1.30.2",
         "rollup-plugin-visualizer": "^6.0.5",
@@ -65,7 +72,11 @@
     "dependencies": {
         "bootstrap": "^5.3.8",
         "bootstrap-icons": "^1.13.1",
+        "chalk": "^4.1.2",
         "dayjs": "^1.11.19",
+        "ink": "^6.5.0",
+        "ink-spinner": "^5.0.0",
+        "ink-text-input": "^6.0.0",
         "react": "^19.2.0",
         "react-bootstrap": "^2.10.10",
         "react-dom": "^19.2.0"

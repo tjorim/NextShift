@@ -35,6 +35,13 @@ NextShift helps teams working in a 5-team rotating shift system to quickly check
 - **Responsive**: Mobile-first design with Bootstrap 5
 - **Fast**: Cached for instant loading
 
+### 💻 TUI (Terminal User Interface)
+- **Terminal Access**: Full-featured command-line interface
+- **Keyboard Navigation**: Efficient operation with keyboard shortcuts
+- **Color-Coded**: Visual shift display with color coding
+- **Real-time Updates**: Live time and shift status tracking
+- **Cross-Platform**: Works in any terminal on Linux, macOS, and Windows
+
 ## Shift Pattern
 
 Each team follows a 10-day repeating cycle:
@@ -108,6 +115,40 @@ The built files will be in the `dist/` directory, ready for deployment to any st
 - **Mobile**: Use "Add to Home Screen" from your browser menu
 - **Offline**: Once installed, the app works completely offline
 
+### Using the TUI (Terminal User Interface)
+
+NextShift includes a fully-featured terminal interface for command-line access:
+
+```bash
+# Build and run the TUI
+npm run tui
+
+# Or build once and run directly
+npm run build:tui
+./dist-tui/index.js
+
+# Start with a specific team selected
+./dist-tui/index.js --team=3
+
+# Get help and keyboard shortcuts
+./dist-tui/index.js --help
+```
+
+**TUI Keyboard Shortcuts:**
+- **1-5**: Select team (Team 1 through Team 5)
+- **←/→**: Switch between teams
+- **Tab**: Cycle through views (Today → Next Shift → Transfers)
+- **j/k** or **↓/↑**: Navigate dates (previous/next day)
+- **t**: Jump to today's date
+- **q** or **Ctrl+C**: Quit
+
+**Optional Global Installation:**
+```bash
+npm install -g .
+nextshift-tui          # Run from anywhere
+nextshift-tui --team=2 # With team selection
+```
+
 ## Configuration
 
 ### Environment Variables
@@ -144,6 +185,10 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run preview      # Preview production build
 
+# TUI (Terminal User Interface)
+npm run build:tui    # Build TUI application
+npm run tui          # Build and run TUI
+
 # Code Quality
 npm run lint         # Run Biome linter
 npm run lint:fix     # Auto-fix linting issues
@@ -154,9 +199,10 @@ npm run test         # Run test suite
 ## Technology Stack
 
 ### Core Framework
-- **Frontend**: React 18 + TypeScript
-- **Build Tool**: Vite with PWA plugin
+- **Frontend**: React 19 + TypeScript
+- **Build Tool**: Vite with PWA plugin (web), esbuild (TUI)
 - **UI Framework**: React Bootstrap (Bootstrap 5 components)
+- **TUI Framework**: Ink for React-based terminal interfaces
 - **Styling**: CSS3 with Bootstrap 5 design system
 
 ### Development Tools

@@ -20,6 +20,14 @@ NextShift/
 │   ├── App.tsx            # Main React application component
 │   ├── main.tsx           # React app entry point and initialization
 │   ├── vite-env.d.ts      # TypeScript environment declarations
+│   ├── tui/               # Terminal User Interface (TUI)
+│   │   ├── index.tsx           # TUI entry point
+│   │   ├── App.tsx             # Main TUI application component
+│   │   └── components/         # TUI-specific components
+│   │       ├── Header.tsx      # TUI header with date/time
+│   │       ├── TeamList.tsx    # All teams shift display
+│   │       ├── NextShiftView.tsx   # Next shift information
+│   │       └── TransfersView.tsx   # Transfer/handover analysis
 │   ├── components/        # React components
 │   │   ├── ChangelogModal.tsx   # Interactive changelog viewer with accordion layout
 │   │   ├── CurrentStatus.tsx    # Current team shift and status display with timeline
@@ -60,6 +68,7 @@ NextShift/
 │   ├── assets/icons/      # PWA and favicon icons
 │   └── sw.js             # Custom service worker
 ├── scripts/               # Build and utility scripts
+│   ├── build-tui.mjs            # TUI bundler script using esbuild
 │   ├── generate-changelog.ts   # Automatic changelog generation from data
 │   └── generate-icons.js       # PWA icon generator script
 ├── vite.config.ts         # Vite build configuration with React and PWA
@@ -68,10 +77,13 @@ NextShift/
 ├── tsconfig.app.json      # TypeScript app configuration
 ├── tsconfig.node.json     # TypeScript Node.js configuration
 ├── tsconfig.test.json     # TypeScript test configuration
-└── dist/                  # Production build output
-    ├── sw.js             # Built service worker (Workbox)
-    ├── manifest.webmanifest # Auto-generated PWA manifest
-    └── assets/           # Built and optimized assets
+├── tsconfig.tui.json      # TypeScript TUI configuration
+├── dist/                  # Production build output (PWA)
+│   ├── sw.js             # Built service worker (Workbox)
+│   ├── manifest.webmanifest # Auto-generated PWA manifest
+│   └── assets/           # Built and optimized assets
+└── dist-tui/              # TUI build output
+    └── index.js          # Bundled executable TUI application
 ```
 
 ## Core Logic & Architecture
@@ -139,6 +151,7 @@ These variables anchor all shift calculations. If not configured, defaults to `2
 - **Date Navigation**: Today button, date picker, previous/next day
 - **Date Format**: Display in YYWW.D format (e.g., 2520.2M = year 2025, week 20, Tuesday Morning)
 - **Offline Support**: Full PWA functionality without internet connection
+- **TUI Interface**: Terminal-based interface for command-line access to all shift tracking features
 
 ## Recent Improvements (v3.1+)
 
@@ -168,12 +181,14 @@ These variables anchor all shift calculations. If not configured, defaults to `2
 - **Frontend**: React 19 with TypeScript and modern JSX transform
 - **Build Tool**: Vite with PWA plugin for modern development and optimization
 - **UI Framework**: React Bootstrap (Bootstrap 5 components) for responsive design
+- **TUI Framework**: Ink for React-based terminal user interfaces
 - **Date Handling**: Day.js for date calculations and week number formatting
 - **PWA**: Auto-generated Service Worker with Workbox for offline functionality
 - **Storage**: Custom React hooks for localStorage persistence and state management
 - **Icons**: PNG icons in auto-generated manifest
 - **Code Quality**: Biome for fast linting and formatting (TS, JS, CSS, JSON)
 - **Testing**: Vitest with React Testing Library for component and unit testing
+- **Bundler**: esbuild for TUI bundling and executable generation
 
 ## Development Commands
 
@@ -206,10 +221,69 @@ This PWA uses Vite for modern development and build processes:
    npm run generate-icons      # Generate all PWA and favicon icons
    ```
 
-5. **PWA Testing**: 
+5. **TUI Interface**: Terminal-based user interface
+   ```bash
+   npm run build:tui    # Build TUI application
+   npm run tui          # Build and run TUI
+   ./dist-tui/index.js  # Run built TUI directly
+   ./dist-tui/index.js --help      # Show TUI help
+   ./dist-tui/index.js --team=3    # Start with Team 3 selected
+   ```
+
+6. **PWA Testing**:
    - Use development server for service worker testing
    - Test offline functionality with built version
    - Verify PWA installability in browser dev tools
+
+## TUI (Terminal User Interface)
+
+NextShift includes a fully-featured terminal interface that provides all core functionality in a text-based environment.
+
+### TUI Features
+
+- **Interactive Terminal UI**: Color-coded shift display with real-time updates
+- **Three Views**: Today's shifts, Next shift information, and Transfer analysis
+- **Keyboard Navigation**: Full keyboard control for efficient operation
+- **Live Updates**: Current time and shift status update every second
+- **Date Navigation**: Move forward/backward through dates or jump to today
+
+### TUI Keyboard Shortcuts
+
+- **1-5**: Select team (Team 1 through Team 5)
+- **←/→**: Switch between teams
+- **Tab**: Cycle through views (Today → Next Shift → Transfers)
+- **j/k** or **↓/↑**: Navigate dates (previous/next day)
+- **t**: Jump to today's date
+- **q** or **Ctrl+C**: Quit the application
+
+### TUI Installation and Usage
+
+```bash
+# Build the TUI
+npm run build:tui
+
+# Run the TUI
+npm run tui
+
+# Or run directly after building
+./dist-tui/index.js
+
+# Run with a specific team selected
+./dist-tui/index.js --team=3
+
+# Get help
+./dist-tui/index.js --help
+```
+
+### Global Installation (Optional)
+
+You can install the TUI globally to access it from anywhere:
+
+```bash
+npm install -g .
+nextshift-tui
+nextshift-tui --team=2
+```
 
 ## PWA Configuration
 
