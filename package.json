@@ -4,14 +4,9 @@
     "type": "module",
     "description": "Team Shift Tracker PWA for 5-team continuous (24/7) schedule",
     "main": "dist/index.js",
-    "bin": {
-        "nextshift-tui": "./dist-tui/index.js"
-    },
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
-        "build:tui": "node scripts/build-tui.mjs && chmod +x dist-tui/index.js",
-        "tui": "npm run build:tui && node dist-tui/index.js",
         "preview": "vite preview",
         "typecheck": "tsc --noEmit",
         "lint": "biome check .",
@@ -74,9 +69,6 @@
         "bootstrap-icons": "^1.13.1",
         "chalk": "^5.6.2",
         "dayjs": "^1.11.19",
-        "ink": "^6.5.0",
-        "ink-spinner": "^5.0.0",
-        "ink-text-input": "^6.0.0",
         "react": "^19.2.0",
         "react-bootstrap": "^2.10.10",
         "react-dom": "^19.2.0"

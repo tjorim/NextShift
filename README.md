@@ -35,16 +35,9 @@ NextShift helps teams working in a 5-team rotating shift system to quickly check
 - **Responsive**: Mobile-first design with Bootstrap 5
 - **Fast**: Cached for instant loading
 
-### 💻 TUI (Terminal User Interface)
-- **Terminal Access**: Full-featured command-line interface
-- **Keyboard Navigation**: Efficient operation with keyboard shortcuts
-- **Color-Coded**: Visual shift display with color coding
-- **Real-time Updates**: Live time and shift status tracking
-- **Cross-Platform**: Works in any terminal on Linux, macOS, and Windows
-
 ### 🖥️ Terminal Web Interface
 - **Browser-Based Terminal**: Terminal-style UI that runs in your web browser
-- **Same Keyboard Controls**: Identical shortcuts as the CLI TUI (1-5, Tab, j/k, etc.)
+- **Keyboard Navigation**: Efficient keyboard shortcuts (1-5, Tab, j/k, etc.)
 - **No Installation**: Access via URL parameter (`?view=terminal`)
 - **Retro Aesthetic**: Monospace fonts, terminal colors, command-line feel
 - **Mobile Accessible**: Works on any device (keyboard shortcuts optional)
@@ -122,65 +115,23 @@ The built files will be in the `dist/` directory, ready for deployment to any st
 - **Mobile**: Use "Add to Home Screen" from your browser menu
 - **Offline**: Once installed, the app works completely offline
 
-### Using the TUI (Terminal User Interface)
+### Using the Terminal Web Interface
 
-NextShift includes a fully-featured terminal interface for command-line access:
+Access the terminal-style interface via URL parameter:
 
-```bash
-# Build and run the TUI
-npm run tui
+```
+# Production
+https://yourapp.com/?view=terminal
 
-# Or build once and run directly
-npm run build:tui
-./dist-tui/index.js
-
-# Start with a specific team selected
-./dist-tui/index.js --team=3
-
-# Get help and keyboard shortcuts
-./dist-tui/index.js --help
+# Local development
+http://localhost:8000/?view=terminal
 ```
 
-**TUI Keyboard Shortcuts:**
+**Keyboard Shortcuts:**
 - **1-5**: Select team (Team 1 through Team 5)
 - **←/→**: Switch between teams
 - **Tab**: Cycle through views (Today → Next Shift → Transfers)
 - **j/k** or **↓/↑**: Navigate dates (previous/next day)
-- **t**: Jump to today's date
-- **q** or **Ctrl+C**: Quit
-
-**Optional Global Installation:**
-```bash
-npm install -g .
-nextshift-tui          # Run from anywhere
-nextshift-tui --team=2 # With team selection
-```
-
-### Using the Terminal Web Interface
-
-The terminal web interface provides the same TUI experience but runs in your browser:
-
-```
-# Access terminal mode via URL parameter
-https://yourapp.com/?view=terminal
-
-# Or if running locally
-http://localhost:8000/?view=terminal
-```
-
-**Features:**
-- Same terminal aesthetic as the CLI TUI
-- Same keyboard shortcuts (1-5, Tab, j/k, arrows, t)
-- Three views: Today, Next Shift, Transfers
-- Real-time updates
-- Works on any device with a browser
-- No installation required
-
-**Keyboard Shortcuts:** (Same as CLI TUI)
-- **1-5**: Select team
-- **←/→**: Switch between teams
-- **Tab**: Cycle through views
-- **j/k** or **↓/↑**: Navigate dates
 - **t**: Jump to today's date
 
 ## Configuration
