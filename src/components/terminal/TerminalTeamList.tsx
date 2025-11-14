@@ -1,10 +1,11 @@
-
-import { Box, Text } from 'ink';
 import type { Dayjs } from 'dayjs';
-import { getAllTeamsShifts, getCurrentShiftDay } from '../../utils/shiftCalculations';
+import {
+	getAllTeamsShifts,
+	getCurrentShiftDay,
+} from '../../utils/shiftCalculations';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
 
-interface TeamListProps {
+interface TerminalTeamListProps {
 	date: Dayjs;
 	selectedTeam: number;
 	currentTime: Dayjs;
@@ -44,18 +45,20 @@ function isCurrentlyWorking(
 	return hour >= shift.start && hour < shift.end;
 }
 
-export default function TeamList({ date, selectedTeam, currentTime }: TeamListProps) {
+export default function TerminalTeamList({
+	date,
+	selectedTeam,
+	currentTime,
+}: TerminalTeamListProps) {
 	const teams = getAllTeamsShifts(date);
 	const dateCode = formatYYWWD(date);
 	const displayDate = date.format('dddd, MMMM D, YYYY');
 
 	return (
-		<Box flexDirection="column">
-			<Box marginBottom={1}>
-				<Text bold color="green">
-					📅 {displayDate} ({dateCode})
-				</Text>
-			</Box>
+		<div>
+			<div className="terminal-date-header">
+				📅 {displayDate} ({dateCode})
+			</div>
 
 			{teams.map((team) => {
 				const isSelected = team.teamNumber === selectedTeam;
@@ -64,31 +67,30 @@ export default function TeamList({ date, selectedTeam, currentTime }: TeamListPr
 				const isWorking = isCurrentlyWorking(team.shift, date, currentTime);
 
 				return (
-					<Box key={team.teamNumber} marginBottom={0}>
-						<Box width={15}>
-							<Text bold={isSelected} color={isSelected ? 'cyan' : undefined}>
-								{isSelected ? '▶ ' : '  '}Team {team.teamNumber}
-							</Text>
-						</Box>
-						<Box width={20}>
-							<Text color={shiftColor}>
-								{emoji} {team.shift.name}
-							</Text>
-						</Box>
-						<Box width={20}>
-							<Text dimColor>{team.shift.hours}</Text>
-						</Box>
-						<Box>
-							<Text bold color={shiftColor}>
+					<div
+						key={team.teamNumber}
+						className={`terminal-team-row ${isSelected ? 'selected' : ''}`}
+					>
+						<span className="terminal-team-col name">
+							{isSelected ? '▶ ' : '  '}Team {team.teamNumber}
+						</span>
+						<span className={`terminal-team-col shift terminal-text ${shiftColor}`}>
+							{emoji} {team.shift.name}
+						</span>
+						<span className="terminal-team-col hours terminal-text dim">
+							{team.shift.hours}
+						</span>
+						<span className="terminal-team-col code">
+							<span className={`terminal-text bold ${shiftColor}`}>
 								{team.code}
-							</Text>
+							</span>
 							{isWorking && (
-								<Text color="green"> ← WORKING NOW</Text>
+								<span className="terminal-text green"> ← WORKING NOW</span>
 							)}
-						</Box>
-					</Box>
+						</span>
+					</div>
 				);
 			})}
-		</Box>
+		</div>
 	);
 }

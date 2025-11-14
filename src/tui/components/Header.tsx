@@ -1,13 +1,12 @@
-import React from 'react';
+
 import { Box, Text } from 'ink';
 import type { Dayjs } from 'dayjs';
 
 interface HeaderProps {
 	currentTime: Dayjs;
-	view: string;
 }
 
-export default function Header({ currentTime, view }: HeaderProps) {
+export default function Header({ currentTime }: HeaderProps) {
 	const formattedDate = currentTime.format('dddd, MMMM D, YYYY');
 	const formattedTime = currentTime.format('HH:mm:ss');
 

@@ -1,0 +1,120 @@
+import type { Dayjs } from 'dayjs';
+import {
+	getNextShift,
+	calculateShift,
+	getShiftCode,
+} from '../../utils/shiftCalculations';
+
+interface TerminalNextShiftProps {
+	selectedTeam: number;
+	fromDate: Dayjs;
+}
+
+function getShiftColor(shiftCode: string): string {
+	if (shiftCode === 'M') return 'yellow';
+	if (shiftCode === 'E') return 'magenta';
+	if (shiftCode === 'N') return 'blue';
+	return 'gray';
+}
+
+function getShiftEmoji(shiftCode: string): string {
+	if (shiftCode === 'M') return '🌅';
+	if (shiftCode === 'E') return '🌆';
+	if (shiftCode === 'N') return '🌙';
+	return '🏠';
+}
+
+export default function TerminalNextShift({
+	selectedTeam,
+	fromDate,
+}: TerminalNextShiftProps) {
+	const currentShift = calculateShift(fromDate, selectedTeam);
+	const currentCode = getShiftCode(fromDate, selectedTeam);
+	const nextShift = getNextShift(fromDate, selectedTeam);
+
+	const currentShiftColor = getShiftColor(currentShift.code);
+	const currentEmoji = getShiftEmoji(currentShift.code);
+
+	return (
+		<div>
+			<div style={{ marginBottom: '1rem' }}>
+				<span className="terminal-text bold cyan">
+					Team {selectedTeam} - Shift Information
+				</span>
+			</div>
+
+			<div className="terminal-info-box">
+				<div className="terminal-info-row">
+					<span className="terminal-text bold">
+						Current Status ({fromDate.format('MMM D, YYYY')})
+					</span>
+				</div>
+				<div className="terminal-info-row">
+					<span className="terminal-text">
+						{currentEmoji}{' '}
+						<span className={`terminal-text bold ${currentShiftColor}`}>
+							{currentShift.name}
+						</span>{' '}
+						- {currentShift.hours}
+					</span>
+				</div>
+				<div className="terminal-info-row">
+					<span className="terminal-text dim">Code: </span>
+					<span className={`terminal-text bold ${currentShiftColor}`}>
+						{currentCode}
+					</span>
+				</div>
+			</div>
+
+			{nextShift ? (
+				<div className="terminal-info-box success">
+					<div className="terminal-info-row">
+						<span className="terminal-text bold green">Next Working Shift</span>
+					</div>
+					<div className="terminal-info-row">
+						<span className="terminal-text">
+							{getShiftEmoji(nextShift.shift.code)}{' '}
+							<span
+								className={`terminal-text bold ${getShiftColor(nextShift.shift.code)}`}
+							>
+								{nextShift.shift.name}
+							</span>
+						</span>
+					</div>
+					<div className="terminal-info-row">
+						<span className="terminal-text dim">Date: </span>
+						<span className="terminal-text bold">
+							{nextShift.date.format('dddd, MMMM D, YYYY')}
+						</span>
+					</div>
+					<div className="terminal-info-row">
+						<span className="terminal-text dim">Hours: </span>
+						<span className="terminal-text">{nextShift.shift.hours}</span>
+					</div>
+					<div className="terminal-info-row">
+						<span className="terminal-text dim">Code: </span>
+						<span
+							className={`terminal-text bold ${getShiftColor(nextShift.shift.code)}`}
+						>
+							{nextShift.code}
+						</span>
+					</div>
+					<div className="terminal-info-row" style={{ marginTop: '0.5rem' }}>
+						<span className="terminal-text dim">
+							Days until next shift:{' '}
+							<span className="terminal-text bold">
+								{nextShift.date.diff(fromDate, 'day')}
+							</span>
+						</span>
+					</div>
+				</div>
+			) : (
+				<div className="terminal-info-box error">
+					<span className="terminal-text red">
+						No upcoming shift found within the next 10 days.
+					</span>
+				</div>
+			)}
+		</div>
+	);
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Text, useInput, useApp } from 'ink';
 import { dayjs } from '../utils/dateTimeUtils';
 import Header from './components/Header';
@@ -70,7 +70,7 @@ export default function App({ initialTeam = 1 }: AppProps) {
 
 	return (
 		<Box flexDirection="column" padding={1}>
-			<Header currentTime={currentTime} view={view} />
+			<Header currentTime={currentTime} />
 
 			<Box marginTop={1}>
 				<Text dimColor>

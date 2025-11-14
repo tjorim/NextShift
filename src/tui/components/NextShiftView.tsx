@@ -1,8 +1,7 @@
-import React from 'react';
+
 import { Box, Text } from 'ink';
 import type { Dayjs } from 'dayjs';
 import { getNextShift, calculateShift, getShiftCode } from '../../utils/shiftCalculations';
-import { formatYYWWD, dayjs } from '../../utils/dateTimeUtils';
 
 interface NextShiftViewProps {
 	selectedTeam: number;

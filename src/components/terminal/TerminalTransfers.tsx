@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Box, Text } from 'ink';
 import type { Dayjs } from 'dayjs';
 import { calculateShift, type ShiftType } from '../../utils/shiftCalculations';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
 
-interface TransfersViewProps {
+interface TerminalTransfersProps {
 	selectedTeam: number;
 	fromDate: Dayjs;
 }
@@ -110,26 +109,35 @@ function getShiftColor(shiftCode: string): string {
 	return 'gray';
 }
 
-export default function TransfersView({ selectedTeam, fromDate }: TransfersViewProps) {
+export default function TerminalTransfers({
+	selectedTeam,
+	fromDate,
+}: TerminalTransfersProps) {
 	const otherTeams = [1, 2, 3, 4, 5].filter((t) => t !== selectedTeam);
 	const [compareTeam] = useState(otherTeams[0] || 1);
 
 	const transfers = calculateTransfers(selectedTeam, compareTeam, fromDate, 10);
 
 	return (
-		<Box flexDirection="column">
-			<Box marginBottom={1}>
-				<Text bold color="cyan">
+		<div>
+			<div style={{ marginBottom: '1rem' }}>
+				<span className="terminal-text bold cyan">
 					Transfer Analysis: Team {selectedTeam} ↔ Team {compareTeam}
-				</Text>
-			</Box>
+				</span>
+			</div>
 
-			<Box flexDirection="column" borderStyle="round" borderColor="gray" paddingX={1}>
+			<div className="terminal-box">
 				{transfers.length === 0 ? (
-					<Text dimColor>No transfers found in the next 365 days.</Text>
+					<span className="terminal-text dim">
+						No transfers found in the next 365 days.
+					</span>
 				) : (
 					<>
-						<Text bold>Upcoming Transfers (Next {transfers.length})</Text>
+						<div style={{ marginBottom: '0.75rem' }}>
+							<span className="terminal-text bold">
+								Upcoming Transfers (Next {transfers.length})
+							</span>
+						</div>
 						{transfers.map((transfer, idx) => {
 							const dateStr = transfer.date.format('MMM D, YYYY');
 							const dateCode = formatYYWWD(transfer.date);
@@ -138,33 +146,31 @@ export default function TransfersView({ selectedTeam, fromDate }: TransfersViewP
 							const color = isHandover ? 'green' : 'blue';
 
 							return (
-								<Box key={idx} marginTop={1}>
-									<Box width={18}>
-										<Text dimColor>{dateStr}</Text>
-									</Box>
-									<Box width={12}>
-										<Text dimColor>({dateCode})</Text>
-									</Box>
-									<Box>
-										<Text>
-											<Text color={color} bold>
-												{isHandover ? 'Handover' : 'Takeover'}:{' '}
-											</Text>
-											<Text color={getShiftColor(transfer.fromShiftType)}>
-												{transfer.fromShiftType}
-											</Text>
-											{' '}{arrow}{' '}
-											<Text color={getShiftColor(transfer.toShiftType)}>
-												{transfer.toShiftType}
-											</Text>
-										</Text>
-									</Box>
-								</Box>
+								<div key={idx} className="terminal-transfer-item">
+									<span className="terminal-transfer-date">{dateStr}</span>
+									<span className="terminal-transfer-code">({dateCode})</span>
+									<span className="terminal-transfer-info">
+										<span className={`terminal-text bold ${color}`}>
+											{isHandover ? 'Handover' : 'Takeover'}:{' '}
+										</span>
+										<span
+											className={`terminal-text ${getShiftColor(transfer.fromShiftType)}`}
+										>
+											{transfer.fromShiftType}
+										</span>
+										<span className="terminal-text"> {arrow} </span>
+										<span
+											className={`terminal-text ${getShiftColor(transfer.toShiftType)}`}
+										>
+											{transfer.toShiftType}
+										</span>
+									</span>
+								</div>
 							);
 						})}
 					</>
 				)}
-			</Box>
-		</Box>
+			</div>
+		</div>
 	);
 }

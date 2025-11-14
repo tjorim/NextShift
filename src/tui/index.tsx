@@ -1,12 +1,12 @@
-import React from 'react';
 import { render } from 'ink';
 import App from './App';
 
 // Parse command line arguments
 const args = process.argv.slice(2);
 const teamArg = args.find((arg) => arg.startsWith('--team='));
-const initialTeam = teamArg
-	? Number.parseInt(teamArg.split('=')[1], 10)
+const teamValue = teamArg?.split('=')[1];
+const initialTeam = teamValue
+	? Number.parseInt(teamValue, 10)
 	: undefined;
 
 // Validate team number

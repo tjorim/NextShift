@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
 import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
+import TerminalView from './components/terminal/TerminalView';
 import {
     CookieConsentProvider,
     useCookieConsent,
@@ -39,6 +40,7 @@ function AppContent() {
     const [activeTab, setActiveTab] = useState('today');
     const [showAbout, setShowAbout] = useState(false);
     const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
+    const [terminalMode, setTerminalMode] = useState(false);
     const { showSuccess, showInfo } = useToast();
     const serviceWorkerStatus = useServiceWorkerStatus();
     const {
@@ -57,6 +59,12 @@ function AppContent() {
         const tabParam = urlParams.get('tab');
         const teamParam = urlParams.get('team');
         const dateParam = urlParams.get('date');
+        const viewParam = urlParams.get('view');
+
+        // Check for terminal mode
+        if (viewParam === 'terminal') {
+            setTerminalMode(true);
+        }
 
         // Set active tab from URL
         if (tabParam && ['today', 'schedule', 'transfer'].includes(tabParam)) {
@@ -237,6 +245,19 @@ function AppContent() {
         setCurrentDate(dayjs());
         showInfo("Switched to Today view to see who's working", '👥');
     };
+
+    // Render terminal view if in terminal mode
+    if (terminalMode) {
+        return (
+            <ErrorBoundary>
+                <TerminalView initialTeam={myTeam || 1} />
+                <AboutModal
+                    show={showAbout}
+                    onHide={() => setShowAbout(false)}
+                />
+            </ErrorBoundary>
+        );
+    }
 
     return (
         <ErrorBoundary>
