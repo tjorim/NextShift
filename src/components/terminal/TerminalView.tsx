@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import { CONFIG } from '../../utils/config';
 import { dayjs } from '../../utils/dateTimeUtils';
+import { getCurrentShiftDay } from '../../utils/shiftCalculations';
 import TerminalHeader from './TerminalHeader';
 import TerminalNextShift from './TerminalNextShift';
 import TerminalTeamList from './TerminalTeamList';
@@ -18,7 +20,7 @@ export default function TerminalView({
     onExitTerminal,
 }: TerminalViewProps) {
     const [selectedTeam, setSelectedTeam] = useState<number>(initialTeam);
-    const [currentDate, setCurrentDate] = useState(dayjs());
+    const [currentDate, setCurrentDate] = useState(getCurrentShiftDay(dayjs()));
     const [view, setView] = useState<TerminalViewType>('today');
     const [currentTime, setCurrentTime] = useState(dayjs());
 
@@ -46,10 +48,15 @@ export default function TerminalView({
                 return;
             }
 
-            // Team selection with number keys
-            if (e.key >= '1' && e.key <= '5') {
+            // Team selection with number keys (1 through CONFIG.TEAMS_COUNT)
+            const teamNum = Number.parseInt(e.key, 10);
+            if (
+                e.key >= '1' &&
+                e.key <= String(CONFIG.TEAMS_COUNT) &&
+                !Number.isNaN(teamNum)
+            ) {
                 e.preventDefault();
-                setSelectedTeam(Number.parseInt(e.key, 10));
+                setSelectedTeam(teamNum);
             }
 
             // View navigation with Tab
@@ -73,17 +80,21 @@ export default function TerminalView({
             }
             if (e.key === 't') {
                 e.preventDefault();
-                setCurrentDate(dayjs());
+                setCurrentDate(getCurrentShiftDay(dayjs()));
             }
 
             // Team navigation (vertical: up/down through team list)
             if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                setSelectedTeam((prev) => (prev > 1 ? prev - 1 : 5));
+                setSelectedTeam((prev) =>
+                    prev > 1 ? prev - 1 : CONFIG.TEAMS_COUNT,
+                );
             }
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                setSelectedTeam((prev) => (prev < 5 ? prev + 1 : 1));
+                setSelectedTeam((prev) =>
+                    prev < CONFIG.TEAMS_COUNT ? prev + 1 : 1,
+                );
             }
         };
 
@@ -154,8 +165,9 @@ export default function TerminalView({
             )}
 
             <div className="terminal-help">
-                Keys: [1-5] Select team | [↑↓] Switch team | [Tab] Change view |
-                [j/k or ←→] ±1 day | [t] Today | [q/Esc] Exit
+                Keys: [1-{CONFIG.TEAMS_COUNT}] Select team | [↑↓] Switch team |
+                [Tab] Change view | [j/k or ←→] ±1 day | [t] Today | [q/Esc]
+                Exit
             </div>
         </div>
     );
