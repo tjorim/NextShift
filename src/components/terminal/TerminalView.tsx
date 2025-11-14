@@ -1,144 +1,162 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { dayjs } from '../../utils/dateTimeUtils';
 import TerminalHeader from './TerminalHeader';
-import TerminalTeamList from './TerminalTeamList';
 import TerminalNextShift from './TerminalNextShift';
+import TerminalTeamList from './TerminalTeamList';
 import TerminalTransfers from './TerminalTransfers';
 import '../../styles/terminal.css';
 
 type TerminalViewType = 'today' | 'next-shift' | 'transfers';
 
 interface TerminalViewProps {
-	initialTeam?: number;
-	onExitTerminal?: () => void;
+    initialTeam?: number;
+    onExitTerminal?: () => void;
 }
 
-export default function TerminalView({ initialTeam = 1, onExitTerminal }: TerminalViewProps) {
-	const [selectedTeam, setSelectedTeam] = useState<number>(initialTeam);
-	const [currentDate, setCurrentDate] = useState(dayjs());
-	const [view, setView] = useState<TerminalViewType>('today');
-	const [currentTime, setCurrentTime] = useState(dayjs());
+export default function TerminalView({
+    initialTeam = 1,
+    onExitTerminal,
+}: TerminalViewProps) {
+    const [selectedTeam, setSelectedTeam] = useState<number>(initialTeam);
+    const [currentDate, setCurrentDate] = useState(dayjs());
+    const [view, setView] = useState<TerminalViewType>('today');
+    const [currentTime, setCurrentTime] = useState(dayjs());
 
-	// Sync selectedTeam with initialTeam prop changes (e.g., from localStorage)
-	useEffect(() => {
-		setSelectedTeam(initialTeam);
-	}, [initialTeam]);
+    // Sync selectedTeam with initialTeam prop changes (e.g., from localStorage)
+    useEffect(() => {
+        setSelectedTeam(initialTeam);
+    }, [initialTeam]);
 
-	// Update time every second
-	useEffect(() => {
-		const timer = setInterval(() => {
-			setCurrentTime(dayjs());
-		}, 1000);
+    // Update time every second
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(dayjs());
+        }, 1000);
 
-		return () => clearInterval(timer);
-	}, []);
+        return () => clearInterval(timer);
+    }, []);
 
-	// Keyboard shortcuts
-	useEffect(() => {
-		const handleKeyPress = (e: KeyboardEvent) => {
-			// Exit terminal view with Escape or q
-			if (e.key === 'Escape' || e.key === 'q') {
-				e.preventDefault();
-				onExitTerminal?.();
-				return;
-			}
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyPress = (e: KeyboardEvent) => {
+            // Exit terminal view with Escape or q
+            if (e.key === 'Escape' || e.key === 'q') {
+                e.preventDefault();
+                onExitTerminal?.();
+                return;
+            }
 
-			// Team selection with number keys
-			if (e.key >= '1' && e.key <= '5') {
-				e.preventDefault();
-				setSelectedTeam(Number.parseInt(e.key, 10));
-			}
+            // Team selection with number keys
+            if (e.key >= '1' && e.key <= '5') {
+                e.preventDefault();
+                setSelectedTeam(Number.parseInt(e.key, 10));
+            }
 
-			// View navigation with Tab
-			if (e.key === 'Tab') {
-				e.preventDefault();
-				setView((prev) => {
-					if (prev === 'today') return 'next-shift';
-					if (prev === 'next-shift') return 'transfers';
-					return 'today';
-				});
-			}
+            // View navigation with Tab
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                setView((prev) => {
+                    if (prev === 'today') return 'next-shift';
+                    if (prev === 'next-shift') return 'transfers';
+                    return 'today';
+                });
+            }
 
-			// Date navigation (horizontal: left=past, right=future)
-			if (e.key === 'j' || e.key === 'ArrowLeft') {
-				e.preventDefault();
-				setCurrentDate((prev) => prev.subtract(1, 'day'));
-			}
-			if (e.key === 'k' || e.key === 'ArrowRight') {
-				e.preventDefault();
-				setCurrentDate((prev) => prev.add(1, 'day'));
-			}
-			if (e.key === 't') {
-				e.preventDefault();
-				setCurrentDate(dayjs());
-			}
+            // Date navigation (horizontal: left=past, right=future)
+            if (e.key === 'j' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                setCurrentDate((prev) => prev.subtract(1, 'day'));
+            }
+            if (e.key === 'k' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                setCurrentDate((prev) => prev.add(1, 'day'));
+            }
+            if (e.key === 't') {
+                e.preventDefault();
+                setCurrentDate(dayjs());
+            }
 
-			// Team navigation (vertical: up/down through team list)
-			if (e.key === 'ArrowUp') {
-				e.preventDefault();
-				setSelectedTeam((prev) => (prev > 1 ? prev - 1 : 5));
-			}
-			if (e.key === 'ArrowDown') {
-				e.preventDefault();
-				setSelectedTeam((prev) => (prev < 5 ? prev + 1 : 1));
-			}
-		};
+            // Team navigation (vertical: up/down through team list)
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedTeam((prev) => (prev > 1 ? prev - 1 : 5));
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedTeam((prev) => (prev < 5 ? prev + 1 : 1));
+            }
+        };
 
-		window.addEventListener('keydown', handleKeyPress);
-		return () => window.removeEventListener('keydown', handleKeyPress);
-	}, [onExitTerminal]);
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [onExitTerminal]);
 
-	return (
-		<div className="terminal-view" tabIndex={0}>
-			<TerminalHeader currentTime={currentTime} />
+    return (
+        <div className="terminal-view">
+            <TerminalHeader currentTime={currentTime} />
 
-			<div style={{ marginBottom: '1rem', textAlign: 'right' }}>
-				<button
-					onClick={onExitTerminal}
-					className="terminal-exit-button"
-					aria-label="Exit terminal view"
-				>
-					[Exit Terminal]
-				</button>
-			</div>
+            <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
+                <button
+                    type="button"
+                    onClick={onExitTerminal}
+                    className="terminal-exit-button"
+                    aria-label="Exit terminal view"
+                >
+                    [Exit Terminal]
+                </button>
+            </div>
 
-			<div className="terminal-view-selector">
-				<span className={`view-item ${view === 'today' ? 'active' : ''}`}>
-					[{view === 'today' ? '●' : '○'} Today]
-				</span>
-				<span className={`view-item ${view === 'next-shift' ? 'active' : ''}`}>
-					[{view === 'next-shift' ? '●' : '○'} Next Shift]
-				</span>
-				<span className={`view-item ${view === 'transfers' ? 'active' : ''}`}>
-					[{view === 'transfers' ? '●' : '○'} Transfers]
-				</span>
-			</div>
+            <div className="terminal-view-selector">
+                <span
+                    className={`view-item ${view === 'today' ? 'active' : ''}`}
+                >
+                    [{view === 'today' ? '●' : '○'} Today]
+                </span>
+                <span
+                    className={`view-item ${view === 'next-shift' ? 'active' : ''}`}
+                >
+                    [{view === 'next-shift' ? '●' : '○'} Next Shift]
+                </span>
+                <span
+                    className={`view-item ${view === 'transfers' ? 'active' : ''}`}
+                >
+                    [{view === 'transfers' ? '●' : '○'} Transfers]
+                </span>
+            </div>
 
-			<div style={{ marginBottom: '1rem' }}>
-				<span className="terminal-text dim">Selected Team: </span>
-				<span className="terminal-text bold cyan">Team {selectedTeam}</span>
-			</div>
+            <div style={{ marginBottom: '1rem' }}>
+                <span className="terminal-text dim">Selected Team: </span>
+                <span className="terminal-text bold cyan">
+                    Team {selectedTeam}
+                </span>
+            </div>
 
-			{view === 'today' && (
-				<TerminalTeamList
-					date={currentDate}
-					selectedTeam={selectedTeam}
-					currentTime={currentTime}
-				/>
-			)}
+            {view === 'today' && (
+                <TerminalTeamList
+                    date={currentDate}
+                    selectedTeam={selectedTeam}
+                    currentTime={currentTime}
+                />
+            )}
 
-			{view === 'next-shift' && (
-				<TerminalNextShift selectedTeam={selectedTeam} fromDate={currentDate} />
-			)}
+            {view === 'next-shift' && (
+                <TerminalNextShift
+                    selectedTeam={selectedTeam}
+                    fromDate={currentDate}
+                />
+            )}
 
-			{view === 'transfers' && (
-				<TerminalTransfers selectedTeam={selectedTeam} fromDate={currentDate} />
-			)}
+            {view === 'transfers' && (
+                <TerminalTransfers
+                    selectedTeam={selectedTeam}
+                    fromDate={currentDate}
+                />
+            )}
 
-			<div className="terminal-help">
-				Keys: [1-5] Select team | [↑↓] Switch team | [Tab] Change view | [j/k or
-				←→] ±1 day | [t] Today | [q/Esc] Exit
-			</div>
-		</div>
-	);
+            <div className="terminal-help">
+                Keys: [1-5] Select team | [↑↓] Switch team | [Tab] Change view |
+                [j/k or ←→] ±1 day | [t] Today | [q/Esc] Exit
+            </div>
+        </div>
+    );
 }

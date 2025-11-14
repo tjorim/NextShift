@@ -1,258 +1,258 @@
 /* Terminal View Styles */
 .terminal-view {
-	background-color: #0c0c0c;
-	color: #cccccc;
-	font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-	font-size: 14px;
-	line-height: 1.5;
-	padding: 1rem;
-	min-height: 100vh;
-	overflow: auto;
+    background-color: #0c0c0c;
+    color: #cccccc;
+    font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 1rem;
+    min-height: 100vh;
+    overflow: auto;
 }
 
 .terminal-box {
-	border: 1px solid #444;
-	border-radius: 4px;
-	padding: 0.75rem 1rem;
-	margin-bottom: 1rem;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
 }
 
 .terminal-box.double-border {
-	border: 2px double #666;
+    border: 2px double #666;
 }
 
 .terminal-box.round-border {
-	border-radius: 8px;
+    border-radius: 8px;
 }
 
 .terminal-header {
-	text-align: center;
-	border: 2px double #17a2b8;
-	padding: 0.5rem;
-	margin-bottom: 1rem;
-	background-color: #1a1a1a;
+    text-align: center;
+    border: 2px double #17a2b8;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    background-color: #1a1a1a;
 }
 
 .terminal-title {
-	font-weight: bold;
-	color: #17a2b8;
-	font-size: 1.1rem;
+    font-weight: bold;
+    color: #17a2b8;
+    font-size: 1.1rem;
 }
 
 .terminal-subtitle {
-	color: #999;
-	font-size: 0.9rem;
+    color: #999;
+    font-size: 0.9rem;
 }
 
 .terminal-row {
-	display: flex;
-	gap: 1rem;
-	margin-bottom: 0.5rem;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .terminal-col {
-	display: inline-block;
+    display: inline-block;
 }
 
 .terminal-text {
-	display: inline;
+    display: inline;
 }
 
 .terminal-text.bold {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 .terminal-text.dim {
-	color: #888;
+    color: #888;
 }
 
 /* Terminal Colors */
 .terminal-text.cyan {
-	color: #17a2b8;
+    color: #17a2b8;
 }
 
 .terminal-text.green {
-	color: #28a745;
+    color: #28a745;
 }
 
 .terminal-text.yellow {
-	color: #ffc107;
+    color: #ffc107;
 }
 
 .terminal-text.magenta {
-	color: #e83e8c;
+    color: #e83e8c;
 }
 
 .terminal-text.blue {
-	color: #007bff;
+    color: #007bff;
 }
 
 .terminal-text.red {
-	color: #dc3545;
+    color: #dc3545;
 }
 
 .terminal-text.gray {
-	color: #6c757d;
+    color: #6c757d;
 }
 
 /* View selector */
 .terminal-view-selector {
-	color: #888;
-	margin-bottom: 1rem;
+    color: #888;
+    margin-bottom: 1rem;
 }
 
 .terminal-view-selector .view-item {
-	display: inline-block;
-	margin-right: 0.5rem;
+    display: inline-block;
+    margin-right: 0.5rem;
 }
 
 .terminal-view-selector .view-item.active {
-	color: #fff;
+    color: #fff;
 }
 
 /* Team list */
 .terminal-team-row {
-	display: flex;
-	margin-bottom: 0.25rem;
+    display: flex;
+    margin-bottom: 0.25rem;
 }
 
 .terminal-team-row.selected {
-	color: #17a2b8;
-	font-weight: bold;
+    color: #17a2b8;
+    font-weight: bold;
 }
 
 .terminal-team-col {
-	display: inline-block;
+    display: inline-block;
 }
 
 .terminal-team-col.name {
-	width: 120px;
+    width: 120px;
 }
 
 .terminal-team-col.shift {
-	width: 180px;
+    width: 180px;
 }
 
 .terminal-team-col.hours {
-	width: 160px;
+    width: 160px;
 }
 
 .terminal-team-col.code {
-	flex: 1;
+    flex: 1;
 }
 
 /* Exit button */
 .terminal-exit-button {
-	background: transparent;
-	border: 1px solid #dc3545;
-	color: #dc3545;
-	padding: 0.25rem 0.75rem;
-	border-radius: 4px;
-	font-family: inherit;
-	font-size: 0.9rem;
-	cursor: pointer;
-	transition: all 0.2s;
+    background: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .terminal-exit-button:hover {
-	background-color: #dc3545;
-	color: #0c0c0c;
+    background-color: #dc3545;
+    color: #0c0c0c;
 }
 
 .terminal-exit-button:active {
-	transform: scale(0.98);
+    transform: scale(0.98);
 }
 
 /* Help bar */
 .terminal-help {
-	border: 1px solid #666;
-	border-radius: 8px;
-	padding: 0.5rem 1rem;
-	margin-top: 1rem;
-	color: #888;
-	font-size: 0.85rem;
+    border: 1px solid #666;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    color: #888;
+    font-size: 0.85rem;
 }
 
 /* Date header */
 .terminal-date-header {
-	color: #28a745;
-	font-weight: bold;
-	margin-bottom: 1rem;
+    color: #28a745;
+    font-weight: bold;
+    margin-bottom: 1rem;
 }
 
 /* Transfer items */
 .terminal-transfer-item {
-	display: flex;
-	margin-top: 0.75rem;
-	gap: 1rem;
+    display: flex;
+    margin-top: 0.75rem;
+    gap: 1rem;
 }
 
 .terminal-transfer-date {
-	width: 150px;
-	color: #888;
+    width: 150px;
+    color: #888;
 }
 
 .terminal-transfer-code {
-	width: 100px;
-	color: #888;
+    width: 100px;
+    color: #888;
 }
 
 .terminal-transfer-info {
-	flex: 1;
+    flex: 1;
 }
 
 /* Info boxes */
 .terminal-info-box {
-	border: 1px solid #666;
-	border-radius: 8px;
-	padding: 0.75rem 1rem;
-	margin-bottom: 1rem;
+    border: 1px solid #666;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
 }
 
 .terminal-info-box.success {
-	border-color: #28a745;
+    border-color: #28a745;
 }
 
 .terminal-info-box.error {
-	border-color: #dc3545;
+    border-color: #dc3545;
 }
 
 .terminal-info-row {
-	margin-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .terminal-info-row:last-child {
-	margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-	.terminal-view {
-		font-size: 12px;
-		padding: 0.5rem;
-	}
+    .terminal-view {
+        font-size: 12px;
+        padding: 0.5rem;
+    }
 
-	.terminal-team-col.name {
-		width: 80px;
-	}
+    .terminal-team-col.name {
+        width: 80px;
+    }
 
-	.terminal-team-col.shift {
-		width: 120px;
-	}
+    .terminal-team-col.shift {
+        width: 120px;
+    }
 
-	.terminal-team-col.hours {
-		width: 100px;
-	}
+    .terminal-team-col.hours {
+        width: 100px;
+    }
 }
 
 /* Accessibility */
 .terminal-view:focus {
-	outline: 2px solid #17a2b8;
-	outline-offset: 2px;
+    outline: 2px solid #17a2b8;
+    outline-offset: 2px;
 }
 
 /* Selection */
 .terminal-view ::selection {
-	background-color: #17a2b8;
-	color: #000;
+    background-color: #17a2b8;
+    color: #000;
 }

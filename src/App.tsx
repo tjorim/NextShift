@@ -5,9 +5,9 @@ import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
+import TerminalView from './components/terminal/TerminalView';
 import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
-import TerminalView from './components/terminal/TerminalView';
 import {
     CookieConsentProvider,
     useCookieConsent,
