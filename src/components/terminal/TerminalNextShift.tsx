@@ -1,4 +1,5 @@
 import type { Dayjs } from 'dayjs';
+import { CONFIG } from '../../utils/config';
 import {
     calculateShift,
     getNextShift,
@@ -107,7 +108,8 @@ export default function TerminalNextShift({
             ) : (
                 <div className="terminal-info-box error">
                     <span className="terminal-text red">
-                        No upcoming shift found within the next 10 days.
+                        No upcoming shift found within the next{' '}
+                        {CONFIG.SHIFT_CYCLE_DAYS} days.
                     </span>
                 </div>
             )}
