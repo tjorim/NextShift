@@ -1,11 +1,10 @@
 import type { Dayjs } from 'dayjs';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
-import { getAllTeamsShifts } from '../../utils/shiftCalculations';
 import {
-    getShiftColor,
-    getShiftEmoji,
+    getAllTeamsShifts,
     isCurrentlyWorking,
-} from './terminalUtils';
+} from '../../utils/shiftCalculations';
+import { getShiftColor, getShiftEmoji } from './terminalUtils';
 
 interface TerminalTeamListProps {
     date: Dayjs;
