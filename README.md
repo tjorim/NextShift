@@ -176,10 +176,6 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run preview      # Preview production build
 
-# TUI (Terminal User Interface)
-npm run build:tui    # Build TUI application
-npm run tui          # Build and run TUI
-
 # Code Quality
 npm run lint         # Run Biome linter
 npm run lint:fix     # Auto-fix linting issues
@@ -191,10 +187,9 @@ npm run test         # Run test suite
 
 ### Core Framework
 - **Frontend**: React 19 + TypeScript
-- **Build Tool**: Vite with PWA plugin (web), esbuild (TUI)
+- **Build Tool**: Vite with PWA plugin
 - **UI Framework**: React Bootstrap (Bootstrap 5 components)
-- **TUI Framework**: Ink for React-based terminal interfaces
-- **Styling**: CSS3 with Bootstrap 5 design system
+- **Styling**: CSS3 with Bootstrap 5 design system and custom terminal aesthetics
 
 ### Development Tools
 - **Linting**: Biome (fast, modern linter and formatter)
