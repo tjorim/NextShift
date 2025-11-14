@@ -146,16 +146,17 @@ export default function TransfersView({ selectedTeam, fromDate }: TransfersViewP
 										<Text dimColor>({dateCode})</Text>
 									</Box>
 									<Box>
-										<Text color={color} bold>
-											{isHandover ? 'Handover' : 'Takeover'}:
-										</Text>
-										{' '}
-										<Text color={getShiftColor(transfer.fromShiftType)}>
-											{transfer.fromShiftType}
-										</Text>
-										<Text> {arrow} </Text>
-										<Text color={getShiftColor(transfer.toShiftType)}>
-											{transfer.toShiftType}
+										<Text>
+											<Text color={color} bold>
+												{isHandover ? 'Handover' : 'Takeover'}:{' '}
+											</Text>
+											<Text color={getShiftColor(transfer.fromShiftType)}>
+												{transfer.fromShiftType}
+											</Text>
+											{' '}{arrow}{' '}
+											<Text color={getShiftColor(transfer.toShiftType)}>
+												{transfer.toShiftType}
+											</Text>
 										</Text>
 									</Box>
 								</Box>
