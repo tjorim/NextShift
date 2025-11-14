@@ -5,6 +5,7 @@ import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
+import TerminalView from './components/terminal/TerminalView';
 import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
 import {
@@ -39,6 +40,7 @@ function AppContent() {
     const [activeTab, setActiveTab] = useState('today');
     const [showAbout, setShowAbout] = useState(false);
     const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
+    const [terminalMode, setTerminalMode] = useState(false);
     const { showSuccess, showInfo } = useToast();
     const serviceWorkerStatus = useServiceWorkerStatus();
     const {
@@ -57,6 +59,12 @@ function AppContent() {
         const tabParam = urlParams.get('tab');
         const teamParam = urlParams.get('team');
         const dateParam = urlParams.get('date');
+        const viewParam = urlParams.get('view');
+
+        // Check for terminal mode
+        if (viewParam === 'terminal') {
+            setTerminalMode(true);
+        }
 
         // Set active tab from URL
         if (tabParam && ['today', 'schedule', 'transfer'].includes(tabParam)) {
@@ -80,10 +88,30 @@ function AppContent() {
         }
 
         // Clear URL parameters after processing to keep URL clean
+        // But preserve the view parameter for terminal mode
         if (urlParams.toString()) {
-            window.history.replaceState({}, '', window.location.pathname);
+            const newParams = new URLSearchParams();
+            if (viewParam === 'terminal') {
+                newParams.set('view', 'terminal');
+            }
+            const newUrl = newParams.toString()
+                ? `${window.location.pathname}?${newParams.toString()}`
+                : window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
         }
     }, [hasCompletedOnboarding, setMyTeam, setCurrentDate]); // Run when onboarding completes
+
+    // Sync terminal mode with browser back/forward navigation
+    // This ensures the URL stays as the source of truth for terminal mode
+    useEffect(() => {
+        const handlePopState = () => {
+            const params = new URLSearchParams(window.location.search);
+            setTerminalMode(params.get('view') === 'terminal');
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
 
     // Show welcome wizard only on first visit (never completed onboarding)
     useEffect(() => {
@@ -238,11 +266,45 @@ function AppContent() {
         showInfo("Switched to Today view to see who's working", '👥');
     };
 
+    const handleToggleTerminal = () => {
+        const newTerminalMode = !terminalMode;
+        setTerminalMode(newTerminalMode);
+
+        // Update URL to reflect terminal mode
+        const newParams = new URLSearchParams();
+        if (newTerminalMode) {
+            newParams.set('view', 'terminal');
+        }
+        const newUrl = newParams.toString()
+            ? `${window.location.pathname}?${newParams.toString()}`
+            : window.location.pathname;
+        window.history.pushState({}, '', newUrl);
+    };
+
+    // Render terminal view if in terminal mode
+    if (terminalMode) {
+        return (
+            <ErrorBoundary>
+                <TerminalView
+                    initialTeam={myTeam || 1}
+                    onExitTerminal={handleToggleTerminal}
+                />
+                <AboutModal
+                    show={showAbout}
+                    onHide={() => setShowAbout(false)}
+                />
+            </ErrorBoundary>
+        );
+    }
+
     return (
         <ErrorBoundary>
             <div className="min-vh-100">
                 <Container fluid>
-                    <Header onShowAbout={() => setShowAbout(true)} />
+                    <Header
+                        onShowAbout={() => setShowAbout(true)}
+                        onToggleTerminal={handleToggleTerminal}
+                    />
                     <ErrorBoundary>
                         <CurrentStatus
                             myTeam={myTeam}

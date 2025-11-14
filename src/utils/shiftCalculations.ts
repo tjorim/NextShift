@@ -282,3 +282,30 @@ export function getOffDayProgress(
 
     return dayCount > 0 ? { current: dayCount, total: 4 } : null;
 }
+
+/**
+ * Determines if a team is currently working based on shift times and current time
+ * @param shift - The shift object with code, start, and end times
+ * @param date - The shift date being checked
+ * @param currentTime - The current time to check against
+ * @returns True if the team is currently working, false otherwise
+ */
+export function isCurrentlyWorking(
+    shift: { code: string; start: number | null; end: number | null },
+    date: Dayjs,
+    currentTime: Dayjs,
+): boolean {
+    if (!shift.start || !shift.end) return false;
+
+    const shiftDay = getCurrentShiftDay(currentTime);
+    if (!shiftDay.isSame(date, 'day')) return false;
+
+    const hour = currentTime.hour();
+
+    // Night shift spans midnight
+    if (shift.code === 'N') {
+        return hour >= shift.start || hour < shift.end;
+    }
+
+    return hour >= shift.start && hour < shift.end;
+}

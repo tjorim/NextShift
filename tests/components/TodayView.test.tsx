@@ -20,6 +20,7 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
         isWorking: true,
         className: 'shift-morning',
     })),
+    isCurrentlyWorking: vi.fn(() => false),
 }));
 
 function renderWithProviders(ui: React.ReactElement) {
