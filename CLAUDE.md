@@ -56,7 +56,7 @@ NextShift/
 │   │   ├── shiftCalculations.ts # Core shift calculation functions
 │   │   └── shiftStyles.ts      # Shift styling utilities
 │   └── styles/
-│       ├── main.css       # Custom styles and shift color coding
+│       ├── main.scss      # Custom styles and shift color coding (Sass)
 │       └── terminal.css   # Terminal web interface styles
 ├── tests/                 # Test files
 │   ├── components/        # Component tests
@@ -228,7 +228,7 @@ NextShift includes a terminal-styled web interface that provides all shift track
 - **Browser-Based**: Runs in any web browser, no terminal needed
 - **Terminal Aesthetic**: Monospace fonts, terminal colors, retro styling
 - **Keyboard Navigation**: Full keyboard control for efficient operation
-- **No Dependencies**: Built with custom CSS, no additional libraries
+- **Integrated**: No additional dependencies beyond the main app; uses custom CSS for styling
 - **Mobile Accessible**: Works on all devices (keyboard shortcuts optional)
 - **URL Parameter**: Access via `?view=terminal`
 
