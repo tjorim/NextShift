@@ -117,8 +117,13 @@ The built files will be in the `dist/` directory, ready for deployment to any st
 
 ### Using the Terminal Web Interface
 
-Access the terminal-style interface via URL parameter:
+Access the terminal-style interface in multiple ways:
 
+**Via Button:**
+- Click the "Terminal" button in the header to switch to terminal view
+- Click "[Exit Terminal]" button or press Escape/q to return to normal view
+
+**Via URL:**
 ```
 # Production
 https://yourapp.com/?view=terminal
@@ -129,10 +134,11 @@ http://localhost:8000/?view=terminal
 
 **Keyboard Shortcuts:**
 - **1-5**: Select team (Team 1 through Team 5)
-- **←/→**: Switch between teams
+- **↑/↓**: Switch between teams (up/down through vertical list)
 - **Tab**: Cycle through views (Today → Next Shift → Transfers)
-- **j/k** or **↓/↑**: Navigate dates (previous/next day)
+- **j/k** or **←/→**: Navigate dates (left=past, right=future)
 - **t**: Jump to today's date
+- **q** or **Esc**: Exit terminal view (return to normal UI)
 
 ## Configuration
 

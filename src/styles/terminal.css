@@ -141,6 +141,28 @@
 	flex: 1;
 }
 
+/* Exit button */
+.terminal-exit-button {
+	background: transparent;
+	border: 1px solid #dc3545;
+	color: #dc3545;
+	padding: 0.25rem 0.75rem;
+	border-radius: 4px;
+	font-family: inherit;
+	font-size: 0.9rem;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.terminal-exit-button:hover {
+	background-color: #dc3545;
+	color: #0c0c0c;
+}
+
+.terminal-exit-button:active {
+	transform: scale(0.98);
+}
+
 /* Help bar */
 .terminal-help {
 	border: 1px solid #666;

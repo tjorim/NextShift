@@ -234,6 +234,11 @@ NextShift includes a terminal-styled web interface that provides all shift track
 
 ### Access
 
+**Via UI Button:**
+- Click "Terminal" button in header to enter terminal view
+- Click "[Exit Terminal]" button or press Escape/q to exit
+
+**Via URL:**
 ```bash
 # Production
 https://yourapp.com/?view=terminal
@@ -245,10 +250,11 @@ http://localhost:8000/?view=terminal
 ### Keyboard Shortcuts
 
 - **1-5**: Select team (Team 1 through Team 5)
-- **←/→**: Switch between teams
+- **↑/↓**: Switch between teams (up/down through vertical list)
 - **Tab**: Cycle through views (Today → Next Shift → Transfers)
-- **j/k** or **↓/↑**: Navigate dates (previous/next day)
+- **j/k** or **←/→**: Navigate dates (left=past, right=future)
 - **t**: Jump to today's date
+- **q** or **Esc**: Exit terminal view (return to normal UI)
 
 ### Implementation
 

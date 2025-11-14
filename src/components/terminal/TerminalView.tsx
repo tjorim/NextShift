@@ -10,13 +10,19 @@ type TerminalViewType = 'today' | 'next-shift' | 'transfers';
 
 interface TerminalViewProps {
 	initialTeam?: number;
+	onExitTerminal?: () => void;
 }
 
-export default function TerminalView({ initialTeam = 1 }: TerminalViewProps) {
+export default function TerminalView({ initialTeam = 1, onExitTerminal }: TerminalViewProps) {
 	const [selectedTeam, setSelectedTeam] = useState<number>(initialTeam);
 	const [currentDate, setCurrentDate] = useState(dayjs());
 	const [view, setView] = useState<TerminalViewType>('today');
 	const [currentTime, setCurrentTime] = useState(dayjs());
+
+	// Sync selectedTeam with initialTeam prop changes (e.g., from localStorage)
+	useEffect(() => {
+		setSelectedTeam(initialTeam);
+	}, [initialTeam]);
 
 	// Update time every second
 	useEffect(() => {
@@ -30,6 +36,13 @@ export default function TerminalView({ initialTeam = 1 }: TerminalViewProps) {
 	// Keyboard shortcuts
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
+			// Exit terminal view with Escape or q
+			if (e.key === 'Escape' || e.key === 'q') {
+				e.preventDefault();
+				onExitTerminal?.();
+				return;
+			}
+
 			// Team selection with number keys
 			if (e.key >= '1' && e.key <= '5') {
 				e.preventDefault();
@@ -46,12 +59,12 @@ export default function TerminalView({ initialTeam = 1 }: TerminalViewProps) {
 				});
 			}
 
-			// Date navigation
-			if (e.key === 'j' || e.key === 'ArrowDown') {
+			// Date navigation (horizontal: left=past, right=future)
+			if (e.key === 'j' || e.key === 'ArrowLeft') {
 				e.preventDefault();
 				setCurrentDate((prev) => prev.subtract(1, 'day'));
 			}
-			if (e.key === 'k' || e.key === 'ArrowUp') {
+			if (e.key === 'k' || e.key === 'ArrowRight') {
 				e.preventDefault();
 				setCurrentDate((prev) => prev.add(1, 'day'));
 			}
@@ -60,12 +73,12 @@ export default function TerminalView({ initialTeam = 1 }: TerminalViewProps) {
 				setCurrentDate(dayjs());
 			}
 
-			// Team navigation with arrow keys
-			if (e.key === 'ArrowLeft') {
+			// Team navigation (vertical: up/down through team list)
+			if (e.key === 'ArrowUp') {
 				e.preventDefault();
 				setSelectedTeam((prev) => (prev > 1 ? prev - 1 : 5));
 			}
-			if (e.key === 'ArrowRight') {
+			if (e.key === 'ArrowDown') {
 				e.preventDefault();
 				setSelectedTeam((prev) => (prev < 5 ? prev + 1 : 1));
 			}
@@ -73,11 +86,21 @@ export default function TerminalView({ initialTeam = 1 }: TerminalViewProps) {
 
 		window.addEventListener('keydown', handleKeyPress);
 		return () => window.removeEventListener('keydown', handleKeyPress);
-	}, []);
+	}, [onExitTerminal]);
 
 	return (
 		<div className="terminal-view" tabIndex={0}>
 			<TerminalHeader currentTime={currentTime} />
+
+			<div style={{ marginBottom: '1rem', textAlign: 'right' }}>
+				<button
+					onClick={onExitTerminal}
+					className="terminal-exit-button"
+					aria-label="Exit terminal view"
+				>
+					[Exit Terminal]
+				</button>
+			</div>
 
 			<div className="terminal-view-selector">
 				<span className={`view-item ${view === 'today' ? 'active' : ''}`}>
@@ -113,8 +136,8 @@ export default function TerminalView({ initialTeam = 1 }: TerminalViewProps) {
 			)}
 
 			<div className="terminal-help">
-				Keys: [1-5] Select team | [←→] Switch team | [Tab] Change view | [j/k or
-				↓/↑] ±1 day | [t] Today
+				Keys: [1-5] Select team | [↑↓] Switch team | [Tab] Change view | [j/k or
+				←→] ±1 day | [t] Today | [q/Esc] Exit
 			</div>
 		</div>
 	);

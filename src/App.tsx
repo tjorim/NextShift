@@ -88,8 +88,16 @@ function AppContent() {
         }
 
         // Clear URL parameters after processing to keep URL clean
+        // But preserve the view parameter for terminal mode
         if (urlParams.toString()) {
-            window.history.replaceState({}, '', window.location.pathname);
+            const newParams = new URLSearchParams();
+            if (viewParam === 'terminal') {
+                newParams.set('view', 'terminal');
+            }
+            const newUrl = newParams.toString()
+                ? `${window.location.pathname}?${newParams.toString()}`
+                : window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
         }
     }, [hasCompletedOnboarding, setMyTeam, setCurrentDate]); // Run when onboarding completes
 
@@ -246,11 +254,29 @@ function AppContent() {
         showInfo("Switched to Today view to see who's working", '👥');
     };
 
+    const handleToggleTerminal = () => {
+        const newTerminalMode = !terminalMode;
+        setTerminalMode(newTerminalMode);
+
+        // Update URL to reflect terminal mode
+        const newParams = new URLSearchParams();
+        if (newTerminalMode) {
+            newParams.set('view', 'terminal');
+        }
+        const newUrl = newParams.toString()
+            ? `${window.location.pathname}?${newParams.toString()}`
+            : window.location.pathname;
+        window.history.pushState({}, '', newUrl);
+    };
+
     // Render terminal view if in terminal mode
     if (terminalMode) {
         return (
             <ErrorBoundary>
-                <TerminalView initialTeam={myTeam || 1} />
+                <TerminalView
+                    initialTeam={myTeam || 1}
+                    onExitTerminal={handleToggleTerminal}
+                />
                 <AboutModal
                     show={showAbout}
                     onHide={() => setShowAbout(false)}
@@ -263,7 +289,10 @@ function AppContent() {
         <ErrorBoundary>
             <div className="min-vh-100">
                 <Container fluid>
-                    <Header onShowAbout={() => setShowAbout(true)} />
+                    <Header
+                        onShowAbout={() => setShowAbout(true)}
+                        onToggleTerminal={handleToggleTerminal}
+                    />
                     <ErrorBoundary>
                         <CurrentStatus
                             myTeam={myTeam}
