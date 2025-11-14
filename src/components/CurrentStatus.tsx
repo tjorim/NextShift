@@ -30,6 +30,7 @@ import {
     getOffDayProgress,
     getShiftByCode,
     getShiftCode,
+    isCurrentlyWorking,
 } from '../utils/shiftCalculations';
 import { ShiftTimeline } from './ShiftTimeline';
 
@@ -106,23 +107,12 @@ export function CurrentStatus({
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const currentWorkingTeam = useMemo((): ShiftResult | null => {
         const allTeamsToday = getAllTeamsShifts(today);
-        const currentHour = today.hour();
+        const now = today;
 
         // Find team that is working right now based on current time
         const workingTeam = allTeamsToday.find((teamShift) => {
             if (!teamShift.shift.isWorking) return false;
-
-            const { start, end } = teamShift.shift;
-            if (start === null || end === null) return false;
-
-            // Handle night shift that crosses midnight
-            if (start > end) {
-                // Night shift: 23:00 to 07:00 (next day)
-                return currentHour >= start || currentHour < end;
-            } else {
-                // Day/Evening shift: normal range
-                return currentHour >= start && currentHour < end;
-            }
+            return isCurrentlyWorking(teamShift.shift, teamShift.date, now);
         });
 
         return workingTeam || null;

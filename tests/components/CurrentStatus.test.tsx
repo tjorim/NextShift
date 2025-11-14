@@ -17,6 +17,7 @@ vi.mock('../../src/utils/shiftCalculations', () => ({
     getOffDayProgress: vi.fn(),
     getShiftCode: vi.fn(),
     getShiftByCode: vi.fn(),
+    isCurrentlyWorking: vi.fn(),
 }));
 
 // getShiftClassName is now part of shiftCalculations mock
@@ -131,6 +132,7 @@ describe('CurrentStatus Component', () => {
             isWorking: true,
             className: 'shift-morning',
         });
+        vi.mocked(shiftCalculations.isCurrentlyWorking).mockReturnValue(true);
         vi.mocked(useCountdownHook.useCountdown).mockReturnValue({
             days: 0,
             hours: 2,
