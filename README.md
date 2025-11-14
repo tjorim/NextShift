@@ -42,6 +42,13 @@ NextShift helps teams working in a 5-team rotating shift system to quickly check
 - **Real-time Updates**: Live time and shift status tracking
 - **Cross-Platform**: Works in any terminal on Linux, macOS, and Windows
 
+### 🖥️ Terminal Web Interface
+- **Browser-Based Terminal**: Terminal-style UI that runs in your web browser
+- **Same Keyboard Controls**: Identical shortcuts as the CLI TUI (1-5, Tab, j/k, etc.)
+- **No Installation**: Access via URL parameter (`?view=terminal`)
+- **Retro Aesthetic**: Monospace fonts, terminal colors, command-line feel
+- **Mobile Accessible**: Works on any device (keyboard shortcuts optional)
+
 ## Shift Pattern
 
 Each team follows a 10-day repeating cycle:
@@ -148,6 +155,33 @@ npm install -g .
 nextshift-tui          # Run from anywhere
 nextshift-tui --team=2 # With team selection
 ```
+
+### Using the Terminal Web Interface
+
+The terminal web interface provides the same TUI experience but runs in your browser:
+
+```
+# Access terminal mode via URL parameter
+https://yourapp.com/?view=terminal
+
+# Or if running locally
+http://localhost:8000/?view=terminal
+```
+
+**Features:**
+- Same terminal aesthetic as the CLI TUI
+- Same keyboard shortcuts (1-5, Tab, j/k, arrows, t)
+- Three views: Today, Next Shift, Transfers
+- Real-time updates
+- Works on any device with a browser
+- No installation required
+
+**Keyboard Shortcuts:** (Same as CLI TUI)
+- **1-5**: Select team
+- **←/→**: Switch between teams
+- **Tab**: Cycle through views
+- **j/k** or **↓/↑**: Navigate dates
+- **t**: Jump to today's date
 
 ## Configuration
 

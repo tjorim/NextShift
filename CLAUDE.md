@@ -152,6 +152,7 @@ These variables anchor all shift calculations. If not configured, defaults to `2
 - **Date Format**: Display in YYWW.D format (e.g., 2520.2M = year 2025, week 20, Tuesday Morning)
 - **Offline Support**: Full PWA functionality without internet connection
 - **TUI Interface**: Terminal-based interface for command-line access to all shift tracking features
+- **Terminal Web Interface**: Browser-based terminal-style UI with keyboard navigation (accessible via `?view=terminal`)
 
 ## Recent Improvements (v3.1+)
 
@@ -284,6 +285,50 @@ npm install -g .
 nextshift-tui
 nextshift-tui --team=2
 ```
+
+## Terminal Web Interface
+
+NextShift includes a terminal-styled web interface that mirrors the CLI TUI but runs in the browser.
+
+### Features
+
+- **Browser-Based**: Runs in any web browser, no terminal needed
+- **Terminal Aesthetic**: Monospace fonts, terminal colors, retro styling
+- **Same Controls**: Identical keyboard shortcuts as CLI TUI
+- **No Dependencies**: Built with custom CSS, no additional libraries
+- **Mobile Accessible**: Works on all devices (keyboard shortcuts optional)
+- **URL Parameter**: Access via `?view=terminal`
+
+### Access
+
+```bash
+# Production
+https://yourapp.com/?view=terminal
+
+# Development
+http://localhost:8000/?view=terminal
+```
+
+### Keyboard Shortcuts
+
+Same as CLI TUI:
+- **1-5**: Select team
+- **←/→**: Switch teams
+- **Tab**: Cycle views (Today → Next Shift → Transfers)
+- **j/k** or **↓/↑**: Navigate dates
+- **t**: Jump to today
+
+### Implementation
+
+- **Location**: `src/components/terminal/`
+- **Styling**: `src/styles/terminal.css`
+- **Components**:
+  - `TerminalView.tsx` - Main container with keyboard navigation
+  - `TerminalHeader.tsx` - Header with live time
+  - `TerminalTeamList.tsx` - Team shift display
+  - `TerminalNextShift.tsx` - Next shift information
+  - `TerminalTransfers.tsx` - Transfer analysis
+- **Integration**: URL parameter `?view=terminal` in App.tsx
 
 ## PWA Configuration
 
