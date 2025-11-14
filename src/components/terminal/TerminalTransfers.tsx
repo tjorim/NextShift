@@ -1,21 +1,13 @@
 import type { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
+import type { TransferInfo } from '../../hooks/useTransferCalculations';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
-import { calculateShift, type ShiftType } from '../../utils/shiftCalculations';
+import { calculateShift } from '../../utils/shiftCalculations';
 import { getShiftColor } from './terminalUtils';
 
 interface TerminalTransfersProps {
     selectedTeam: number;
     fromDate: Dayjs;
-}
-
-interface TransferInfo {
-    date: Dayjs;
-    fromTeam: number;
-    toTeam: number;
-    fromShiftType: ShiftType;
-    toShiftType: ShiftType;
-    type: 'handover' | 'takeover';
 }
 
 function calculateTransfers(
