@@ -4,24 +4,11 @@ import {
     getNextShift,
     getShiftCode,
 } from '../../utils/shiftCalculations';
+import { getShiftColor, getShiftEmoji } from './terminalUtils';
 
 interface TerminalNextShiftProps {
     selectedTeam: number;
     fromDate: Dayjs;
-}
-
-function getShiftColor(shiftCode: string): string {
-    if (shiftCode === 'M') return 'yellow';
-    if (shiftCode === 'E') return 'magenta';
-    if (shiftCode === 'N') return 'blue';
-    return 'gray';
-}
-
-function getShiftEmoji(shiftCode: string): string {
-    if (shiftCode === 'M') return '🌅';
-    if (shiftCode === 'E') return '🌆';
-    if (shiftCode === 'N') return '🌙';
-    return '🏠';
 }
 
 export default function TerminalNextShift({

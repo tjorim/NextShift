@@ -2,6 +2,7 @@ import type { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
 import { calculateShift, type ShiftType } from '../../utils/shiftCalculations';
+import { getShiftColor } from './terminalUtils';
 
 interface TerminalTransfersProps {
     selectedTeam: number;
@@ -100,13 +101,6 @@ function calculateTransfers(
     }
 
     return transfers;
-}
-
-function getShiftColor(shiftCode: string): string {
-    if (shiftCode === 'M') return 'yellow';
-    if (shiftCode === 'E') return 'magenta';
-    if (shiftCode === 'N') return 'blue';
-    return 'gray';
 }
 
 export default function TerminalTransfers({
