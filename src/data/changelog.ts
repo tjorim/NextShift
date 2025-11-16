@@ -14,9 +14,45 @@ export interface ChangelogVersion {
 
 export const changelogData: ChangelogVersion[] = [
     {
+        version: '3.4.0',
+        date: '2025-11-17',
+        status: 'current',
+        added: [
+            'Terminal Web Interface: Browser-based terminal-style UI with retro terminal aesthetic',
+            'Full keyboard navigation: Number keys (1-5) for team selection, arrow keys for navigation',
+            'Terminal keyboard shortcuts: Tab for view cycling, j/k or ←/→ for date navigation, t for today',
+            'Three terminal views: Today (team list), Next Shift (shift info), Transfers (handover analysis)',
+            'Terminal components: TerminalView, TerminalHeader, TerminalTeamList, TerminalNextShift, TerminalTransfers',
+            'Terminal styling: Custom CSS with monospace fonts, terminal colors, and retro design',
+            'URL parameter support: Access terminal via ?view=terminal',
+            'Terminal mode toggle: Button in header to enter/exit terminal view',
+            'Live time display in terminal header with second-level precision',
+            'Terminal utility functions: getShiftColor() and getShiftEmoji() for consistent styling',
+            'Shared isCurrentlyWorking() utility: Extracted from TodayView for reuse across UI and terminal',
+        ],
+        changed: [
+            'App.tsx: Added terminal mode state and URL handling for ?view=terminal parameter',
+            'Header.tsx: Added Terminal toggle button with keyboard shortcut support',
+            'CurrentStatus.tsx: Refactored to use shared isCurrentlyWorking() utility',
+            'TodayView.tsx: Refactored to use shared isCurrentlyWorking() utility',
+            'TransferView.tsx: Added edge case handling for empty availableOtherTeams',
+            'shiftCalculations.ts: Added isCurrentlyWorking() as shared utility function',
+        ],
+        fixed: [
+            'isCurrentlyWorking: Fixed midnight (0) hour bug by using explicit null checks',
+            'isCurrentlyWorking: Generic midnight-spanning shift detection using start/end comparison',
+            'Terminal transfers: Proper handling when no other teams available for comparison',
+        ],
+        technicalDetails: {
+            title: 'Terminal Web Interface & Code Quality',
+            description:
+                'Implemented browser-based terminal interface with keyboard navigation, retro styling, and full feature parity. Extracted shared utilities for shift activity detection. Enhanced edge case handling for single-team configurations.',
+        },
+    },
+    {
         version: '3.3.0',
         date: '2025-08-18',
-        status: 'current',
+        status: 'released',
         added: [
             'Cookie Consent System: GDPR-compliant privacy controls integrated into app flow',
             'CookieConsentProvider context for managing consent preferences application-wide',
@@ -201,14 +237,6 @@ export const changelogData: ChangelogVersion[] = [
 ];
 
 export const futurePlans = {
-    'v3.4.0': {
-        title: 'Interactive Features Phase 2',
-        features: [
-            'Enhanced data presentation',
-            'Advanced navigation options',
-            'Calendar integration features',
-        ],
-    },
     'v3.5.0': {
         title: 'Mobile & Advanced UX Phase 3',
         features: [

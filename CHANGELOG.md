@@ -8,13 +8,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - Future Enhancements
 
 ### Planned
-- Enhanced data presentation
-- Advanced navigation options
-- Calendar integration features
 - Mobile carousel for team browsing
 - Advanced accessibility features
 - Floating action buttons
 - Accordion for organized data
+
+## [3.4.0] - 2025-11-17
+
+### Added
+- Terminal Web Interface: Browser-based terminal-style UI with retro terminal aesthetic
+- Full keyboard navigation: Number keys (1-5) for team selection, arrow keys for navigation
+- Terminal keyboard shortcuts: Tab for view cycling, j/k or ←/→ for date navigation, t for today
+- Three terminal views: Today (team list), Next Shift (shift info), Transfers (handover analysis)
+- Terminal components: TerminalView, TerminalHeader, TerminalTeamList, TerminalNextShift, TerminalTransfers
+- Terminal styling: Custom CSS with monospace fonts, terminal colors, and retro design
+- URL parameter support: Access terminal via ?view=terminal
+- Terminal mode toggle: Button in header to enter/exit terminal view
+- Live time display in terminal header with second-level precision
+- Terminal utility functions: getShiftColor() and getShiftEmoji() for consistent styling
+- Shared isCurrentlyWorking() utility: Extracted from TodayView for reuse across UI and terminal
+
+### Changed
+- App.tsx: Added terminal mode state and URL handling for ?view=terminal parameter
+- Header.tsx: Added Terminal toggle button with keyboard shortcut support
+- CurrentStatus.tsx: Refactored to use shared isCurrentlyWorking() utility
+- TodayView.tsx: Refactored to use shared isCurrentlyWorking() utility
+- TransferView.tsx: Added edge case handling for empty availableOtherTeams
+- shiftCalculations.ts: Added isCurrentlyWorking() as shared utility function
+
+### Fixed
+- isCurrentlyWorking: Fixed midnight (0) hour bug by using explicit null checks
+- isCurrentlyWorking: Generic midnight-spanning shift detection using start/end comparison
+- Terminal transfers: Proper handling when no other teams available for comparison
+
+### Terminal Web Interface & Code Quality
+Implemented browser-based terminal interface with keyboard navigation, retro styling, and full feature parity. Extracted shared utilities for shift activity detection. Enhanced edge case handling for single-team configurations.
 
 ## [3.3.0] - 2025-08-18
 
@@ -179,11 +207,6 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 
 ## Version Planning
 
-### v3.4.0 - Interactive Features Phase 2
-- Enhanced data presentation
-- Advanced navigation options
-- Calendar integration features
-
 ### v3.5.0 - Mobile & Advanced UX Phase 3
 - Mobile carousel for team browsing
 - Advanced accessibility features
@@ -197,6 +220,7 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 - Data export capabilities
 
 [Unreleased]: https://github.com/tjorim/NextShift/compare/v3.2.0...HEAD
+[3.4.0]: https://github.com/tjorim/NextShift/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/tjorim/NextShift/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/tjorim/NextShift/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/tjorim/NextShift/compare/v3.0.0...v3.1.0
