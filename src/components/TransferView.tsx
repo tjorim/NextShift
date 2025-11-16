@@ -122,6 +122,19 @@ export function TransferView({
                             Please select your team to see transfer information.
                         </p>
                     </div>
+                ) : availableOtherTeams.length === 0 ? (
+                    <div className="text-center py-4">
+                        <i
+                            className="bi bi-people text-muted mb-3"
+                            style={{ fontSize: '2rem' }}
+                        ></i>
+                        <h6 className="text-muted">
+                            No Other Teams Available
+                        </h6>
+                        <p className="text-muted mb-0">
+                            No other teams available for transfer analysis.
+                        </p>
+                    </div>
                 ) : (
                     <>
                         {/* Controls */}

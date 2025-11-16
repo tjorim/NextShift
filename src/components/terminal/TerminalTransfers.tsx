@@ -12,11 +12,28 @@ export default function TerminalTransfers({
     selectedTeam,
     fromDate,
 }: TerminalTransfersProps) {
-    const { transfers, otherTeam } = useTransferCalculations({
+    const { transfers, otherTeam, availableOtherTeams } = useTransferCalculations({
         myTeam: selectedTeam,
         limit: 10,
         customStartDate: fromDate.format('YYYY-MM-DD'),
     });
+
+    if (availableOtherTeams.length === 0) {
+        return (
+            <div>
+                <div style={{ marginBottom: '1rem' }}>
+                    <span className="terminal-text bold cyan">
+                        Transfer Analysis
+                    </span>
+                </div>
+                <div className="terminal-box">
+                    <span className="terminal-text dim">
+                        No other teams available for transfer analysis.
+                    </span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
