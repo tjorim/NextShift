@@ -236,8 +236,8 @@ describe('ChangelogModal', () => {
             expect(screen.getByText('Coming Soon')).toBeInTheDocument();
 
             // Dynamically check for all versions in futurePlans
-            expect(screen.getByText(/v3.4.0:/)).toBeInTheDocument();
             expect(screen.getByText(/v3.5.0:/)).toBeInTheDocument();
+            expect(screen.getByText(/v3.6.0:/)).toBeInTheDocument();
             expect(screen.getByText(/future:/)).toBeInTheDocument();
 
             // Check for specific features from the actual futurePlans data
