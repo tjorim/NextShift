@@ -295,15 +295,16 @@ export function isCurrentlyWorking(
     date: Dayjs,
     currentTime: Dayjs,
 ): boolean {
-    if (!shift.start || !shift.end) return false;
+    // Explicitly check for null/undefined to handle midnight (0) as a valid start time
+    if (shift.start == null || shift.end == null) return false;
 
     const shiftDay = getCurrentShiftDay(currentTime);
     if (!shiftDay.isSame(date, 'day')) return false;
 
     const hour = currentTime.hour();
 
-    // Night shift spans midnight
-    if (shift.code === 'N') {
+    // Detect shifts spanning midnight by comparing start/end hours (more robust than checking shift code)
+    if (shift.start > shift.end) {
         return hour >= shift.start || hour < shift.end;
     }
 

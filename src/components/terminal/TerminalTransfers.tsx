@@ -22,7 +22,7 @@ export default function TerminalTransfers({
     if (availableOtherTeams.length === 0) {
         return (
             <div>
-                <div style={{ marginBottom: '1rem' }}>
+                <div className="mb-1">
                     <span className="terminal-text bold cyan">
                         Transfer Analysis
                     </span>
@@ -38,7 +38,7 @@ export default function TerminalTransfers({
 
     return (
         <div>
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="mb-1">
                 <span className="terminal-text bold cyan">
                     Transfer Analysis: Team {selectedTeam} ↔ Team {otherTeam}
                 </span>
@@ -51,7 +51,7 @@ export default function TerminalTransfers({
                     </span>
                 ) : (
                     <>
-                        <div style={{ marginBottom: '0.75rem' }}>
+                        <div className="mb-075">
                             <span className="terminal-text bold">
                                 Upcoming Transfers (Next {transfers.length})
                             </span>

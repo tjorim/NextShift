@@ -29,7 +29,7 @@ export default function TerminalNextShift({
 
     return (
         <div>
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="mb-1">
                 <span className="terminal-text bold cyan">
                     Team {selectedTeam} - Shift Information
                 </span>
@@ -97,10 +97,7 @@ export default function TerminalNextShift({
                             {nextShift.code}
                         </span>
                     </div>
-                    <div
-                        className="terminal-info-row"
-                        style={{ marginTop: '0.5rem' }}
-                    >
+                    <div className="terminal-info-row mt-05">
                         <span className="terminal-text dim">
                             Days until next shift:{' '}
                             <span className="terminal-text bold">

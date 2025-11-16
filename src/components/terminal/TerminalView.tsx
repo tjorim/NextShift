@@ -51,9 +51,9 @@ export default function TerminalView({
             // Team selection with number keys (1 through CONFIG.TEAMS_COUNT)
             const teamNum = Number.parseInt(e.key, 10);
             if (
-                e.key >= '1' &&
-                e.key <= String(CONFIG.TEAMS_COUNT) &&
-                !Number.isNaN(teamNum)
+                !Number.isNaN(teamNum) &&
+                teamNum >= 1 &&
+                teamNum <= CONFIG.TEAMS_COUNT
             ) {
                 e.preventDefault();
                 setSelectedTeam(teamNum);
@@ -110,7 +110,7 @@ export default function TerminalView({
         >
             <TerminalHeader currentTime={currentTime} />
 
-            <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
+            <div className="mb-1 text-right">
                 <button
                     type="button"
                     onClick={onExitTerminal}
@@ -148,7 +148,7 @@ export default function TerminalView({
                 </button>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="mb-1">
                 <span className="terminal-text dim">Selected Team: </span>
                 <span className="terminal-text bold cyan">
                     Team {selectedTeam}
