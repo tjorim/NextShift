@@ -107,16 +107,39 @@ export default function TerminalTransfers({
             ),
         [selectedTeam],
     );
-    const [compareTeam, setCompareTeam] = useState(otherTeams[0] || 1);
+    const [compareTeam, setCompareTeam] = useState<number | null>(() => {
+        const firstOtherTeam = otherTeams[0];
+        return firstOtherTeam !== undefined ? firstOtherTeam : null;
+    });
 
     // Update compareTeam when otherTeams changes
     useEffect(() => {
-        setCompareTeam(otherTeams[0] || 1);
+        const firstOtherTeam = otherTeams[0];
+        setCompareTeam(firstOtherTeam !== undefined ? firstOtherTeam : null);
     }, [otherTeams]);
 
+    // Early return if no other teams are available
+    if (otherTeams.length === 0) {
+        return (
+            <div>
+                <div style={{ marginBottom: '1rem' }}>
+                    <span className="terminal-text bold cyan">
+                        Transfer Analysis
+                    </span>
+                </div>
+                <div className="terminal-box">
+                    <span className="terminal-text dim">
+                        No other teams available for transfer analysis.
+                    </span>
+                </div>
+            </div>
+        );
+    }
+
+    // At this point, compareTeam is guaranteed to be a number due to early return
     const transfers = calculateTransfers(
         selectedTeam,
-        compareTeam,
+        compareTeam as number,
         fromDate,
         10,
     );
