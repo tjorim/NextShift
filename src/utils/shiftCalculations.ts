@@ -244,10 +244,11 @@ export function getAllTeamsShifts(date: string | Date | Dayjs): ShiftResult[] {
 }
 
 /**
- * Calculates which day of an off period a team is currently on
- * @param date - The date to check
- * @param teamNumber - The team number
- * @returns Off-day progress information or null if team is working
+ * Determine which day of a team's off (break) period the provided date falls on.
+ *
+ * @param date - The date to evaluate
+ * @param teamNumber - The team number (1-based)
+ * @returns An `OffDayProgress` object with `current` and `total` (total is 4) if the team is currently on an off day; `null` if the team is working or `teamNumber` is out of range
  */
 export function getOffDayProgress(
     date: string | Date | Dayjs,
@@ -281,4 +282,33 @@ export function getOffDayProgress(
     }
 
     return dayCount > 0 ? { current: dayCount, total: 4 } : null;
+}
+
+/**
+ * Determine whether a shift is active at the given current time for the specified shift date.
+ *
+ * @param shift - Object with `code`, `start`, and `end` hour values; `start`/`end` are hours in 0–23 or `null` when not applicable
+ * @param date - The shift date to evaluate (the day the shift is assigned to)
+ * @param currentTime - The reference time used to decide activity; used to align to the shift's effective day
+ * @returns `true` if the shift is active at `currentTime` for `date`, `false` otherwise
+ */
+export function isCurrentlyWorking(
+    shift: { code: string; start: number | null; end: number | null },
+    date: Dayjs,
+    currentTime: Dayjs,
+): boolean {
+    // Explicitly check for null/undefined to handle midnight (0) as a valid start time
+    if (shift.start == null || shift.end == null) return false;
+
+    const shiftDay = getCurrentShiftDay(currentTime);
+    if (!shiftDay.isSame(date, 'day')) return false;
+
+    const hour = currentTime.hour();
+
+    // Detect shifts spanning midnight by comparing start/end hours (more robust than checking shift code)
+    if (shift.start > shift.end) {
+        return hour >= shift.start || hour < shift.end;
+    }
+
+    return hour >= shift.start && hour < shift.end;
 }

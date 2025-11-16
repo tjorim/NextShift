@@ -35,6 +35,13 @@ NextShift helps teams working in a 5-team rotating shift system to quickly check
 - **Responsive**: Mobile-first design with Bootstrap 5
 - **Fast**: Cached for instant loading
 
+### 🖥️ Terminal Web Interface
+- **Browser-Based Terminal**: Terminal-style UI that runs in your web browser
+- **Keyboard Navigation**: Efficient keyboard shortcuts (1-5, Tab, j/k, etc.)
+- **No Installation**: Access via URL parameter (`?view=terminal`)
+- **Retro Aesthetic**: Monospace fonts, terminal colors, command-line feel
+- **Mobile Accessible**: Works on any device (keyboard shortcuts optional)
+
 ## Shift Pattern
 
 Each team follows a 10-day repeating cycle:
@@ -108,6 +115,31 @@ The built files will be in the `dist/` directory, ready for deployment to any st
 - **Mobile**: Use "Add to Home Screen" from your browser menu
 - **Offline**: Once installed, the app works completely offline
 
+### Using the Terminal Web Interface
+
+Access the terminal-style interface in multiple ways:
+
+**Via Button:**
+- Click the "Terminal" button in the header to switch to terminal view
+- Click "[Exit Terminal]" button or press Escape/q to return to normal view
+
+**Via URL:**
+```bash
+# Production
+https://yourapp.com/?view=terminal
+
+# Local development
+http://localhost:8000/?view=terminal
+```
+
+**Keyboard Shortcuts:**
+- **1-5**: Select team (Team 1 through Team 5)
+- **↑/↓**: Switch between teams (up/down through vertical list)
+- **Tab**: Cycle through views (Today → Next Shift → Transfers)
+- **j/k** or **←/→**: Navigate dates (left=past, right=future)
+- **t**: Jump to today's date
+- **q** or **Esc**: Exit terminal view (return to normal UI)
+
 ## Configuration
 
 ### Environment Variables
@@ -154,10 +186,10 @@ npm run test         # Run test suite
 ## Technology Stack
 
 ### Core Framework
-- **Frontend**: React 18 + TypeScript
+- **Frontend**: React 19 + TypeScript
 - **Build Tool**: Vite with PWA plugin
 - **UI Framework**: React Bootstrap (Bootstrap 5 components)
-- **Styling**: CSS3 with Bootstrap 5 design system
+- **Styling**: CSS3 with Bootstrap 5 design system and custom terminal aesthetics
 
 ### Development Tools
 - **Linting**: Biome (fast, modern linter and formatter)

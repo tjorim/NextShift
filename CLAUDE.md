@@ -30,7 +30,13 @@ NextShift/
 │   │   ├── ShiftTimeline.tsx    # Today's shift timeline component (extracted from CurrentStatus)
 │   │   ├── TeamSelector.tsx     # Team selection modal
 │   │   ├── TodayView.tsx        # Today's schedule for all teams
-│   │   └── TransferView.tsx     # Team handover/transfer analysis
+│   │   ├── TransferView.tsx     # Team handover/transfer analysis
+│   │   └── terminal/            # Terminal web interface components
+│   │       ├── TerminalView.tsx        # Main terminal container
+│   │       ├── TerminalHeader.tsx      # Terminal header with live time
+│   │       ├── TerminalTeamList.tsx    # Team shift display
+│   │       ├── TerminalNextShift.tsx   # Next shift information
+│   │       └── TerminalTransfers.tsx   # Transfer analysis
 │   ├── contexts/          # React contexts for global state
 │   │   └── ToastContext.tsx        # Global toast notification system with React Context
 │   ├── data/              # Static data and configurations
@@ -50,7 +56,8 @@ NextShift/
 │   │   ├── shiftCalculations.ts # Core shift calculation functions
 │   │   └── shiftStyles.ts      # Shift styling utilities
 │   └── styles/
-│       └── main.css       # Custom styles and shift color coding
+│       ├── main.scss      # Custom styles and shift color coding (Sass)
+│       └── terminal.css   # Terminal web interface styles
 ├── tests/                 # Test files
 │   ├── components/        # Component tests
 │   ├── hooks/            # Hook tests
@@ -68,7 +75,7 @@ NextShift/
 ├── tsconfig.app.json      # TypeScript app configuration
 ├── tsconfig.node.json     # TypeScript Node.js configuration
 ├── tsconfig.test.json     # TypeScript test configuration
-└── dist/                  # Production build output
+└── dist/                  # Production build output (PWA)
     ├── sw.js             # Built service worker (Workbox)
     ├── manifest.webmanifest # Auto-generated PWA manifest
     └── assets/           # Built and optimized assets
@@ -139,6 +146,7 @@ These variables anchor all shift calculations. If not configured, defaults to `2
 - **Date Navigation**: Today button, date picker, previous/next day
 - **Date Format**: Display in YYWW.D format (e.g., 2520.2M = year 2025, week 20, Tuesday Morning)
 - **Offline Support**: Full PWA functionality without internet connection
+- **Terminal Web Interface**: Browser-based terminal-style UI with keyboard navigation (accessible via `?view=terminal`)
 
 ## Recent Improvements (v3.1+)
 
@@ -206,10 +214,59 @@ This PWA uses Vite for modern development and build processes:
    npm run generate-icons      # Generate all PWA and favicon icons
    ```
 
-5. **PWA Testing**: 
+5. **PWA Testing**:
    - Use development server for service worker testing
    - Test offline functionality with built version
    - Verify PWA installability in browser dev tools
+
+## Terminal Web Interface
+
+NextShift includes a terminal-styled web interface that provides all shift tracking functionality in a retro terminal aesthetic.
+
+### Features
+
+- **Browser-Based**: Runs in any web browser, no terminal needed
+- **Terminal Aesthetic**: Monospace fonts, terminal colors, retro styling
+- **Keyboard Navigation**: Full keyboard control for efficient operation
+- **Integrated**: No additional dependencies beyond the main app; uses custom CSS for styling
+- **Mobile Accessible**: Works on all devices (keyboard shortcuts optional)
+- **URL Parameter**: Access via `?view=terminal`
+
+### Access
+
+**Via UI Button:**
+- Click "Terminal" button in header to enter terminal view
+- Click "[Exit Terminal]" button or press Escape/q to exit
+
+**Via URL:**
+```bash
+# Production
+https://yourapp.com/?view=terminal
+
+# Development
+http://localhost:8000/?view=terminal
+```
+
+### Keyboard Shortcuts
+
+- **1-5**: Select team (Team 1 through Team 5)
+- **↑/↓**: Switch between teams (up/down through vertical list)
+- **Tab**: Cycle through views (Today → Next Shift → Transfers)
+- **j/k** or **←/→**: Navigate dates (left=past, right=future)
+- **t**: Jump to today's date
+- **q** or **Esc**: Exit terminal view (return to normal UI)
+
+### Implementation
+
+- **Location**: `src/components/terminal/`
+- **Styling**: `src/styles/terminal.css`
+- **Components**:
+  - `TerminalView.tsx` - Main container with keyboard navigation
+  - `TerminalHeader.tsx` - Header with live time
+  - `TerminalTeamList.tsx` - Team shift display
+  - `TerminalNextShift.tsx` - Next shift information
+  - `TerminalTransfers.tsx` - Transfer analysis
+- **Integration**: URL parameter `?view=terminal` in App.tsx
 
 ## PWA Configuration
 

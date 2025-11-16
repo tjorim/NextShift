@@ -22,14 +22,13 @@ interface TransferViewProps {
 }
 
 /**
- * React component that displays shift transfer events between the user's team and another team.
+ * Display transfer events between the user's team and a selected other team.
  *
- * Shows transfer information in a clean, table format with options to:
- * - Select which other team to view transfers with
- * - Optionally filter by custom date range
- * - Load more transfers with pagination
+ * Renders a card containing controls for choosing the other team, optionally filtering by a custom date range, and a paginated table of transfer records (or appropriate empty states).
  *
- * If no user team is selected or no transfers are found, appropriate messages are shown.
+ * @param inputMyTeam - The user's team number (1..CONFIG.TEAMS_COUNT) or `null`. If a numeric value is outside the valid range, it is treated as `null` and a console warning is emitted.
+ * @param initialOtherTeam - Optional team number to preselect as the "other" team when the component mounts.
+ * @returns The rendered TransferView element.
  */
 export function TransferView({
     myTeam: inputMyTeam,
@@ -120,6 +119,17 @@ export function TransferView({
                         ></i>
                         <p className="text-muted mb-0">
                             Please select your team to see transfer information.
+                        </p>
+                    </div>
+                ) : availableOtherTeams.length === 0 ? (
+                    <div className="text-center py-4">
+                        <i
+                            className="bi bi-people text-muted mb-3"
+                            style={{ fontSize: '2rem' }}
+                        ></i>
+                        <h6 className="text-muted">No Other Teams Available</h6>
+                        <p className="text-muted mb-0">
+                            No other teams available for transfer analysis.
                         </p>
                     </div>
                 ) : (

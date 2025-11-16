@@ -30,6 +30,7 @@ import {
     getOffDayProgress,
     getShiftByCode,
     getShiftCode,
+    isCurrentlyWorking,
 } from '../utils/shiftCalculations';
 import { ShiftTimeline } from './ShiftTimeline';
 
@@ -40,17 +41,15 @@ interface CurrentStatusProps {
 }
 
 /**
- * Renders the current and upcoming work shift details for the user's team, or generic shift information when no team is selected.
+ * Display the user's current and upcoming shift information, personalized when a team is selected.
  *
- * When a team is selected: Displays personalized shift status, countdown timers, and off-day progress.
- * When no team is selected: Shows which team is currently working and encourages team selection for personalization.
- * Provides controls to select/change teams and view who is currently working.
+ * Shows current shift status, next shift details and countdown, off-day progress, a timeline of the currently working team,
+ * and controls to select/change the team or view who is working.
  *
- * @param myTeam - The user's team number from onboarding, or null for generic view.
- * @param onChangeTeam - Callback invoked when the user requests to select/change the team.
- * @param onShowWhoIsWorking - Optional callback to show the current working members.
- *
- * @returns A React component displaying current status with team-specific or generic information.
+ * @param myTeam - The user's team number from onboarding, or `null` to show a generic view.
+ * @param onChangeTeam - Callback invoked when the user requests to select or change their team.
+ * @param onShowWhoIsWorking - Optional callback to show who is currently working; if not provided the control is disabled.
+ * @returns The Current Status UI as a React element (card with status, timeline, and next-shift information).
  */
 export function CurrentStatus({
     myTeam,
@@ -106,23 +105,12 @@ export function CurrentStatus({
     // biome-ignore lint/correctness/useExhaustiveDependencies: Using minute-based ISO string to limit recalculation to once per minute instead of every render
     const currentWorkingTeam = useMemo((): ShiftResult | null => {
         const allTeamsToday = getAllTeamsShifts(today);
-        const currentHour = today.hour();
+        const now = today;
 
         // Find team that is working right now based on current time
         const workingTeam = allTeamsToday.find((teamShift) => {
             if (!teamShift.shift.isWorking) return false;
-
-            const { start, end } = teamShift.shift;
-            if (start === null || end === null) return false;
-
-            // Handle night shift that crosses midnight
-            if (start > end) {
-                // Night shift: 23:00 to 07:00 (next day)
-                return currentHour >= start || currentHour < end;
-            } else {
-                // Day/Evening shift: normal range
-                return currentHour >= start && currentHour < end;
-            }
+            return isCurrentlyWorking(teamShift.shift, teamShift.date, now);
         });
 
         return workingTeam || null;

@@ -12,7 +12,7 @@ import {
     getLocalizedShiftTime,
 } from '../utils/dateTimeUtils';
 import type { ShiftResult } from '../utils/shiftCalculations';
-import { getShiftByCode } from '../utils/shiftCalculations';
+import { getShiftByCode, isCurrentlyWorking } from '../utils/shiftCalculations';
 
 interface TodayViewProps {
     todayShifts: ShiftResult[];
@@ -160,6 +160,15 @@ function TeamCard({
     );
 }
 
+/**
+ * Renders an overview card listing all teams scheduled for today with quick access to each team and a Today action.
+ *
+ * @param todayShifts - Array of shift results for today; each item represents a team's scheduled shift and metadata.
+ * @param myTeam - The current user's team number, or `null` if not applicable; used to highlight the user's team.
+ * @param onTodayClick - Click handler invoked when the "Today" button is pressed.
+ * @param onTeamClick - Optional click handler invoked with a team number when a team card is activated (click or keyboard).
+ * @returns The card containing a responsive grid of team cards for today's shifts.
+ */
 export function TodayView({
     todayShifts,
     myTeam,
@@ -168,27 +177,8 @@ export function TodayView({
 }: TodayViewProps) {
     const isCurrentlyActive = (shiftResult: ShiftResult) => {
         if (!shiftResult.shift.isWorking) return false;
-
         const now = dayjs();
-        const shiftDay = shiftResult.date;
-        const shiftStartHour = shiftResult.shift.start;
-        const shiftEndHour = shiftResult.shift.end;
-
-        if (shiftStartHour === null || shiftEndHour === null) return false;
-
-        // Check if this shift is for today (or yesterday for night shifts)
-        const isRightDay = shiftDay.isSame(now, 'day');
-        if (!isRightDay) return false;
-
-        const currentHour = now.hour();
-
-        // Handle night shift crossing midnight (23:00-07:00)
-        if (shiftStartHour > shiftEndHour) {
-            return currentHour >= shiftStartHour || currentHour < shiftEndHour;
-        }
-
-        // Handle regular shifts (morning and evening)
-        return currentHour >= shiftStartHour && currentHour < shiftEndHour;
+        return isCurrentlyWorking(shiftResult.shift, shiftResult.date, now);
     };
 
     return (

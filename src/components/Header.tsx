@@ -8,20 +8,29 @@ import { SettingsPanel } from './SettingsPanel';
 
 interface HeaderProps {
     onShowAbout?: () => void;
+    onToggleTerminal?: () => void;
 }
 
 /**
  * Displays the top navigation bar for the NextShift application.
  *
- * The header shows the app title, online/offline status, a PWA install button when available, and an About button. When the About button is clicked, it calls the onShowAbout callback prop.
+ * The header shows the app title, online/offline status, a PWA install button when available,
+ * and action buttons for Terminal view and About modal.
+ *
+ * @param onShowAbout - Optional callback invoked when the About button is clicked
+ * @param onToggleTerminal - Optional callback invoked when the Terminal button is clicked to toggle terminal view mode
  */
-export function Header({ onShowAbout }: HeaderProps = {}) {
+export function Header({ onShowAbout, onToggleTerminal }: HeaderProps = {}) {
     const isOnline = useOnlineStatus();
     const { isInstallable, promptInstall } = usePWAInstall();
     const [showSettings, setShowSettings] = useState(false);
 
     const handleShowAbout = () => {
         onShowAbout?.();
+    };
+
+    const handleToggleTerminal = () => {
+        onToggleTerminal?.();
     };
 
     return (
@@ -57,6 +66,18 @@ export function Header({ onShowAbout }: HeaderProps = {}) {
                                     </span>
                                 </Button>
                             )}
+                            <Button
+                                variant="outline-light"
+                                size="sm"
+                                onClick={handleToggleTerminal}
+                                aria-label="Terminal View"
+                                className="header-button"
+                            >
+                                <i className="bi bi-terminal"></i>
+                                <span className="d-none d-lg-inline ms-1">
+                                    Terminal
+                                </span>
+                            </Button>
                             <Button
                                 variant="outline-light"
                                 size="sm"

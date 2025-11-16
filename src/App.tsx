@@ -5,6 +5,7 @@ import { CurrentStatus } from './components/CurrentStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Header } from './components/Header';
 import { MainTabs } from './components/MainTabs';
+import TerminalView from './components/terminal/TerminalView';
 import { UpdateAvailableModal } from './components/UpdateAvailableModal';
 import { WelcomeWizard } from './components/WelcomeWizard';
 import {
@@ -15,6 +16,7 @@ import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useServiceWorkerStatus } from './hooks/useServiceWorkerStatus';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
+import { CONFIG } from './utils/config';
 import { dayjs } from './utils/dateTimeUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
@@ -23,6 +25,47 @@ import './styles/main.scss';
 // 2000ms provides sufficient time for the controllerchange event to fire
 // while preventing indefinite waiting if the event doesn't trigger
 const SERVICE_WORKER_UPDATE_TIMEOUT = 2000;
+
+/**
+ * Update the current browser URL to add or remove the terminal view query parameter.
+ *
+ * Updates the URL path to include `?view=terminal` when `enabled` is true, or removes the
+ * `view` query parameter when `enabled` is false. Uses the browser history API with the
+ * specified method to avoid a full page reload.
+ *
+ * @param enabled - If `true`, set `view=terminal` in the URL; if `false`, ensure the `view`
+ * parameter is removed.
+ * @param method - History update method to use: `'push'` to create a new history entry,
+ * `'replace'` to modify the current entry.
+ */
+function updateTerminalModeUrl(
+    enabled: boolean,
+    method: 'push' | 'replace' = 'push',
+) {
+    const newParams = new URLSearchParams();
+    if (enabled) {
+        newParams.set('view', 'terminal');
+    }
+    const newUrl = newParams.toString()
+        ? `${window.location.pathname}?${newParams.toString()}`
+        : window.location.pathname;
+
+    if (method === 'push') {
+        window.history.pushState({}, '', newUrl);
+    } else {
+        window.history.replaceState({}, '', newUrl);
+    }
+}
+
+/**
+ * Determine whether the current URL requests the terminal view.
+ *
+ * @returns `true` if the URL contains `view=terminal`, `false` otherwise.
+ */
+function isTerminalModeInUrl(): boolean {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('view') === 'terminal';
+}
 
 /**
  * The main application component for team selection and shift management.
@@ -39,6 +82,7 @@ function AppContent() {
     const [activeTab, setActiveTab] = useState('today');
     const [showAbout, setShowAbout] = useState(false);
     const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
+    const [terminalMode, setTerminalMode] = useState(false);
     const { showSuccess, showInfo } = useToast();
     const serviceWorkerStatus = useServiceWorkerStatus();
     const {
@@ -57,6 +101,12 @@ function AppContent() {
         const tabParam = urlParams.get('tab');
         const teamParam = urlParams.get('team');
         const dateParam = urlParams.get('date');
+        const viewParam = urlParams.get('view');
+
+        // Check for terminal mode
+        if (viewParam === 'terminal') {
+            setTerminalMode(true);
+        }
 
         // Set active tab from URL
         if (tabParam && ['today', 'schedule', 'transfer'].includes(tabParam)) {
@@ -66,7 +116,7 @@ function AppContent() {
         // Set team from URL (if valid and user has completed onboarding)
         if (teamParam && hasCompletedOnboarding) {
             const teamNumber = parseInt(teamParam, 10);
-            if (teamNumber >= 1 && teamNumber <= 5) {
+            if (teamNumber >= 1 && teamNumber <= CONFIG.TEAMS_COUNT) {
                 setMyTeam(teamNumber);
             }
         }
@@ -80,10 +130,22 @@ function AppContent() {
         }
 
         // Clear URL parameters after processing to keep URL clean
+        // But preserve the view parameter for terminal mode
         if (urlParams.toString()) {
-            window.history.replaceState({}, '', window.location.pathname);
+            updateTerminalModeUrl(viewParam === 'terminal', 'replace');
         }
     }, [hasCompletedOnboarding, setMyTeam, setCurrentDate]); // Run when onboarding completes
+
+    // Sync terminal mode with browser back/forward navigation
+    // This ensures the URL stays as the source of truth for terminal mode
+    useEffect(() => {
+        const handlePopState = () => {
+            setTerminalMode(isTerminalModeInUrl());
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
 
     // Show welcome wizard only on first visit (never completed onboarding)
     useEffect(() => {
@@ -238,11 +300,32 @@ function AppContent() {
         showInfo("Switched to Today view to see who's working", '👥');
     };
 
+    const handleToggleTerminal = () => {
+        const newTerminalMode = !terminalMode;
+        setTerminalMode(newTerminalMode);
+        updateTerminalModeUrl(newTerminalMode);
+    };
+
+    // Render terminal view if in terminal mode
+    if (terminalMode) {
+        return (
+            <ErrorBoundary>
+                <TerminalView
+                    initialTeam={myTeam || 1}
+                    onExitTerminal={handleToggleTerminal}
+                />
+            </ErrorBoundary>
+        );
+    }
+
     return (
         <ErrorBoundary>
             <div className="min-vh-100">
                 <Container fluid>
-                    <Header onShowAbout={() => setShowAbout(true)} />
+                    <Header
+                        onShowAbout={() => setShowAbout(true)}
+                        onToggleTerminal={handleToggleTerminal}
+                    />
                     <ErrorBoundary>
                         <CurrentStatus
                             myTeam={myTeam}
