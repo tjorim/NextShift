@@ -1,6 +1,7 @@
 import type { Dayjs } from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import type { TransferInfo } from '../../hooks/useTransferCalculations';
+import { CONFIG } from '../../utils/config';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
 import { calculateShift } from '../../utils/shiftCalculations';
 import { getShiftColor } from './terminalUtils';
@@ -99,15 +100,34 @@ export default function TerminalTransfers({
     selectedTeam,
     fromDate,
 }: TerminalTransfersProps) {
-    const otherTeams = [1, 2, 3, 4, 5].filter((t) => t !== selectedTeam);
-    const [compareTeam, setCompareTeam] = useState(otherTeams[0] || 1);
+    const otherTeams = useMemo(
+        () =>
+            Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1).filter(
+                (t) => t !== selectedTeam,
+            ),
+        [selectedTeam],
+    );
+    const compareTeam = otherTeams[0] ?? null;
 
-    // Update compareTeam when selectedTeam changes
-    useEffect(() => {
-        const newOtherTeams = [1, 2, 3, 4, 5].filter((t) => t !== selectedTeam);
-        setCompareTeam(newOtherTeams[0] || 1);
-    }, [selectedTeam]);
+    // Early return if no other teams are available
+    if (compareTeam === null) {
+        return (
+            <div>
+                <div style={{ marginBottom: '1rem' }}>
+                    <span className="terminal-text bold cyan">
+                        Transfer Analysis
+                    </span>
+                </div>
+                <div className="terminal-box">
+                    <span className="terminal-text dim">
+                        No other teams available for transfer analysis.
+                    </span>
+                </div>
+            </div>
+        );
+    }
 
+    // At this point, compareTeam is guaranteed to be a number due to the early return
     const transfers = calculateTransfers(
         selectedTeam,
         compareTeam,
