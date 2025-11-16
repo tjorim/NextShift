@@ -1,9 +1,6 @@
 import type { Dayjs } from 'dayjs';
-import { useMemo } from 'react';
-import type { TransferInfo } from '../../hooks/useTransferCalculations';
-import { CONFIG } from '../../utils/config';
+import { useTransferCalculations } from '../../hooks/useTransferCalculations';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
-import { calculateShift } from '../../utils/shiftCalculations';
 import { getShiftColor } from './terminalUtils';
 
 interface TerminalTransfersProps {
@@ -11,135 +8,21 @@ interface TerminalTransfersProps {
     fromDate: Dayjs;
 }
 
-function calculateTransfers(
-    myTeam: number,
-    otherTeam: number,
-    startDate: Dayjs,
-    limit: number = 10,
-): TransferInfo[] {
-    const transfers: TransferInfo[] = [];
-
-    for (let day = 0; day < 365 && transfers.length < limit; day++) {
-        const scanDate = startDate.add(day, 'day');
-        const nextDate = scanDate.add(1, 'day');
-
-        const myTeamShift = calculateShift(scanDate, myTeam);
-        const otherTeamShift = calculateShift(scanDate, otherTeam);
-        const myTeamNextShift = calculateShift(nextDate, myTeam);
-        const otherTeamNextShift = calculateShift(nextDate, otherTeam);
-
-        // Check for handovers (my team to other team)
-        if (myTeamShift.code === 'M' && otherTeamShift.code === 'E') {
-            transfers.push({
-                date: scanDate,
-                fromTeam: myTeam,
-                toTeam: otherTeam,
-                fromShiftType: 'M',
-                toShiftType: 'E',
-                type: 'handover',
-            });
-        }
-        if (myTeamShift.code === 'E' && otherTeamShift.code === 'N') {
-            transfers.push({
-                date: scanDate,
-                fromTeam: myTeam,
-                toTeam: otherTeam,
-                fromShiftType: 'E',
-                toShiftType: 'N',
-                type: 'handover',
-            });
-        }
-        if (myTeamShift.code === 'N' && otherTeamNextShift.code === 'M') {
-            transfers.push({
-                date: nextDate,
-                fromTeam: myTeam,
-                toTeam: otherTeam,
-                fromShiftType: 'N',
-                toShiftType: 'M',
-                type: 'handover',
-            });
-        }
-
-        // Check for takeovers (other team to my team)
-        if (otherTeamShift.code === 'M' && myTeamShift.code === 'E') {
-            transfers.push({
-                date: scanDate,
-                fromTeam: otherTeam,
-                toTeam: myTeam,
-                fromShiftType: 'M',
-                toShiftType: 'E',
-                type: 'takeover',
-            });
-        }
-        if (otherTeamShift.code === 'E' && myTeamShift.code === 'N') {
-            transfers.push({
-                date: scanDate,
-                fromTeam: otherTeam,
-                toTeam: myTeam,
-                fromShiftType: 'E',
-                toShiftType: 'N',
-                type: 'takeover',
-            });
-        }
-        if (otherTeamShift.code === 'N' && myTeamNextShift.code === 'M') {
-            transfers.push({
-                date: nextDate,
-                fromTeam: otherTeam,
-                toTeam: myTeam,
-                fromShiftType: 'N',
-                toShiftType: 'M',
-                type: 'takeover',
-            });
-        }
-    }
-
-    return transfers;
-}
-
 export default function TerminalTransfers({
     selectedTeam,
     fromDate,
 }: TerminalTransfersProps) {
-    const otherTeams = useMemo(
-        () =>
-            Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1).filter(
-                (t) => t !== selectedTeam,
-            ),
-        [selectedTeam],
-    );
-    const compareTeam = otherTeams[0] ?? null;
-
-    // Early return if no other teams are available
-    if (compareTeam === null) {
-        return (
-            <div>
-                <div style={{ marginBottom: '1rem' }}>
-                    <span className="terminal-text bold cyan">
-                        Transfer Analysis
-                    </span>
-                </div>
-                <div className="terminal-box">
-                    <span className="terminal-text dim">
-                        No other teams available for transfer analysis.
-                    </span>
-                </div>
-            </div>
-        );
-    }
-
-    // At this point, compareTeam is guaranteed to be a number due to the early return
-    const transfers = calculateTransfers(
-        selectedTeam,
-        compareTeam,
-        fromDate,
-        10,
-    );
+    const { transfers, otherTeam } = useTransferCalculations({
+        myTeam: selectedTeam,
+        limit: 10,
+        customStartDate: fromDate.format('YYYY-MM-DD'),
+    });
 
     return (
         <div>
             <div style={{ marginBottom: '1rem' }}>
                 <span className="terminal-text bold cyan">
-                    Transfer Analysis: Team {selectedTeam} ↔ Team {compareTeam}
+                    Transfer Analysis: Team {selectedTeam} ↔ Team {otherTeam}
                 </span>
             </div>
 
