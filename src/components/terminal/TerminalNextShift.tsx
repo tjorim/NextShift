@@ -23,6 +23,10 @@ export default function TerminalNextShift({
     const currentShiftColor = getShiftColor(currentShift.code);
     const currentEmoji = getShiftEmoji(currentShift.code);
 
+    // Hoist next shift display variables for better readability
+    const nextShiftColor = nextShift ? getShiftColor(nextShift.shift.code) : '';
+    const nextShiftEmoji = nextShift ? getShiftEmoji(nextShift.shift.code) : '';
+
     return (
         <div>
             <div style={{ marginBottom: '1rem' }}>
@@ -65,9 +69,9 @@ export default function TerminalNextShift({
                     </div>
                     <div className="terminal-info-row">
                         <span className="terminal-text">
-                            {getShiftEmoji(nextShift.shift.code)}{' '}
+                            {nextShiftEmoji}{' '}
                             <span
-                                className={`terminal-text bold ${getShiftColor(nextShift.shift.code)}`}
+                                className={`terminal-text bold ${nextShiftColor}`}
                             >
                                 {nextShift.shift.name}
                             </span>
@@ -88,7 +92,7 @@ export default function TerminalNextShift({
                     <div className="terminal-info-row">
                         <span className="terminal-text dim">Code: </span>
                         <span
-                            className={`terminal-text bold ${getShiftColor(nextShift.shift.code)}`}
+                            className={`terminal-text bold ${nextShiftColor}`}
                         >
                             {nextShift.code}
                         </span>

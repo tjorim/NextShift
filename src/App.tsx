@@ -16,6 +16,7 @@ import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { useServiceWorkerStatus } from './hooks/useServiceWorkerStatus';
 import { useShiftCalculation } from './hooks/useShiftCalculation';
+import { CONFIG } from './utils/config';
 import { dayjs } from './utils/dateTimeUtils';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/main.scss';
@@ -74,7 +75,7 @@ function AppContent() {
         // Set team from URL (if valid and user has completed onboarding)
         if (teamParam && hasCompletedOnboarding) {
             const teamNumber = parseInt(teamParam, 10);
-            if (teamNumber >= 1 && teamNumber <= 5) {
+            if (teamNumber >= 1 && teamNumber <= CONFIG.TEAMS_COUNT) {
                 setMyTeam(teamNumber);
             }
         }
