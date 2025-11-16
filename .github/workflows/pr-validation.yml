@@ -290,10 +290,32 @@ jobs:
 
             // Only comment on PR, don't create issues
             if (context.eventName === 'pull_request') {
-              await github.rest.issues.createComment({
+              // Find existing comment from this bot
+              const { data: comments } = await github.rest.issues.listComments({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: summary
               });
+
+              const botComment = comments.find(comment =>
+                comment.user.type === 'Bot' &&
+                comment.body.includes('🔍 PR Validation Summary')
+              );
+
+              // Update existing comment or create new one
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  comment_id: botComment.id,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: summary
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: summary
+                });
+              }
             }
