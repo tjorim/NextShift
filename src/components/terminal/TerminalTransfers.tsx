@@ -12,11 +12,12 @@ export default function TerminalTransfers({
     selectedTeam,
     fromDate,
 }: TerminalTransfersProps) {
-    const { transfers, otherTeam, availableOtherTeams } = useTransferCalculations({
-        myTeam: selectedTeam,
-        limit: 10,
-        customStartDate: fromDate.format('YYYY-MM-DD'),
-    });
+    const { transfers, otherTeam, availableOtherTeams } =
+        useTransferCalculations({
+            myTeam: selectedTeam,
+            limit: 10,
+            customStartDate: fromDate.format('YYYY-MM-DD'),
+        });
 
     if (availableOtherTeams.length === 0) {
         return (

@@ -128,9 +128,7 @@ export function TransferView({
                             className="bi bi-people text-muted mb-3"
                             style={{ fontSize: '2rem' }}
                         ></i>
-                        <h6 className="text-muted">
-                            No Other Teams Available
-                        </h6>
+                        <h6 className="text-muted">No Other Teams Available</h6>
                         <p className="text-muted mb-0">
                             No other teams available for transfer analysis.
                         </p>
