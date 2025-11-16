@@ -119,7 +119,7 @@ export default function TerminalTransfers({
     }, [otherTeams]);
 
     // Early return if no other teams are available
-    if (otherTeams.length === 0) {
+    if (otherTeams.length === 0 || compareTeam === null) {
         return (
             <div>
                 <div style={{ marginBottom: '1rem' }}>
@@ -136,10 +136,10 @@ export default function TerminalTransfers({
         );
     }
 
-    // At this point, compareTeam is guaranteed to be a number due to early return
+    // Now TypeScript knows compareTeam is a number, no assertion needed
     const transfers = calculateTransfers(
         selectedTeam,
-        compareTeam as number,
+        compareTeam,
         fromDate,
         10,
     );
