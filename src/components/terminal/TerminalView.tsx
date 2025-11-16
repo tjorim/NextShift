@@ -122,21 +122,30 @@ export default function TerminalView({
             </div>
 
             <div className="terminal-view-selector">
-                <span
+                <button
+                    type="button"
+                    onClick={() => setView('today')}
                     className={`view-item ${view === 'today' ? 'active' : ''}`}
+                    aria-pressed={view === 'today'}
                 >
                     [{view === 'today' ? '●' : '○'} Today]
-                </span>
-                <span
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setView('next-shift')}
                     className={`view-item ${view === 'next-shift' ? 'active' : ''}`}
+                    aria-pressed={view === 'next-shift'}
                 >
                     [{view === 'next-shift' ? '●' : '○'} Next Shift]
-                </span>
-                <span
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setView('transfers')}
                     className={`view-item ${view === 'transfers' ? 'active' : ''}`}
+                    aria-pressed={view === 'transfers'}
                 >
                     [{view === 'transfers' ? '●' : '○'} Transfers]
-                </span>
+                </button>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
