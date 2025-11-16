@@ -1,5 +1,5 @@
 import type { Dayjs } from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { TransferInfo } from '../../hooks/useTransferCalculations';
 import { CONFIG } from '../../utils/config';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
@@ -107,19 +107,10 @@ export default function TerminalTransfers({
             ),
         [selectedTeam],
     );
-    const [compareTeam, setCompareTeam] = useState<number | null>(() => {
-        const firstOtherTeam = otherTeams[0];
-        return firstOtherTeam !== undefined ? firstOtherTeam : null;
-    });
-
-    // Update compareTeam when otherTeams changes
-    useEffect(() => {
-        const firstOtherTeam = otherTeams[0];
-        setCompareTeam(firstOtherTeam !== undefined ? firstOtherTeam : null);
-    }, [otherTeams]);
+    const compareTeam = otherTeams[0] ?? null;
 
     // Early return if no other teams are available
-    if (otherTeams.length === 0 || compareTeam === null) {
+    if (compareTeam === null) {
         return (
             <div>
                 <div style={{ marginBottom: '1rem' }}>
@@ -136,7 +127,7 @@ export default function TerminalTransfers({
         );
     }
 
-    // Now TypeScript knows compareTeam is a number, no assertion needed
+    // At this point, compareTeam is guaranteed to be a number due to the early return
     const transfers = calculateTransfers(
         selectedTeam,
         compareTeam,
