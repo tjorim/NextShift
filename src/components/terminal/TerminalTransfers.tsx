@@ -1,5 +1,5 @@
 import type { Dayjs } from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { TransferInfo } from '../../hooks/useTransferCalculations';
 import { CONFIG } from '../../utils/config';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
@@ -100,20 +100,19 @@ export default function TerminalTransfers({
     selectedTeam,
     fromDate,
 }: TerminalTransfersProps) {
-    const otherTeams = Array.from(
-        { length: CONFIG.TEAMS_COUNT },
-        (_, i) => i + 1,
-    ).filter((t) => t !== selectedTeam);
+    const otherTeams = useMemo(
+        () =>
+            Array.from({ length: CONFIG.TEAMS_COUNT }, (_, i) => i + 1).filter(
+                (t) => t !== selectedTeam,
+            ),
+        [selectedTeam],
+    );
     const [compareTeam, setCompareTeam] = useState(otherTeams[0] || 1);
 
-    // Update compareTeam when selectedTeam changes
+    // Update compareTeam when otherTeams changes
     useEffect(() => {
-        const newOtherTeams = Array.from(
-            { length: CONFIG.TEAMS_COUNT },
-            (_, i) => i + 1,
-        ).filter((t) => t !== selectedTeam);
-        setCompareTeam(newOtherTeams[0] || 1);
-    }, [selectedTeam]);
+        setCompareTeam(otherTeams[0] || 1);
+    }, [otherTeams]);
 
     const transfers = calculateTransfers(
         selectedTeam,
