@@ -27,6 +27,39 @@ import './styles/main.scss';
 const SERVICE_WORKER_UPDATE_TIMEOUT = 2000;
 
 /**
+ * Helper function to update URL with terminal mode parameter
+ * @param enabled - Whether terminal mode is enabled
+ * @param method - History method to use ('push' or 'replace')
+ */
+function updateTerminalModeUrl(
+    enabled: boolean,
+    method: 'push' | 'replace' = 'push',
+) {
+    const newParams = new URLSearchParams();
+    if (enabled) {
+        newParams.set('view', 'terminal');
+    }
+    const newUrl = newParams.toString()
+        ? `${window.location.pathname}?${newParams.toString()}`
+        : window.location.pathname;
+
+    if (method === 'push') {
+        window.history.pushState({}, '', newUrl);
+    } else {
+        window.history.replaceState({}, '', newUrl);
+    }
+}
+
+/**
+ * Helper function to check if terminal mode is enabled in URL
+ * @returns True if view=terminal is in the URL
+ */
+function isTerminalModeInUrl(): boolean {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('view') === 'terminal';
+}
+
+/**
  * The main application component for team selection and shift management.
  *
  * Coordinates team selection, loading state, and tab navigation, and renders the primary UI for viewing and managing shift information.
@@ -91,14 +124,7 @@ function AppContent() {
         // Clear URL parameters after processing to keep URL clean
         // But preserve the view parameter for terminal mode
         if (urlParams.toString()) {
-            const newParams = new URLSearchParams();
-            if (viewParam === 'terminal') {
-                newParams.set('view', 'terminal');
-            }
-            const newUrl = newParams.toString()
-                ? `${window.location.pathname}?${newParams.toString()}`
-                : window.location.pathname;
-            window.history.replaceState({}, '', newUrl);
+            updateTerminalModeUrl(viewParam === 'terminal', 'replace');
         }
     }, [hasCompletedOnboarding, setMyTeam, setCurrentDate]); // Run when onboarding completes
 
@@ -106,8 +132,7 @@ function AppContent() {
     // This ensures the URL stays as the source of truth for terminal mode
     useEffect(() => {
         const handlePopState = () => {
-            const params = new URLSearchParams(window.location.search);
-            setTerminalMode(params.get('view') === 'terminal');
+            setTerminalMode(isTerminalModeInUrl());
         };
 
         window.addEventListener('popstate', handlePopState);
@@ -270,16 +295,7 @@ function AppContent() {
     const handleToggleTerminal = () => {
         const newTerminalMode = !terminalMode;
         setTerminalMode(newTerminalMode);
-
-        // Update URL to reflect terminal mode
-        const newParams = new URLSearchParams();
-        if (newTerminalMode) {
-            newParams.set('view', 'terminal');
-        }
-        const newUrl = newParams.toString()
-            ? `${window.location.pathname}?${newParams.toString()}`
-            : window.location.pathname;
-        window.history.pushState({}, '', newUrl);
+        updateTerminalModeUrl(newTerminalMode);
     };
 
     // Render terminal view if in terminal mode
@@ -289,10 +305,6 @@ function AppContent() {
                 <TerminalView
                     initialTeam={myTeam || 1}
                     onExitTerminal={handleToggleTerminal}
-                />
-                <AboutModal
-                    show={showAbout}
-                    onHide={() => setShowAbout(false)}
                 />
             </ErrorBoundary>
         );
