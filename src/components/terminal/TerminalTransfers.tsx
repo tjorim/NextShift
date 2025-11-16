@@ -1,6 +1,7 @@
 import type { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 import type { TransferInfo } from '../../hooks/useTransferCalculations';
+import { CONFIG } from '../../utils/config';
 import { formatYYWWD } from '../../utils/dateTimeUtils';
 import { calculateShift } from '../../utils/shiftCalculations';
 import { getShiftColor } from './terminalUtils';
@@ -99,12 +100,18 @@ export default function TerminalTransfers({
     selectedTeam,
     fromDate,
 }: TerminalTransfersProps) {
-    const otherTeams = [1, 2, 3, 4, 5].filter((t) => t !== selectedTeam);
+    const otherTeams = Array.from(
+        { length: CONFIG.TEAMS_COUNT },
+        (_, i) => i + 1,
+    ).filter((t) => t !== selectedTeam);
     const [compareTeam, setCompareTeam] = useState(otherTeams[0] || 1);
 
     // Update compareTeam when selectedTeam changes
     useEffect(() => {
-        const newOtherTeams = [1, 2, 3, 4, 5].filter((t) => t !== selectedTeam);
+        const newOtherTeams = Array.from(
+            { length: CONFIG.TEAMS_COUNT },
+            (_, i) => i + 1,
+        ).filter((t) => t !== selectedTeam);
         setCompareTeam(newOtherTeams[0] || 1);
     }, [selectedTeam]);
 
