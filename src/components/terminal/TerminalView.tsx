@@ -15,6 +15,13 @@ interface TerminalViewProps {
     onExitTerminal?: () => void;
 }
 
+/**
+ * Render a keyboard-driven terminal-style dashboard for viewing team shifts, next-shift info, and transfers.
+ *
+ * @param initialTeam - Initial selected team index (1-based)
+ * @param onExitTerminal - Optional callback invoked when the user requests to exit the terminal (Escape, `q`, or the Exit button)
+ * @returns The rendered terminal view element
+ */
 export default function TerminalView({
     initialTeam = 1,
     onExitTerminal,

@@ -27,9 +27,16 @@ import './styles/main.scss';
 const SERVICE_WORKER_UPDATE_TIMEOUT = 2000;
 
 /**
- * Helper function to update URL with terminal mode parameter
- * @param enabled - Whether terminal mode is enabled
- * @param method - History method to use ('push' or 'replace')
+ * Update the current browser URL to add or remove the terminal view query parameter.
+ *
+ * Updates the URL path to include `?view=terminal` when `enabled` is true, or removes the
+ * `view` query parameter when `enabled` is false. Uses the browser history API with the
+ * specified method to avoid a full page reload.
+ *
+ * @param enabled - If `true`, set `view=terminal` in the URL; if `false`, ensure the `view`
+ * parameter is removed.
+ * @param method - History update method to use: `'push'` to create a new history entry,
+ * `'replace'` to modify the current entry.
  */
 function updateTerminalModeUrl(
     enabled: boolean,
@@ -51,8 +58,9 @@ function updateTerminalModeUrl(
 }
 
 /**
- * Helper function to check if terminal mode is enabled in URL
- * @returns True if view=terminal is in the URL
+ * Determine whether the current URL requests the terminal view.
+ *
+ * @returns `true` if the URL contains `view=terminal`, `false` otherwise.
  */
 function isTerminalModeInUrl(): boolean {
     const params = new URLSearchParams(window.location.search);

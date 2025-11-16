@@ -8,6 +8,15 @@ interface TerminalTransfersProps {
     fromDate: Dayjs;
 }
 
+/**
+ * Render a terminal-style view of upcoming transfers between the selected team and another available team.
+ *
+ * Renders a header showing the pair of teams and a terminal box containing either a message when no transfers or a list of upcoming transfers. Each transfer entry displays the formatted date, a YYWWD date code, whether it is a Handover or Takeover, and colored shift labels with a directional arrow.
+ *
+ * @param selectedTeam - The team ID for which transfer analysis is performed.
+ * @param fromDate - The inclusive start date used to fetch transfers.
+ * @returns The rendered transfer analysis UI as a React element.
+ */
 export default function TerminalTransfers({
     selectedTeam,
     fromDate,
