@@ -238,6 +238,14 @@ export const changelogData: ChangelogVersion[] = [
 
 export const futurePlans = {
     'v3.5.0': {
+        title: 'Interactive Features Phase 2',
+        features: [
+            'Enhanced data presentation',
+            'Advanced navigation options',
+            'Calendar integration features',
+        ],
+    },
+    'v3.6.0': {
         title: 'Mobile & Advanced UX Phase 3',
         features: [
             'Mobile carousel for team browsing',

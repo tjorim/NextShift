@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - Future Enhancements
 
 ### Planned
+- Enhanced data presentation
+- Advanced navigation options
+- Calendar integration features
 - Mobile carousel for team browsing
 - Advanced accessibility features
 - Floating action buttons
@@ -207,7 +210,12 @@ Built with React 19 with TypeScript, Vite build system with PWA plugin, Day.js f
 
 ## Version Planning
 
-### v3.5.0 - Mobile & Advanced UX Phase 3
+### v3.5.0 - Interactive Features Phase 2
+- Enhanced data presentation
+- Advanced navigation options
+- Calendar integration features
+
+### v3.6.0 - Mobile & Advanced UX Phase 3
 - Mobile carousel for team browsing
 - Advanced accessibility features
 - Floating action buttons
