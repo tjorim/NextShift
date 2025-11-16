@@ -247,75 +247,45 @@ jobs:
             echo "✅ No obvious security issues detected"
           fi
 
-      - name: PR Summary
-        uses: actions/github-script@v8
+      - name: Build PR summary
+        id: build-summary
+        run: |
+          {
+            echo 'COMMENT_BODY<<EOF'
+            echo "## 🔍 PR Validation Summary"
+            echo ""
+            echo "### 📝 Changes Detected:"
+            [ "$CORE_CHANGES" = "true" ] && echo "- 🔧 Core application changes"
+            [ "$CONFIG_CHANGES" = "true" ] && echo "- ⚙️ Build configuration changes"
+            [ "$WORKFLOW_CHANGES" = "true" ] && echo "- 🔄 Workflow changes"
+            [ "$DOC_CHANGES" = "true" ] && echo "- 📚 Documentation changes"
+            echo ""
+            echo "### ✅ Validation Results:"
+            if [ "$CORE_CHANGES" = "true" ]; then
+              echo "- ✅ Code quality checks passed (Biome)"
+              echo "- ✅ Tests passed (Vitest)"
+              echo "- ✅ Critical functions verified"
+            fi
+            if [ "$CONFIG_CHANGES" = "true" ]; then
+              echo "- ✅ Build configuration validated"
+              echo "- ✅ Auto-generated manifest valid"
+            fi
+            if [ "$CORE_CHANGES" = "true" ]; then
+              echo "- ✅ Security scan completed"
+              echo "- ✅ Performance impact analyzed"
+            fi
+            echo ""
+            echo "### 🚀 Ready for Review"
+            if [ "$CORE_CHANGES" = "true" ] || [ "$CONFIG_CHANGES" = "true" ]; then
+              echo "All automated checks passed! This PR is ready for manual review."
+            else
+              echo "No code changes detected. This PR primarily contains documentation or workflow updates and is ready for manual review."
+            fi
+            echo 'EOF'
+          } >> $GITHUB_ENV
+
+      - name: Comment PR with summary
+        uses: ./.github/actions/upsert-comment
         with:
-          script: |
-            const { CORE_CHANGES, CONFIG_CHANGES, WORKFLOW_CHANGES, DOC_CHANGES } = process.env;
-
-            let summary = "## 🔍 PR Validation Summary\n\n";
-
-            // Change analysis
-            summary += "### 📝 Changes Detected:\n";
-            if (CORE_CHANGES === 'true') summary += "- 🔧 Core application changes\n";
-            if (CONFIG_CHANGES === 'true') summary += "- ⚙️ Build configuration changes\n";
-            if (WORKFLOW_CHANGES === 'true') summary += "- 🔄 Workflow changes\n";
-            if (DOC_CHANGES === 'true') summary += "- 📚 Documentation changes\n";
-
-            summary += "\n### ✅ Validation Results:\n";
-
-            if (CORE_CHANGES === 'true') {
-              summary += "- ✅ Code quality checks passed (Biome)\n";
-              summary += "- ✅ Tests passed (Vitest)\n";
-              summary += "- ✅ Critical functions verified\n";
-            }
-
-            if (CONFIG_CHANGES === 'true') {
-              summary += "- ✅ Build configuration validated\n";
-              summary += "- ✅ Auto-generated manifest valid\n";
-            }
-
-            if (CORE_CHANGES === 'true') {
-              summary += "- ✅ Security scan completed\n";
-              summary += "- ✅ Performance impact analyzed\n";
-            }
-
-            summary += "\n### 🚀 Ready for Review\n";
-
-            if (CORE_CHANGES === 'true' || CONFIG_CHANGES === 'true') {
-              summary += "All automated checks passed! This PR is ready for manual review.\n";
-            } else {
-              summary += "No code changes detected. This PR primarily contains documentation or workflow updates and is ready for manual review.\n";
-            }
-
-            // Only comment on PR, don't create issues
-            if (context.eventName === 'pull_request') {
-              // Find existing comment from this bot
-              const { data: comments } = await github.rest.issues.listComments({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-
-              const botComment = comments.find(comment =>
-                comment.user.type === 'Bot' &&
-                comment.body.includes('🔍 PR Validation Summary')
-              );
-
-              // Update existing comment or create new one
-              if (botComment) {
-                await github.rest.issues.updateComment({
-                  comment_id: botComment.id,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: summary
-                });
-              } else {
-                await github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: summary
-                });
-              }
-            }
+          comment-identifier: '🔍 PR Validation Summary'
+          comment-body: ${{ env.COMMENT_BODY }}

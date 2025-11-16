@@ -151,52 +151,31 @@ jobs:
           [ -f "src/components/WelcomeWizard.tsx" ] && echo "✅ WelcomeWizard component found" || { echo "❌ WelcomeWizard component missing"; exit 1; }
           echo "✅ React app structure validated"
 
+      - name: Build comment body
+        if: github.event_name == 'pull_request'
+        id: build-comment
+        run: |
+          {
+            echo 'COMMENT_BODY<<EOF'
+            echo "## 🚀 PWA Validation Results"
+            echo ""
+            echo "✅ All PWA requirements met"
+            echo "✅ Code quality checks passed (Biome)"
+            echo "✅ Tests passed (Vitest)"
+            echo "✅ Build successful (Vite)"
+            echo "✅ Auto-generated manifest valid"
+            echo "✅ Required icons present"
+            echo "✅ Core shift functions present"
+            echo ""
+            echo "📊 **Bundle Size:** ${BUNDLE_SIZE}"
+            echo ""
+            echo "Ready for deployment! 🎉"
+            echo 'EOF'
+          } >> $GITHUB_ENV
+
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: ./.github/actions/upsert-comment
         with:
-          script: |
-            const bundleSize = process.env.BUNDLE_SIZE;
-
-            const comment = `## 🚀 PWA Validation Results
-
-            ✅ All PWA requirements met
-            ✅ Code quality checks passed (Biome)
-            ✅ Tests passed (Vitest)
-            ✅ Build successful (Vite)
-            ✅ Auto-generated manifest valid
-            ✅ Required icons present
-            ✅ Core shift functions present
-
-            📊 **Bundle Size:** ${bundleSize}
-
-            Ready for deployment! 🎉`;
-
-            // Find existing comment from this bot
-            const { data: comments } = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('🚀 PWA Validation Results')
-            );
-
-            // Update existing comment or create new one
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                comment_id: botComment.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            } else {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            }
+          comment-identifier: '🚀 PWA Validation Results'
+          comment-body: ${{ env.COMMENT_BODY }}
