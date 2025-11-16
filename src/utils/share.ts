@@ -119,7 +119,7 @@ export function shareTeamSchedule(
 ) {
     const queryParams: Record<string, string> = {
         tab: 'schedule',
-        team: teamNumber.toString(),
+        team: String(teamNumber),
     };
 
     if (date) {
@@ -162,6 +162,6 @@ export function shareTransferView(
         `Team ${teamNumber} transfer schedule`,
         onSuccess,
         onError,
-        { tab: 'transfer', team: teamNumber.toString() },
+        { tab: 'transfer', team: String(teamNumber) },
     );
 }
