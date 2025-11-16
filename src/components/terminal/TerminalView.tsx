@@ -103,7 +103,11 @@ export default function TerminalView({
     }, [onExitTerminal]);
 
     return (
-        <div className="terminal-view">
+        <div
+            className="terminal-view"
+            role="application"
+            aria-label="Terminal interface for shift tracking"
+        >
             <TerminalHeader currentTime={currentTime} />
 
             <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
