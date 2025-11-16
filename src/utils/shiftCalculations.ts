@@ -244,10 +244,11 @@ export function getAllTeamsShifts(date: string | Date | Dayjs): ShiftResult[] {
 }
 
 /**
- * Calculates which day of an off period a team is currently on
- * @param date - The date to check
- * @param teamNumber - The team number
- * @returns Off-day progress information or null if team is working
+ * Determine which day of a team's off (break) period the provided date falls on.
+ *
+ * @param date - The date to evaluate
+ * @param teamNumber - The team number (1-based)
+ * @returns An `OffDayProgress` object with `current` and `total` (total is 4) if the team is currently on an off day; `null` if the team is working or `teamNumber` is out of range
  */
 export function getOffDayProgress(
     date: string | Date | Dayjs,
@@ -284,11 +285,12 @@ export function getOffDayProgress(
 }
 
 /**
- * Determines if a team is currently working based on shift times and current time
- * @param shift - The shift object with code, start, and end times
- * @param date - The shift date being checked
- * @param currentTime - The current time to check against
- * @returns True if the team is currently working, false otherwise
+ * Determine whether a shift is active at the given current time for the specified shift date.
+ *
+ * @param shift - Object with `code`, `start`, and `end` hour values; `start`/`end` are hours in 0–23 or `null` when not applicable
+ * @param date - The shift date to evaluate (the day the shift is assigned to)
+ * @param currentTime - The reference time used to decide activity; used to align to the shift's effective day
+ * @returns `true` if the shift is active at `currentTime` for `date`, `false` otherwise
  */
 export function isCurrentlyWorking(
     shift: { code: string; start: number | null; end: number | null },

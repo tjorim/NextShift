@@ -12,6 +12,13 @@ interface TerminalNextShiftProps {
     fromDate: Dayjs;
 }
 
+/**
+ * Render a terminal-style view showing the current shift and the next scheduled working shift for a team.
+ *
+ * @param selectedTeam - Team identifier used to look up shifts
+ * @param fromDate - Reference date used to compute current and next shifts
+ * @returns The React element containing current shift details and either the next shift information or an error message when no upcoming shift is found
+ */
 export default function TerminalNextShift({
     selectedTeam,
     fromDate,

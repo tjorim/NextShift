@@ -12,6 +12,19 @@ interface TerminalTeamListProps {
     currentTime: Dayjs;
 }
 
+/**
+ * Render a terminal-style list of all team shifts for a given date.
+ *
+ * Displays a header with the formatted date and date code, then one row per team
+ * showing team number, shift emoji and name, shift hours, shift code, and a
+ * "← WORKING NOW" indicator when the team is currently working. The selected
+ * team is visually highlighted.
+ *
+ * @param date - The Dayjs date for which to display team shifts
+ * @param selectedTeam - The team number that should be shown as selected
+ * @param currentTime - The current Dayjs time used to determine whether a shift is active
+ * @returns The JSX element rendering the terminal-style team shift list
+ */
 export default function TerminalTeamList({
     date,
     selectedTeam,
