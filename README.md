@@ -124,7 +124,7 @@ Access the terminal-style interface in multiple ways:
 - Click "[Exit Terminal]" button or press Escape/q to return to normal view
 
 **Via URL:**
-```
+```bash
 # Production
 https://yourapp.com/?view=terminal
 
