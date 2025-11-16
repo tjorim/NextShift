@@ -285,7 +285,7 @@ jobs:
           } >> $GITHUB_ENV
 
       - name: Comment PR with summary
-        uses: ./.github/actions/upsert-comment
+        uses: ./.github/actions/upsert-comment  # Uses reusable composite action with pagination & hidden identifiers
         with:
           comment-identifier: '🔍 PR Validation Summary'
           comment-body: ${{ env.COMMENT_BODY }}

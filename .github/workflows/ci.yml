@@ -175,7 +175,7 @@ jobs:
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/upsert-comment
+        uses: ./.github/actions/upsert-comment  # Uses reusable composite action with pagination & hidden identifiers
         with:
           comment-identifier: '🚀 PWA Validation Results'
           comment-body: ${{ env.COMMENT_BODY }}
