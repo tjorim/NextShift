@@ -57,7 +57,7 @@
         "typescript": "^5.9.3",
         "vite": "^7.1.12",
         "vite-plugin-pwa": "^1.1.0",
-        "vitest": "^4.0.9"
+        "vitest": "^4.0.13"
     },
     "engines": {
         "node": ">=20.19.0"
