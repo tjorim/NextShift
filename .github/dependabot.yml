@@ -5,10 +5,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      day: "saturday"
+      time: "08:00"
       timezone: "Etc/UTC"
-    open-pull-requests-limit: 5
     assignees:
       - "tjorim"
     commit-message:
@@ -18,16 +17,48 @@ updates:
       - "dependencies"
       - "npm"
     versioning-strategy: "increase"
+    groups:
+      # Group React ecosystem updates
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-bootstrap"
+      # Group TypeScript type definitions
+      typescript-types:
+        patterns:
+          - "@types/*"
+      # Group testing libraries
+      testing:
+        patterns:
+          - "@testing-library/*"
+          - "@vitest/*"
+          - "vitest"
+          - "happy-dom"
+      # Group Vite ecosystem
+      vite:
+        patterns:
+          - "vite"
+          - "vite-plugin-*"
+          - "@vitejs/*"
+      # Group build and dev tools
+      dev-tools:
+        patterns:
+          - "@biomejs/biome"
+          - "typescript"
+          - "tsx"
+          - "terser"
+          - "lightningcss"
+          - "rollup-plugin-*"
 
   # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      day: "saturday"
+      time: "08:00"
       timezone: "Etc/UTC"
-    open-pull-requests-limit: 3
     assignees:
       - "tjorim"
     commit-message:
