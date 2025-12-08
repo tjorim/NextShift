@@ -5,8 +5,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "saturday"
-      time: "08:00"
+      day: "friday"
+      time: "18:00"
       timezone: "Etc/UTC"
     assignees:
       - "tjorim"
@@ -18,46 +18,38 @@ updates:
       - "npm"
     versioning-strategy: "increase"
     groups:
-      # Group React ecosystem updates
+      # Group React core with its types (tightly coupled)
       react:
         patterns:
           - "react"
           - "react-dom"
-          - "react-bootstrap"
-      # Group TypeScript type definitions
-      typescript-types:
+          - "@types/react"
+          - "@types/react-dom"
+      # Group React Bootstrap with Bootstrap (UI framework)
+      bootstrap:
         patterns:
-          - "@types/*"
-      # Group testing libraries
+          - "bootstrap"
+          - "bootstrap-icons"
+          - "react-bootstrap"
+      # Group Vite with its React plugin (build tool + framework plugin)
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/plugin-react"
+      # Group testing tools together (all dev dependencies)
       testing:
         patterns:
           - "@testing-library/*"
           - "@vitest/*"
           - "vitest"
-          - "happy-dom"
-      # Group Vite ecosystem
-      vite:
-        patterns:
-          - "vite"
-          - "vite-plugin-*"
-          - "@vitejs/*"
-      # Group build and dev tools
-      dev-tools:
-        patterns:
-          - "@biomejs/biome"
-          - "typescript"
-          - "tsx"
-          - "terser"
-          - "lightningcss"
-          - "rollup-plugin-*"
 
   # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "saturday"
-      time: "08:00"
+      day: "friday"
+      time: "18:00"
       timezone: "Etc/UTC"
     assignees:
       - "tjorim"
