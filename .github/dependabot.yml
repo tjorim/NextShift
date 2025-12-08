@@ -5,10 +5,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      day: "friday"
+      time: "18:00"
       timezone: "Etc/UTC"
-    open-pull-requests-limit: 5
     assignees:
       - "tjorim"
     commit-message:
@@ -18,16 +17,40 @@ updates:
       - "dependencies"
       - "npm"
     versioning-strategy: "increase"
+    groups:
+      # Group React core with its types (tightly coupled)
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      # Group React Bootstrap with Bootstrap (UI framework)
+      bootstrap:
+        patterns:
+          - "bootstrap"
+          - "bootstrap-icons"
+          - "react-bootstrap"
+      # Group Vite with its React plugin (build tool + framework plugin)
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/plugin-react"
+      # Group testing tools together (all dev dependencies)
+      testing:
+        patterns:
+          - "@testing-library/*"
+          - "@vitest/*"
+          - "vitest"
 
   # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      day: "friday"
+      time: "18:00"
       timezone: "Etc/UTC"
-    open-pull-requests-limit: 3
     assignees:
       - "tjorim"
     commit-message:
