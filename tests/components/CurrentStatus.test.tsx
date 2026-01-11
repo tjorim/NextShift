@@ -30,8 +30,7 @@ vi.mock('../../src/hooks/useLiveTime', () => ({
 }));
 
 vi.mock('../../src/utils/dateTimeUtils', async (importOriginal) => {
-    const actual =
-        await importOriginal<typeof import('../../src/utils/dateTimeUtils')>();
+    const actual = await importOriginal();
     return {
         ...actual,
         dayjs: vi.fn(() => ({

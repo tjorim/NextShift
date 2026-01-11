@@ -168,7 +168,7 @@ describe('Date Time Utils', () => {
         it('should maintain consistency across week boundaries', () => {
             // Test a full week to ensure consistency
             const monday = new Date('2025-05-12');
-            const weekDays: string[] = [];
+            const weekDays = [];
 
             for (let i = 0; i < 7; i++) {
                 const day = dayjs(monday).add(i, 'day');
