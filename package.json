@@ -48,7 +48,7 @@
         "@vitejs/plugin-react": "^5.1.2",
         "@vitest/ui": "^4.0.18",
         "canvas": "^3.2.1",
-        "happy-dom": "^20.3.1",
+        "happy-dom": "^20.3.7",
         "lightningcss": "^1.31.1",
         "rollup-plugin-visualizer": "^6.0.5",
         "sass": "^1.97.2",
