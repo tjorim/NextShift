@@ -1,8 +1,0 @@
-blank_issues_enabled: true
-contact_links:
-  - name: 📖 Documentation
-    url: https://github.com/tjorim/NextShift#readme
-    about: Read the README for setup guides and feature documentation
-  - name: 🔍 Browse Existing Issues
-    url: https://github.com/tjorim/NextShift/issues
-    about: Check if your question or issue has already been reported
